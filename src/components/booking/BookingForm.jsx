@@ -18,7 +18,7 @@ const languages = [
   { value: 'ar', flag: '🇪🇬', labelKey: 'languages.arabic', fallback: 'Arabic' },
 ];
 
-const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => {
+const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoice }) => {
   const { t } = useTranslation();
   const [tab, setTab] = useState('booking');
   const [status, setStatus] = useState('idle');
@@ -28,6 +28,9 @@ const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => 
   const [bookingResult, setBookingResult] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
   const [error, setError] = useState('');
+  const [pricePreview, setPricePreview] = useState(null);
+  const [promoCode, setPromoCode] = useState('');
+  const [promoMessage, setPromoMessage] = useState('');
   const langRef = useRef(null);
   const activityRef = useRef(null);
 
@@ -65,6 +68,32 @@ const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => 
     ...Array.from({ length: b.infants }, (_, i) => ({ type: 'Infant', num: i + 1, key: `infant_${i}` })),
   ];
 
+  useEffect(() => {
+    if (!tourId || tab !== 'booking') return;
+    const fetchPrice = async () => {
+      try {
+        const res = await fetch(`${API}/bookings/calculate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tourId, adults: b.adults, children: b.children, promoCode })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setPricePreview(data);
+          if (promoCode && data.promoMessage) {
+            setPromoMessage(data.promoMessage);
+          } else {
+            setPromoMessage('');
+          }
+        }
+      } catch (err) {
+        // ignore
+      }
+    };
+    const debounce = setTimeout(fetchPrice, 500);
+    return () => clearTimeout(debounce);
+  }, [tourId, b.adults, b.children, promoCode, tab]);
+
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -79,6 +108,7 @@ const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => 
     try {
       const payload = {
         type: 'booking',
+        tourId,
         tourTitle,
         transportChoice: transportChoice || '',
         arrivalDate: b.arrivalDate,
@@ -100,6 +130,7 @@ const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => 
         address: b.address,
         city: b.city,
         country: b.country,
+        promoCode,
         notes: b.notes
       };
       const res = await fetch(`${API}/bookings`, {
@@ -109,6 +140,24 @@ const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => 
       });
       if (!res.ok) throw new Error('Failed to submit booking');
       const data = await res.json();
+      
+      if (data.id) {
+        try {
+          const payRes = await fetch(`${API}/payments/initiate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bookingId: data.id })
+          });
+          const payData = await payRes.json();
+          if (payData.session?.url) {
+            window.location.href = payData.session.url;
+            return;
+          }
+        } catch (payErr) {
+          console.error("Payment initiation failed", payErr);
+        }
+      }
+
       setBookingResult(data);
       setStatus('success');
     } catch (err) {
@@ -123,22 +172,21 @@ const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => 
     setStatus('submitting');
     try {
       const payload = {
-        type: 'inquiry',
         tourTitle,
         fullName: inq.name,
         email: inq.email,
         phone: inq.phone,
         language: inq.language,
-        inquiryMessage: inq.message
+        message: inq.message
       };
-      const res = await fetch(`${API}/bookings`, {
+      const res = await fetch(`${API}/inquiries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error('Failed to submit inquiry');
       const data = await res.json();
-      setBookingResult(data);
+      setBookingResult({ ...data, type: 'inquiry' });
       setStatus('success');
     } catch (err) {
       setError(err.message);
@@ -358,6 +406,30 @@ const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => 
                     <p className="text-body-sm text-red-400 font-semibold">
                       {t('booking.transportRequired', 'Please select a transport option (High-Speed Train or Bus) before booking.')}
                     </p>
+                  </div>
+                )}
+
+                <div className="bg-[rgba(201,162,39,0.08)] border border-[rgba(201,162,39,0.15)] rounded-xl p-3">
+                  <label className={labelClass}>{t('booking.promoCode', 'Promo Code')}</label>
+                  <div className="flex gap-2">
+                    <input type="text" placeholder="Promo code..." value={promoCode} onChange={(e) => setPromoCode(e.target.value.toUpperCase())} className={inputClass} />
+                  </div>
+                  {promoMessage && (
+                    <p className={`text-[11px] mt-1 font-semibold ${pricePreview?.promoValid ? 'text-sage-400' : 'text-red-400'}`}>
+                      {promoMessage}
+                    </p>
+                  )}
+                </div>
+
+                {pricePreview && (
+                  <div className="bg-[rgba(255,252,247,0.02)] border border-[rgba(201,162,39,0.15)] rounded-xl p-4">
+                    <p className="text-caption text-ivory-400 text-xs mb-1 uppercase tracking-widest">{t('booking.totalPrice', 'Total Estimated Price')}</p>
+                    <p className="text-display-sm text-gold-500 font-display">${pricePreview.totalAmountUsd}</p>
+                    {pricePreview.promoValid && (
+                      <p className="text-[11px] text-sage-400 mt-1 line-through opacity-70">
+                        ${parseFloat(pricePreview.totalAmountUsd) + parseFloat(pricePreview.discountAmountUsd)}
+                      </p>
+                    )}
                   </div>
                 )}
 

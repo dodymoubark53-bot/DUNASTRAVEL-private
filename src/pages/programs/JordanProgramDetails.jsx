@@ -226,7 +226,7 @@ const JordanProgramDetails = () => {
           {/* Sidebar - Booking Form */}
           <div className="lg:col-span-1">
             <div>
-              <BookingForm tourTitle={title} />
+              <BookingForm tourId={program.id} tourTitle={title} />
             </div>
           </div>
         </div>

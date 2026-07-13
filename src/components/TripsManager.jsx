@@ -8,7 +8,7 @@ const TripsManager = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch(`${API}/api/trips`)
+    fetch(`${API}/tours`)
       .then((res) => res.json())
       .then(setTrips)
       .catch(() => setError('Failed to load trips'));
@@ -18,7 +18,7 @@ const TripsManager = () => {
     e.preventDefault();
     setError('');
     try {
-      const res = await fetch(`${API}/api/trips`, {
+      const res = await fetch(`${API}/tours`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, price: Number(form.price) }),

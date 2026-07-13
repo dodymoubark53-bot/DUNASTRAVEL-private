@@ -78,22 +78,14 @@ const HieroglyphicName = () => {
     setError(null);
     setResult(null);
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/tools/hieroglyphics`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 1000,
-          messages: [{
-            role: 'user', content:
-              `You are an expert Egyptologist and linguist.\nThe user entered their name in ${LANG_NAMES[currentLang]}: "${trimmed}".\nIdentify the phonetic pronunciation of this name, then transliterate those sounds into Egyptian hieroglyphics.\nReturn ONLY a JSON object, no markdown, no backticks:\n{"glyphs":"hieroglyphic Unicode chars wrapped in 𓍹...𓍺","translit":"standard Egyptological transliteration like d-i-n-ꜣ","note":"one short interesting fact about this name max 10 words"}\nUse real Unicode Egyptian hieroglyphs U+13000–U+1342F. Always wrap glyphs in cartouche 𓍹 𓍺.\nKey mappings: a=𓄿 b=𓃀 d=𓂧 e/i=𓇋 f=𓆑 g=𓎼 h=𓉔 k=𓎡 l=𓃭 m=𓅓 n=𓈖 o=𓂝 p=𓊪 r=𓂋 s=𓋴 t=𓏏 u/w=𓅱 y=𓇌 z=𓊃 sh=𓌀 kh=𓐍`
-          }]
-        })
+        body: JSON.stringify({ text: trimmed })
       });
       const data = await res.json();
-      const text = (data.content || []).map(c => c.text || '').join('');
-      const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
-      setResult(parsed);
+      if (!res.ok) throw new Error(data.message || 'Translation failed');
+      setResult(data);
     } catch {
       const fallback = localTranslate(trimmed);
       setResult({ glyphs: fallback.glyphs, translit: fallback.translit, note: 'Transliterated from phonetic mapping.' });

@@ -293,7 +293,7 @@ const TurkeyProgramDetails = () => {
           {/* Sidebar - Booking Form */}
           <div className="lg:col-span-1">
             <div>
-              <BookingForm tourTitle={title} transportChoice={transportChoice} requireTransportChoice={!!transportOptions} />
+              <BookingForm tourId={program.id} tourTitle={title} transportChoice={transportChoice} requireTransportChoice={!!transportOptions} />
             </div>
           </div>
         </div>

@@ -12,14 +12,27 @@ import InvoiceModal from './InvoiceModal';
 
 const API = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:5000/api';
 
-const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 'booking' }) => {
+const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 'booking', predefinedTourId = null }) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState(initialTab);
   const [status, setStatus] = useState('idle');
   const [bookingResult, setBookingResult] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
   const [error, setError] = useState('');
+  const [tourId, setTourId] = useState(predefinedTourId);
   const isEgyptJordanTour = tourTitle === "Combined EGYPT with Jordan - 14 DAYS / 13 Nights" || tourTitle?.includes("Combined EGYPT with Jordan");
+
+  useEffect(() => {
+    if (!tourId) {
+      fetch(`${API}/tours`)
+        .then(res => res.json())
+        .then(data => {
+          const match = data.data?.find(t => t.titleJsonb?.en?.toLowerCase() === tourTitle?.toLowerCase());
+          if (match) setTourId(match.id);
+        })
+        .catch(err => console.error('Failed to fetch tours for tourId match', err));
+    }
+  }, [tourId, tourTitle]);
 
   const getTodayString = () => {
     const d = new Date();
@@ -87,8 +100,32 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
     });
   };
 
-  const basePrice = basePricePerPerson || 150;
-  const calculatedTotal = basePrice * (adults + children * 0.75 + infants * 0);
+  const [calculatedTotal, setCalculatedTotal] = useState(basePricePerPerson ? basePricePerPerson * 2 : 300);
+
+  useEffect(() => {
+    if (!tourId) {
+      // Fallback client calculation if tourId not yet matched
+      const basePrice = basePricePerPerson || 150;
+      setCalculatedTotal(basePrice * (adults + children * 0.75 + infants * 0));
+      return;
+    }
+    const fetchPrice = async () => {
+      try {
+        const res = await fetch(`${API}/bookings/calculate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tourId, adults, children })
+        });
+        const data = await res.json();
+        if (data.totalAmountUsd) {
+          setCalculatedTotal(parseFloat(data.totalAmountUsd));
+        }
+      } catch (err) {
+        console.error('Failed to calculate price', err);
+      }
+    };
+    fetchPrice();
+  }, [adults, children, infants, tourId, basePricePerPerson]);
 
   const getPassengerNames = () => {
     const names = {};
@@ -107,6 +144,7 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
       const payload = {
         type: activeTab === 'booking' ? 'booking' : 'inquiry',
         tourTitle,
+        tourId: tourId || 'placeholder-id-will-fail-backend-validation',
         departureDate,
         language,
         adults,
@@ -117,8 +155,6 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
         email,
         phone,
         inquiryMessage: activeTab === 'inquiry' ? message : '',
-        basePricePerPerson: basePrice,
-        totalAmount: activeTab === 'booking' ? calculatedTotal : 0,
         invoiceType,
         companyName,
         taxId,
@@ -133,6 +169,24 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
       });
       if (!res.ok) throw new Error('Failed to submit');
       const data = await res.json();
+      
+      if (payload.type === 'booking' && data.id) {
+        try {
+          const payRes = await fetch(`${API}/payments/initiate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bookingId: data.id })
+          });
+          const payData = await payRes.json();
+          if (payData.session?.url) {
+            window.location.href = payData.session.url;
+            return;
+          }
+        } catch (payErr) {
+          console.error("Payment initiation failed", payErr);
+        }
+      }
+
       setBookingResult(data);
       setStatus('success');
     } catch (err) {

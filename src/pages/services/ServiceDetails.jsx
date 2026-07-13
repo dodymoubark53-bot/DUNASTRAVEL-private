@@ -404,7 +404,7 @@ const ServiceDetails = () => {
               {/* Sidebar - Booking Form */}
               <div className="lg:col-span-1">
 <div>
-                  <BookingForm tourTitle={service.title} />
+                  <BookingForm tourId={service.id} tourTitle={service.title} />
                 </div>
               </div>
             </div>
@@ -541,7 +541,7 @@ const ServiceDetails = () => {
             {/* Sidebar - Booking Form */}
             <div className="lg:col-span-1">
               <div className="sticky top-32">
-                <BookingForm tourTitle={service.title} />
+                <BookingForm tourId={service.id} tourTitle={service.title} />
               </div>
             </div>
           </div>

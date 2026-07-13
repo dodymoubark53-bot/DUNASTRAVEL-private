@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
 
 const CurrencyContext = createContext();
 
@@ -7,6 +7,25 @@ export const CurrencyProvider = ({ children }) => {
     const storedCurrency = localStorage.getItem('currency');
     return storedCurrency === 'USD' || storedCurrency === 'EUR' ? storedCurrency : 'USD';
   });
+  const [eurRate, setEurRate] = useState(0.92);
+
+  useEffect(() => {
+    const fetchRate = async () => {
+      try {
+        const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+        const res = await fetch(`${API}/currency/rates`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.rates?.EUR) {
+            setEurRate(data.rates.EUR);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch currency rates', err);
+      }
+    };
+    fetchRate();
+  }, []);
 
   const setCurrency = (newCurrency) => {
     if (newCurrency === 'USD' || newCurrency === 'EUR') {
@@ -26,7 +45,7 @@ export const CurrencyProvider = ({ children }) => {
       });
       return `$${formatted}`;
     } else {
-      const converted = numericAmount * 0.92;
+      const converted = numericAmount * eurRate;
       const formatted = converted.toLocaleString('en-US', {
         minimumFractionDigits: converted % 1 === 0 ? 0 : 2,
         maximumFractionDigits: 2

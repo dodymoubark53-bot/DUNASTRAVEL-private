@@ -10,7 +10,7 @@ const TripsList = () => {
   useEffect(() => {
     const fetchTrips = async () => {
       try {
-        const res = await fetch(`${API}/trips`);
+        const res = await fetch(`${API}/tours`);
         if (!res.ok) throw new Error(`Server error: ${res.status}`);
         const data = await res.json();
         setTrips(data);

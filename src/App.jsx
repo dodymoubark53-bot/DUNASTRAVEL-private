@@ -29,6 +29,8 @@ const Transportation = lazy(
 const TailorTour = lazy(() => import("./pages/TailorTour"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Invoice = lazy(() => import("./pages/Invoice"));
+const BookingSuccess = lazy(() => import("./pages/BookingSuccess"));
+const BookingCancel = lazy(() => import("./pages/BookingCancel"));
 const HotelDetails = lazy(() => import("./pages/hotels/HotelDetails"));
 const RoomDetails = lazy(() => import("./pages/hotels/RoomDetails"));
 const MultiCountryTours = lazy(() => import("./pages/programs/MultiCountryTours"));
@@ -448,6 +450,22 @@ function App() {
                   element={
                     <PageTransition>
                       <Invoice />
+                    </PageTransition>
+                  }
+                />
+                <Route
+                  path="booking/success"
+                  element={
+                    <PageTransition>
+                      <BookingSuccess />
+                    </PageTransition>
+                  }
+                />
+                <Route
+                  path="booking/cancel"
+                  element={
+                    <PageTransition>
+                      <BookingCancel />
                     </PageTransition>
                   }
                 />

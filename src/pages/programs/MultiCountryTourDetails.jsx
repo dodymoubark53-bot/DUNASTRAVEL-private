@@ -236,7 +236,7 @@ const MultiCountryTourDetails = () => {
           {/* Sidebar - Booking Form */}
           <div className="lg:col-span-1">
             <div>
-              <BookingForm tourTitle={tour.title} />
+              <BookingForm tourId={tour.id} tourTitle={tour.title} />
             </div>
           </div>
         </div>

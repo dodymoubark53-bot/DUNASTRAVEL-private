@@ -1,28 +1,26 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  FaChevronRight, FaClock, FaUserFriends, FaTag,
-  FaMapMarkerAlt, FaBed, FaCheckCircle
+  FaChevronRight, FaClock, FaUserFriends, FaGlobe, FaTag,
+  FaCheck, FaTimes, FaMapMarkerAlt, FaBed, FaCheckCircle
 } from 'react-icons/fa';
 import { tours } from '../../data/tours';
+import Button from '../../components/ui/Button';
 import TourCard from '../../components/tour/TourCard';
 import { fadeInUp } from '../../animations/variants';
 import BookingForm from '../../components/booking/BookingForm';
 import { useCurrency } from '../../context/CurrencyContext';
-import IncludedNotIncluded from '../../components/tour/IncludedNotIncluded';
-import ReviewsMap from '../../components/tour/ReviewsMap';
-import RouteMap from '../../components/tour/RouteMap';
 
 const TourDetails = () => {
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
   const { slug } = useParams();
 
-  const tour = tours.find(t => t.slug === slug);
-  const shuffledTours = useMemo(() => [...tours].sort(() => Math.random() - 0.5), []);
+  const tour = tours.find(t => t.slug === slug) || tours[0];
+  const shuffledTours = [...tours].sort(() => Math.random() - 0.5);
 
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const carouselRef = useRef(null);
@@ -42,29 +40,6 @@ const TourDetails = () => {
     }, 3500);
     return () => clearInterval(id);
   }, []);
-
-  useEffect(() => {
-    if (!isLightboxOpen) return;
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        setIsLightboxOpen(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isLightboxOpen]);
-
-  if (!tour) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-obsidian-50 dark:bg-[#0f0f1a] px-6">
-        <h1 className="text-display-lg text-obsidian-900 dark:text-ivory-100 mb-4">{t('programs.notFound', 'Trip no longer available')}</h1>
-        <p className="text-body-md text-obsidian-500 dark:text-obsidian-300 mb-8">{t('programs.notFoundDesc', 'The trip you are looking for does not exist or has been removed.')}</p>
-        <Link to="/services" className="bg-gold-500 hover:bg-gold-600 text-obsidian-900 px-6 py-3 rounded-full font-semibold transition-colors">
-          {t('programs.viewAllTours', 'View All Tours')}
-        </Link>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full bg-obsidian-50 min-h-screen">
@@ -107,19 +82,7 @@ const TourDetails = () => {
       </section>
 
       {/* 2. Photo Gallery */}
-      <section
-        className="relative w-full h-[50vh] lg:h-[70vh] overflow-hidden group cursor-pointer focus:outline-none focus:ring-2 focus:ring-gold-500"
-        onClick={() => setIsLightboxOpen(true)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            setIsLightboxOpen(true);
-          }
-        }}
-        tabIndex={0}
-        role="button"
-        aria-label={t('tour.clickGallery', 'Click to open gallery')}
-      >
+      <section className="relative w-full h-[50vh] lg:h-[70vh] overflow-hidden group cursor-pointer" onClick={() => setIsLightboxOpen(true)}>
         <motion.img
           src={(tour.images && tour.images[0]) || '/images/tour-1.png'}
           alt={t(`data.${tour.title}`, tour.title)}
@@ -255,7 +218,6 @@ const TourDetails = () => {
                 </div>
               </div>
             </motion.div>
-            <RouteMap itinerary={tour.itinerary} />
 
             {/* Pricing Tiers */}
             {tour.pricingTiers && (
@@ -346,23 +308,68 @@ const TourDetails = () => {
           {/* Sidebar - Booking Form */}
           <div className="lg:col-span-1">
             <div>
-              <BookingForm tourTitle={t(`data.${tour.title}`, tour.title)} />
+              <BookingForm tourId={tour.id} tourTitle={tour.title} />
             </div>
           </div>
 
         </div>
 
         <div className="relative mt-24 mb-8">
+          <div className="absolute inset-0 bg-gradient-to-r from-obsidian-50 via-gold-50/30 to-obsidian-50 rounded-3xl"></div>
           <div className="relative z-10 px-4 md:px-12 py-16">
 
             {/* Included / Excluded */}
-            <IncludedNotIncluded
-              includedItems={tour.included}
-              excludedItems={tour.excluded}
-              excursionsItems={tour.excursions}
-              inclusionsTitle={tour.inclusionsTitle ? t(`data.${tour.inclusionsTitle}`, tour.inclusionsTitle) : undefined}
-              exclusionsTitle={tour.exclusionsTitle ? t(`data.${tour.exclusionsTitle}`, tour.exclusionsTitle) : undefined}
-            />
+            <motion.div
+              variants={fadeInUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="mt-16 max-w-4xl mx-auto"
+            >
+              <div className={`grid grid-cols-1 md:grid-cols-${tour.excursions && tour.excursions.length > 0 ? '3' : '2'} gap-8`}>
+                <div>
+                  <h3 className="text-display-md text-2xl mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    {tour.included && tour.included.length > 0 ? (tour.inclusionsTitle ? t(`data.${tour.inclusionsTitle}`, tour.inclusionsTitle) : t('tourDetail.included', 'What is Included')) : ''}
+                  </h3>
+                  <ul className="flex flex-col gap-3">
+                    {tour.included && tour.included.map((item, idx) => (
+                      <li key={idx} className="flex items-start gap-3 text-body-md text-obsidian-700">
+                        <FaCheck className="text-sage-500 mt-1 flex-shrink-0" />
+                        <span>{t(`data.${item}`, item)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-display-md text-2xl mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    {tour.excluded && tour.excluded.length > 0 ? (tour.exclusionsTitle ? t(`data.${tour.exclusionsTitle}`, tour.exclusionsTitle) : t('tourDetail.excluded', 'What is Excluded')) : ''}
+                  </h3>
+                  <ul className="flex flex-col gap-3">
+                    {tour.excluded && tour.excluded.map((item, idx) => (
+                      <li key={idx} className="flex items-start gap-3 text-body-md text-obsidian-700">
+                        <FaTimes className="text-red-400 mt-1 flex-shrink-0" />
+                        <span>{t(`data.${item}`, item)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {tour.excursions && tour.excursions.length > 0 && (
+                  <div>
+                    <h3 className="text-display-md text-2xl mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
+                      {t('tour.optionalExcursions', 'Optional Excursions')}
+                    </h3>
+                    <ul className="flex flex-col gap-3">
+                      {tour.excursions.map((item, idx) => (
+                        <li key={idx} className="flex items-start gap-3 text-body-md text-obsidian-700">
+                          <FaCheck className="text-gold-500 mt-1 flex-shrink-0" />
+                          <span>{t(`data.${item}`, item)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </motion.div>
 
             {/* Hotels */}
             {tour.hotels && (
@@ -417,12 +424,10 @@ const TourDetails = () => {
         </div>
       </section>
 
-      <ReviewsMap />
-
       {/* Related Tours */}
       <section className="container mx-auto px-6 py-24">
         <div className="text-center mb-16">
-          <h2 className="text-display-lg text-obsidian-900 dark:text-black mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <h2 className="text-display-lg text-obsidian-900 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
             {t('tourDetail.relatedTitle', 'You May Also Like')}
           </h2>
           <div className="w-24 h-1 bg-gold-500 mx-auto mb-4"></div>
@@ -444,11 +449,6 @@ const TourDetails = () => {
           padding-bottom: 16px;
           scroll-snap-type: x mandatory;
           -webkit-overflow-scrolling: touch;
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-        }
-        .related-carousel::-webkit-scrollbar {
-          display: none;
         }
         .related-carousel-item {
           flex: 0 0 auto;
