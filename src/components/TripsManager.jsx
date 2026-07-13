@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import api from '../utils/api';
 
 const TripsManager = () => {
   const [trips, setTrips] = useState([]);
@@ -8,9 +7,16 @@ const TripsManager = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch(`${API}/tours`)
-      .then((res) => res.json())
-      .then(setTrips)
+    api.get('/tours')
+      .then((data) => {
+        const items = data?.items || (Array.isArray(data) ? data : []);
+        setTrips(items.map((t) => ({
+          id: t.id,
+          title: t.title,
+          price: t.basePriceUsd,
+          country: t.category,
+        })));
+      })
       .catch(() => setError('Failed to load trips'));
   }, []);
 
@@ -18,14 +24,8 @@ const TripsManager = () => {
     e.preventDefault();
     setError('');
     try {
-      const res = await fetch(`${API}/tours`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, price: Number(form.price) }),
-      });
-      if (!res.ok) throw new Error('Failed to add trip');
-      const data = await res.json();
-      setTrips((prev) => [...prev, data.trip]);
+      const data = await api.post('/tours', { ...form, price: Number(form.price) });
+      setTrips((prev) => [...prev, data]);
       setForm({ title: '', price: '', country: '' });
     } catch (err) {
       setError(err.message);

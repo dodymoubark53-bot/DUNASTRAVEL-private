@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaFileInvoiceDollar, FaSearch, FaTimes, FaPrint, FaCheckCircle } from 'react-icons/fa';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import api from '../utils/api';
 
 const Invoice = () => {
   const { t, i18n } = useTranslation();
@@ -22,16 +21,16 @@ const Invoice = () => {
     setError('');
     setBooking(null);
     try {
-      const res = await fetch(`${API}/invoices/${invoiceNum.trim()}`);
-      if (!res.ok) {
-        if (res.status === 404) throw new Error(t('invoice.notFound', 'Invoice not found'));
-        throw new Error('Server error');
-      }
-      const data = await res.json();
+      // api.get automatically unwraps the response envelope
+      const data = await api.get(`/invoices/${invoiceNum.trim()}`);
       setBooking(data);
       setSearchParams({ inv: invoiceNum.trim() });
     } catch (err) {
-      setError(err.message);
+      if (err.status === 404) {
+        setError(t('invoice.notFound', 'Invoice not found'));
+      } else {
+        setError(err.message || 'Server error');
+      }
     } finally {
       setLoading(false);
     }
@@ -42,26 +41,11 @@ const Invoice = () => {
     setPaymentLoading(true);
     setError('');
     try {
-      const token = localStorage.getItem('token');
-      const headers = { 'Content-Type': 'application/json' };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      
-      const res = await fetch(`${API}/payments/initiate`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ bookingId: booking.bookingId })
-      });
-      
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || t('invoice.paymentError', 'Failed to initiate payment'));
-      }
-      
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
+      // api.post handles CSRF automatically
+      const data = await api.post('/payments/initiate', { bookingId: booking.bookingId });
+      const url = data?.session?.url || data?.url;
+      if (url) {
+        window.location.href = url;
       } else {
         throw new Error('No payment URL returned');
       }

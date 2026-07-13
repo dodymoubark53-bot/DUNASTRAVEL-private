@@ -1,0 +1,172 @@
+/**
+ * api.js — Centralized API Client for Dunas Travel Frontend
+ *
+ * Handles automatically:
+ *  1. CSRF token: fetches from /api/auth/csrf once, caches it in memory,
+ *     and sends it as x-csrf-token header on every mutating request (POST/PUT/PATCH/DELETE).
+ *  2. Response unwrapping: the backend wraps all responses in
+ *     { data: { success, statusCode, data: <actual> } }. This client
+ *     transparently unwraps it so callers receive the actual payload.
+ *  3. Error normalisation: throws an Error with the backend's message string.
+ *  4. Cookie-based auth: always sends credentials: 'include' so the
+ *     HttpOnly access_token cookie is sent automatically.
+ */
+
+const BASE_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : 'http://localhost:5000/api';
+
+// ── CSRF Token Cache ──────────────────────────────────────────────────────────
+let _csrfToken = null;
+let _csrfFetchPromise = null;
+
+/**
+ * Fetches the CSRF token from the backend and caches it.
+ * De-duplicates concurrent calls so only one request is made.
+ */
+async function fetchCsrfToken() {
+  if (_csrfToken) return _csrfToken;
+
+  // De-duplicate concurrent calls
+  if (_csrfFetchPromise) return _csrfFetchPromise;
+
+  _csrfFetchPromise = fetch(`${BASE_URL}/auth/csrf`, {
+    method: 'GET',
+    credentials: 'include',
+  })
+    .then(async (res) => {
+      if (!res.ok) throw new Error('Failed to fetch CSRF token');
+      const body = await res.json();
+      // Backend returns { data: { csrfToken: "..." } } or { csrfToken: "..." }
+      _csrfToken =
+        body?.data?.csrfToken ||
+        body?.data?.data?.csrfToken ||
+        body?.csrfToken ||
+        null;
+      return _csrfToken;
+    })
+    .catch((err) => {
+      // Do not cache a failed attempt
+      console.warn('[api] CSRF fetch failed:', err.message);
+      return null;
+    })
+    .finally(() => {
+      _csrfFetchPromise = null;
+    });
+
+  return _csrfFetchPromise;
+}
+
+/** Clears the cached CSRF token (call after logout) */
+export function clearCsrfToken() {
+  _csrfToken = null;
+}
+
+// ── Response Unwrapper ────────────────────────────────────────────────────────
+/**
+ * Unwraps the backend's TransformInterceptor envelope.
+ * Backend format:  { data: { success, statusCode, data: <payload>, timestamp } }
+ * Returns: <payload>
+ */
+function unwrap(body) {
+  // Handle double-wrapped: { data: { success, data: <payload> } }
+  if (body && typeof body === 'object') {
+    if ('data' in body) {
+      const inner = body.data;
+      if (inner && 'data' in inner) return inner.data;
+      if (inner && 'success' in inner) return inner; // return inner if no nested data
+      return inner;
+    }
+  }
+  return body;
+}
+
+// ── Core Request Function ─────────────────────────────────────────────────────
+const MUTATING_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'];
+
+/**
+ * Makes an API request to the backend.
+ *
+ * @param {string} path    - Path relative to /api (e.g. '/tours', '/bookings')
+ * @param {object} options - Fetch options (method, body, headers, etc.)
+ * @param {object} opts    - Extra options
+ * @param {boolean} opts.raw - If true, return the raw unwrapped body without further processing
+ * @returns {Promise<any>} The unwrapped response data
+ */
+export async function apiRequest(path, options = {}, { raw = false } = {}) {
+  const method = (options.method || 'GET').toUpperCase();
+  const isMutating = MUTATING_METHODS.includes(method);
+
+  // Build headers
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  };
+
+  // Attach CSRF token for mutating requests
+  if (isMutating) {
+    const token = await fetchCsrfToken();
+    if (token) {
+      headers['x-csrf-token'] = token;
+    }
+  }
+
+  const url = `${BASE_URL}${path}`;
+
+  const res = await fetch(url, {
+    ...options,
+    method,
+    headers,
+    credentials: 'include', // Always send cookies (HttpOnly auth token)
+    body:
+      options.body !== undefined
+        ? typeof options.body === 'string'
+          ? options.body
+          : JSON.stringify(options.body)
+        : undefined,
+  });
+
+  // Parse body
+  let body;
+  const contentType = res.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
+    body = await res.json();
+  } else {
+    body = await res.text();
+  }
+
+  if (!res.ok) {
+    // If CSRF token expired/invalid, clear cache and surface the real error
+    if (res.status === 403) {
+      clearCsrfToken();
+    }
+    // Extract error message from backend's error envelope
+    const message =
+      body?.data?.message ||
+      body?.message ||
+      `Request failed with status ${res.status}`;
+    const error = new Error(message);
+    error.status = res.status;
+    error.body = body;
+    throw error;
+  }
+
+  if (raw) return body;
+  return unwrap(body);
+}
+
+// ── Convenience Methods ───────────────────────────────────────────────────────
+
+export const api = {
+  get: (path, options = {}) => apiRequest(path, { ...options, method: 'GET' }),
+  post: (path, body, options = {}) =>
+    apiRequest(path, { ...options, method: 'POST', body }),
+  patch: (path, body, options = {}) =>
+    apiRequest(path, { ...options, method: 'PATCH', body }),
+  put: (path, body, options = {}) =>
+    apiRequest(path, { ...options, method: 'PUT', body }),
+  delete: (path, options = {}) =>
+    apiRequest(path, { ...options, method: 'DELETE' }),
+};
+
+export default api;

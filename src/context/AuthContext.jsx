@@ -1,4 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
+import api, { clearCsrfToken } from '../utils/api';
 
 const AuthContext = createContext();
 
@@ -9,16 +10,10 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/auth/me', {
-          credentials: 'include'
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data);
-        } else {
-          setUser(null);
-        }
-      } catch (err) {
+        // api.get automatically unwraps the response envelope
+        const data = await api.get('/auth/me');
+        setUser(data);
+      } catch {
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -28,46 +23,26 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const res = await fetch('http://localhost:5000/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-      credentials: 'include'
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      setUser(data);
-      return data;
-    } else {
-      throw new Error(data.message || 'Invalid email or password');
-    }
+    // api.post fetches CSRF token automatically before sending
+    const data = await api.post('/auth/login', { email, password });
+    // Backend returns user object inside data
+    const userData = data?.user || data;
+    setUser(userData);
+    return userData;
   };
 
   const register = async (name, email, phone, password) => {
-    const res = await fetch('http://localhost:5000/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, phone, password }),
-      credentials: 'include'
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.message || 'Failed to register');
-    }
+    const data = await api.post('/auth/register', { name, email, phone, password });
     return data;
   };
 
   const logout = async () => {
     try {
-      await fetch('http://localhost:5000/api/auth/logout', { 
-        method: 'POST',
-        credentials: 'include'
-      });
+      await api.post('/auth/logout', {});
     } catch {
       // Ignore network errors on logout
     }
+    clearCsrfToken();
     setUser(null);
     window.location.href = '/';
   };

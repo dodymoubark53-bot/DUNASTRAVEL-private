@@ -6,8 +6,7 @@ import Button from '../ui/Button';
 import { fadeInUp } from '../../animations/variants';
 import { transportation } from '../../data/transportation';
 import InvoiceModal from './InvoiceModal';
-
-const API = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:5000/api';
+import api from '../../utils/api';
 
 const TransportationForm = ({ preSelectedVehicleId = '' }) => {
   const { t } = useTranslation();
@@ -64,13 +63,8 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
         totalAmount: 0,
         currency: 'USD'
       };
-      const res = await fetch(`${API}/bookings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error('Failed to submit booking');
-      const data = await res.json();
+      // api.post fetches CSRF token and sends it automatically
+      const data = await api.post('/bookings', payload);
       setBookingResult(data);
       setStatus('success');
     } catch (err) {

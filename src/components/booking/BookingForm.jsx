@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaPlus, FaMinus, FaCheckCircle, FaPaperPlane, FaGlobeAmericas, FaUser, FaFileInvoiceDollar, FaCalendarAlt, FaClock, FaStar } from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
-
-const API = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:5000/api';
+import api from '../../utils/api';
 
 const inputClass = "w-full p-3 rounded-xl outline-none transition-all text-[14px] bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-[rgba(201,162,39,0.5)] focus:shadow-[0_0_20px_rgba(201,162,39,0.1)] [color-scheme:dark]";
 const labelClass = "block text-caption text-gold-500 font-medium mb-1 text-[12px] uppercase tracking-[1px]";
@@ -72,21 +71,17 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
     if (!tourId || tab !== 'booking') return;
     const fetchPrice = async () => {
       try {
-        const res = await fetch(`${API}/bookings/calculate`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tourId, adults: b.adults, children: b.children, promoCode })
+        // api.post handles CSRF automatically
+        const data = await api.post('/bookings/calculate', {
+          tourId, adults: b.adults, children: b.children, promoCode
         });
-        if (res.ok) {
-          const data = await res.json();
-          setPricePreview(data);
-          if (promoCode && data.promoMessage) {
-            setPromoMessage(data.promoMessage);
-          } else {
-            setPromoMessage('');
-          }
+        setPricePreview(data);
+        if (promoCode && data?.promoMessage) {
+          setPromoMessage(data.promoMessage);
+        } else {
+          setPromoMessage('');
         }
-      } catch (err) {
+      } catch {
         // ignore
       }
     };
@@ -133,28 +128,20 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
         promoCode,
         notes: b.notes
       };
-      const res = await fetch(`${API}/bookings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error('Failed to submit booking');
-      const data = await res.json();
-      
-      if (data.id) {
+
+      // api.post fetches CSRF token and sends it automatically
+      const data = await api.post('/bookings', payload);
+
+      if (data?.id) {
         try {
-          const payRes = await fetch(`${API}/payments/initiate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ bookingId: data.id })
-          });
-          const payData = await payRes.json();
-          if (payData.session?.url) {
-            window.location.href = payData.session.url;
+          const payData = await api.post('/payments/initiate', { bookingId: data.id });
+          const sessionUrl = payData?.session?.url || payData?.url;
+          if (sessionUrl) {
+            window.location.href = sessionUrl;
             return;
           }
         } catch (payErr) {
-          console.error("Payment initiation failed", payErr);
+          console.error('Payment initiation failed', payErr);
         }
       }
 
@@ -179,13 +166,8 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
         language: inq.language,
         message: inq.message
       };
-      const res = await fetch(`${API}/inquiries`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error('Failed to submit inquiry');
-      const data = await res.json();
+      // api.post handles CSRF automatically
+      const data = await api.post('/inquiries', payload);
       setBookingResult({ ...data, type: 'inquiry' });
       setStatus('success');
     } catch (err) {

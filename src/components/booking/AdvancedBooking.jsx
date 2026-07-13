@@ -9,8 +9,7 @@ import {
 import Button from '../ui/Button';
 import { fadeInUp } from '../../animations/variants';
 import InvoiceModal from './InvoiceModal';
-
-const API = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:5000/api';
+import api from '../../utils/api';
 
 const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 'booking', predefinedTourId = null }) => {
   const { t } = useTranslation();
@@ -24,13 +23,15 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
 
   useEffect(() => {
     if (!tourId) {
-      fetch(`${API}/tours`)
-        .then(res => res.json())
-        .then(data => {
-          const match = data.data?.find(t => t.titleJsonb?.en?.toLowerCase() === tourTitle?.toLowerCase());
+      api.get('/tours')
+        .then((data) => {
+          const items = data?.items || (Array.isArray(data) ? data : []);
+          const match = items.find(
+            (t) => (t.titleJsonb?.en || t.title)?.toLowerCase() === tourTitle?.toLowerCase()
+          );
           if (match) setTourId(match.id);
         })
-        .catch(err => console.error('Failed to fetch tours for tourId match', err));
+        .catch((err) => console.error('Failed to fetch tours for tourId match', err));
     }
   }, [tourId, tourTitle]);
 
@@ -111,13 +112,9 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
     }
     const fetchPrice = async () => {
       try {
-        const res = await fetch(`${API}/bookings/calculate`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tourId, adults, children })
-        });
-        const data = await res.json();
-        if (data.totalAmountUsd) {
+        // api.post handles CSRF automatically
+        const data = await api.post('/bookings/calculate', { tourId, adults, children });
+        if (data?.totalAmountUsd) {
           setCalculatedTotal(parseFloat(data.totalAmountUsd));
         }
       } catch (err) {
@@ -162,28 +159,20 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
         city,
         country
       };
-      const res = await fetch(`${API}/bookings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error('Failed to submit');
-      const data = await res.json();
-      
-      if (payload.type === 'booking' && data.id) {
+
+      // api.post fetches CSRF token and sends it automatically
+      const data = await api.post('/bookings', payload);
+
+      if (payload.type === 'booking' && data?.id) {
         try {
-          const payRes = await fetch(`${API}/payments/initiate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ bookingId: data.id })
-          });
-          const payData = await payRes.json();
-          if (payData.session?.url) {
-            window.location.href = payData.session.url;
+          const payData = await api.post('/payments/initiate', { bookingId: data.id });
+          const sessionUrl = payData?.session?.url || payData?.url;
+          if (sessionUrl) {
+            window.location.href = sessionUrl;
             return;
           }
         } catch (payErr) {
-          console.error("Payment initiation failed", payErr);
+          console.error('Payment initiation failed', payErr);
         }
       }
 
