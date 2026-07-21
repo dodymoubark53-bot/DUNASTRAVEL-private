@@ -9,6 +9,8 @@ app.use(express.json({ limit: '10mb' }));
 
 // Lazy MongoDB connection (cached across warm invocations)
 let dbConnected = false;
+const { seedDatabase } = require('../server/utils/seeder');
+
 async function connectDB() {
   if (dbConnected) return;
   if (!process.env.MONGO_URI) {
@@ -19,6 +21,8 @@ async function connectDB() {
     await mongoose.connect(process.env.MONGO_URI);
     dbConnected = true;
     console.log('Connected to MongoDB');
+    // Run seeder check
+    await seedDatabase();
   } catch (err) {
     console.error('MongoDB connection error:', err);
   }
@@ -27,6 +31,8 @@ async function connectDB() {
 // Mount routes
 const authRoutes = require('../server/routes/auth');
 const bookingRoutes = require('../server/routes/booking');
+const chatRoutes = require('../server/routes/chat');
+const searchRoutes = require('../server/routes/search');
 
 app.use('/api/auth', async (req, res, next) => {
   await connectDB();
@@ -37,6 +43,16 @@ app.use('/api/bookings', async (req, res, next) => {
   await connectDB();
   next();
 }, bookingRoutes);
+
+app.use('/api/chat', async (req, res, next) => {
+  await connectDB();
+  next();
+}, chatRoutes);
+
+app.use('/api', async (req, res, next) => {
+  await connectDB();
+  next();
+}, searchRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

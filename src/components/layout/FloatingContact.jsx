@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaFacebook, FaInstagram, FaPhone, FaCommentDots, FaTimes, FaEnvelope } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaPhone, FaEnvelope, FaCommentDots, FaTimes } from 'react-icons/fa';
 
 const FloatingContact = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -83,7 +83,7 @@ const FloatingContact = () => {
           transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
         />
       )}
-      <motion.button
+<motion.button
         onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? "Close contact options" : "Open contact options"}
         className="relative z-10 w-16 h-16 rounded-full flex items-center justify-center text-obsidian-900 bg-gradient-to-tr from-gold-700 via-gold-500 to-gold-300 shadow-[0_0_24px_rgba(201,162,39,0.35)] hover:shadow-[0_0_32px_rgba(201,162,39,0.5)] transition-shadow duration-300"

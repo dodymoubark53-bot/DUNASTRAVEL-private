@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaFileInvoiceDollar, FaSearch, FaTimes, FaPrint, FaCheckCircle } from 'react-icons/fa';
+import { FaFileInvoiceDollar, FaSearch, FaTimes, FaPrint } from 'react-icons/fa';
 import api from '../utils/api';
 
 const Invoice = () => {
@@ -21,7 +21,6 @@ const Invoice = () => {
     setError('');
     setBooking(null);
     try {
-      // api.get automatically unwraps the response envelope
       const data = await api.get(`/invoices/${invoiceNum.trim()}`);
       setBooking(data);
       setSearchParams({ inv: invoiceNum.trim() });
@@ -41,7 +40,6 @@ const Invoice = () => {
     setPaymentLoading(true);
     setError('');
     try {
-      // api.post handles CSRF automatically
       const data = await api.post('/payments/initiate', { bookingId: booking.bookingId });
       const url = data?.session?.url || data?.url;
       if (url) {

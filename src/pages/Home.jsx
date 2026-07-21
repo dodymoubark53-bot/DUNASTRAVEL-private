@@ -22,51 +22,51 @@ const rawPrograms = rawProgramData.programs;
 const destinationsData = [
   {
     id: "egypt",
-    name: "Egypt",
-    desc: "Pharaohs & Wonders",
-    image: "https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=600&q=60",
+    nameKey: "nav.egypt",
+    descKey: "home.destEgyptDesc",
+    image: "https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=600&q=40&fm=webp",
   },
   {
     id: "turkey",
-    name: "Turkey",
-    desc: "East Meets West",
-    image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=600&q=60",
+    nameKey: "nav.turkey",
+    descKey: "home.destTurkeyDesc",
+    image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=600&q=40&fm=webp",
   },
   {
     id: "dubai",
-    name: "Dubai",
-    desc: "Luxury & Skylines",
-    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=600&q=60",
+    nameKey: "nav.dubai",
+    descKey: "home.destDubaiDesc",
+    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=600&q=40&fm=webp",
   },
   {
     id: "jordan",
-    name: "Jordan",
-    desc: "Desert & Ancient Ruins",
-    image: "https://images.unsplash.com/photo-1579606032821-4e6161c81bd3?auto=format&fit=crop&w=600&q=60",
+    nameKey: "nav.jordan",
+    descKey: "home.destJordanDesc",
+    image: "https://images.unsplash.com/photo-1579606032821-4e6161c81bd3?auto=format&fit=crop&w=600&q=40&fm=webp",
   },
   {
     id: "morocco",
-    name: "Morocco",
-    desc: "Colors & Culture",
-    image: "https://images.unsplash.com/photo-1539020140153-e479b8c22e70?auto=format&fit=crop&w=600&q=60",
+    nameKey: "nav.morocco",
+    descKey: "home.destMoroccoDesc",
+    image: "https://images.unsplash.com/photo-1539020140153-e479b8c22e70?auto=format&fit=crop&w=600&q=40&fm=webp",
   },
   {
     id: "greece",
-    name: "Greece",
-    desc: "Myths & Islands",
-    image: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=600&q=60",
+    nameKey: "nav.greece",
+    descKey: "home.destGreeceDesc",
+    image: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=600&q=40&fm=webp",
   },
   {
     id: "tunisia",
-    name: "Tunisia",
-    desc: "Sahara & Sea",
-    image: "https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=600&q=60",
+    nameKey: "nav.tunisia",
+    descKey: "home.destTunisiaDesc",
+    image: "https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=600&q=40&fm=webp",
   },
   {
     id: "holy-land",
-    name: "Holy Land",
-    desc: "Faith & History",
-    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=60",
+    nameKey: "nav.holyland",
+    descKey: "home.destHolyLandDesc",
+    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=40&fm=webp",
   },
 ];
 
@@ -75,35 +75,35 @@ const packagesData = [
     id: "classic-program",
     name: "Classic Program",
     desc: "Timeless Wonders",
-    image: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=600&q=60",
+    image: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=600&q=40&fm=webp",
     link: "/programs/classic/classic-program"
   },
   {
     id: "honeymooners",
     name: "Honeymooners Package",
     desc: "Romantic Escapes",
-    image: "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=600&q=60",
+    image: "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=600&q=40&fm=webp",
     link: "/programs/honeymooners"
   },
   {
     id: "religious",
     name: "Religious Programs",
     desc: "Spiritual Journeys",
-    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=60",
+    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=40&fm=webp",
     link: "/programs/religious"
   },
   {
     id: "multi-country",
     name: "Multi-Country Tours",
     desc: "Beyond Borders",
-    image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=60",
+    image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=40&fm=webp",
     link: "/programs/multi-country"
   },
   {
     id: "extension",
     name: "Egypt Extensions",
     desc: "Expand Your Adventure",
-    image: "https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&w=600&q=60",
+    image: "https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&w=600&q=40&fm=webp",
     link: "/programs/extension"
   }
 ];
@@ -208,7 +208,8 @@ const getOptimizedImageUrl = (url, width = 400, height = 450) => {
     try {
       const urlObj = new URL(url);
       urlObj.searchParams.set('w', width.toString());
-      urlObj.searchParams.set('q', '60');
+      urlObj.searchParams.set('q', '40');
+      urlObj.searchParams.set('fm', 'webp');
       urlObj.searchParams.set('fit', 'crop');
       return urlObj.toString();
     } catch {
@@ -331,7 +332,7 @@ const Home = () => {
         price: 890,
         rating: 5,
         reviewCount: 312,
-        images: ["https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=600&q=60"],
+        images: ["https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=600&q=40&fm=webp"],
         linkBase: "/programs/classic"
       }],
       "honeymooners": [{
@@ -344,7 +345,7 @@ const Home = () => {
         price: 1500,
         rating: 5,
         reviewCount: 150,
-        images: ["https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=600&q=60"],
+        images: ["https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=600&q=40&fm=webp"],
         linkBase: "/programs"
       }],
       "religious": [{
@@ -357,7 +358,7 @@ const Home = () => {
         price: 1350,
         rating: 5,
         reviewCount: 110,
-        images: ["https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=60"],
+        images: ["https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=40&fm=webp"],
         linkBase: "/programs"
       }],
       "multi-country": multiCountryTours.map(tour => ({
@@ -378,7 +379,7 @@ const Home = () => {
           price: 450,
           rating: 4.8,
           reviewCount: 95,
-          images: ["https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&w=600&q=60"],
+          images: ["https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&w=600&q=40&fm=webp"],
           linkBase: "/trips"
         },
         {
@@ -391,7 +392,7 @@ const Home = () => {
           price: 500,
           rating: 4.7,
           reviewCount: 105,
-          images: ["https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=600&q=60"],
+          images: ["https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=600&q=40&fm=webp"],
           linkBase: "/trips"
         },
         {
@@ -404,7 +405,7 @@ const Home = () => {
           price: 600,
           rating: 4.9,
           reviewCount: 88,
-          images: ["https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=600&q=60"],
+          images: ["https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=600&q=40&fm=webp"],
           linkBase: "/trips"
         }
       ]
@@ -762,10 +763,11 @@ const Home = () => {
             fetchpriority="high"
             poster="/imgs/hero-poster.webp"
             className="w-full h-full object-contain"
+            width="1440"
+            height="812"
           >
             <source src="/imgs/hero.webm" type="video/webm" />
             <source src="/imgs/hero.mp4" type="video/mp4" />
-            <track kind="captions" src="/hero-captions.vtt" srcLang="en" label="English" default />
           </video>
           <div className="absolute inset-0 bg-obsidian-900/50 pointer-events-none"></div>
         </div>
@@ -783,9 +785,12 @@ const Home = () => {
         {/* Background Image */}
         <div className="absolute inset-0">
           <img
-            src="https://res.cloudinary.com/degbrq3ck/image/upload/w_1200,q_auto,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.jpg"
-            alt=""
+            src="https://res.cloudinary.com/degbrq3ck/image/upload/w_1440,h_600,c_fill,q_auto,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.jpg"
+            alt="Search tours and holiday packages background"
             className="w-full h-full object-cover object-center"
+            fetchpriority="high"
+            width="1440"
+            height="600"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-obsidian-900/30 via-obsidian-900/20 to-obsidian-900/50"></div>
         </div>
@@ -829,7 +834,7 @@ const Home = () => {
                     <option value="" className="text-obsidian-900 dark:text-ivory-100 dark:bg-obsidian-800">
                       {searchDest === "all" ? t('home.selectDestFirst', 'Select a destination first') : t('home.searchAllTours', 'All Tours')}
                     </option>
-                    {destTours.map((t) => (
+                    {searchDest && searchDest !== "all" && destTours.map((t) => (
                       <option key={t.id} value={t.id} className="text-obsidian-900 dark:text-ivory-100 dark:bg-obsidian-800">{t.label}</option>
                     ))}
                   </select>
@@ -932,15 +937,15 @@ const Home = () => {
               className="w-full lg:w-1/2"
             >
               <span className="text-gold-500 uppercase tracking-widest text-caption block mb-4">
-                {t("home.whoWeAre", "WHO WE ARE")}
+                {t("home.whoWeAre", "QUIÉNES SOMOS")}
               </span>
               <h2 className="text-display-lg text-obsidian-900 mb-6">
-                {t("home.aboutTitle", "Crafting Journeys, Creating Memories")}
+                {t("home.aboutTitle", "Experiencias exclusivas, diseñadas a medida")}
               </h2>
               <p className="text-body-lg text-obsidian-700 mb-8 leading-relaxed">
                 {t(
                   "home.aboutDesc",
-                  "Dunas Travel is a premium luxury travel agency specializing in Egypt, Jordan, Turkey, Tunisia, Greece, the Holy Land, Morocco, and Dubai. Our passion is crafting highly curated tours, exclusive safaris, boutique cruises, and hand-picked hotel experiences for discerning travelers who seek the extraordinary. Let us transform your travel dreams into timeless memories.",
+                  "En Dunas Travel diseñamos experiencias exclusivas por los destinos más fascinantes de Oriente Medio y el Mediterráneo. Con un profundo conocimiento de cada destino y una cuidada selección de hoteles, cruceros boutique y experiencias privadas, creamos itinerarios a medida donde la excelencia, la autenticidad y la atención personalizada convierten cada viaje en una experiencia verdaderamente inolvidable."
                 )}
               </p>
               <Link to="/about">
@@ -961,6 +966,9 @@ const Home = () => {
                 src="/images/crafting-journeys.webp"
                 alt="Crafting Journeys"
                 className="w-full h-[300px] lg:h-[480px] object-cover rounded-[16px] shadow-[0_0_40px_rgba(245,166,35,0.25)] transition-transform duration-400 ease hover:-translate-y-[8px]"
+                width="600"
+                height="480"
+                loading="lazy"
               />
             </motion.div>
           </div>
@@ -1042,7 +1050,7 @@ const Home = () => {
                   role="button"
                   tabIndex={0}
                   aria-pressed={isActive}
-                  aria-label={`${t("home.select", "Select")} ${dest.name} ${t("nav.tours", "Tours")}`}
+                  aria-label={`${t("home.select", "Select")} ${t(dest.nameKey, dest.nameKey)} ${t("nav.tours", "Tours")}`}
                   whileHover={{
                     y: -6,
                     boxShadow: "0 0 32px rgba(245,166,35,0.22)",
@@ -1052,7 +1060,7 @@ const Home = () => {
                 >
                   <img
                     src={dest.image}
-                    alt={dest.name}
+                    alt={t(dest.nameKey, dest.nameKey)}
                     className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
                     loading="lazy"
                   />
@@ -1061,9 +1069,9 @@ const Home = () => {
                   ></div>
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
                     <h3 className="text-display-lg text-ivory-50 mb-2">
-                      {t(`nav.${dest.id === 'holy-land' ? 'holyland' : dest.id}`, dest.name)}
+                      {t(dest.nameKey, dest.nameKey)}
                     </h3>
-                    <p className="text-body-lg text-gold-500 font-medium mb-4 leading-relaxed" dangerouslySetInnerHTML={{ __html: t(`dest.${dest.id === 'holy-land' ? 'holyland' : dest.id}.subtitle`, t(`data.${dest.desc}`, dest.desc)) }} />
+                    <p className="text-body-lg text-gold-500 font-medium mb-4 leading-relaxed" dangerouslySetInnerHTML={{ __html: t(dest.descKey, dest.descKey) }} />
                     <span className="text-caption text-ivory-300 uppercase tracking-wider bg-obsidian-900/50 backdrop-blur-sm px-4 py-2 rounded-full border border-ivory-50/10">
                       {tourCount} {t("home.toursAvailable")}
                     </span>
@@ -1143,7 +1151,7 @@ const Home = () => {
               onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
             >
             {(() => {
-              const sliced = allToursForMarquee.slice(0, 12);
+              const sliced = allToursForMarquee.slice(0, 8);
               return [
                 ...sliced.map(t => ({ ...t, isDuplicate: false })),
                 ...sliced.map(t => ({ ...t, isDuplicate: true }))
@@ -1183,11 +1191,9 @@ const Home = () => {
                     </div>
 
                     <div className="flex items-center gap-1 text-gold-500 mb-4">
-                      {[...Array(Math.floor(tData.rating))].map((_, i) => (
-                        <FaStar key={i} size={12} />
-                      ))}
-                      <span className="text-ivory-50 ml-1 text-xs">
-                        ({tData.reviewCount})
+                      <FaStar size={14} />
+                      <span className="text-ivory-50 ml-1 text-sm font-semibold">
+                        {(tData.rating || 5).toFixed(1)} <span className="text-ivory-300 font-normal">({tData.reviewCount || 100})</span>
                       </span>
                     </div>
 
@@ -1340,7 +1346,7 @@ const Home = () => {
             onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
           >
             {(() => {
-              const sliced = packagesToursForMarquee.slice(0, 15);
+              const sliced = packagesToursForMarquee.slice(0, 8);
               return [
                 ...sliced.map(t => ({ ...t, isDuplicate: false })),
                 ...sliced.map(t => ({ ...t, isDuplicate: true }))

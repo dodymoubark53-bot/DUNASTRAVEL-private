@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaFacebook, FaInstagram, FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaPhone, FaEnvelope, FaMapMarkerAlt, FaRobot } from 'react-icons/fa';
 import Logo from '../ui/Logo';
 import TiT0Chat from '../ui/TiT0Chat';
 import { useJaiderChat } from '../../context/JaiderChatContext';
@@ -19,6 +19,14 @@ const Footer = () => {
   }, []);
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const scrollToJaider = () => {
+    const el = document.getElementById('jaider-footer-trigger');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    setIsOpen(true);
+  };
 
   return (
     <footer
@@ -48,7 +56,33 @@ const Footer = () => {
 #backToTop:hover{background:var(--gold,#C9A227);border-color:var(--gold,#C9A227)}
 #backToTop svg{width:20px;height:20px;stroke:var(--gold-light,#E8CB72);transition:stroke .3s ease;animation:arrowBounce 1.6s ease-in-out infinite}
 #backToTop:hover svg{stroke:var(--navy-deep,#081830)}
-@media(max-width:640px){#backToTop{left:18px;bottom:18px;width:48px;height:48px}}
+
+#askJaiderFloat{
+  position:fixed;left:28px;bottom:96px;
+  height:54px;border-radius:27px;
+  border:1px solid var(--gold,#C9A227);
+  background:var(--navy-deep,#081830);
+  display:flex;align-items:center;justify-content:center;
+  padding:0 20px;
+  cursor:pointer;z-index:200;
+  opacity:0;visibility:hidden;
+  transform:translateY(16px);
+  transition:opacity .35s ease,transform .35s ease,visibility .35s ease,border-color .3s ease,background .3s ease,color .3s ease;
+  box-shadow:0 14px 34px rgba(8,24,48,0.28);
+  color:var(--gold-light,#E8CB72);
+  font-family:'Space Grotesk', sans-serif;
+  font-weight:600;
+  font-size:13px;
+  gap:8px;
+}
+#askJaiderFloat.show{opacity:1!important;visibility:visible!important;transform:translateY(0)!important}
+#askJaiderFloat:hover{background:var(--gold,#C9A227);border-color:var(--gold,#C9A227);color:var(--navy-deep,#081830)}
+#askJaiderFloat svg{animation:float 3s ease-in-out infinite}
+
+@media(max-width:640px){
+  #backToTop{left:18px;bottom:18px;width:48px;height:48px}
+  #askJaiderFloat{left:18px;bottom:76px;height:48px;border-radius:24px;padding:0 14px;font-size:11px;gap:6px}
+}
 `}</style>
       <div className="relative z-10 w-full px-6 sm:px-12 lg:px-20 pt-8 sm:pt-10 lg:pt-12 flex flex-col sm:flex-row justify-between items-start gap-6">
         <div className="max-w-lg">
@@ -72,6 +106,7 @@ const Footer = () => {
         </div>
         <div className="w-full sm:w-auto flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 mt-12 sm:mt-0 shrink-0">
           <div
+            id="jaider-footer-trigger"
             onClick={() => setIsOpen(prev => !prev)}
             className="relative flex flex-col items-center cursor-pointer transition-transform duration-300 hover:scale-105 active:scale-95 group"
             title="Chat with Jaider"
@@ -125,6 +160,12 @@ const Footer = () => {
           </p>
         </div>
       </div>
+
+      {/* Ask Jaider Floating Button */}
+      <button id="askJaiderFloat" onClick={scrollToJaider} aria-label="Ask Jaider" className={showBackToTop ? 'show' : ''}>
+        <FaRobot size={20} />
+        <span>{t('footer.askJaider', i18n.language && i18n.language.startsWith('ar') ? 'اسأل جايدر' : i18n.language && i18n.language.startsWith('es') ? 'Pregunta a Jaider' : i18n.language && i18n.language.startsWith('pt') ? 'Pergunte ao Jaider' : i18n.language && i18n.language.startsWith('it') ? 'Chiedi a Jaider' : 'Ask Jaider')}</span>
+      </button>
 
       {/* Back to Top */}
       <button id="backToTop" onClick={scrollToTop} aria-label="Back to top" className={showBackToTop ? 'show' : ''}>

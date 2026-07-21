@@ -6,6 +6,8 @@ import esJson from '../i18n/locales/es.json';
 import ptJson from '../i18n/locales/pt.json';
 import itJson from '../i18n/locales/it.json';
 
+const API = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:5000/api';
+
 const JaiderChatContext = createContext(null);
 
 const SUPPORTED_LANGS = ['en', 'ar', 'es', 'pt', 'it'];
@@ -33,37 +35,43 @@ const SUGGESTIONS = {
     "How do I book a tour?",
     "What payment methods do you accept?",
     "What is your cancellation policy?",
-    "Can you assist with visas?"
+    "Can you assist with visas?",
+    "I need help"
   ],
   es: [
     "¿Cómo reservo un tour?",
     "¿Qué métodos de pago aceptan?",
     "¿Cuál es su política de cancelación?",
-    "¿Pueden ayudar con las visas?"
+    "¿Pueden ayudar con las visas?",
+    "Necesito ayuda"
   ],
   pt: [
     "Como faço para reservar um tour?",
     "Quais métodos de pagamento vocês aceitam?",
     "Qual é a sua política de cancelamento?",
-    "Vocês podem ajudar com os vistos?"
+    "Vocês podem ajudar com os vistos?",
+    "Preciso de ajuda"
   ],
   it: [
     "Come posso prenotare un tour?",
     "Quali metodi di pagamento accettate?",
     "Qual è la vostra politica di cancellazione?",
-    "Potete aiutarmi con i visti?"
+    "Potete aiutarmi con i visti?",
+    "Ho bisogno di aiuto"
   ],
   ar: [
     "كيف يمكنني حجز رحلة؟",
     "ما هي طرق الدفع المقبولة؟",
     "ما هي سياسة الإلغاء لديكم؟",
-    "هل يمكنكم المساعدة في الحصول على التأشيرات؟"
+    "هل يمكنكم المساعدة في الحصول على التأشيرات؟",
+    "أنا محتاج مساعدة"
   ],
   'ar-eg': [
     "عايز أحجز رحلة، أعمل إيه؟",
     "إيه طرق الدفع المتاحة؟",
     "إيه سياسة الإلغاء عندكم؟",
-    "بتساعدوا في استخراج الفيزا؟"
+    "بتساعدوا في استخراج الفيزا؟",
+    "أنا محتاج مساعدة"
   ]
 };
 
@@ -81,6 +89,17 @@ export const JaiderChatProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [loadingKnowledge, setLoadingKnowledge] = useState(false);
+  const [sessionId, setSessionId] = useState('');
+
+  // Initialize session ID on mount
+  useEffect(() => {
+    let id = localStorage.getItem('jaider_chat_session_id');
+    if (!id) {
+      id = `session-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+      localStorage.setItem('jaider_chat_session_id', id);
+    }
+    setSessionId(id);
+  }, []);
   
   // Knowledge base index
   const faqDataRef = useRef({}); // { en: [ { q, a, tokens, tfIdfVector, norm } ], es: ... }
@@ -343,17 +362,61 @@ export const JaiderChatProvider = ({ children }) => {
     return SUPPORTED_LANGS.includes(activeLang) ? activeLang : 'en';
   };
 
+  // Find similar questions based on keyword matching
+  const findSimilarQuestions = (query, lang, limit = 3) => {
+    const faqItems = faqDataRef.current[lang] || [];
+    const queryTokens = tokenize(query);
+    
+    if (faqItems.length === 0 || queryTokens.length === 0) return [];
+
+    // Score each FAQ question based on token overlap
+    const scoredItems = faqItems.map(item => {
+      const itemTokens = new Set(item.tokens);
+      let matches = 0;
+      queryTokens.forEach(token => {
+        if (itemTokens.has(token)) matches++;
+      });
+      return { item, score: matches };
+    });
+
+    // Sort by score descending, filter out zero matches
+    scoredItems
+      .filter(x => x.score > 0)
+      .sort((a, b) => b.score - a.score);
+
+    return scoredItems
+      .slice(0, limit)
+      .map(x => x.item.q);
+  };
+
+  const flattenObject = (ob) => {
+    const toReturn = {};
+    for (const i in ob) {
+      if (!ob.hasOwnProperty(i)) continue;
+      if ((typeof ob[i]) === 'object' && ob[i] !== null && !Array.isArray(ob[i])) {
+        const flatObject = flattenObject(ob[i]);
+        for (const x in flatObject) {
+          if (!flatObject.hasOwnProperty(x)) continue;
+          toReturn[i + '.' + x] = flatObject[x];
+        }
+      } else {
+        toReturn[i] = ob[i];
+      }
+    }
+    return toReturn;
+  };
+
   // Load FAQ data dynamically from all locales
   const loadFaqKnowledge = () => {
     if (isLoadedRef.current) return;
     setLoadingKnowledge(true);
     try {
       const locales = {
-        en: enJson,
-        ar: arJson,
-        es: esJson,
-        pt: ptJson,
-        it: itJson
+        en: flattenObject(enJson),
+        ar: flattenObject(arJson),
+        es: flattenObject(esJson),
+        pt: flattenObject(ptJson),
+        it: flattenObject(itJson)
       };
 
       // Process each language
@@ -539,25 +602,56 @@ export const JaiderChatProvider = ({ children }) => {
     setMessages(prev => [...prev, userMsg]);
     setIsTyping(true);
 
-    // Simulate natural thinking delay (1s to 1.5s)
-    await new Promise(r => setTimeout(r, 1000 + Math.random() * 500));
-
     try {
-      // 1. Detect language of the query
+      // Fetch response from the backend chatbot API
+      const res = await fetch(`${API}/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: text,
+          sessionId,
+          language: i18n.language
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error(`Chat API error: ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      
+      // Simulate slight delay for human-like response rhythm
+      await new Promise(r => setTimeout(r, 600 + Math.random() * 400));
+
+      setMessages(prev => [
+        ...prev,
+        {
+          id: `msg-${Date.now()}-jaider`,
+          sender: 'jaider',
+          text: data.text,
+          timestamp: new Date(),
+          similarQuestions: data.similarQuestions && data.similarQuestions.length > 0 ? data.similarQuestions : undefined
+        }
+      ]);
+    } catch (err) {
+      console.error("Error processing query in Jaider backend:", err);
+      
+      // Client-side fallback logic in case of network/server failure
       const userLang = detectLanguage(text);
       const searchLang = userLang === 'ar-eg' ? 'ar' : userLang;
       const queryToMatch = userLang === 'ar-eg' ? mapColloquialToMsa(text) : text;
-
-      // 2. Perform TF-IDF search
       const result = findBestFaqMatch(queryToMatch, searchLang);
       
       let replyText = '';
+      let similarQuestions = [];
       
-      // Threshold: 0.35 similarity score
       if (result && result.item && result.score >= 0.35) {
         replyText = userLang === 'ar-eg' ? toEgyptianColloquial(result.item.a) : result.item.a;
       } else {
         replyText = FALLBACK_MESSAGES[userLang] || FALLBACK_MESSAGES[searchLang];
+        similarQuestions = findSimilarQuestions(queryToMatch, searchLang, 3);
       }
 
       setMessages(prev => [
@@ -566,20 +660,8 @@ export const JaiderChatProvider = ({ children }) => {
           id: `msg-${Date.now()}-jaider`,
           sender: 'jaider',
           text: replyText,
-          timestamp: new Date()
-        }
-      ]);
-    } catch (err) {
-      console.error("Error processing query in Jaider:", err);
-      // Fallback safe message
-      const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
-      setMessages(prev => [
-        ...prev,
-        {
-          id: `msg-${Date.now()}-jaider`,
-          sender: 'jaider',
-          text: FALLBACK_MESSAGES[activeLang] || FALLBACK_MESSAGES.en,
-          timestamp: new Date()
+          timestamp: new Date(),
+          similarQuestions: similarQuestions.length > 0 ? similarQuestions : undefined
         }
       ]);
     } finally {
@@ -594,6 +676,11 @@ export const JaiderChatProvider = ({ children }) => {
   };
 
   const clearMessages = () => {
+    // Generate a fresh session ID to clear history on both frontend and backend
+    const newSessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+    localStorage.setItem('jaider_chat_session_id', newSessionId);
+    setSessionId(newSessionId);
+
     const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
     const lang = SUPPORTED_LANGS.includes(activeLang) ? activeLang : 'en';
     setMessages([
@@ -617,7 +704,8 @@ export const JaiderChatProvider = ({ children }) => {
         isTyping,
         loadingKnowledge,
         suggestions: getSuggestions(),
-        detectLanguage
+        detectLanguage,
+        findSimilarQuestions
       }}
     >
       {children}

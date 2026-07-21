@@ -118,10 +118,9 @@ const Egipto = () => {
               <p className="text-body-sm text-obsidian-500 dark:text-black line-clamp-3 mb-4 flex-grow">
                 {t('classic.shortDesc', 'Experience the timeless beauty of Egypt with our signature classic itinerary covering all the iconic landmarks.')}
               </p>
-              <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 mt-auto">
-                <div></div>
-                <Link to="/programs/classic/classic-program">
-                  <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
+              <div className="flex items-center justify-end pt-4 border-t border-gold-500/10 mt-auto">
+                <Link to="/programs/classic/classic-program" aria-label={`${t('tourCard.viewDetails', 'View Details')} - ${t('nav.classicProgram', 'Classic Program')}`}>
+                  <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2" tabIndex={-1}>
                     {t('tourCard.viewDetails', 'View Details')} <span className="rtl-flip">&rarr;</span>
                   </Button>
                 </Link>
@@ -144,10 +143,9 @@ const Egipto = () => {
               <p className="text-body-sm text-obsidian-500 dark:text-black line-clamp-3 mb-4 flex-grow">
                 {t('dest.egypt.honeymoonersDesc', 'Celebrate your love with intimate candlelit dinners, private yacht cruises, and unmatched romantic luxury.')}
               </p>
-              <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 mt-auto">
-                <div></div>
-                <Link to="/programs/honeymooners">
-                  <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
+              <div className="flex items-center justify-end pt-4 border-t border-gold-500/10 mt-auto">
+                <Link to="/programs/honeymooners" aria-label={`${t('tourCard.viewDetails', 'View Details')} - ${t('nav.honeymooners', 'Honeymooners Package')}`}>
+                  <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2" tabIndex={-1}>
                     {t('tourCard.viewDetails', 'View Details')} <span className="rtl-flip">&rarr;</span>
                   </Button>
                 </Link>
@@ -170,10 +168,9 @@ const Egipto = () => {
               <p className="text-body-sm text-obsidian-500 dark:text-black line-clamp-3 mb-4 flex-grow">
                 {t('dest.egypt.religiousDesc', 'A spiritual journey through Egypt tracing ancient Coptic monasteries and sacred sites.')}
               </p>
-              <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 mt-auto">
-                <div></div>
-                <Link to="/programs/religious">
-                  <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
+              <div className="flex items-center justify-end pt-4 border-t border-gold-500/10 mt-auto">
+                <Link to="/programs/religious" aria-label={`${t('tourCard.viewDetails', 'View Details')} - ${t('nav.religious', 'Religious Programs')}`}>
+                  <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2" tabIndex={-1}>
                     {t('tourCard.viewDetails', 'View Details')} <span className="rtl-flip">&rarr;</span>
                   </Button>
                 </Link>
@@ -196,10 +193,9 @@ const Egipto = () => {
               <p className="text-body-sm text-obsidian-500 dark:text-black line-clamp-3 mb-4 flex-grow">
                 {t('dest.egypt.multiCountryDesc', 'Explore combined itineraries spanning Egypt, Jordan, Turkey and beyond for a truly grand adventure.')}
               </p>
-              <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 mt-auto">
-                <div></div>
-                <Link to="/programs/multi-country">
-                  <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
+              <div className="flex items-center justify-end pt-4 border-t border-gold-500/10 mt-auto">
+                <Link to="/programs/multi-country" aria-label={`${t('tourCard.viewDetails', 'View Details')} - ${t('nav.multiCountry', 'Multi-Country Tours')}`}>
+                  <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2" tabIndex={-1}>
                     {t('tourCard.viewDetails', 'View Details')} <span className="rtl-flip">&rarr;</span>
                   </Button>
                 </Link>
@@ -222,10 +218,9 @@ const Egipto = () => {
               <p className="text-body-sm text-obsidian-500 dark:text-black line-clamp-3 mb-4 flex-grow">
                 {t('dest.egypt.extensionDesc', 'Extend your Egypt journey with added destinations like Hurghada, Sharm El Sheikh, or Siwa Oasis.')}
               </p>
-              <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 mt-auto">
-                <div></div>
-                <Link to="/programs/extension">
-                  <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
+              <div className="flex items-center justify-end pt-4 border-t border-gold-500/10 mt-auto">
+                <Link to="/programs/extension" aria-label={`${t('tourCard.viewDetails', 'View Details')} - ${t('dest.egypt.extensionTitle', 'Egypt Extensions')}`}>
+                  <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2" tabIndex={-1}>
                     {t('tourCard.viewDetails', 'View Details')} <span className="rtl-flip">&rarr;</span>
                   </Button>
                 </Link>
@@ -236,7 +231,7 @@ const Egipto = () => {
       </section>
 
       <section className="relative py-24 mt-24 overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(/imgs/egyothero.png)' }} />
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(/imgs/egyothero.webp)' }} />
         <div className="absolute inset-0 bg-obsidian-900/75" />
         <div className="relative z-10 container mx-auto px-6 text-center max-w-3xl">
           <span className="text-gold-500 uppercase tracking-widest text-sm font-semibold block mb-4">
