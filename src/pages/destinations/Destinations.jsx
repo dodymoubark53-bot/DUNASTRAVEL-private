@@ -57,8 +57,11 @@ const destinationsData = [
   }
 ];
 
+import { useTours } from '../../hooks/useTours';
+
 const Destinations = () => {
   const { t } = useTranslation();
+  const { tours: allToursList, loading } = useTours({ limit: 100 }, tours);
 
   return (
     <div className="w-full bg-obsidian-50 pb-24">
@@ -96,9 +99,13 @@ const Destinations = () => {
 
       {/* Destinations Iteration */}
       <div className="container mx-auto px-6 -mt-16 relative z-20">
-        {destinationsData.map((dest) => {
-          // جلب كل الرحلات المحدثة التابعة للوجهة
-          const destTours = tours.filter(tour => tour.destination === dest.id);
+        {loading ? (
+          <div className="flex justify-center py-24">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold-500"></div>
+          </div>
+        ) : (
+          destinationsData.map((dest) => {
+            const destTours = allToursList.filter(tour => tour.destination === dest.id);
           
           return (
             <motion.div 
@@ -148,7 +155,8 @@ const Destinations = () => {
               )}
             </motion.div>
           );
-        })}
+        })
+        )}
       </div>
     </div>
   );

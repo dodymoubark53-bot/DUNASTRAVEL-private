@@ -5,13 +5,17 @@ import { motion } from 'framer-motion';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import Button from '../../components/ui/Button';
 import TourCard from '../../components/tour/TourCard';
-import { useDubaiPrograms } from '../../hooks/useDubaiPrograms';
+import { useTours } from '../../hooks/useTours';
+import { tours } from '../../data/tours';
+import { useCmsBlock } from '../../hooks/useCmsBlock';
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80';
 
 const Dubai = () => {
   const { t } = useTranslation();
-  const programs = useDubaiPrograms();
+  const staticPrograms = tours.filter((t) => t.destination === 'Dubai'.toLowerCase());
+  const { tours: programs, loading } = useTours({ destination: 'Dubai'.toLowerCase() }, staticPrograms);
+  const { data: cmsData } = useCmsBlock('destination_dubai');
 
   return (
     <div className="w-full min-h-screen bg-obsidian-50 pb-24">
@@ -28,13 +32,13 @@ const Dubai = () => {
         </div>
         <motion.div className="relative z-10 container mx-auto px-6 text-center mt-20" variants={staggerContainer} initial="hidden" animate="visible">
           <motion.span variants={fadeInUp} className="inline-block font-body text-gold-500 tracking-[0.2em] uppercase text-sm mb-4">
-            {t('dest.dubai.subtitle', 'Modern luxury redefined')}
+            {cmsData?.subtitle || t('dest.dubai.subtitle', 'Modern luxury redefined')}
           </motion.span>
           <motion.h1 variants={fadeInUp} className="text-display-xl text-ivory-50 mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
-            {t('dest.dubai.title', 'Dubai')}
+            {cmsData?.title || t('dest.dubai.title', 'Dubai')}
           </motion.h1>
           <motion.p variants={fadeInUp} className="text-body-lg text-ivory-300 max-w-2xl mx-auto">
-            {t('dest.dubai.desc', 'From the towering Burj Khalifa to the golden dunes of the Arabian Desert, Dubai is a city that defies imagination.')}
+            {cmsData?.desc || t('dest.dubai.desc', 'From the towering Burj Khalifa to the golden dunes of the Arabian Desert, Dubai is a city that defies imagination.')}
           </motion.p>
         </motion.div>
       </section>
@@ -61,7 +65,12 @@ const Dubai = () => {
           whileInView="visible"
           viewport={{ once: true, margin: '-50px' }}
         >
-          {programs.map((prog) => {
+          {loading ? (
+            <div className="col-span-full flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold-500"></div>
+            </div>
+          ) : (
+            programs.map((prog) => {
             const tourObj = {
               id: prog.id,
               slug: prog.slug,
@@ -83,7 +92,8 @@ const Dubai = () => {
                 highlights={Array.isArray(prog.highlights) ? prog.highlights : []}
               />
             );
-          })}
+          })
+          )}
         </motion.div>
       </section>
 

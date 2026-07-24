@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTours } from '../../hooks/useTours';
 import { allTours } from '../../data/tours';
 import TourCard from '../../components/tour/TourCard';
 import Button from '../../components/ui/Button';
@@ -10,11 +11,10 @@ import Button from '../../components/ui/Button';
 const Tunez = () => {
   const { t, i18n } = useTranslation();
 
-  // Filter the Tunisia tours and only show the one for the current language if applicable, 
-  // or "multi" which means it handles all languages via i18n keys
-  const tunisiaToursList = allTours.filter(
+  const staticTunisiaTours = allTours.filter(
     (tour) => tour.destination === 'tunisia' && (tour.language === 'multi' || tour.language === i18n.language)
   );
+  const { tours: tunisiaToursList, loading } = useTours({ destination: 'tunisia' }, staticTunisiaTours);
 
   return (
     <div className="w-full min-h-screen bg-obsidian-50 pb-24">
@@ -49,7 +49,11 @@ const Tunez = () => {
       {/* Tours Grid */}
       <section className="container mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {tunisiaToursList.length > 0 ? (
+          {loading ? (
+            <div className="col-span-full flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold-500"></div>
+            </div>
+          ) : tunisiaToursList.length > 0 ? (
             tunisiaToursList.map((tour, idx) => (
               <Suspense key={tour.id} fallback={<div className="h-[400px] bg-obsidian-100 rounded-xl animate-pulse"></div>}>
                 <motion.div

@@ -6,6 +6,7 @@ import { staggerContainer, fadeInUp } from '../../animations/variants';
 import TourCard from '../../components/tour/TourCard';
 import Button from '../../components/ui/Button';
 import { tours } from '../../data/tours';
+import { useTours } from '../../hooks/useTours';
 
 // ── destination image constants ────────────────────────────────────────────
 const HERO_IMG =
@@ -15,7 +16,8 @@ const SANTORINI_IMG =
 
 const Grecia = () => {
   const { t } = useTranslation();
-  const greekTours = tours.filter((tour) => tour.destination === 'greece');
+  const staticgreekTours = tours.filter((tour) => tour.destination === 'greece');
+  const { tours: greekTours, loading } = useTours({ destination: 'greece' }, staticgreekTours);
 
   return (
     <div className="w-full bg-obsidian-50 pb-24">
@@ -134,9 +136,15 @@ const Grecia = () => {
           whileInView="visible"
           viewport={{ once: true, margin: '-50px' }}
         >
-          {greekTours.map((tour) => (
-            <TourCard key={tour.id} tour={tour} />
-          ))}
+          {loading ? (
+            <div className="col-span-full flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold-500"></div>
+            </div>
+          ) : (
+            greekTours.map((tour) => (
+              <TourCard key={tour.id} tour={tour} />
+            ))
+          )}
         </motion.div>
       </section>
 
@@ -179,3 +187,4 @@ const Grecia = () => {
 };
 
 export default Grecia;
+

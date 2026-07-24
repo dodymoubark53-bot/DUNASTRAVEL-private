@@ -6,10 +6,15 @@ import { staggerContainer, fadeInUp } from '../../animations/variants';
 import Button from '../../components/ui/Button';
 import TourCard from '../../components/tour/TourCard';
 import { tours } from '../../data/tours';
+import { useTours } from '../../hooks/useTours';
+import { useCmsBlock } from '../../hooks/useCmsBlock';
 
 const Egipto = () => {
   const { t } = useTranslation();
-  const egyptTours = tours.filter((tour) => tour.destination === 'egypt');
+  const { data: cmsData } = useCmsBlock('destination_egypt');
+  
+  const staticEgyptTours = tours.filter((tour) => tour.destination === 'egypt');
+  const { tours: egyptTours, loading } = useTours({ destination: 'egypt' }, staticEgyptTours);
 
   return (
     <div className="w-full bg-obsidian-50 pb-24">
@@ -40,17 +45,17 @@ const Egipto = () => {
           animate="visible"
         >
           <motion.span variants={fadeInUp} className="inline-block font-body text-gold-500 tracking-[0.2em] uppercase text-sm mb-4">
-            {t('dest.egypt.subtitle', 'Land of the Pharaohs')}
+            {cmsData?.subtitle || t('dest.egypt.subtitle', 'Land of the Pharaohs')}
           </motion.span>
           <motion.h1
             variants={fadeInUp}
             className="text-display-xl text-ivory-50 mb-6"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            {t('dest.egypt.title', 'Egypt')}
+            {cmsData?.title || t('dest.egypt.title', 'Egypt')}
           </motion.h1>
           <motion.p variants={fadeInUp} className="text-body-lg text-ivory-300 max-w-2xl mx-auto">
-            {t('dest.egypt.desc', 'From the timeless Pyramids of Giza to the golden temples of Luxor and the crystal waters of the Red Sea, Egypt offers a journey through history like no other.')}
+            {cmsData?.desc || t('dest.egypt.desc', 'From the timeless Pyramids of Giza to the golden temples of Luxor and the crystal waters of the Red Sea, Egypt offers a journey through history like no other.')}
           </motion.p>
         </motion.div>
       </section>
@@ -70,9 +75,15 @@ const Egipto = () => {
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
         >
-          {egyptTours.map((tour) => (
-            <TourCard key={tour.id} tour={tour} />
-          ))}
+          {loading ? (
+            <div className="col-span-full flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold-500"></div>
+            </div>
+          ) : (
+            egyptTours.map((tour) => (
+              <TourCard key={tour.id} tour={tour} />
+            ))
+          )}
         </motion.div>
       </section>
 

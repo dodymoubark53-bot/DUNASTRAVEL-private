@@ -5,13 +5,15 @@ import { motion } from 'framer-motion';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import TourCard from '../../components/tour/TourCard';
 import Button from '../../components/ui/Button';
-import { useMoroccoPrograms } from '../../hooks/useMoroccoPrograms';
+import { useTours } from '../../hooks/useTours';
+import { tours } from '../../data/tours';
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1920&q=80';
 
 const Marruecos = () => {
   const { t } = useTranslation();
-  const programs = useMoroccoPrograms();
+  const staticPrograms = tours.filter((t) => t.destination === 'Marruecos'.toLowerCase());
+  const { tours: programs, loading } = useTours({ destination: 'Marruecos'.toLowerCase() }, staticPrograms);
 
   return (
     <div className="w-full min-h-screen bg-obsidian-50 pb-24">
@@ -59,7 +61,12 @@ const Marruecos = () => {
           whileInView="visible"
           viewport={{ once: true, margin: '-50px' }}
         >
-          {programs.map((prog) => {
+          {loading ? (
+            <div className="col-span-full flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold-500"></div>
+            </div>
+          ) : (
+            programs.map((prog) => {
             const tourObj = {
               id: prog.id,
               slug: prog.slug,
@@ -81,7 +88,8 @@ const Marruecos = () => {
                 highlights={Array.isArray(prog.highlights) ? prog.highlights : []}
               />
             );
-          })}
+          })
+          )}
         </motion.div>
       </section>
 
@@ -117,3 +125,4 @@ const Marruecos = () => {
 };
 
 export default Marruecos;
+

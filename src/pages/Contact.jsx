@@ -90,15 +90,40 @@ const Contact = () => {
           {/* Form */}
           <div className="lg:w-1/2 p-12">
             <h3 className="text-display-md text-obsidian-900 mb-6">{t('contact.sendMessage', 'Send us a message')}</h3>
-            <form className="flex flex-col gap-6">
+            <form className="flex flex-col gap-6" onSubmit={async (e) => {
+              e.preventDefault();
+              const form = e.target;
+              const firstName = form.firstName.value;
+              const lastName = form.lastName.value;
+              const email = form.email.value;
+              const phone = form.phone.value;
+              const message = form.message.value;
+              
+              try {
+                const { default: api } = await import('../utils/api');
+                await api.post('/contact-submissions', {
+                  firstName,
+                  lastName,
+                  email,
+                  phone: phone || undefined,
+                  subject: 'Contact Form Submission',
+                  message
+                });
+                alert(t('contact.success', 'Your message has been sent successfully.'));
+                form.reset();
+              } catch (err) {
+                console.error(err);
+                alert(t('contact.error', 'There was an error sending your message.'));
+              }
+            }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <input type="text" placeholder={t('contact.firstName', 'First Name')} required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
-                <input type="text" placeholder={t('contact.lastName', 'Last Name')} required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
+                <input name="firstName" type="text" placeholder={t('contact.firstName', 'First Name')} required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
+                <input name="lastName" type="text" placeholder={t('contact.lastName', 'Last Name')} required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
               </div>
-              <input type="email" placeholder={t('contact.emailPlaceholder', 'Email Address')} required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
-              <input type="tel" placeholder={t('contact.phonePlaceholder', 'Phone Number')} className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
-              <textarea placeholder={t('contact.messagePlaceholder', 'How can we help you craft your perfect journey?')} rows="5" required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors resize-none"></textarea>
-              <Button variant="gold-glow" className="self-start px-8">{t('contact.sendBtn', 'Send Message')}</Button>
+              <input name="email" type="email" placeholder={t('contact.emailPlaceholder', 'Email Address')} required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
+              <input name="phone" type="tel" placeholder={t('contact.phonePlaceholder', 'Phone Number')} className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
+              <textarea name="message" placeholder={t('contact.messagePlaceholder', 'How can we help you craft your perfect journey?')} rows="5" required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors resize-none"></textarea>
+              <Button type="submit" variant="gold-glow" className="self-start px-8">{t('contact.sendBtn', 'Send Message')}</Button>
             </form>
           </div>
 

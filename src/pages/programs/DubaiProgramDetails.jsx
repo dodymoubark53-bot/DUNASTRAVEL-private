@@ -7,16 +7,18 @@ import { FaCheckCircle, FaMapMarkerAlt, FaBed, FaClock, FaTag, FaChevronRight, F
 import { fadeInUp } from '../../animations/variants';
 import Button from '../../components/ui/Button';
 import BookingForm from '../../components/booking/BookingForm';
-import { useDubaiProgram } from '../../hooks/useDubaiPrograms';
+import rawProgramData from '../../data/programs.json';
+const rawPrograms = rawProgramData.programs;
 import ReviewsMap from '../../components/tour/ReviewsMap';
 import RouteMap from '../../components/tour/RouteMap';
+import { useTours } from '../../hooks/useTours';
 import { tours } from '../../data/tours';
 import TourCard from '../../components/tour/TourCard';
 
 const DubaiProgramDetails = () => {
   const { t } = useTranslation();
   const { programId } = useParams();
-  const program = useDubaiProgram(programId);
+  const program = rawPrograms.find((p) => p.slug === programId || p.id === programId);
   const [activeImage, setActiveImage] = useState(null);
   const carouselRef = useRef(null);
 
@@ -54,7 +56,8 @@ const DubaiProgramDetails = () => {
 
   const { title, overview, duration, highlights, days, images, code, minPax, includes, excludes, pricing, extraNightPrices, exhibitionSurcharges } = program;
 
-  const shuffledTours = [...tours].sort(() => Math.random() - 0.5);
+  const { tours: allApiTours } = useTours({ limit: 20 }, tours);
+  const shuffledTours = [...allApiTours].sort(() => Math.random() - 0.5);
 
   return (
     <div className="w-full bg-obsidian-50 min-h-screen">

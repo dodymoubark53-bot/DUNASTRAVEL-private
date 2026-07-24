@@ -5,13 +5,15 @@ import { motion } from 'framer-motion';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import Button from '../../components/ui/Button';
 import TourCard from '../../components/tour/TourCard';
-import { useTurkeyPrograms } from '../../hooks/useTurkeyPrograms';
+import { useTours } from '../../hooks/useTours';
+import { tours } from '../../data/tours';
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1920&q=80';
 
 const Turquia = () => {
   const { t } = useTranslation();
-  const programs = useTurkeyPrograms();
+  const staticPrograms = tours.filter((t) => t.destination === 'Turquia'.toLowerCase());
+  const { tours: programs, loading } = useTours({ destination: 'Turquia'.toLowerCase() }, staticPrograms);
 
   return (
     <div className="w-full min-h-screen bg-obsidian-50 pb-24">
@@ -61,7 +63,12 @@ const Turquia = () => {
           whileInView="visible"
           viewport={{ once: true, margin: '-50px' }}
         >
-          {programs.map((prog) => {
+          {loading ? (
+            <div className="col-span-full flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold-500"></div>
+            </div>
+          ) : (
+            programs.map((prog) => {
             const tourObj = {
               id: prog.id,
               slug: prog.slug,
@@ -84,7 +91,8 @@ const Turquia = () => {
                 highlights={Array.isArray(prog.highlights) ? prog.highlights : []}
               />
             );
-          })}
+          })
+          )}
         </motion.div>
       </section>
 
@@ -121,3 +129,4 @@ const Turquia = () => {
 };
 
 export default Turquia;
+

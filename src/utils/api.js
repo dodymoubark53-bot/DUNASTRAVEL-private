@@ -81,6 +81,19 @@ function unwrap(body) {
   return body;
 }
 
+// ── Auth Refresh Management ──────────────────────────────────────────────────
+let _isRefreshing = false;
+let _refreshSubscribers = [];
+
+function onRefreshed(success) {
+  _refreshSubscribers.forEach((callback) => callback(success));
+  _refreshSubscribers = [];
+}
+
+function addRefreshSubscriber(callback) {
+  _refreshSubscribers.push(callback);
+}
+
 // ── Core Request Function ─────────────────────────────────────────────────────
 const MUTATING_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'];
 
@@ -93,7 +106,7 @@ const MUTATING_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'];
  * @param {boolean} opts.raw - If true, return the raw unwrapped body without further processing
  * @returns {Promise<any>} The unwrapped response data
  */
-export async function apiRequest(path, options = {}, { raw = false } = {}) {
+export async function apiRequest(path, options = {}, { raw = false, _retry = false } = {}) {
   const method = (options.method || 'GET').toUpperCase();
   const isMutating = MUTATING_METHODS.includes(method);
 
@@ -113,7 +126,7 @@ export async function apiRequest(path, options = {}, { raw = false } = {}) {
 
   const url = `${BASE_URL}${path}`;
 
-  const res = await fetch(url, {
+  let res = await fetch(url, {
     ...options,
     method,
     headers,
@@ -125,6 +138,44 @@ export async function apiRequest(path, options = {}, { raw = false } = {}) {
           : JSON.stringify(options.body)
         : undefined,
   });
+
+  // Handle 401 Unauthorized for Refresh Token
+  if (res.status === 401 && !_retry && !path.includes('/auth/refresh') && !path.includes('/auth/login')) {
+    if (_isRefreshing) {
+      const success = await new Promise((resolve) => addRefreshSubscriber(resolve));
+      if (success) {
+        return apiRequest(path, options, { raw, _retry: true });
+      }
+    } else {
+      _isRefreshing = true;
+      try {
+        const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        
+        _isRefreshing = false;
+        
+        if (refreshRes.ok) {
+          clearCsrfToken(); // Need new CSRF token after refresh
+          onRefreshed(true);
+          return apiRequest(path, options, { raw, _retry: true });
+        } else {
+          onRefreshed(false);
+          // Redirect to login if refresh fails
+          if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+            window.location.href = '/login';
+          }
+        }
+      } catch (err) {
+        _isRefreshing = false;
+        onRefreshed(false);
+        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+          window.location.href = '/login';
+        }
+      }
+    }
+  }
 
   // Parse body
   let body;

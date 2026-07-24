@@ -5,13 +5,15 @@ import { motion } from 'framer-motion';
 import { FaCheckCircle, FaMapMarkerAlt, FaTimes } from 'react-icons/fa';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import Button from '../../components/ui/Button';
-import { useJordanPrograms } from '../../hooks/useJordanPrograms';
+import { useTours } from '../../hooks/useTours';
+import { tours } from '../../data/tours';
 
 const HERO_IMG = 'https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg';
 
 const Jordania = () => {
   const { t } = useTranslation();
-  const programs = useJordanPrograms();
+  const staticPrograms = tours.filter((t) => t.destination === 'Jordania'.toLowerCase());
+  const { tours: programs, loading } = useTours({ destination: 'Jordania'.toLowerCase() }, staticPrograms);
 
   return (
     <div className="w-full min-h-screen bg-obsidian-50 pb-24">
@@ -59,7 +61,12 @@ const Jordania = () => {
           whileInView="visible"
           viewport={{ once: true, margin: '-50px' }}
         >
-          {programs.map((prog) => (
+          {loading ? (
+            <div className="col-span-full flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold-500"></div>
+            </div>
+          ) : (
+            programs.map((prog) => (
             <motion.div
               key={prog.id}
               variants={fadeInUp}
@@ -108,7 +115,8 @@ const Jordania = () => {
                 </div>
               </div>
             </motion.div>
-          ))}
+          ))
+          )}
         </motion.div>
       </section>
 
@@ -320,3 +328,4 @@ const Jordania = () => {
 };
 
 export default Jordania;
+

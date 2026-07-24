@@ -14,12 +14,17 @@ import { fadeInUp } from '../../animations/variants';
 import BookingForm from '../../components/booking/BookingForm';
 import { useCurrency } from '../../context/CurrencyContext';
 
+import { useTour } from '../../hooks/useTour';
+
 const TourDetails = () => {
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
   const { slug } = useParams();
 
-  const tour = tours.find(t => t.slug === slug) || tours[0];
+  const { tour: dynamicTour, loading } = useTour(slug);
+  const staticTour = tours.find(t => t.slug === slug) || tours[0];
+  const tour = dynamicTour || staticTour;
+
   const shuffledTours = [...tours].sort(() => Math.random() - 0.5);
 
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);

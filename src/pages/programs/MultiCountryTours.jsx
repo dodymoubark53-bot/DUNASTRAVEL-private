@@ -4,10 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { FaChevronRight } from 'react-icons/fa';
 import TourCard from '../../components/tour/TourCard';
+import { useTours } from '../../hooks/useTours';
 import { multiCountryTours } from '../../data/multiCountryTours';
 
 const MultiCountryTours = () => {
   const { t } = useTranslation();
+  const { tours: apiTours, loading } = useTours({ category: 'multi-country' }, multiCountryTours);
 
   return (
     <>
@@ -44,13 +46,19 @@ const MultiCountryTours = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {multiCountryTours.map((tour) => (
-              <TourCard
-                key={tour.id}
-                tour={tour}
-                linkBase="/programs/multi-country"
-              />
-            ))}
+            {loading ? (
+              <div className="col-span-full flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold-500"></div>
+              </div>
+            ) : (
+              apiTours.map((tour) => (
+                <TourCard
+                  key={tour.id}
+                  tour={tour}
+                  linkBase="/programs/multi-country"
+                />
+              ))
+            )}
           </div>
         </div>
       </section>

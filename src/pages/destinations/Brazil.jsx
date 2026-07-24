@@ -6,10 +6,12 @@ import { staggerContainer, fadeInUp } from '../../animations/variants';
 import Button from '../../components/ui/Button';
 import TourCard from '../../components/tour/TourCard';
 import { tours } from '../../data/tours';
+import { useTours } from '../../hooks/useTours';
 
 const Brazil = () => {
   const { t } = useTranslation();
-  const brazilTours = tours.filter((tour) => tour.destination === 'brazil');
+  const staticbrazilTours = tours.filter((tour) => tour.destination === 'brazil');
+  const { tours: brazilTours, loading } = useTours({ destination: 'brazil' }, staticbrazilTours);
 
   return (
     <div className="w-full bg-obsidian-50 pb-24">
@@ -52,6 +54,7 @@ const Brazil = () => {
           <motion.p variants={fadeInUp} className="text-body-lg text-ivory-300 max-w-2xl mx-auto">
             {t('dest.brazil.desc', 'Do charme histórico do Rio de Janeiro às belezas naturais da Amazônia, embarque em uma viagem de luxo inesquecível pelo coração do Brasil.')}
           </motion.p>
+                  )}
         </motion.div>
       </section>
 
@@ -70,9 +73,15 @@ const Brazil = () => {
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
         >
+          {loading ? (
+            <div className="col-span-full flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold-500"></div>
+            </div>
+          ) : (
           {brazilTours.map((tour) => (
             <TourCard key={tour.id} tour={tour} />
           ))}
+                  )}
         </motion.div>
       </section>
 
@@ -108,3 +117,4 @@ const Brazil = () => {
 };
 
 export default Brazil;
+

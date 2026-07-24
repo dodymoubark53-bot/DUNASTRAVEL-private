@@ -123,7 +123,9 @@ const TailorTour = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Prevent form submission if dates are in the past
     if (travelDate && travelDate < todayStr) {
@@ -131,25 +133,52 @@ const TailorTour = () => {
       return;
     }
 
-    alert(t('tailor.successAlert', 'Your request has been submitted successfully! We will contact you soon.'));
-    // Reset form
-    setSelectedDestinations([]);
-    setFullName('');
-    setEmail('');
-    setNationality('');
-    setPhone('');
-    setTravelDate('');
-    setDateError(false);
-    setBudget('');
-    setAdults(1);
-    setChildren(0);
-    setInfants(0);
-    setPassengerNames(['']);
-    setSpecialRequests('');
-    setAnimationState('parked-1');
-    setStep(1);
-    scrollToTop();
+    try {
+      setIsSubmitting(true);
+      
+      const payload = {
+        fullName,
+        email,
+        phone,
+        preferredLanguage: i18n.language || 'en',
+        destinations: selectedDestinations,
+        startDate: travelDate || undefined,
+        adults,
+        children: children + infants,
+        notes: specialRequests || undefined,
+      };
+
+      if (budget) {
+        payload.budgetAmount = parseFloat(budget.replace(/[^0-9.]/g, ''));
+        payload.budgetCurrency = 'USD';
+      }
+
+      const { default: api } = await import('../utils/api');
+      await api.post('/inquiries', payload);
+
+      alert(t('tailor.successAlert', 'Your request has been submitted successfully! We will contact you soon.'));
+      // Reset form
+      setSelectedDestinations([]);
+      setFullName('');
+      setEmail('');
+      setNationality('');
+      setPhone('');
+      setTravelDate('');
+      setDateError(false);
+      setBudget('');
+      setAdults(1);
+      setChildren(0);
+      setInfants(0);
+      setStep(1);
+      scrollToTop();
+    } catch (err) {
+      console.error('Inquiry submission failed:', err);
+      alert(t('tailor.errorAlert', 'Failed to submit inquiry. Please try again.'));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
 
   // Select plane-icon class dynamically depending on step & language direction
   const getPlaneClass = () => {
@@ -990,8 +1019,8 @@ const TailorTour = () => {
                       {t('tailor.back', 'Back')}
                     </button>
                     <div className="submit-wrapper">
-                      <button type="submit" className="btn-3d-glow">
-                        {t('tailor.submit', 'Send Inquiry Now!')}
+                      <button type="submit" className="btn-3d-glow" disabled={isSubmitting}>
+                        {isSubmitting ? t('tailor.submitting', 'Sending...') : t('tailor.submit', 'Send Inquiry Now!')}
                       </button>
                     </div>
                   </div>

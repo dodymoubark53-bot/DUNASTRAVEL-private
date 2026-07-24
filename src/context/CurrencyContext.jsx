@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
-
+import api from '../utils/api';
 const CurrencyContext = createContext();
 
 export const CurrencyProvider = ({ children }) => {
@@ -12,13 +12,9 @@ export const CurrencyProvider = ({ children }) => {
   useEffect(() => {
     const fetchRate = async () => {
       try {
-        const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-        const res = await fetch(`${API}/currency/rates`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.rates?.EUR) {
-            setEurRate(data.rates.EUR);
-          }
+        const data = await api.get('/currency/public/rates');
+        if (data?.rates?.EUR) {
+          setEurRate(data.rates.EUR);
         }
       } catch (err) {
         console.error('Failed to fetch currency rates', err);

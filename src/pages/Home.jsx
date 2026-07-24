@@ -9,10 +9,7 @@ import TourCard from "../components/tour/TourCard";
 import { tours } from "../data/tours";
 import { turkeyTours } from "../data/turkeyTours";
 import { multiCountryTours } from "../data/multiCountryTours";
-import { useTurkeyPrograms } from "../hooks/useTurkeyPrograms";
-import { useJordanPrograms } from "../hooks/useJordanPrograms";
-import { useDubaiPrograms } from "../hooks/useDubaiPrograms";
-import { useMoroccoPrograms } from "../hooks/useMoroccoPrograms";
+import { useTours } from "../hooks/useTours";
 import { transportation } from "../data/transportation";
 import useScrollAnimations from "../hooks/useScrollAnimations";
 import { useCurrency } from "../context/CurrencyContext";
@@ -230,7 +227,7 @@ const Home = () => {
   const [isAllToursPopupOpen, setIsAllToursPopupOpen] = useState(false);
   const [activeVideo, setActiveVideo] = useState(null);
   const [tourPaused, setTourPaused] = useState(false);
-  const turkeyPrograms = useTurkeyPrograms();
+  const { tours: turkeyPrograms } = useTours({ destination: 'turkey' }, turkeyTours);
   const formattedTurkeyTours = turkeyPrograms.map((tp) => ({
     id: tp.id,
     slug: tp.slug,
@@ -248,7 +245,7 @@ const Home = () => {
     code: tp.code
   }));
 
-  const jordanPrograms = useJordanPrograms();
+  const { tours: jordanPrograms } = useTours({ destination: 'jordan' }, rawPrograms.jordan || []);
   const formattedJordanTours = jordanPrograms.map((jp) => ({
     id: jp.id,
     slug: jp.slug,
@@ -266,7 +263,7 @@ const Home = () => {
     code: jp.code
   }));
 
-  const dubaiPrograms = useDubaiPrograms();
+  const { tours: dubaiPrograms } = useTours({ destination: 'dubai' }, rawPrograms.dubai || []);
   const formattedDubaiTours = dubaiPrograms.map((dp) => ({
     id: dp.id,
     slug: dp.slug,
@@ -284,7 +281,7 @@ const Home = () => {
     code: dp.code
   }));
 
-  const moroccoPrograms = useMoroccoPrograms();
+  const { tours: moroccoPrograms } = useTours({ destination: 'morocco' }, rawPrograms.morocco || []);
   const formattedMoroccoTours = moroccoPrograms.map((mp) => ({
     id: mp.id,
     slug: mp.slug,

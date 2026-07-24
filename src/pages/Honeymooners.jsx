@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { staggerContainer, fadeInUp } from '../animations/variants';
 import { FaChevronRight } from 'react-icons/fa';
+import { useCmsBlock } from '../hooks/useCmsBlock';
 
 const tours = [
   {
@@ -20,6 +21,7 @@ const tours = [
 
 const Honeymooners = () => {
   const { t } = useTranslation();
+  const { data: cmsData } = useCmsBlock('destination_honeymooners');
 
   return (
     <div className="w-full bg-obsidian-50 pb-24">
@@ -41,13 +43,13 @@ const Honeymooners = () => {
         </div>
         <motion.div className="relative z-10 text-center px-6 mt-20" variants={staggerContainer} initial="hidden" animate="visible">
           <motion.span variants={fadeInUp} className="text-gold-400 uppercase tracking-[4px] text-sm block mb-4 font-semibold">
-            {t('honeymooners.subtitle', 'Honeymooners Package')}
+            {cmsData?.subtitle || t('honeymooners.subtitle', 'Honeymooners Package')}
           </motion.span>
           <motion.h1 variants={fadeInUp} className="text-4xl md:text-6xl lg:text-7xl text-ivory-50 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
-            {t('honeymooners.heading', 'Love Stories Begin Here')}
+            {cmsData?.heading || t('honeymooners.heading', 'Love Stories Begin Here')}
           </motion.h1>
           <motion.p variants={fadeInUp} className="text-body-lg text-ivory-200 max-w-2xl mx-auto leading-relaxed">
-            {t('honeymooners.heroDesc', 'Let us craft the most romantic chapter of your life. From the timeless pyramids to the tranquil Red Sea, every moment is designed for two.')}
+            {cmsData?.heroDesc || t('honeymooners.heroDesc', 'Let us craft the most romantic chapter of your life. From the timeless pyramids to the tranquil Red Sea, every moment is designed for two.')}
           </motion.p>
         </motion.div>
       </section>
