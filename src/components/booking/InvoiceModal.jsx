@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { FaTimes, FaFileInvoiceDollar, FaPrint } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 
@@ -30,15 +31,23 @@ const InvoiceModal = ({ booking, onClose }) => {
 
   const handlePrint = () => window.print();
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
+  const modalContent = (
+    <div 
+      className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/70 backdrop-blur-md p-4"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onClose();
+      }}
+    >
       <div
-        className="relative bg-white text-gray-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="relative bg-white text-gray-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl z-[100000]"
         dir={isRtl ? 'rtl' : 'ltr'}
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Print Button */}
         <button
+          type="button"
           onClick={handlePrint}
           className="absolute top-4 left-12 z-10 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors print:hidden"
         >
@@ -47,6 +56,7 @@ const InvoiceModal = ({ booking, onClose }) => {
 
         {/* Close Button */}
         <button
+          type="button"
           onClick={onClose}
           className="absolute top-4 left-4 z-10 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors print:hidden"
         >
@@ -186,6 +196,8 @@ const InvoiceModal = ({ booking, onClose }) => {
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default InvoiceModal;

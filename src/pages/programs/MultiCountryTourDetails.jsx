@@ -385,7 +385,7 @@ const MultiCountryTourDetails = () => {
         </div>
       </section>
 
-      <ReviewsMap />
+      <ReviewsMap tourId={slug} />
 
       {/* Lightbox Modal */}
       <AnimatePresence>

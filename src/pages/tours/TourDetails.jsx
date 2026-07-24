@@ -436,6 +436,11 @@ const TourDetails = () => {
         </div>
       </section>
 
+<<<<<<< HEAD
+=======
+      <ReviewsMap tourId={tour.slug} />
+
+>>>>>>> 136e3559b2e1696b55dac3f78fc5e195383586ee
       {/* Related Tours */}
       <section className="container mx-auto px-6 py-24">
         <div className="text-center mb-16">

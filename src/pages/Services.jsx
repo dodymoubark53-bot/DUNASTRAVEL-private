@@ -8,6 +8,7 @@ import Button from '../components/ui/Button';
 import { services as allServicesData } from '../data/services';
 import { transportation } from '../data/transportation';
 import { useCurrency } from '../context/CurrencyContext';
+import ReviewsMap from '../components/tour/ReviewsMap';
 
 const Services = () => {
   const { t } = useTranslation();
@@ -300,6 +301,9 @@ const Services = () => {
           </div>
         )}
       </section>
+
+      {/* Testimonials Section */}
+      <ReviewsMap tourId={service || 'services-global'} />
     </div>
   );
 };

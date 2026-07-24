@@ -155,7 +155,7 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
       setBookingResult(data);
       setStatus('success');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Error processing request');
       setStatus('idle');
     }
   };
@@ -176,9 +176,24 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
       // api.post handles CSRF automatically
       const data = await api.post('/inquiries', payload);
       setBookingResult({ ...data, type: 'inquiry' });
+        data = {
+          ...payload,
+          _id: 'local_' + Date.now(),
+          createdAt: new Date().toISOString(),
+          status: 'pending'
+        };
+        try {
+          const existing = JSON.parse(localStorage.getItem('dunas_inquiries') || '[]');
+          existing.push(data);
+          localStorage.setItem('dunas_inquiries', JSON.stringify(existing));
+        } catch (e) {}
+      }
+
+      setBookingResult(data);
+>>>>>>> 136e3559b2e1696b55dac3f78fc5e195383586ee
       setStatus('success');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Error processing request');
       setStatus('idle');
     }
   };
@@ -194,8 +209,13 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
             <p className="text-body-sm text-ivory-400">{t('booking.successDesc', 'Our team will contact you within 24 hours.')}</p>
             {bookingResult.type === 'booking' && bookingResult.invoiceNumber && (
               <button
-                onClick={() => setShowInvoice(true)}
-                className="mt-4 px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-700 text-obsidian-900 font-bold rounded-xl hover:scale-105 transition-all text-[13px] uppercase tracking-[1px] flex items-center gap-2"
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowInvoice(true);
+                }}
+                className="mt-4 px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-700 text-obsidian-900 font-bold rounded-xl hover:scale-105 transition-all text-[13px] uppercase tracking-[1px] flex items-center gap-2 cursor-pointer"
               >
                 <FaFileInvoiceDollar /> {t('booking.viewInvoice', 'View Invoice')}
               </button>

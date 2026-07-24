@@ -18,6 +18,11 @@ function asyncCssPlugin() {
 export default defineConfig({
   plugins: [react(), asyncCssPlugin()],
   base: '/',
+  server: {
+    watch: {
+      ignored: ['**/.claude/**', '**/.git/**']
+    }
+  },
   build: {
     rollupOptions: {
       output: {

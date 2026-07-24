@@ -160,55 +160,7 @@ html {
     color: #1a1a2e !important;
   }
 
-  /* Reviews section - fixed light mode design, unaffected by dark mode */
-  .dark .reviews-section {
-    background: #f8f6f0 !important;
-  }
-  .dark .reviews-section,
-  .dark .reviews-section * {
-    color: #1a1a2e !important;
-  }
-  .dark .reviews-section .text-obsidian-400 {
-    color: #9ca3af !important;
-  }
-  .dark .reviews-section .text-obsidian-500 {
-    color: #6b7280 !important;
-  }
-  .dark .reviews-section .text-obsidian-700 {
-    color: #374151 !important;
-  }
-  .dark .reviews-section .bg-white {
-    background: #ffffff !important;
-  }
-  .dark .reviews-section .bg-ivory-50 {
-    background: #f8f6f0 !important;
-  }
-  .dark .reviews-section input,
-  .dark .reviews-section textarea {
-    background: #ffffff !important;
-    color: #1a1a2e !important;
-    border-color: rgba(26, 26, 46, 0.1) !important;
-  }
-  .dark .reviews-section .border-obsidian-900\/10,
-  .dark .reviews-section .border-obsidian-900\/5 {
-    border-color: rgba(26, 26, 46, 0.1) !important;
-  }
-  .dark .reviews-section .shadow-card {
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
-  }
-  .dark .reviews-section button.bg-gradient-to-r {
-    color: #1a1a2e !important;
-  }
-  .dark .reviews-section .text-gold-500,
-  .dark .reviews-section .reviews-star,
-  .dark .reviews-section .reviews-star path,
-  .dark .reviews-section .reviews-star svg {
-    color: #f5a623 !important;
-    fill: #f5a623 !important;
-  }
-  .dark .reviews-section .review-text {
-    color: #f5a623 !important;
-  }
+
 
   .dark .text-obsidian-300 {
     color: #a8a4a0 !important;
@@ -420,6 +372,14 @@ html {
   *:focus-visible {
     outline: 2px solid var(--color-gold);
     outline-offset: 2px;
+  }
+
+  /* Fix Light Mode Edge Shadow / Vignette globally */
+  html:not(.dark),
+  body:not(.dark),
+  #root:not(.dark) {
+    box-shadow: none !important;
+    outline: none !important;
   }
 }
 

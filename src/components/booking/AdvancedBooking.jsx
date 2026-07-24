@@ -159,7 +159,6 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
         city,
         country
       };
-
       // api.post fetches CSRF token and sends it automatically
       const data = await api.post('/bookings', payload);
 
@@ -179,7 +178,7 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
       setBookingResult(data);
       setStatus('success');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Error processing request');
       setStatus('idle');
     }
   };
@@ -229,6 +228,7 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
                   We are waiting for the requested information. All the best. Dunas Travel
                 </div>
                 <button 
+                  type="button"
                   onClick={onClose} 
                   className="px-6 py-2 bg-gold-500 text-obsidian-900 font-semibold rounded-full hover:scale-105 transition-transform text-sm cursor-pointer"
                 >
@@ -245,7 +245,12 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
                 </p>
                 {bookingResult?.invoiceNumber && (
                   <button
-                    onClick={() => setShowInvoice(true)}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowInvoice(true);
+                    }}
                     className="mt-4 px-5 py-2.5 bg-gold-500 text-obsidian-900 font-bold rounded-full hover:scale-105 transition-all text-sm flex items-center gap-2 cursor-pointer"
                   >
                     <FaFileInvoiceDollar /> {t('booking.viewInvoice', 'View Invoice')}

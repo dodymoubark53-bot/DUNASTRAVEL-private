@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const Booking = require('../models/Booking');
 const { protect } = require('../middleware/auth');
 
@@ -9,11 +10,23 @@ const router = express.Router();
 // @access  Public
 router.post('/', async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        message: 'السيرفر غير متصل بقاعدة البيانات (MongoDB offline). يرجى تشغيل MongoDB أو التأكد من إعدادات الاتصال.'
+      });
+    }
     const booking = await Booking.create(req.body);
     res.status(201).json(booking);
   } catch (err) {
-    console.error('Booking creation error:', err.message);
-    res.status(500).json({ message: 'Failed to create booking' });
+    console.error('Booking creation error:', err);
+    if (err.name === 'ValidationError') {
+      const messages = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({ message: `Validation error: ${messages.join(', ')}` });
+    }
+    if (err.code === 11000) {
+      return res.status(409).json({ message: 'Duplicate booking or invoice generated. Please try submitting again.' });
+    }
+    res.status(500).json({ message: err.message || 'Failed to create booking' });
   }
 });
 

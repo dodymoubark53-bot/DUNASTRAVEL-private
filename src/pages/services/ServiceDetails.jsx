@@ -14,6 +14,7 @@ import BookingForm from '../../components/booking/BookingForm';
 import AdvancedBooking from '../../components/booking/AdvancedBooking';
 import { useCurrency } from '../../context/CurrencyContext';
 import RouteMap from '../../components/tour/RouteMap';
+import ReviewsMap from '../../components/tour/ReviewsMap';
 
 const ServiceDetails = () => {
   const { t } = useTranslation();
@@ -547,6 +548,9 @@ const ServiceDetails = () => {
           </div>
         </section>
       )}
+
+      {/* Testimonials Section */}
+      <ReviewsMap tourId={slug} />
 
       {/* Related Services */}
       {relatedServices.length > 0 && (

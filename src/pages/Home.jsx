@@ -15,6 +15,8 @@ import useScrollAnimations from "../hooks/useScrollAnimations";
 import { useCurrency } from "../context/CurrencyContext";
 import rawProgramData from "../data/programs.json";
 const rawPrograms = rawProgramData.programs;
+import { galleryImages, videos } from "../data/media";
+
 
 const destinationsData = [
   {
@@ -611,46 +613,8 @@ const Home = () => {
       ? transportation
       : transportation.filter((v) => v.category === vehicleFilter);
 
-  const galleryImages = [
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783023877/2ec72126-709b-4c8d-8f7b-a592d212cc3b_czpoig.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783023865/80f6f47a-4938-4684-aaf1-b1e61d44dab6_n8vdtl.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783023927/dad14822-455c-419c-8627-32b3daebef90_akfw3l.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783024003/d34eeca3-6bc8-4a19-aa18-bf13404bb11b_n0f8zn.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783024053/66dc2b5e-f90d-424f-b9a7-4164b52f4e5a_eoqd3p.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783024062/071f261a-2ab6-48b5-a370-c47ad7889be3_immde1.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783024072/400a841d-18b7-4915-8483-f9a3346651cf_ocdouu.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783024090/9788c6d2-7046-4ce0-aa64-a0adcbe1a54d_omcrnc.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026771/5_upvijm.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026771/6_q4vcdg.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026771/8_mpyvu4.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026771/11_xydddd.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026771/10_t3dnh6.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026772/12_fukk6b.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026772/14_z5msnu.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026772/15_rrczuy.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026773/17_wpxrtt.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026773/18_hbfrt1.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026773/13_wtazze.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026773/20_riy2ce.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026773/19_suxy3c.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026774/21_gqrhmg.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026774/1_uidqje.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026774/2_h2krys.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026775/22_gywthx.jpg", dest: "Gallery", tag: "Photo" },
-    { src: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783026775/3_rbjrys.jpg", dest: "Gallery", tag: "Photo" },
-  ];
+  // Shared galleryImages and videos imported from ../data/media
 
-  const videos = [
-    { publicId: 'Despu%C3%A9s_de_una_intensa_jornada_en_Bogot%C3%A1__en_Dunas_Travel_compartimos_una_cena_exclusiva_con_nuestros_partners_estrat%C3%A9gicos._480P_SD_sv2pei' },
-    { publicId: 'Somos_Dunas_Travel_Group__480P_SD_gxfsxm' },
-    { publicId: 'VID-20260611-WA0001_az82kl' },
-    { publicId: 'VID-20260623-WA0112_xmyc5z' },
-    { publicId: 'VID-20260611-WA0000_mwgayg' },
-    { publicId: '%EF%B8%8F_Viagem_inteligente_come%C3%A7a_no_planejamento_certo_480P_SD_s3dyjb' },
-    { publicId: 'VID-20260623-WA0109_lxcv2r' },
-    { publicId: 'Temos_grande_honra_em_receber_este_reconhecimento_da_Lusanova_como__Melhores_Parceiros_2025_._480P_SD_rgbhr5' },
-  ];
 
   const cloudName = 'degbrq3ck';
 
@@ -1824,6 +1788,68 @@ const Home = () => {
             .gallery-strip:hover {
               animation-play-state: paused;
             }
+
+            @keyframes idleFloat {
+              0%, 100% { transform: translateY(0); }
+              50% { transform: translateY(-8px); }
+            }
+            
+            .animated-media-btn {
+              position: relative;
+              overflow: hidden;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              animation: idleFloat 3s ease-in-out infinite;
+              transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            }
+            
+            .animated-media-btn:hover {
+              animation-play-state: paused;
+              transform: scale(1.05) translateY(-4px);
+            }
+
+            .animated-media-btn:active {
+              transform: scale(0.98) translateY(0);
+              filter: brightness(0.9);
+            }
+
+            .animated-media-btn::before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: -150%;
+              width: 50%;
+              height: 100%;
+              background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.4) 50%,
+                rgba(255, 255, 255, 0) 100%
+              );
+              transform: skewX(-25deg);
+              transition: 0.75s;
+            }
+
+            .animated-media-btn:hover::before {
+              left: 150%;
+            }
+
+            .btn-images-glow {
+              box-shadow: 0 4px 20px rgba(236, 72, 153, 0.4);
+            }
+            
+            .btn-images-glow:hover {
+              box-shadow: 0 0 25px rgba(236, 72, 153, 0.8), 0 0 10px rgba(124, 58, 237, 0.5);
+            }
+
+            .btn-videos-glow {
+              box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
+            }
+            
+            .btn-videos-glow:hover {
+              box-shadow: 0 0 25px rgba(6, 182, 212, 0.8), 0 0 10px rgba(37, 99, 235, 0.5);
+            }
           `}
         </style>
         <div className="container mx-auto px-6 mb-8 text-center">
@@ -1897,6 +1923,17 @@ const Home = () => {
             })()}
           </div>
         </div>
+        <div className="flex justify-center mt-12 mb-6">
+          <button
+            onClick={() => navigate('/media-gallery?tab=photos')}
+            className="animated-media-btn btn-images-glow px-10 py-4 text-white text-base font-bold rounded-full uppercase tracking-wider transition-all duration-300"
+            style={{
+              background: 'linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)',
+            }}
+          >
+            {t("home.viewAllImages", "View All Images")}
+          </button>
+        </div>
       </section>
 
       {/* Video Strip Section */}
@@ -1964,6 +2001,17 @@ const Home = () => {
                 );
               })}
             </div>
+          </div>
+          <div className="flex justify-center mt-12 mb-4">
+            <button
+              onClick={() => navigate('/media-gallery?tab=videos')}
+              className="animated-media-btn btn-videos-glow px-10 py-4 text-white text-base font-bold rounded-full uppercase tracking-wider transition-all duration-300"
+              style={{
+                background: 'linear-gradient(135deg, #2563EB 0%, #06B6D4 100%)',
+              }}
+            >
+              {t("home.viewAllVideos", "View All Videos")}
+            </button>
           </div>
         </div>
       </section>

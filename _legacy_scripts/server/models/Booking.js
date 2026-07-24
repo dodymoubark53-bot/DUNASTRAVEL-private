@@ -71,8 +71,9 @@ BookingSchema.pre('save', function (next) {
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
-    const random = Math.floor(1000 + Math.random() * 9000);
-    this.invoiceNumber = `INV-${year}${month}-${random}`;
+    const timeSuffix = String(now.getTime()).slice(-5);
+    const random = Math.floor(100 + Math.random() * 900);
+    this.invoiceNumber = `INV-${year}${month}-${timeSuffix}${random}`;
   }
   next();
 });
