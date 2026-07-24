@@ -7,9 +7,16 @@ import { useTours } from '../../hooks/useTours';
 import { allTours } from '../../data/tours';
 import TourCard from '../../components/tour/TourCard';
 import Button from '../../components/ui/Button';
+import { trackEvent } from '../../utils/analytics';
+import { useEffect } from 'react';
 
 const Tunez = () => {
   const { t, i18n } = useTranslation();
+
+  useEffect(() => {
+    sessionStorage.setItem('dunas_origin_interface', 'tunisia');
+    trackEvent('interface_view', { interfaceSlug: 'tunisia' });
+  }, []);
 
   const staticTunisiaTours = allTours.filter(
     (tour) => tour.destination === 'tunisia' && (tour.language === 'multi' || tour.language === i18n.language)

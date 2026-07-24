@@ -10,6 +10,8 @@ import { services } from '../../data/services';
 import Button from '../../components/ui/Button';
 import { useCurrency } from '../../context/CurrencyContext';
 import { staggerContainer, cardHover, fadeInUp } from '../../animations/variants';
+import { trackEvent } from '../../utils/analytics';
+import { useEffect } from 'react';
 
 // Filter only religious category
 const religiousTours = services.filter(s => s.category === 'religious');
@@ -18,11 +20,11 @@ const renderStars = (rating) => {
   const stars = [];
   for (let i = 1; i <= 5; i++) {
     if (rating >= i) {
-      stars.push(<FaStar key={i} className="text-gold-500" />);
+      stars.push(<FaStar key={i} className="text-gold-500 text-caption shrink-0" />);
     } else if (rating >= i - 0.5) {
-      stars.push(<FaStarHalfAlt key={i} className="text-gold-500" />);
+      stars.push(<FaStarHalfAlt key={i} className="text-gold-500 text-caption shrink-0" />);
     } else {
-      stars.push(<FaRegStar key={i} className="text-obsidian-300" />);
+      stars.push(<FaRegStar key={i} className="text-gold-500/40 text-caption shrink-0" />);
     }
   }
   return <div className="flex items-center gap-1 text-sm">{stars}</div>;
@@ -31,6 +33,11 @@ const renderStars = (rating) => {
 const ReligiousTours = () => {
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
+
+  useEffect(() => {
+    sessionStorage.setItem('dunas_origin_interface', 'religious');
+    trackEvent('interface_view', { interfaceSlug: 'religious' });
+  }, []);
 
   return (
     <div className="w-full bg-obsidian-50 pb-24">

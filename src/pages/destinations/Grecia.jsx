@@ -7,6 +7,8 @@ import TourCard from '../../components/tour/TourCard';
 import Button from '../../components/ui/Button';
 import { tours } from '../../data/tours';
 import { useTours } from '../../hooks/useTours';
+import { trackEvent } from '../../utils/analytics';
+import { useEffect } from 'react';
 
 // ── destination image constants ────────────────────────────────────────────
 const HERO_IMG =
@@ -16,6 +18,12 @@ const SANTORINI_IMG =
 
 const Grecia = () => {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    sessionStorage.setItem('dunas_origin_interface', 'greece');
+    trackEvent('interface_view', { interfaceSlug: 'greece' });
+  }, []);
+
   const staticgreekTours = tours.filter((tour) => tour.destination === 'greece');
   const { tours: greekTours, loading } = useTours({ destination: 'greece' }, staticgreekTours);
 

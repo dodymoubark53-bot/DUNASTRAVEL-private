@@ -8,10 +8,17 @@ import TourCard from '../../components/tour/TourCard';
 import { tours } from '../../data/tours';
 import { useTours } from '../../hooks/useTours';
 import { useCmsBlock } from '../../hooks/useCmsBlock';
+import { trackEvent } from '../../utils/analytics';
+import { useEffect } from 'react';
 
 const Egipto = () => {
   const { t } = useTranslation();
   const { data: cmsData } = useCmsBlock('destination_egypt');
+
+  useEffect(() => {
+    sessionStorage.setItem('dunas_origin_interface', 'egypt');
+    trackEvent('interface_view', { interfaceSlug: 'egypt' });
+  }, []);
   
   const staticEgyptTours = tours.filter((tour) => tour.destination === 'egypt');
   const { tours: egyptTours, loading } = useTours({ destination: 'egypt' }, staticEgyptTours);

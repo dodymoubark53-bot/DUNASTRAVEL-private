@@ -15,6 +15,7 @@ import BookingForm from '../../components/booking/BookingForm';
 import { useCurrency } from '../../context/CurrencyContext';
 
 import { useTour } from '../../hooks/useTour';
+import { trackEvent } from '../../utils/analytics';
 
 const TourDetails = () => {
   const { t } = useTranslation();
@@ -24,6 +25,12 @@ const TourDetails = () => {
   const { tour: dynamicTour, loading } = useTour(slug);
   const staticTour = tours.find(t => t.slug === slug) || tours[0];
   const tour = dynamicTour || staticTour;
+
+  useEffect(() => {
+    if (tour?.slug) {
+      trackEvent('tour_view', { tourSlug: tour.slug });
+    }
+  }, [tour?.slug]);
 
   const shuffledTours = [...tours].sort(() => Math.random() - 0.5);
 

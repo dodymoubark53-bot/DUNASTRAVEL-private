@@ -7,11 +7,19 @@ import { staggerContainer, fadeInUp } from '../../animations/variants';
 import Button from '../../components/ui/Button';
 import { useTours } from '../../hooks/useTours';
 import { tours } from '../../data/tours';
+import { trackEvent } from '../../utils/analytics';
+import { useEffect } from 'react';
 
 const HERO_IMG = 'https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg';
 
 const Jordania = () => {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    sessionStorage.setItem('dunas_origin_interface', 'jordan');
+    trackEvent('interface_view', { interfaceSlug: 'jordan' });
+  }, []);
+
   const staticPrograms = tours.filter((t) => t.destination === 'Jordania'.toLowerCase());
   const { tours: programs, loading } = useTours({ destination: 'Jordania'.toLowerCase() }, staticPrograms);
 

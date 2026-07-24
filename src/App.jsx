@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import Layout from "./components/layout/Layout";
 import Logo from "./components/ui/Logo";
+import { trackEvent } from "./utils/analytics";
 
 // Lazy loaded pages for performance
 const Home = lazy(() => import("./pages/Home"));
@@ -116,6 +117,7 @@ function App() {
 
   React.useEffect(() => {
     window.scrollTo(0, 0);
+    trackEvent('page_view', { pathname: location.pathname });
   }, [location.pathname]);
 
 

@@ -7,11 +7,19 @@ import Button from '../../components/ui/Button';
 import TourCard from '../../components/tour/TourCard';
 import { useTours } from '../../hooks/useTours';
 import { tours } from '../../data/tours';
+import { trackEvent } from '../../utils/analytics';
+import { useEffect } from 'react';
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1920&q=80';
 
 const Turquia = () => {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    sessionStorage.setItem('dunas_origin_interface', 'turkey');
+    trackEvent('interface_view', { interfaceSlug: 'turkey' });
+  }, []);
+
   const staticPrograms = tours.filter((t) => t.destination === 'Turquia'.toLowerCase());
   const { tours: programs, loading } = useTours({ destination: 'Turquia'.toLowerCase() }, staticPrograms);
 

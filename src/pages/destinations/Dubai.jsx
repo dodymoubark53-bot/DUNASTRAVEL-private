@@ -8,11 +8,19 @@ import TourCard from '../../components/tour/TourCard';
 import { useTours } from '../../hooks/useTours';
 import { tours } from '../../data/tours';
 import { useCmsBlock } from '../../hooks/useCmsBlock';
+import { trackEvent } from '../../utils/analytics';
+import { useEffect } from 'react';
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80';
 
 const Dubai = () => {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    sessionStorage.setItem('dunas_origin_interface', 'dubai');
+    trackEvent('interface_view', { interfaceSlug: 'dubai' });
+  }, []);
+
   const staticPrograms = tours.filter((t) => t.destination === 'Dubai'.toLowerCase());
   const { tours: programs, loading } = useTours({ destination: 'Dubai'.toLowerCase() }, staticPrograms);
   const { data: cmsData } = useCmsBlock('destination_dubai');

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { variants } from '../../animations/variants';
 import Button from '../ui/Button';
 import { useCurrency } from '../../context/CurrencyContext';
+import { trackEvent } from '../../utils/analytics';
 
 const marketFlag = (market) => {
   const flags = { Brasil: '🇧🇷', Italia: '🇮🇹' };
@@ -22,9 +23,17 @@ const TourCard = ({
 
   const detailUrl = `${linkBase}/${tour.slug}`;
 
+  const handleCardClick = (e) => {
+    trackEvent('tour_card_click', {
+      tourSlug: tour.slug,
+      interfaceSlug: typeof window !== 'undefined' ? sessionStorage.getItem('dunas_origin_interface') : undefined,
+    });
+    navigate(detailUrl);
+  };
+
   return (
     <motion.div
-      onClick={() => navigate(detailUrl)}
+      onClick={handleCardClick}
       className="bg-white rounded-xl overflow-hidden flex flex-col h-full group cursor-pointer shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] hover:border-gold-500 hover:-translate-y-2 transition-all duration-300 ease-out z-10 hover:z-20 relative"
       variants={variants.fadeInUp}
       initial="hidden"

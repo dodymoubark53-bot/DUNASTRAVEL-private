@@ -7,11 +7,19 @@ import TourCard from '../../components/tour/TourCard';
 import Button from '../../components/ui/Button';
 import { useTours } from '../../hooks/useTours';
 import { tours } from '../../data/tours';
+import { trackEvent } from '../../utils/analytics';
+import { useEffect } from 'react';
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1920&q=80';
 
 const Marruecos = () => {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    sessionStorage.setItem('dunas_origin_interface', 'morocco');
+    trackEvent('interface_view', { interfaceSlug: 'morocco' });
+  }, []);
+
   const staticPrograms = tours.filter((t) => t.destination === 'Marruecos'.toLowerCase());
   const { tours: programs, loading } = useTours({ destination: 'Marruecos'.toLowerCase() }, staticPrograms);
 
