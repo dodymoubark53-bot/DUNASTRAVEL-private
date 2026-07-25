@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import Button from '../../components/ui/Button';
 import TourCard from '../../components/tour/TourCard';
-import { tours } from '../../data/tours';
 import { useTours } from '../../hooks/useTours';
 import { useCmsBlock } from '../../hooks/useCmsBlock';
 import { trackEvent } from '../../utils/analytics';
@@ -20,8 +19,7 @@ const Egipto = () => {
     trackEvent('interface_view', { interfaceSlug: 'egypt' });
   }, []);
   
-  const staticEgyptTours = tours.filter((tour) => tour.destination === 'egypt');
-  const { tours: egyptTours, loading } = useTours({ destination: 'egypt' }, staticEgyptTours);
+  const { tours: egyptTours, loading } = useTours({ destination: 'egypt' });
 
   return (
     <div className="w-full bg-obsidian-50 pb-24">

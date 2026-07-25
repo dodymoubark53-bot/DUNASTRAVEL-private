@@ -104,13 +104,12 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
   const [calculatedTotal, setCalculatedTotal] = useState(basePricePerPerson ? basePricePerPerson * 2 : 300);
 
   useEffect(() => {
-    if (!tourId) {
-      // Fallback client calculation if tourId not yet matched
-      const basePrice = basePricePerPerson || 150;
-      setCalculatedTotal(basePrice * (adults + children * 0.75 + infants * 0));
-      return;
-    }
     const fetchPrice = async () => {
+      if (!tourId) {
+        const basePrice = basePricePerPerson || 150;
+        setCalculatedTotal(basePrice * (adults + children * 0.75 + infants * 0));
+        return;
+      }
       try {
         // api.post handles CSRF automatically
         const data = await api.post('/bookings/calculate', { tourId, adults, children });

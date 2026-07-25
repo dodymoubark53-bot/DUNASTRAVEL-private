@@ -6,7 +6,7 @@ import esJson from '../i18n/locales/es.json';
 import ptJson from '../i18n/locales/pt.json';
 import itJson from '../i18n/locales/it.json';
 
-const API = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:5000/api';
+import api from '../utils/api';
 
 const JaiderChatContext = createContext(null);
 
@@ -89,17 +89,15 @@ export const JaiderChatProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [loadingKnowledge, setLoadingKnowledge] = useState(false);
-  const [sessionId, setSessionId] = useState('');
-
-  // Initialize session ID on mount
-  useEffect(() => {
+  const [sessionId, setSessionId] = useState(() => {
+    if (typeof window === 'undefined') return '';
     let id = localStorage.getItem('jaider_chat_session_id');
     if (!id) {
       id = `session-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
       localStorage.setItem('jaider_chat_session_id', id);
     }
-    setSessionId(id);
-  }, []);
+    return id;
+  });
   
   // Knowledge base index
   const faqDataRef = useRef({}); // { en: [ { q, a, tokens, tfIdfVector, norm } ], es: ... }
@@ -126,8 +124,7 @@ export const JaiderChatProvider = ({ children }) => {
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "") // removes accents/diacritics
-      .replace(/[\u064B-\u0652]/g, "") // removes Arabic Tashkeel
-      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'¿¡]/g, " "); // removes punctuation
+      .replace(/[.,/#!$%^&*;:{}=\-_`~()?"'¿¡]/g, " "); // removes punctuation
       
     const rawTokens = normalized.split(/\s+/).filter(word => word.length > 0);
     
@@ -320,7 +317,7 @@ export const JaiderChatProvider = ({ children }) => {
         .toLowerCase()
         .normalize("NFD")
         .replace(/[\u064B-\u0652]/g, "")
-        .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'¿¡]/g, " ")
+        .replace(/[.,/#!$%^&*;:{}=\-_`~()?"'¿¡]/g, " ")
         .split(/\s+/)
         .filter(w => w.length > 0)
         .map(normalizeArabic);
@@ -392,11 +389,11 @@ export const JaiderChatProvider = ({ children }) => {
   const flattenObject = (ob) => {
     const toReturn = {};
     for (const i in ob) {
-      if (!ob.hasOwnProperty(i)) continue;
+      if (!Object.prototype.hasOwnProperty.call(ob, i)) continue;
       if ((typeof ob[i]) === 'object' && ob[i] !== null && !Array.isArray(ob[i])) {
         const flatObject = flattenObject(ob[i]);
         for (const x in flatObject) {
-          if (!flatObject.hasOwnProperty(x)) continue;
+          if (!Object.prototype.hasOwnProperty.call(flatObject, x)) continue;
           toReturn[i + '.' + x] = flatObject[x];
         }
       } else {
@@ -516,6 +513,10 @@ export const JaiderChatProvider = ({ children }) => {
     }
   };
 
+  useEffect(() => {
+    loadFaqKnowledge();
+  }, []);
+
   // Perform cosine similarity matching
   const findBestFaqMatch = (query, lang) => {
     const faqItems = faqDataRef.current[lang] || [];
@@ -566,17 +567,12 @@ export const JaiderChatProvider = ({ children }) => {
     return { item: bestItem, score: maxSim };
   };
 
-  // Initialize FAQ knowledge on mount
-  useEffect(() => {
-    loadFaqKnowledge();
-  }, []);
-
-  // Trigger welcome message when chat starts
-  useEffect(() => {
-    if (isOpen && messages.length === 0) {
+  const handleSetIsOpen = (open) => {
+    const nextOpen = typeof open === 'function' ? open(isOpen) : open;
+    setIsOpen(nextOpen);
+    if (nextOpen && messages.length === 0) {
       const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
       const lang = SUPPORTED_LANGS.includes(activeLang) ? activeLang : 'en';
-      
       setMessages([
         {
           id: 'welcome',
@@ -586,7 +582,7 @@ export const JaiderChatProvider = ({ children }) => {
         }
       ]);
     }
-  }, [isOpen, messages.length]);
+  };
 
   // Handle incoming message
   const sendMessage = async (text) => {
@@ -603,24 +599,12 @@ export const JaiderChatProvider = ({ children }) => {
     setIsTyping(true);
 
     try {
-      // Fetch response from the backend chatbot API
-      const res = await fetch(`${API}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: text,
-          sessionId,
-          language: i18n.language
-        })
+      // Fetch response from the Nest backend chatbot API via central api client
+      const data = await api.post('/chat', {
+        message: text,
+        sessionId,
+        language: i18n.language
       });
-
-      if (!res.ok) {
-        throw new Error(`Chat API error: ${res.statusText}`);
-      }
-
-      const data = await res.json();
       
       // Simulate slight delay for human-like response rhythm
       await new Promise(r => setTimeout(r, 600 + Math.random() * 400));
@@ -697,7 +681,7 @@ export const JaiderChatProvider = ({ children }) => {
     <JaiderChatContext.Provider
       value={{
         isOpen,
-        setIsOpen,
+        setIsOpen: handleSetIsOpen,
         messages,
         sendMessage,
         clearMessages,

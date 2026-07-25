@@ -4,24 +4,20 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTours } from '../../hooks/useTours';
-import { allTours } from '../../data/tours';
 import TourCard from '../../components/tour/TourCard';
 import Button from '../../components/ui/Button';
 import { trackEvent } from '../../utils/analytics';
 import { useEffect } from 'react';
 
 const Tunez = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     sessionStorage.setItem('dunas_origin_interface', 'tunisia');
     trackEvent('interface_view', { interfaceSlug: 'tunisia' });
   }, []);
 
-  const staticTunisiaTours = allTours.filter(
-    (tour) => tour.destination === 'tunisia' && (tour.language === 'multi' || tour.language === i18n.language)
-  );
-  const { tours: tunisiaToursList, loading } = useTours({ destination: 'tunisia' }, staticTunisiaTours);
+  const { tours: tunisiaToursList, loading } = useTours({ destination: 'tunisia' });
 
   return (
     <div className="w-full min-h-screen bg-obsidian-50 pb-24">

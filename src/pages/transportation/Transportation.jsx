@@ -4,7 +4,9 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { FaUserFriends, FaCog, FaCheck, FaMapMarkerAlt } from 'react-icons/fa';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
-import { transportation } from '../../data/transportation';
+import { useServices } from '../../hooks/useServices';
+import SkeletonLoader from '../../components/ui/SkeletonLoader';
+import ErrorState from '../../components/ui/ErrorState';
 import TransportationForm from '../../components/booking/TransportationForm';
 import { useCurrency } from '../../context/CurrencyContext';
 import Button from '../../components/ui/Button';
@@ -15,6 +17,10 @@ const Transportation = () => {
   const { formatPrice } = useCurrency();
   const [activeFilter, setActiveFilter] = useState('All');
   const [selectedVehicleId, setSelectedVehicleId] = useState('');
+  const { services: transportation, loading, error } = useServices('transportation');
+
+  if (loading) return <SkeletonLoader count={4} />;
+  if (error) return <ErrorState message={error.message || 'Failed to load transportation options'} />;
 
   const filters = [
     { id: 'All', label: t('transportation.filter.all', 'All') },

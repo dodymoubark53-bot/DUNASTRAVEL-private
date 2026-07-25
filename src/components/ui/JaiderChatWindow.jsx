@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaPaperPlane, FaTimes, FaTrashAlt, FaCommentDots, FaComment, FaChevronDown } from 'react-icons/fa';
+import { FaPaperPlane, FaTimes, FaTrashAlt, FaComment } from 'react-icons/fa';
 import { useJaiderChat } from '../../context/JaiderChatContext';
 
 const JaiderChatWindow = () => {
@@ -130,33 +130,31 @@ const JaiderChatWindow = () => {
     return 'Type your question...';
   };
 
-  const ChatBubble = () => (
-    <motion.button
-      ref={chatBubbleRef}
-      onClick={() => { setIsOpen(true); setShowBubble(false); }}
-      className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full flex items-center justify-center text-obsidian-900 bg-gradient-to-tr from-gold-700 via-gold-500 to-gold-300 shadow-[0_0_24px_rgba(201,162,39,0.35)] hover:shadow-[0_0_32px_rgba(201,162,39,0.5)] transition-shadow duration-300"
-      initial={{ scale: 0, opacity: 0 }}
-      animate={{ scale: [1, 1.06, 1], opacity: 1 }}
-      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-      exit={{ scale: 0, opacity: 0 }}
-    >
-      <FaComment size={28} />
-      <motion.span
-        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center"
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        exit={{ scale: 0 }}
-      >
-        1
-      </motion.span>
-    </motion.button>
-  );
-
   if (!isOpen && !showBubble) return null;
 
   return (
     <AnimatePresence>
-      {!isOpen && showBubble && <ChatBubble />}
+      {!isOpen && showBubble && (
+        <motion.button
+          ref={chatBubbleRef}
+          onClick={() => { setIsOpen(true); setShowBubble(false); }}
+          className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full flex items-center justify-center text-obsidian-900 bg-gradient-to-tr from-gold-700 via-gold-500 to-gold-300 shadow-[0_0_24px_rgba(201,162,39,0.35)] hover:shadow-[0_0_32px_rgba(201,162,39,0.5)] transition-shadow duration-300"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: [1, 1.06, 1], opacity: 1 }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          exit={{ scale: 0, opacity: 0 }}
+        >
+          <FaComment size={28} />
+          <motion.span
+            className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            exit={{ scale: 0 }}
+          >
+            1
+          </motion.span>
+        </motion.button>
+      )}
       
       <motion.div
         ref={chatWindowRef}

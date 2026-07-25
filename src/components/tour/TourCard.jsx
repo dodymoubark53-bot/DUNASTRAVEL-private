@@ -1,9 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import { variants } from '../../animations/variants';
 import Button from '../ui/Button';
 import { useCurrency } from '../../context/CurrencyContext';
+import { useWishlist } from '../../hooks/useWishlist';
 import { trackEvent } from '../../utils/analytics';
 
 const marketFlag = (market) => {
@@ -17,18 +19,26 @@ const TourCard = ({
 }) => {
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
+  const { isFavorite, toggleFavorite } = useWishlist();
   const navigate = useNavigate();
   const translatedDuration = t(`data.${tour.duration}`, tour.duration);
   const durationLabel = translatedDuration.split('/')[0].trim();
 
   const detailUrl = `${linkBase}/${tour.slug}`;
+  const fav = isFavorite(tour.id || tour.slug);
 
-  const handleCardClick = (e) => {
+  const handleCardClick = () => {
     trackEvent('tour_card_click', {
       tourSlug: tour.slug,
       interfaceSlug: typeof window !== 'undefined' ? sessionStorage.getItem('dunas_origin_interface') : undefined,
     });
     navigate(detailUrl);
+  };
+
+  const handleWishlistToggle = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await toggleFavorite(tour);
   };
 
   return (
@@ -42,6 +52,14 @@ const TourCard = ({
     >
       {/* Image as Link */}
       <Link to={detailUrl} className="block relative h-[240px] overflow-hidden">
+        <button
+          type="button"
+          onClick={handleWishlistToggle}
+          aria-label="Toggle wishlist"
+          className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-obsidian-900/70 backdrop-blur-md flex items-center justify-center border border-gold-500/40 text-gold-500 hover:scale-110 transition-all shadow-md"
+        >
+          {fav ? <FaHeart className="text-red-500" size={15} /> : <FaRegHeart size={15} />}
+        </button>
         <div className="absolute top-4 left-4 z-10 bg-obsidian-900/80 backdrop-blur-md text-gold-500 text-caption px-4 py-1.5 rounded-full border border-gold-500/30 shadow-glass">
           {tour.minPax ? `${tour.minPax} · ` : ''}{durationLabel}
         </div>

@@ -5,11 +5,14 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaCheckCircle, FaTimes, FaStar, FaMapMarkerAlt, FaTimesCircle, 
-  FaBed, FaClock, FaTag, FaUserFriends, FaGlobe, FaChevronRight
+  FaBed, FaClock, FaTag, FaUserFriends, FaChevronRight
 } from 'react-icons/fa';
 import Button from '../../components/ui/Button';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
-import { services } from '../../data/services';
+import { useServices } from '../../hooks/useServices';
+import SkeletonLoader from '../../components/ui/SkeletonLoader';
+import ErrorState from '../../components/ui/ErrorState';
+import NotFound from '../NotFound';
 import BookingForm from '../../components/booking/BookingForm';
 import AdvancedBooking from '../../components/booking/AdvancedBooking';
 import { useCurrency } from '../../context/CurrencyContext';
@@ -20,11 +23,11 @@ const ServiceDetails = () => {
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
   const { category: urlCategory, slug } = useParams();
+  const { services, loading, error } = useServices(urlCategory);
   const service = services.find((s) => (urlCategory ? s.category === urlCategory : true) && s.slug === slug);
   const category = service ? service.category : urlCategory;
   const [activeImage, setActiveImage] = useState(null);
   const [activeForm, setActiveForm] = useState(null);
-
   const translateData = (key, fallback) => {
     if (!key) return fallback || '';
     if (key.startsWith('trip.') || key.startsWith('tour_')) {
@@ -54,6 +57,10 @@ const ServiceDetails = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  if (loading) return <SkeletonLoader count={4} />;
+  if (error) return <ErrorState message={error.message || 'Failed to load service details'} />;
+  if (!service) return <NotFound />;
 
   if (!service) {
     return (

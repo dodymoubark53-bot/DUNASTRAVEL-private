@@ -1,12 +1,37 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { FaTimes, FaFileInvoiceDollar, FaPrint } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
+import api from '../../utils/api';
 
-const InvoiceModal = ({ booking, onClose }) => {
+const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoiceNumber, onClose }) => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
   
+  const [invoiceData, setInvoiceData] = useState(null);
+  const [loadingInvoice, setLoadingInvoice] = useState(false);
+
+  const targetInvoiceNum = propInvoiceNumber || initialBooking?.invoiceNumber;
+
+  useEffect(() => {
+    let isMounted = true;
+    if (!targetInvoiceNum) return;
+
+    const fetchInvoice = async () => {
+      setLoadingInvoice(true);
+      try {
+        const data = await api.get(`/invoices/${encodeURIComponent(targetInvoiceNum)}`);
+        if (isMounted) setInvoiceData(data);
+      } catch (err) {
+        console.warn('[InvoiceModal] Failed to fetch invoice details from API:', err);
+      } finally {
+        if (isMounted) setLoadingInvoice(false);
+      }
+    };
+    fetchInvoice();
+    return () => { isMounted = false; };
+  }, [targetInvoiceNum]);
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
@@ -17,13 +42,16 @@ const InvoiceModal = ({ booking, onClose }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  const d = new Date(booking.createdAt);
+  const booking = invoiceData ? { ...initialBooking, ...invoiceData } : initialBooking;
+
+  const rawDate = booking.createdAt || booking.date || booking.issueDate;
+  const d = rawDate ? new Date(rawDate) : new Date();
 
   const totalPax = (booking.adults || 0) + (booking.children || 0) + (booking.infants || 0);
 
   const passengerList = [];
-  if (booking.passengerNames) {
-    const names = typeof booking.passengerNames === 'object' ? booking.passengerNames : {};
+  if (booking.passengerNames || booking.passengers) {
+    const names = typeof booking.passengerNames === 'object' ? booking.passengerNames : (Array.isArray(booking.passengers) ? booking.passengers : {});
     Object.entries(names).forEach(([, name]) => {
       if (name) passengerList.push(name);
     });

@@ -5,8 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { staggerContainer, fadeInUp } from '../animations/variants';
 import Button from '../components/ui/Button';
-import { services as allServicesData } from '../data/services';
-import { transportation } from '../data/transportation';
+import { useServices } from '../hooks/useServices';
+import SkeletonLoader from '../components/ui/SkeletonLoader';
+import ErrorState from '../components/ui/ErrorState';
 import { useCurrency } from '../context/CurrencyContext';
 import ReviewsMap from '../components/tour/ReviewsMap';
 
@@ -16,6 +17,7 @@ const Services = () => {
   const { service } = useParams();
   const location = useLocation();
   const prefix = location.pathname.startsWith('/programs') ? '/programs' : '/services';
+  const { services: allServicesData, loading, error } = useServices(service);
 
   const translateKey = (key, fallback) => {
     if (!key) return fallback || '';
@@ -39,6 +41,10 @@ const Services = () => {
   ];
 
   const filteredServices = service ? allServicesData.filter(s => s.category === service) : allServicesData;
+  const transportation = allServicesData.filter(s => s.category === 'transportation');
+
+  if (loading) return <SkeletonLoader count={6} />;
+  if (error) return <ErrorState message={error.message || 'Failed to load services'} />;
 
   return (
     <div className="w-full bg-obsidian-50 pb-24">

@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
@@ -5,11 +6,11 @@ import { motion } from 'framer-motion';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import Button from '../../components/ui/Button';
 import TourCard from '../../components/tour/TourCard';
-import { tours } from '../../data/tours';
+import { useTours } from '../../hooks/useTours';
 
 const Italy = () => {
   const { t } = useTranslation();
-  const italyTours = tours.filter(tour => tour.destination === 'italy');
+  const { tours: italyTours, loading } = useTours({ destination: 'italy' });
 
   return (
     <div className="w-full bg-obsidian-50 pb-24">
@@ -39,7 +40,7 @@ const Italy = () => {
           <motion.span variants={fadeInUp} className="inline-block font-body text-gold-500 tracking-[0.2em] uppercase text-sm mb-4">
             {t('dest.italy.subtitle', 'La Dolce Vita')}
           </motion.span>
-          <motion.h1 variants={fadeInUp} className="text-display-xl text-ivory-50 mb-6">
+          <motion.h1 variants={fadeInUp} className="text-display-xl text-ivory-50 mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
             {t('dest.italy.title', "Scopri l'Italia")}
           </motion.h1>
         </motion.div>
@@ -48,7 +49,7 @@ const Italy = () => {
       {/* Tours Grid Section */}
       <section className="container mx-auto px-6 -mt-16 relative z-20">
         <div className="bg-ivory-50 rounded-2xl p-8 md:p-12 shadow-card mb-12 text-center">
-          <h2 className="text-display-lg text-obsidian-900 mb-4">{t('dest.italy.gridTitle', 'I Nostri Itinerari in Italia')}</h2>
+          <h2 className="text-display-lg text-obsidian-900 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>{t('dest.italy.gridTitle', 'I Nostri Itinerari in Italia')}</h2>
           <p className="text-body-md text-obsidian-500 max-w-2xl mx-auto">
             {t('dest.italy.gridDesc', "Esplora la nostra selezione esclusiva di itinerari di lusso progettati per offrire un'esperienza coinvolgente e premium delle più grandi meraviglie d'Italia.")}
           </p>
@@ -61,11 +62,21 @@ const Italy = () => {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
         >
-          {italyTours.map((tour) => (
-            <motion.div key={tour.id} variants={fadeInUp}>
-              <TourCard tour={tour} />
-            </motion.div>
-          ))}
+          {loading ? (
+            <div className="col-span-full flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold-500"></div>
+            </div>
+          ) : italyTours.length > 0 ? (
+            italyTours.map((tour) => (
+              <motion.div key={tour.id || tour.slug} variants={fadeInUp}>
+                <TourCard tour={tour} />
+              </motion.div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12 text-obsidian-500">
+              {t('dest.noTours', 'Custom Italy itineraries available on request.')}
+            </div>
+          )}
         </motion.div>
       </section>
 

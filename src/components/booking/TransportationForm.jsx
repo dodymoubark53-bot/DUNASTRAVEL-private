@@ -4,12 +4,13 @@ import { FaCheckCircle, FaFileInvoiceDollar } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import Button from '../ui/Button';
 import { fadeInUp } from '../../animations/variants';
-import { transportation } from '../../data/transportation';
+import { useServices } from '../../hooks/useServices';
 import InvoiceModal from './InvoiceModal';
 import api from '../../utils/api';
 
 const TransportationForm = ({ preSelectedVehicleId = '' }) => {
   const { t } = useTranslation();
+  const { services: transportation } = useServices('transportation');
   const [status, setStatus] = useState('idle');
   const [bookingResult, setBookingResult] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);

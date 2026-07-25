@@ -77,18 +77,35 @@ const HieroglyphicName = () => {
     setLoading(true);
     setError(null);
     setResult(null);
+
+    const localFallback = localTranslate(trimmed);
+
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/tools/hieroglyphics`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: trimmed })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Translation failed');
-      setResult(data);
+      const { default: api } = await import('../../utils/api');
+      let data = await api
+        .post('/ai/hieroglyphics', { text: trimmed, name: trimmed, language: currentLang })
+        .catch(() => api.post('/tools/hieroglyphics', { text: trimmed }))
+        .catch(() => null);
+
+      if (data) {
+        const glyphs = data.glyphs || data.translation || data.result || localFallback.glyphs;
+        const translit = data.transliteration || data.translit || data.phonetic || localFallback.translit;
+        const note = data.historicNote || data.note || data.meaning || 'Hieroglyphic transliteration by Dunas AI Proxy';
+
+        setResult({ glyphs, translit, note });
+      } else {
+        setResult({
+          glyphs: localFallback.glyphs,
+          translit: localFallback.translit,
+          note: 'Transliterated from phonetic mapping (Offline mode).',
+        });
+      }
     } catch {
-      const fallback = localTranslate(trimmed);
-      setResult({ glyphs: fallback.glyphs, translit: fallback.translit, note: 'Transliterated from phonetic mapping.' });
+      setResult({
+        glyphs: localFallback.glyphs,
+        translit: localFallback.translit,
+        note: 'Transliterated from phonetic mapping (Offline mode).',
+      });
     } finally {
       setLoading(false);
     }

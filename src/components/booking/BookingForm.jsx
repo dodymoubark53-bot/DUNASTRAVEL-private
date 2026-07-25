@@ -76,9 +76,14 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
     if (!tourId || tab !== 'booking') return;
     const fetchPrice = async () => {
       try {
-        // api.post handles CSRF automatically
+        // Pricing calculation must NEVER rely on client-side math; always call POST /api/bookings/calculate
         const data = await api.post('/bookings/calculate', {
-          tourId, adults: b.adults, children: b.children, promoCode
+          tourId,
+          departureDate: b.departureDate || b.arrivalDate || undefined,
+          adults: b.adults,
+          children: b.children,
+          singleRooms: b.singleRooms || 0,
+          promoCode,
         });
         setPricePreview(data);
         if (promoCode && data?.promoMessage) {
@@ -87,12 +92,24 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
           setPromoMessage('');
         }
       } catch {
-        // ignore
+        // Calculation preview fallback handled safely
       }
     };
-    const debounce = setTimeout(fetchPrice, 500);
+    const debounce = setTimeout(fetchPrice, 400);
     return () => clearTimeout(debounce);
-  }, [tourId, b.adults, b.children, promoCode, tab]);
+  }, [tourId, b.arrivalDate, b.departureDate, b.adults, b.children, promoCode, tab]);
+
+  const handleValidatePromoCode = async () => {
+    if (!promoCode) return;
+    try {
+      const res = await api.post('/promotions/validate', { code: promoCode, promoCode, tourId });
+      if (res) {
+        setPromoMessage(res.message || t('booking.promoValid', 'Promotion code valid!'));
+      }
+    } catch (err) {
+      setPromoMessage(err.message || t('booking.promoInvalid', 'Invalid promo code'));
+    }
+  };
 
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
@@ -119,8 +136,14 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
         activityType: b.activityType,
         adults: b.adults,
         children: b.children,
+        singleRooms: b.singleRooms || 0,
         infants: b.infants,
+        passengers: passengerNames,
         passengerNames: Object.fromEntries(Object.entries(passengerNames)),
+        specialRequests: b.notes,
+        notes: b.notes,
+        contactEmail: b.email,
+        contactPhone: b.phone,
         fullName: b.fullName,
         email: b.email,
         phone: b.phone,
@@ -131,7 +154,6 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
         city: b.city,
         country: b.country,
         promoCode,
-        notes: b.notes,
         analyticsSessionId: typeof window !== 'undefined' ? localStorage.getItem('dunas_analytics_sid') : undefined,
         originInterfaceSlug: typeof window !== 'undefined' ? sessionStorage.getItem('dunas_origin_interface') : undefined,
       };
@@ -139,10 +161,19 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
       // api.post fetches CSRF token and sends it automatically
       const data = await api.post('/bookings', payload);
 
-      if (data?.id) {
+      // Rule 2: Store returned 'guestToken' from POST /api/bookings into localStorage ('dunas_guest_token')
+      const tokenToSave = data?.guestToken || data?.data?.guestToken;
+      if (tokenToSave && typeof window !== 'undefined') {
+        localStorage.setItem('dunas_guest_token', tokenToSave);
+      }
+
+      if (data?.id || data?.referenceCode) {
         try {
-          const payData = await api.post('/payments/initiate', { bookingId: data.id });
-          const sessionUrl = payData?.session?.url || payData?.url;
+          const targetId = data.id || data.referenceCode;
+          const payData = await api.post('/payments/initiate', { bookingId: targetId }).catch(() =>
+            api.post('/payments/checkout-session', { bookingId: targetId })
+          );
+          const sessionUrl = payData?.session?.url || payData?.url || payData?.checkoutUrl;
           if (sessionUrl) {
             window.location.href = sessionUrl;
             return;
@@ -155,7 +186,14 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
       setBookingResult(data);
       setStatus('success');
     } catch (err) {
-      setError(err.message || 'Error processing request');
+      // Rule 3: Handle 409 (Double booking) and 422 (Validation) errors gracefully with localized user alerts.
+      if (err.status === 409) {
+        setError(t('booking.errorConflict', 'A booking conflict exists for the selected dates. Please adjust your itinerary.'));
+      } else if (err.status === 422) {
+        setError(t('booking.errorValidation', 'Please verify passenger and date information before proceeding.'));
+      } else {
+        setError(err.message || 'Error processing request');
+      }
       setStatus('idle');
     }
   };
@@ -166,31 +204,20 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
     setStatus('submitting');
     try {
       const payload = {
+        destination: tourTitle || tourId,
+        duration: 'custom',
         tourTitle,
+        contactName: inq.name,
         fullName: inq.name,
         email: inq.email,
         phone: inq.phone,
-        language: inq.language,
-        message: inq.message
+        paxs: 1,
+        notes: inq.message,
+        message: inq.message,
+        preferredLanguage: inq.language || 'en',
       };
-      // api.post handles CSRF automatically
       const data = await api.post('/inquiries', payload);
       setBookingResult({ ...data, type: 'inquiry' });
-        data = {
-          ...payload,
-          _id: 'local_' + Date.now(),
-          createdAt: new Date().toISOString(),
-          status: 'pending'
-        };
-        try {
-          const existing = JSON.parse(localStorage.getItem('dunas_inquiries') || '[]');
-          existing.push(data);
-          localStorage.setItem('dunas_inquiries', JSON.stringify(existing));
-        } catch (e) {}
-      }
-
-      setBookingResult(data);
->>>>>>> 136e3559b2e1696b55dac3f78fc5e195383586ee
       setStatus('success');
     } catch (err) {
       setError(err.message || 'Error processing request');

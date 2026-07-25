@@ -6,7 +6,6 @@ import { staggerContainer, fadeInUp } from '../../animations/variants';
 import Button from '../../components/ui/Button';
 import TourCard from '../../components/tour/TourCard';
 import { useTours } from '../../hooks/useTours';
-import { tours } from '../../data/tours';
 import { trackEvent } from '../../utils/analytics';
 import { useEffect } from 'react';
 
@@ -20,8 +19,7 @@ const Turquia = () => {
     trackEvent('interface_view', { interfaceSlug: 'turkey' });
   }, []);
 
-  const staticPrograms = tours.filter((t) => t.destination === 'Turquia'.toLowerCase());
-  const { tours: programs, loading } = useTours({ destination: 'Turquia'.toLowerCase() }, staticPrograms);
+  const { tours: programs, loading } = useTours({ destination: 'turkey' });
 
   return (
     <div className="w-full min-h-screen bg-obsidian-50 pb-24">

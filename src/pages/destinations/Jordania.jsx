@@ -6,7 +6,6 @@ import { FaCheckCircle, FaMapMarkerAlt, FaTimes } from 'react-icons/fa';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import Button from '../../components/ui/Button';
 import { useTours } from '../../hooks/useTours';
-import { tours } from '../../data/tours';
 import { trackEvent } from '../../utils/analytics';
 import { useEffect } from 'react';
 
@@ -20,8 +19,7 @@ const Jordania = () => {
     trackEvent('interface_view', { interfaceSlug: 'jordan' });
   }, []);
 
-  const staticPrograms = tours.filter((t) => t.destination === 'Jordania'.toLowerCase());
-  const { tours: programs, loading } = useTours({ destination: 'Jordania'.toLowerCase() }, staticPrograms);
+  const { tours: programs, loading } = useTours({ destination: 'jordan' });
 
   return (
     <div className="w-full min-h-screen bg-obsidian-50 pb-24">

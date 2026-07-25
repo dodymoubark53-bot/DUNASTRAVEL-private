@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { FaChevronRight, FaCheckCircle, FaHeart } from 'react-icons/fa';
-import { staggerContainer, fadeInUp } from '../animations/variants';
+import { fadeInUp } from '../animations/variants';
 import BookingForm from '../components/booking/BookingForm';
 import RouteMap from '../components/tour/RouteMap';
 import ReviewsMap from '../components/tour/ReviewsMap';

@@ -6,7 +6,6 @@ import { staggerContainer, fadeInUp } from '../../animations/variants';
 import Button from '../../components/ui/Button';
 import TourCard from '../../components/tour/TourCard';
 import { useTours } from '../../hooks/useTours';
-import { tours } from '../../data/tours';
 import { useCmsBlock } from '../../hooks/useCmsBlock';
 import { trackEvent } from '../../utils/analytics';
 import { useEffect } from 'react';
@@ -21,8 +20,7 @@ const Dubai = () => {
     trackEvent('interface_view', { interfaceSlug: 'dubai' });
   }, []);
 
-  const staticPrograms = tours.filter((t) => t.destination === 'Dubai'.toLowerCase());
-  const { tours: programs, loading } = useTours({ destination: 'Dubai'.toLowerCase() }, staticPrograms);
+  const { tours: programs, loading } = useTours({ destination: 'dubai' });
   const { data: cmsData } = useCmsBlock('destination_dubai');
 
   return (

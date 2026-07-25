@@ -10,11 +10,11 @@
  *  3. Error normalisation: throws an Error with the backend's message string.
  *  4. Cookie-based auth: always sends credentials: 'include' so the
  *     HttpOnly access_token cookie is sent automatically.
+ *  5. Guest Token: attaches header 'x-guest-token' from localStorage ('dunas_guest_token') on all requests.
  */
 
-const BASE_URL = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api`
-  : 'http://localhost:5000/api';
+const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const BASE_URL = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
 
 // ── CSRF Token Cache ──────────────────────────────────────────────────────────
 let _csrfToken = null;
@@ -62,6 +62,23 @@ export function clearCsrfToken() {
   _csrfToken = null;
 }
 
+/**
+ * Retrieves or creates a persistent guest token in localStorage ('dunas_guest_token').
+ */
+export function getOrCreateGuestToken() {
+  if (typeof window === 'undefined') return null;
+  let token = localStorage.getItem('dunas_guest_token') || sessionStorage.getItem('dunas_guest_token');
+  if (!token) {
+    token = 'gt_' + Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
+    try {
+      localStorage.setItem('dunas_guest_token', token);
+    } catch {
+      // ignore storage errors
+    }
+  }
+  return token;
+}
+
 // ── Response Unwrapper ────────────────────────────────────────────────────────
 /**
  * Unwraps the backend's TransformInterceptor envelope.
@@ -81,7 +98,7 @@ function unwrap(body) {
   return body;
 }
 
-// ── Auth Refresh Management ──────────────────────────────────────────────────
+// ── Auth Refresh & Event Management ─────────────────────────────────────────
 let _isRefreshing = false;
 let _refreshSubscribers = [];
 
@@ -92,6 +109,12 @@ function onRefreshed(success) {
 
 function addRefreshSubscriber(callback) {
   _refreshSubscribers.push(callback);
+}
+
+function notifyUnauthorized() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+  }
 }
 
 // ── Core Request Function ─────────────────────────────────────────────────────
@@ -111,8 +134,11 @@ export async function apiRequest(path, options = {}, { raw = false, _retry = fal
   const isMutating = MUTATING_METHODS.includes(method);
 
   // Build headers
+  const guestToken = getOrCreateGuestToken();
+
   const headers = {
     'Content-Type': 'application/json',
+    ...(guestToken ? { 'x-guest-token': guestToken } : {}),
     ...options.headers,
   };
 
@@ -145,13 +171,22 @@ export async function apiRequest(path, options = {}, { raw = false, _retry = fal
       const success = await new Promise((resolve) => addRefreshSubscriber(resolve));
       if (success) {
         return apiRequest(path, options, { raw, _retry: true });
+      } else {
+        notifyUnauthorized();
+        const error = new Error('Unauthorized');
+        error.status = 401;
+        throw error;
       }
     } else {
       _isRefreshing = true;
       try {
         const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
           method: 'POST',
-          credentials: 'include'
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(guestToken ? { 'x-guest-token': guestToken } : {}),
+          },
         });
         
         _isRefreshing = false;
@@ -162,19 +197,16 @@ export async function apiRequest(path, options = {}, { raw = false, _retry = fal
           return apiRequest(path, options, { raw, _retry: true });
         } else {
           onRefreshed(false);
-          // Redirect to login if refresh fails
-          if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-            window.location.href = '/login';
-          }
+          notifyUnauthorized();
         }
-      } catch (err) {
+      } catch {
         _isRefreshing = false;
         onRefreshed(false);
-        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-          window.location.href = '/login';
-        }
+        notifyUnauthorized();
       }
     }
+  } else if (res.status === 401 && (path.includes('/auth/refresh') || path.includes('/auth/me') || _retry)) {
+    notifyUnauthorized();
   }
 
   // Parse body

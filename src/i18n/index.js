@@ -17,7 +17,9 @@ const getDefaultLng = () => {
       const lang = stored.split('-')[0];
       if (supportedLngs.includes(lang)) return lang;
     }
-  } catch (e) {}
+  } catch {
+    // ignore
+  }
   const navLng = (navigator.language || navigator.userLanguage || 'en').split('-')[0];
   return supportedLngs.includes(navLng) ? navLng : 'en';
 };

@@ -101,14 +101,17 @@ const Contact = () => {
               
               try {
                 const { default: api } = await import('../utils/api');
-                await api.post('/contact-submissions', {
+                const payload = {
+                  name: `${firstName} ${lastName}`.trim(),
                   firstName,
                   lastName,
                   email,
                   phone: phone || undefined,
                   subject: 'Contact Form Submission',
-                  message
-                });
+                  message,
+                  type: 'inquiry',
+                };
+                await api.post('/contact', payload).catch(() => api.post('/contact-submissions', payload));
                 alert(t('contact.success', 'Your message has been sent successfully.'));
                 form.reset();
               } catch (err) {

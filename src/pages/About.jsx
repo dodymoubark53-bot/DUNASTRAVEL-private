@@ -730,6 +730,7 @@ const chartData = [
 
 const About = () => {
   const { t } = useTranslation();
+  const { data: cmsData } = useCmsBlock('about');
   const pageRef = useRef(null);
 
   useEffect(() => {

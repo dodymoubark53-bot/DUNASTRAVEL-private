@@ -107,6 +107,9 @@ const Navbar = () => {
         { name: t('nav.dubai'), path: '/destinations/dubai' },
         { name: t('nav.tunisia'), path: '/destinations/tunisia' },
         { name: t('nav.holyland'), path: '/destinations/holyland' },
+        { name: t('nav.brazil', { defaultValue: 'Brazil' }), path: '/destinations/brazil' },
+        { name: t('nav.italy', { defaultValue: 'Italy' }), path: '/destinations/italy' },
+        { name: t('nav.spain', { defaultValue: 'Spain' }), path: '/destinations/spain' },
       ]
     },
     { name: t('nav.about'), path: '/about' },
@@ -565,6 +568,9 @@ const Navbar = () => {
                 <p className="text-caption text-obsidian-900 dark:text-ivory-50 font-semibold">{user.name}</p>
                 <p className="text-[10px] text-obsidian-400 dark:text-ivory-500 truncate">{user.email}</p>
               </div>
+              <Link to="/dashboard" onClick={() => setProfileDropdownOpen(false)} className="w-full text-left px-4 py-3 text-obsidian-700 dark:text-ivory-300 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-obsidian-700 transition-colors text-body-md border-b border-obsidian-100 dark:border-obsidian-700 flex items-center gap-2">
+                <FaUserCircle className="text-amber-500" size={15} /> {t('user.tabOverview', 'My Dashboard')}
+              </Link>
               <Link to="/profile" onClick={() => setProfileDropdownOpen(false)} className="w-full text-left px-4 py-3 text-obsidian-700 dark:text-ivory-300 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-obsidian-700 transition-colors text-body-md border-b border-obsidian-100 dark:border-obsidian-700 flex items-center gap-2">
                 <FaUserCircle className="text-amber-500" size={15} /> {t('nav.myProfile', 'My Profile')}
               </Link>

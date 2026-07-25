@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import TourCard from '../../components/tour/TourCard';
-import { tours } from '../../data/tours';
 
 const destinationsData = [
   {
@@ -54,6 +53,24 @@ const destinationsData = [
     name: 'Holy Land',
     tag: 'Faith & History',
     image: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 'brazil',
+    name: 'Brazil',
+    tag: 'Samba & Sunshine',
+    image: 'https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 'italy',
+    name: 'Italy',
+    tag: 'La Dolce Vita',
+    image: 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 'spain',
+    name: 'Spain',
+    tag: 'Passion & Elegance',
+    image: 'https://images.unsplash.com/photo-1543783207-ec64e4d95325?auto=format&fit=crop&w=800&q=80'
   }
 ];
 
@@ -61,7 +78,7 @@ import { useTours } from '../../hooks/useTours';
 
 const Destinations = () => {
   const { t } = useTranslation();
-  const { tours: allToursList, loading } = useTours({ limit: 100 }, tours);
+  const { tours: allToursList, loading } = useTours({ limit: 100 });
 
   return (
     <div className="w-full bg-obsidian-50 pb-24">

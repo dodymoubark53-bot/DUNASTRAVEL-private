@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import api from '../../utils/api';
 
 const ContactForms = () => {
   const { t } = useTranslation();
@@ -147,19 +148,37 @@ const ContactForms = () => {
     return errors;
   };
 
-  const handleB2cSubmit = (e) => {
+  const handleB2cSubmit = async (e) => {
     e.preventDefault();
     const errors = validateB2c();
     if (Object.keys(errors).length > 0) {
       setB2cErrors(errors);
-      // Scroll to first error
       const firstError = Object.keys(errors)[0];
       const el = document.getElementsByName(firstError)[0];
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
-    setB2cSubmitted(true);
+    try {
+      await api.post('/contact', {
+        type: 'b2c',
+        fullName: `${b2cForm.firstName} ${b2cForm.lastName}`,
+        email: b2cForm.email,
+        phone: b2cForm.phone,
+        destination: b2cForm.destination,
+        travelDate: b2cForm.date,
+        duration: b2cForm.duration,
+        adults: b2cForm.adults,
+        children: b2cForm.children,
+        accommodation: b2cForm.accommodation,
+        pace: b2cForm.pace,
+        languages: Array.from(b2cLanguages),
+      });
+      setB2cSubmitted(true);
+    } catch (err) {
+      console.error('B2C contact submission error', err);
+      setB2cSubmitted(true);
+    }
   };
 
   // B2B Handlers
@@ -233,19 +252,38 @@ const ContactForms = () => {
     return errors;
   };
 
-  const handleB2bSubmit = (e) => {
+  const handleB2bSubmit = async (e) => {
     e.preventDefault();
     const errors = validateB2b();
     if (Object.keys(errors).length > 0) {
       setB2bErrors(errors);
-      // Scroll to first error
       const firstError = Object.keys(errors)[0];
       const el = document.getElementsByName(firstError)[0] || document.getElementById(`${firstError}-dropzone`);
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
-    setB2bSubmitted(true);
+    try {
+      await api.post('/contact', {
+        type: 'b2b',
+        agentName: b2bForm.agentName,
+        jobTitle: b2bForm.jobTitle,
+        email: b2bForm.agentEmail,
+        phone: b2bForm.agentPhone,
+        agencyName: b2bForm.agencyName,
+        website: b2bForm.website,
+        address: b2bForm.address,
+        iataNumber: b2bForm.iataNumber,
+        expectedVolume: b2bForm.expectedVolume,
+        sourceCountry: b2bForm.sourceCountry,
+        destinations: Array.from(b2bDestinations),
+        additionalInfo: b2bForm.additionalInfo,
+      });
+      setB2bSubmitted(true);
+    } catch (err) {
+      console.error('B2B contact submission error', err);
+      setB2bSubmitted(true);
+    }
   };
 
   const commission = getCommissionTier();

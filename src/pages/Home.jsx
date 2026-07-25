@@ -6,16 +6,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaStar, FaTimes, FaChevronLeft, FaChevronRight, FaMicrophone, FaMapMarkerAlt, FaEnvelope, FaPhoneAlt, FaHeadset, FaWhatsapp, FaArrowRight, FaCalendarAlt, FaSuitcase, FaUsers, FaMapMarkedAlt, FaGlobe } from "react-icons/fa";
 import Button from "../components/ui/Button";
 import TourCard from "../components/tour/TourCard";
-import { tours } from "../data/tours";
-import { turkeyTours } from "../data/turkeyTours";
-import { multiCountryTours } from "../data/multiCountryTours";
 import { useTours } from "../hooks/useTours";
-import { transportation } from "../data/transportation";
+import { useMedia } from "../hooks/useMedia";
 import useScrollAnimations from "../hooks/useScrollAnimations";
 import { useCurrency } from "../context/CurrencyContext";
-import rawProgramData from "../data/programs.json";
-const rawPrograms = rawProgramData.programs;
-import { galleryImages, videos } from "../data/media";
 
 
 const destinationsData = [
@@ -228,16 +222,17 @@ const Home = () => {
   const [zoomScale, setZoomScale] = useState(1);
   const [isAllToursPopupOpen, setIsAllToursPopupOpen] = useState(false);
   const [activeVideo, setActiveVideo] = useState(null);
-  const [tourPaused, setTourPaused] = useState(false);
-  const { tours: turkeyPrograms } = useTours({ destination: 'turkey' }, turkeyTours);
+  const { galleryImages = [], videos = [] } = useMedia();
+  const { tours: allLiveTours } = useTours({ limit: 100 });
+  const { tours: turkeyPrograms } = useTours({ destination: 'turkey' });
   const formattedTurkeyTours = turkeyPrograms.map((tp) => ({
     id: tp.id,
     slug: tp.slug,
     destination: "turkey",
     title: tp.title,
-    description: tp.overview,
+    description: tp.overview || tp.description,
     duration: tp.duration,
-    price: tp.raw?.price || 899,
+    price: tp.raw?.price || tp.price || 899,
     rating: 4.8,
     reviewCount: 120,
     images: tp.images,
@@ -247,15 +242,15 @@ const Home = () => {
     code: tp.code
   }));
 
-  const { tours: jordanPrograms } = useTours({ destination: 'jordan' }, rawPrograms.jordan || []);
+  const { tours: jordanPrograms } = useTours({ destination: 'jordan' });
   const formattedJordanTours = jordanPrograms.map((jp) => ({
     id: jp.id,
     slug: jp.slug,
     destination: "jordan",
     title: jp.title,
-    description: jp.overview,
+    description: jp.overview || jp.description,
     duration: jp.duration,
-    price: jp.raw?.price || 899,
+    price: jp.raw?.price || jp.price || 899,
     rating: 4.8,
     reviewCount: 120,
     images: jp.images,
@@ -265,15 +260,15 @@ const Home = () => {
     code: jp.code
   }));
 
-  const { tours: dubaiPrograms } = useTours({ destination: 'dubai' }, rawPrograms.dubai || []);
+  const { tours: dubaiPrograms } = useTours({ destination: 'dubai' });
   const formattedDubaiTours = dubaiPrograms.map((dp) => ({
     id: dp.id,
     slug: dp.slug,
     destination: "dubai",
     title: dp.title,
-    description: dp.overview,
+    description: dp.overview || dp.description,
     duration: dp.duration,
-    price: dp.raw?.price || 899,
+    price: dp.raw?.price || dp.price || 899,
     rating: 4.8,
     reviewCount: 120,
     images: dp.images,
@@ -283,15 +278,15 @@ const Home = () => {
     code: dp.code
   }));
 
-  const { tours: moroccoPrograms } = useTours({ destination: 'morocco' }, rawPrograms.morocco || []);
+  const { tours: moroccoPrograms } = useTours({ destination: 'morocco' });
   const formattedMoroccoTours = moroccoPrograms.map((mp) => ({
     id: mp.id,
     slug: mp.slug,
     destination: "morocco",
     title: mp.title,
-    description: mp.overview,
+    description: mp.overview || mp.description,
     duration: mp.duration,
-    price: mp.raw?.price || 899,
+    price: mp.raw?.price || mp.price || 899,
     rating: 4.8,
     reviewCount: 120,
     images: mp.images,
@@ -303,21 +298,13 @@ const Home = () => {
 
   const allToursForMarquee = useMemo(() => {
     const combined = [];
-    tours.forEach(tour => combined.push({ ...tour, description: tour.overview, link: `/tours/${tour.slug}` }));
+    allLiveTours.forEach(tour => combined.push({ ...tour, description: tour.overview || tour.description, link: `/tours/${tour.slug}` }));
     formattedTurkeyTours.forEach(t => combined.push({ ...t, link: `/programs/turkey/${t.slug}` }));
     formattedJordanTours.forEach(t => combined.push({ ...t, link: `/programs/jordan/${t.slug}` }));
     formattedDubaiTours.forEach(t => combined.push({ ...t, link: `/programs/dubai/${t.slug}` }));
     formattedMoroccoTours.forEach(t => combined.push({ ...t, link: `/programs/morocco/${t.slug}` }));
-    multiCountryTours.forEach(tour => combined.push({
-      id: tour.id, slug: tour.slug, destination: tour.destination,
-      title: tour.title, description: tour.overview || tour.description,
-      duration: tour.duration, price: tour.price, rating: tour.rating,
-      reviewCount: tour.reviewCount, images: tour.images, type: tour.type,
-      link: `/programs/multi-country/${tour.slug}`,
-    }));
-    turkeyTours.forEach(tour => combined.push({ ...tour, description: tour.overview, link: `/tours/${tour.slug}` }));
     return combined;
-  }, [tours, formattedTurkeyTours, formattedJordanTours, formattedDubaiTours, formattedMoroccoTours]);
+  }, [allLiveTours, formattedTurkeyTours, formattedJordanTours, formattedDubaiTours, formattedMoroccoTours]);
 
   const packagesToursMap = useMemo(() => {
     return {
@@ -360,11 +347,11 @@ const Home = () => {
         images: ["https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=40&fm=webp"],
         linkBase: "/programs"
       }],
-      "multi-country": multiCountryTours.map(tour => ({
+      "multi-country": allLiveTours.filter(t => t.category === 'multi-country').map(tour => ({
         id: tour.id, slug: tour.slug, destination: tour.destination || "multi-country",
         title: tour.title, description: tour.overview || tour.description,
-        duration: tour.duration, price: tour.price, rating: tour.rating,
-        reviewCount: tour.reviewCount, images: tour.images, type: tour.type,
+        duration: tour.duration, price: tour.price, rating: tour.rating || 5,
+        reviewCount: tour.reviewCount || 10, images: tour.images, type: tour.type,
         linkBase: "/programs/multi-country"
       })),
       "extension": [
@@ -409,7 +396,7 @@ const Home = () => {
         }
       ]
     };
-  }, [multiCountryTours]);
+  }, [allLiveTours]);
 
   const packagesToursForMarquee = useMemo(() => {
     const combined = [];
@@ -481,64 +468,23 @@ const Home = () => {
     return "turkey";
   };
 
-  const allExtraTours = useMemo(() => ({
-    turkey: turkeyTours,
-  }), [turkeyTours]);
+
 
   const getToursForDest = (destId) => {
-    const lang = i18n.language;
-    const langMap = { pt: 'pt-BR', en: 'en', es: 'es', it: 'it', ar: 'ar' };
-    const tourLang = langMap[lang] || 'en';
     const result = [];
 
     const addTour = (tour, baseUrl) => {
-      const slug = tour.slug || slugify(tour.id + "-" + (tour.title || ""));
+      const slug = tour.slug || slugify((tour.id || '') + "-" + (tour.title || ""));
       result.push({ label: t(`tour.${tour.id}`, tour.title), url: `${baseUrl}/${slug}`, id: `tour-${slug}` });
     };
 
-    const addProgram = (p, country) => {
-      const slug = slugify(p.id + "-" + p.name.en);
-      result.push({ label: p.name[lang] || p.name.en, url: `/programs/${country}/${slug}`, id: `prog-${p.id}` });
-    };
-
     if (destId === "all") {
-      tours.forEach((tour) => addTour(tour, "/tours"));
-      rawPrograms.forEach((p) => addProgram(p, programCountry(p.id)));
-      turkeyTours.forEach((tour) => addTour(tour, "/tours"));
-      multiCountryTours.forEach((mc) => {
-        const slug = mc.slug || slugify(mc.id + "-" + (mc.title || ""));
-        result.push({ label: mc.title, url: `/programs/multi-country/${slug}`, id: `multi-${mc.id}` });
-      });
+      allLiveTours.forEach((tour) => addTour(tour, "/tours"));
       return result;
     }
 
-    const filtered = tours.filter((t) => t.destination === destId && t.language === tourLang);
-    const fallback = tours.filter((t) => t.destination === destId && t.language !== tourLang);
-    const seen = new Set();
-    [...filtered, ...fallback].forEach((tour) => {
-      if (!seen.has(tour.id)) { seen.add(tour.id); addTour(tour, "/tours"); }
-    });
-
-    const extra = allExtraTours[destId];
-    if (extra) {
-      extra.forEach((tour) => addTour(tour, "/tours"));
-    }
-
-    if (destId === "turkey") {
-      rawPrograms.filter((p) => TURKEY_IDS.includes(p.id)).forEach((p) => addProgram(p, "turkey"));
-    }
-    if (destId === "jordan") {
-      rawPrograms.filter((p) => JORDAN_IDS.includes(p.id)).forEach((p) => addProgram(p, "jordan"));
-    }
-    if (destId === "dubai") {
-      rawPrograms.filter((p) => DUBAI_IDS.includes(p.id)).forEach((p) => addProgram(p, "dubai"));
-    }
-    if (destId === "morocco") {
-      rawPrograms.filter((p) => MOROCCO_IDS.includes(p.id)).forEach((p) => addProgram(p, "morocco"));
-    }
-    if (destId === "egypt") {
-      rawPrograms.filter((p) => EGYPT_IDS.includes(p.id)).forEach((p) => addProgram(p, "egypt"));
-    }
+    const filtered = allLiveTours.filter((t) => t.destination === destId);
+    filtered.forEach((tour) => addTour(tour, "/tours"));
     return result;
   };
 
@@ -608,12 +554,9 @@ const Home = () => {
   useScrollAnimations();
   const isRtl = i18n.dir() === 'rtl';
 
-  const filteredVehicles =
-    vehicleFilter === "all"
-      ? transportation
-      : transportation.filter((v) => v.category === vehicleFilter);
+  const filteredVehicles = [];
 
-  // Shared galleryImages and videos imported from ../data/media
+  // Shared galleryImages and videos retrieved from useMedia hook
 
 
   const cloudName = 'degbrq3ck';
@@ -651,24 +594,8 @@ const Home = () => {
           ? formattedDubaiTours
           : activeDestination === "morocco"
             ? formattedMoroccoTours
-            : tours.filter((t) => t.destination === activeDestination)
+            : allLiveTours.filter((t) => t.destination === activeDestination)
     : [];
-
-  const featuredToursList = [
-    tours.find((t) => t.destination === "egypt"),
-    formattedTurkeyTours[0] || tours.find((t) => t.destination === "turkey"),
-    formattedJordanTours[0] || tours.find(
-      (t) =>
-        t.destination === "jordan" &&
-        t.id !== tours.find((x) => x.destination === "jordan")?.id,
-    ),
-    formattedMoroccoTours[0] || tours.find(
-      (t) =>
-        t.destination === "morocco" &&
-        t.id !== tours.find((x) => x.destination === "morocco")?.id,
-    ),
-    tours.find((t) => t.destination === "tunisia"),
-  ].filter(Boolean);
 
   const handleDestinationClick = (id) => {
     setActiveDestination((prev) => (prev === id ? null : id));
@@ -995,7 +922,7 @@ const Home = () => {
                     ? formattedDubaiTours.length
                     : dest.id === "morocco"
                       ? formattedMoroccoTours.length
-                      : tours.filter((t) => t.destination === dest.id).length;
+                      : allLiveTours.filter((t) => t.destination === dest.id).length;
               const isActive = activeDestination === dest.id;
 
               return (
@@ -1588,7 +1515,7 @@ const Home = () => {
                       <option value="">
                         {t("home.chooseVehicle", "Choose a vehicle")}
                       </option>
-                      {transportation.map((v) => (
+                      {allLiveTours.filter(t => t.category === 'transportation').map((v) => (
                         <option key={v.id} value={v.id}>
                           {v.name} ({v.seats}{" "}
                           {t("transportation.seatsCount", "Seats")}) - {formatPrice(v.pricePerDay)}/{t("transportation.day", "day")}

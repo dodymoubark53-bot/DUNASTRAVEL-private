@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { FaChevronRight } from 'react-icons/fa';
 import TourCard from '../../components/tour/TourCard';
 import { useTours } from '../../hooks/useTours';
-import { multiCountryTours } from '../../data/multiCountryTours';
 import { trackEvent } from '../../utils/analytics';
 import { useEffect } from 'react';
 
@@ -17,7 +16,7 @@ const MultiCountryTours = () => {
     trackEvent('interface_view', { interfaceSlug: 'multi-country' });
   }, []);
 
-  const { tours: apiTours, loading } = useTours({ category: 'multi-country' }, multiCountryTours);
+  const { tours: apiTours, loading } = useTours({ category: 'multi-country' });
 
   return (
     <>

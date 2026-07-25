@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaTimes, FaChevronLeft, FaChevronRight, FaPlay, FaImage, FaVideo } from "react-icons/fa";
-import { galleryImages, videos } from "../data/media";
-import Button from "../components/ui/Button";
+import { useMedia } from "../hooks/useMedia";
+import SkeletonLoader from "../components/ui/SkeletonLoader";
+import ErrorState from "../components/ui/ErrorState";
 
 const getOptimizedImageUrl = (url, width = 600, height = 450) => {
   if (!url) return url;
@@ -33,28 +34,23 @@ const MediaGallery = () => {
   const navigate = useNavigate();
   const isRtl = i18n.dir() === 'rtl';
 
+  const { galleryImages, videos, loading, error } = useMedia();
+
   // Read initial tab from URL query params
   const searchParams = new URLSearchParams(location.search);
-  const initialTab = searchParams.get("tab") === "videos" ? "videos" : "photos";
-  
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const activeTab = searchParams.get("tab") === "videos" ? "videos" : "photos";
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [selectedVideoIndex, setSelectedVideoIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [zoomScale, setZoomScale] = useState(1);
 
+  if (loading) return <SkeletonLoader count={8} />;
+  if (error) return <ErrorState message={error.message || 'Failed to load media'} />;
+
   const cloudName = 'degbrq3ck';
 
-  // Keep state synced with query parameter if page changes
-  useEffect(() => {
-    const tab = searchParams.get("tab") === "videos" ? "videos" : "photos";
-    setActiveTab(tab);
-  }, [location.search]);
-
   const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    // Update URL query parameter
     navigate(`/media-gallery?tab=${tab}`, { replace: true });
   };
 

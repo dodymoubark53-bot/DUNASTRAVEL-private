@@ -1,25 +1,27 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { FaCheckCircle, FaMapMarkerAlt, FaBed, FaClock, FaTag, FaChevronRight } from 'react-icons/fa';
 import { fadeInUp } from '../../animations/variants';
-import Button from '../../components/ui/Button';
 import BookingForm from '../../components/booking/BookingForm';
-import rawProgramData from '../../data/programs.json';
-const rawPrograms = rawProgramData.programs;
 import ReviewsMap from '../../components/tour/ReviewsMap';
 import RouteMap from '../../components/tour/RouteMap';
+import { useTour } from '../../hooks/useTour';
 import { useTours } from '../../hooks/useTours';
-import { tours } from '../../data/tours';
 import TourCard from '../../components/tour/TourCard';
 
 const MoroccoProgramDetails = () => {
   const { t } = useTranslation();
-  const { programId } = useParams();
-  const program = rawPrograms.find((p) => p.slug === programId || p.id === programId);
+  const { programId, slug } = useParams();
+  const targetSlug = slug || programId;
+  const { tour: program } = useTour(targetSlug);
   const carouselRef = useRef(null);
+  const { tours: allApiTours } = useTours({ destination: 'morocco' });
+  const shuffledTours = useMemo(() => {
+    return [...allApiTours].reverse();
+  }, [allApiTours]);
 
   useEffect(() => {
     const el = carouselRef.current;
@@ -54,9 +56,6 @@ const MoroccoProgramDetails = () => {
   }
 
   const { title, overview, duration, highlights, days, images, code, minPax, includes, excludes } = program;
-
-  const { tours: allApiTours } = useTours({ limit: 20 }, tours);
-  const shuffledTours = [...allApiTours].sort(() => Math.random() - 0.5);
 
   return (
     <div className="w-full bg-obsidian-50 min-h-screen">

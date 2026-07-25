@@ -6,15 +6,12 @@ import {
   FaStar, FaRegStar, FaStarHalfAlt, FaChevronRight, FaMapMarkerAlt,
   FaClock, FaPray
 } from 'react-icons/fa';
-import { services } from '../../data/services';
 import Button from '../../components/ui/Button';
 import { useCurrency } from '../../context/CurrencyContext';
 import { staggerContainer, cardHover, fadeInUp } from '../../animations/variants';
 import { trackEvent } from '../../utils/analytics';
 import { useEffect } from 'react';
-
-// Filter only religious category
-const religiousTours = services.filter(s => s.category === 'religious');
+import { useTours } from '../../hooks/useTours';
 
 const renderStars = (rating) => {
   const stars = [];
@@ -33,6 +30,7 @@ const renderStars = (rating) => {
 const ReligiousTours = () => {
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
+  const { tours: religiousTours } = useTours({ category: 'religious' });
 
   useEffect(() => {
     sessionStorage.setItem('dunas_origin_interface', 'religious');

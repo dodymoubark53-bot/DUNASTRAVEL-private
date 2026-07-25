@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaMapMarkerAlt, FaPlane, FaGlobe, FaRoute, FaArrowRight } from 'react-icons/fa';
+import { FaGlobe, FaRoute, FaArrowRight } from 'react-icons/fa';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { journeysRoutesData } from '../../data/journeys_routes_data';
+import { useTours } from '../../hooks/useTours';
 
 // Fix Leaflet default marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
@@ -66,19 +66,23 @@ const InteractiveJourneyMap = () => {
     "Multi-Country Tours"
   ];
 
+  const { tours: _liveTours } = useTours({ limit: 50 });
+
   const [activeCategory, setActiveCategory] = useState(() => {
     try {
       return localStorage.getItem('dunas_travel_map_category') || "All";
-    } catch (e) {
+    } catch {
       return "All";
     }
   });
   const [selectedJourneyId, setSelectedJourneyId] = useState(() => {
     try {
-      return localStorage.getItem('dunas_travel_map_journey_id') || "";
-    } catch (e) {
-      return "";
+      const cached = localStorage.getItem('dunas_travel_map_journey_id');
+      if (cached && journeysRoutesData.some(j => j.id === cached)) return cached;
+    } catch {
+      // ignore
     }
+    return journeysRoutesData[0]?.id || '';
   });
 
   // Filter journeys by destination
@@ -90,44 +94,17 @@ const InteractiveJourneyMap = () => {
   // Active selected journey object
   const activeJourney = useMemo(() => {
     const found = journeysRoutesData.find(j => j.id === selectedJourneyId);
-    if (found) return found;
+    if (found && (activeCategory === "All" || found.destination === activeCategory)) return found;
     // Fallback to first filtered journey
     if (filteredJourneys.length > 0) return filteredJourneys[0];
     return journeysRoutesData[0];
-  }, [selectedJourneyId, filteredJourneys]);
-
-  // Keep state updated with selectedJourneyId when category changes
-  useEffect(() => {
-    if (filteredJourneys.length > 0) {
-      // Check if current activeJourney is in the new filtered list
-      const exists = filteredJourneys.some(j => j.id === activeJourney.id);
-      if (!exists) {
-        setSelectedJourneyId(filteredJourneys[0].id);
-      }
-    }
-  }, [filteredJourneys, activeJourney]);
-
-  // Set initial selected journey id
-  useEffect(() => {
-    if (journeysRoutesData.length > 0 && !selectedJourneyId) {
-      try {
-        const cached = localStorage.getItem('dunas_travel_map_journey_id');
-        if (cached && journeysRoutesData.some(j => j.id === cached)) {
-          setSelectedJourneyId(cached);
-        } else {
-          setSelectedJourneyId(journeysRoutesData[0].id);
-        }
-      } catch (e) {
-        setSelectedJourneyId(journeysRoutesData[0].id);
-      }
-    }
-  }, [selectedJourneyId]);
+  }, [selectedJourneyId, filteredJourneys, activeCategory]);
 
   // Persist selections
   useEffect(() => {
     try {
       localStorage.setItem('dunas_travel_map_category', activeCategory);
-    } catch (e) {
+    } catch {
       // ignore
     }
   }, [activeCategory]);
@@ -137,7 +114,7 @@ const InteractiveJourneyMap = () => {
       if (selectedJourneyId) {
         localStorage.setItem('dunas_travel_map_journey_id', selectedJourneyId);
       }
-    } catch (e) {
+    } catch {
       // ignore
     }
   }, [selectedJourneyId]);

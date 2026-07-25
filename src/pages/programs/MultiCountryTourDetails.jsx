@@ -5,22 +5,24 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FaChevronRight, FaClock, FaUserFriends, FaTag,
-  FaCheckCircle, FaTimesCircle
+  FaCheckCircle, FaTimesCircle, FaTimes
 } from 'react-icons/fa';
-import { multiCountryTours } from '../../data/multiCountryTours';
 import TourCard from '../../components/tour/TourCard';
 import { fadeInUp } from '../../animations/variants';
 import BookingForm from '../../components/booking/BookingForm';
 import IncludedNotIncluded from '../../components/tour/IncludedNotIncluded';
 import ReviewsMap from '../../components/tour/ReviewsMap';
 import RouteMap from '../../components/tour/RouteMap';
+import { useTour } from '../../hooks/useTour';
+import { useTours } from '../../hooks/useTours';
 
 const MultiCountryTourDetails = () => {
   const { t } = useTranslation();
   const { slug } = useParams();
 
-  const tour = multiCountryTours.find(t => t.slug === slug || t.id.toLowerCase() === (slug || '').toLowerCase());
-  const shuffledTours = useMemo(() => [...multiCountryTours].sort(() => Math.random() - 0.5), []);
+  const { tour } = useTour(slug);
+  const { tours: multiTours } = useTours({ category: 'multi-country' });
+  const shuffledTours = useMemo(() => multiTours.filter(t => t.slug !== slug), [multiTours, slug]);
 
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const carouselRef = useRef(null);

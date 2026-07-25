@@ -20,6 +20,10 @@ const Greece = lazy(() => import("./pages/destinations/Grecia"));
 const Dubai = lazy(() => import("./pages/destinations/Dubai"));
 const Tunisia = lazy(() => import("./pages/destinations/Tunez"));
 const HolyLand = lazy(() => import("./pages/destinations/TierraSanta"));
+const Brazil = lazy(() => import("./pages/destinations/Brazil"));
+const Italy = lazy(() => import("./pages/destinations/Italy"));
+const Spain = lazy(() => import("./pages/destinations/Spain"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 const Destinations = lazy(() => import("./pages/destinations/Destinations"));
 const TourDetails = lazy(() => import("./pages/tours/TourDetails"));
 const BlogDetails = lazy(() => import("./pages/blogs/BlogDetails"));
@@ -44,6 +48,12 @@ const MoroccoProgramDetails = lazy(() => import("./pages/programs/MoroccoProgram
 const Honeymooners = lazy(() => import("./pages/Honeymooners"));
 const HoneymoonersDetails = lazy(() => import("./pages/HoneymoonersDetails"));
 const MediaGallery = lazy(() => import("./pages/MediaGallery"));
+const Login = lazy(() => import("./pages/auth/Login"));
+const Register = lazy(() => import("./pages/auth/Register"));
+const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
+const UserDashboard = lazy(() => import("./pages/user/UserDashboard"));
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 
 const PageTransition = ({ children }) => (
@@ -412,6 +422,30 @@ function App() {
                       </PageTransition>
                     }
                   />
+                  <Route
+                    path="brazil"
+                    element={
+                      <PageTransition>
+                        <Brazil />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="italy"
+                    element={
+                      <PageTransition>
+                        <Italy />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="spain"
+                    element={
+                      <PageTransition>
+                        <Spain />
+                      </PageTransition>
+                    }
+                  />
                 </Route>
                 <Route path="tours">
                   <Route
@@ -482,10 +516,80 @@ function App() {
                   }
                 />
                 <Route
+                  path="login"
+                  element={
+                    <PageTransition>
+                      <Login />
+                    </PageTransition>
+                  }
+                />
+                <Route
+                  path="register"
+                  element={
+                    <PageTransition>
+                      <Register />
+                    </PageTransition>
+                  }
+                />
+                <Route
+                  path="forgot-password"
+                  element={
+                    <PageTransition>
+                      <ForgotPassword />
+                    </PageTransition>
+                  }
+                />
+                <Route
+                  path="reset-password"
+                  element={
+                    <PageTransition>
+                      <ResetPassword />
+                    </PageTransition>
+                  }
+                />
+                <Route
+                  path="dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <PageTransition>
+                        <UserDashboard initialTab="overview" />
+                      </PageTransition>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="profile"
+                  element={
+                    <ProtectedRoute>
+                      <PageTransition>
+                        <UserDashboard initialTab="profile" />
+                      </PageTransition>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="bookings"
+                  element={
+                    <ProtectedRoute>
+                      <PageTransition>
+                        <UserDashboard initialTab="bookings" />
+                      </PageTransition>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="trips/:slug"
                   element={
                     <PageTransition>
                       <ServiceDetails />
+                    </PageTransition>
+                  }
+                />
+                <Route
+                  path="*"
+                  element={
+                    <PageTransition>
+                      <NotFound />
                     </PageTransition>
                   }
                 />

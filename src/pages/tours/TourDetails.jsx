@@ -4,27 +4,28 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  FaChevronRight, FaClock, FaUserFriends, FaGlobe, FaTag,
+  FaChevronRight, FaClock, FaUserFriends, FaTag,
   FaCheck, FaTimes, FaMapMarkerAlt, FaBed, FaCheckCircle
 } from 'react-icons/fa';
-import { tours } from '../../data/tours';
-import Button from '../../components/ui/Button';
 import TourCard from '../../components/tour/TourCard';
 import { fadeInUp } from '../../animations/variants';
 import BookingForm from '../../components/booking/BookingForm';
 import { useCurrency } from '../../context/CurrencyContext';
 
 import { useTour } from '../../hooks/useTour';
+import { useTours } from '../../hooks/useTours';
 import { trackEvent } from '../../utils/analytics';
+import ReviewsMap from '../../components/tour/ReviewsMap';
+import SkeletonLoader from '../../components/ui/SkeletonLoader';
+import ErrorState from '../../components/ui/ErrorState';
 
 const TourDetails = () => {
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
   const { slug } = useParams();
 
-  const { tour: dynamicTour, loading } = useTour(slug);
-  const staticTour = tours.find(t => t.slug === slug) || tours[0];
-  const tour = dynamicTour || staticTour;
+  const { tour, loading, error } = useTour(slug);
+  const { tours: relatedToursList } = useTours({ limit: 6 });
 
   useEffect(() => {
     if (tour?.slug) {
@@ -32,7 +33,7 @@ const TourDetails = () => {
     }
   }, [tour?.slug]);
 
-  const shuffledTours = [...tours].sort(() => Math.random() - 0.5);
+  const shuffledTours = relatedToursList.filter(t => t.slug !== slug);
 
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const carouselRef = useRef(null);
@@ -52,6 +53,26 @@ const TourDetails = () => {
     }, 3500);
     return () => clearInterval(id);
   }, []);
+
+  if (loading) {
+    return (
+      <div className="w-full bg-obsidian-50 min-h-screen pt-32 px-6 container mx-auto">
+        <SkeletonLoader count={1} type="card" />
+      </div>
+    );
+  }
+
+  if (error || !tour) {
+    return (
+      <div className="w-full bg-obsidian-50 min-h-screen pt-32 px-6 container mx-auto">
+        <ErrorState
+          title={t('tours.notFoundTitle', 'Tour Not Found')}
+          message={t('tours.notFoundDesc', 'The requested journey could not be located.')}
+          onRetry={() => window.location.reload()}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full bg-obsidian-50 min-h-screen">
@@ -436,11 +457,8 @@ const TourDetails = () => {
         </div>
       </section>
 
-<<<<<<< HEAD
-=======
-      <ReviewsMap tourId={tour.slug} />
+      {tour?.slug && <ReviewsMap tourId={tour.slug} />}
 
->>>>>>> 136e3559b2e1696b55dac3f78fc5e195383586ee
       {/* Related Tours */}
       <section className="container mx-auto px-6 py-24">
         <div className="text-center mb-16">

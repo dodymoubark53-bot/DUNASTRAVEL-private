@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
 
 export function useCmsBlock(key) {
+  const { i18n } = useTranslation();
+  const lang = i18n.language || 'en';
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,10 +16,10 @@ export function useCmsBlock(key) {
     const fetchBlock = async () => {
       try {
         setLoading(true);
-        // GET /api/cms/:key
-        const res = await api.get(`/cms/${key}`);
-        if (isMounted && res?.content) {
-          setData(res.content);
+        // GET /api/cms/:key?lang=${lang}
+        const res = await api.get(`/cms/${encodeURIComponent(key)}?lang=${lang}`);
+        if (isMounted && res) {
+          setData(res.content || res);
         }
       } catch (err) {
         if (isMounted) {
@@ -32,7 +36,7 @@ export function useCmsBlock(key) {
     return () => {
       isMounted = false;
     };
-  }, [key]);
+  }, [key, lang]);
 
-  return { data, loading, error };
+  return { block: data, data, loading, error };
 }

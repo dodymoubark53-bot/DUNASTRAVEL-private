@@ -61,9 +61,9 @@ const getAvatarGradient = (name) => {
 
 const ReviewsMap = ({ tourId }) => {
   const { t, i18n } = useTranslation();
+  const lang = i18n.language || 'en';
   
-  // State to hold reviews, keyed by tourId in localStorage.
-  // Falls back to seedReviews if not yet created.
+  // State to hold reviews, initialized with localStorage cache or seedReviews fallback
   const [reviews, setReviews] = useState(() => {
     const storageKey = `reviews_${tourId || 'global'}`;
     const saved = localStorage.getItem(storageKey);
@@ -74,16 +74,50 @@ const ReviewsMap = ({ tourId }) => {
   const [success, setSuccess] = useState(false);
   const isRtl = i18n.dir() === 'rtl';
 
-  const avgRating = (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1);
-
-  // Sync reviews state if tourId changes (navigation between tours/programs)
   useEffect(() => {
-    const storageKey = `reviews_${tourId || 'global'}`;
-    const saved = localStorage.getItem(storageKey);
-    setReviews(saved ? JSON.parse(saved) : seedReviews);
-  }, [tourId]);
+    let isMounted = true;
+    const loadLiveReviews = async () => {
+      try {
+        const { default: api } = await import('../../utils/api');
+        const url = tourId
+          ? `/tours/${encodeURIComponent(tourId)}/reviews?lang=${lang}`
+          : `/tours/reviews?lang=${lang}`;
+        const res = await api.get(url).catch(() => api.get(`/reviews?lang=${lang}`));
 
-  const handleSubmit = (e) => {
+        let items = [];
+        if (Array.isArray(res)) items = res;
+        else if (res && Array.isArray(res.data)) items = res.data;
+        else if (res && Array.isArray(res.items)) items = res.items;
+
+        if (isMounted && items && items.length > 0) {
+          const formatted = items.map((r) => ({
+            name: r.authorName || r.name || 'Anonymous Guest',
+            country: r.country || r.location || '',
+            rating: r.rating || 5,
+            text: r.comment || r.text || '',
+            date: r.date || r.createdAt ? new Date(r.createdAt || Date.now()).toLocaleDateString(lang, { month: 'long', year: 'numeric' }) : 'Recent',
+          }));
+          setReviews(formatted);
+          localStorage.setItem(`reviews_${tourId || 'global'}`, JSON.stringify(formatted));
+        }
+      } catch (err) {
+        console.warn('[ReviewsMap] Live API offline, falling back to seed/cached data:', err);
+        // Keeps existing reviews (seedReviews / localStorage) on network error
+      }
+    };
+
+    loadLiveReviews();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [tourId, lang]);
+
+  const avgRating = reviews.length > 0
+    ? (reviews.reduce((sum, r) => sum + (Number(r.rating) || 5), 0) / reviews.length).toFixed(1)
+    : '5.0';
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newReview.name || !newReview.text) return;
     
@@ -97,10 +131,19 @@ const ReviewsMap = ({ tourId }) => {
       text: newReview.text,
       date: formattedDate
     };
-    
+
+    // Immediately update review ticker upon success
     const updatedReviews = [newReviewData, ...reviews];
     setReviews(updatedReviews);
     localStorage.setItem(`reviews_${tourId || 'global'}`, JSON.stringify(updatedReviews));
+
+    try {
+      const { default: api } = await import('../../utils/api');
+      const targetSlug = tourId || 'global';
+      await api.post(`/tours/${encodeURIComponent(targetSlug)}/reviews`, newReviewData);
+    } catch (err) {
+      console.warn('[ReviewsMap] Live review post error (using local ticker fallback):', err);
+    }
 
     setNewReview({ name: '', country: '', rating: 5, text: '' });
     setSuccess(true);
@@ -248,8 +291,9 @@ const ReviewsMap = ({ tourId }) => {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs uppercase tracking-wider text-white mb-1.5 font-bold">{t('reviews.yourName', 'Your Name')} *</label>
+                <label htmlFor="review-author-name" className="block text-xs uppercase tracking-wider text-white mb-1.5 font-bold">{t('reviews.yourName', 'Your Name')} *</label>
                 <input
+                  id="review-author-name"
                   type="text"
                   required
                   value={newReview.name}
@@ -258,8 +302,9 @@ const ReviewsMap = ({ tourId }) => {
                 />
               </div>
               <div>
-                <label className="block text-xs uppercase tracking-wider text-white mb-1.5 font-bold">{t('reviews.country', 'Country')}</label>
+                <label htmlFor="review-author-country" className="block text-xs uppercase tracking-wider text-white mb-1.5 font-bold">{t('reviews.country', 'Country')}</label>
                 <input
+                  id="review-author-country"
                   type="text"
                   value={newReview.country}
                   onChange={(e) => setNewReview(p => ({ ...p, country: e.target.value }))}
@@ -272,8 +317,9 @@ const ReviewsMap = ({ tourId }) => {
               <StarRating rating={newReview.rating} onRate={(val) => setNewReview(p => ({ ...p, rating: val }))} />
             </div>
             <div>
-              <label className="block text-xs uppercase tracking-wider text-white mb-1.5 font-bold">{t('reviews.reviewText', 'Your Review')} *</label>
+              <label htmlFor="review-body-text" className="block text-xs uppercase tracking-wider text-white mb-1.5 font-bold">{t('reviews.reviewText', 'Your Review')} *</label>
               <textarea
+                id="review-body-text"
                 required
                 rows="3"
                 value={newReview.text}

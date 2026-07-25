@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import TourCard from '../../components/tour/TourCard';
 import Button from '../../components/ui/Button';
-import { tours } from '../../data/tours';
 import { useTours } from '../../hooks/useTours';
 import { trackEvent } from '../../utils/analytics';
 import { useEffect } from 'react';
@@ -24,8 +23,7 @@ const Grecia = () => {
     trackEvent('interface_view', { interfaceSlug: 'greece' });
   }, []);
 
-  const staticgreekTours = tours.filter((tour) => tour.destination === 'greece');
-  const { tours: greekTours, loading } = useTours({ destination: 'greece' }, staticgreekTours);
+  const { tours: greekTours, loading } = useTours({ destination: 'greece' });
 
   return (
     <div className="w-full bg-obsidian-50 pb-24">
