@@ -71,38 +71,45 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
     expect(result.current.tour).toBeDefined();
   });
 
-  it('ReviewsMap fetches reviews from GET /api/tours/:slug/reviews and submits to POST /api/tours/:slug/reviews', async () => {
+  it('ReviewsMap uses the verified UUID review contract and never inserts a local review', async () => {
     const mockReviews = [
-      { name: 'John Doe', country: 'USA', rating: 5, text: 'Amazing experience!', date: 'May 2026' },
+      { id: 'review-1', reviewerName: 'John Doe', rating: 5, comment: 'Amazing experience!', createdAt: '2026-05-01T00:00:00.000Z' },
     ];
-    vi.spyOn(api, 'get').mockResolvedValue(mockReviews);
+    vi.spyOn(api, 'get').mockResolvedValue({ data: mockReviews, ratingSummary: { averageRating: 5, totalReviews: 1 } });
     vi.spyOn(api, 'post').mockResolvedValue({ success: true });
 
-    render(<ReviewsMap tourId="grand-pyramids" />);
+    const tourId = '11111111-1111-4111-8111-111111111111';
+    render(<ReviewsMap tourId={tourId} />);
 
     await waitFor(() => {
       expect(screen.getAllByText('John Doe').length).toBeGreaterThan(0);
     });
 
-    expect(api.get).toHaveBeenCalledWith(expect.stringContaining('/tours/grand-pyramids/reviews?lang=es'));
+    expect(api.get).toHaveBeenCalledWith(`/tours/${tourId}/reviews`);
 
     // Submit review form
-    const nameInput = screen.getByLabelText(/Your Name/i);
+    const bookingInput = screen.getByLabelText(/Completed booking ID/i);
     const reviewInput = screen.getByLabelText(/Your Review/i);
-    const submitBtn = screen.getByRole('button', { name: /Submit Review/i });
-
-    fireEvent.change(nameInput, { target: { value: 'Jane Smith' } });
+    fireEvent.change(bookingInput, { target: { value: '22222222-2222-4222-8222-222222222222' } });
     fireEvent.change(reviewInput, { target: { value: 'Unforgettable tour!' } });
 
-    await act(async () => {
-      fireEvent.click(submitBtn);
+    await waitFor(() => {
+      expect(bookingInput.value).toBe('22222222-2222-4222-8222-222222222222');
+      expect(reviewInput.value).toBe('Unforgettable tour!');
     });
 
-    // Verify immediate ticker refresh and POST call
+    const formElement = bookingInput.closest('form');
+    fireEvent.submit(formElement);
+
+    // The API is authoritative: no pending review is inserted into the list.
     await waitFor(() => {
-      expect(screen.getAllByText('Jane Smith').length).toBeGreaterThan(0);
+      expect(api.post).toHaveBeenCalledWith(`/tours/${tourId}/reviews`, {
+        bookingId: '22222222-2222-4222-8222-222222222222',
+        rating: 5,
+        comment: 'Unforgettable tour!',
+      });
     });
-    expect(api.post).toHaveBeenCalledWith('/tours/grand-pyramids/reviews', expect.objectContaining({ name: 'Jane Smith', text: 'Unforgettable tour!' }));
+    expect(screen.queryByText('Jane Smith')).not.toBeInTheDocument();
   });
 
   it('useCmsBlock passes lang to GET /api/cms/:key', async () => {
@@ -118,7 +125,7 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
     expect(result.current.data).toEqual({ title: 'Welcome Banner' });
   });
 
-  it('useMedia fetches official tour gallery photos via GET /api/admin/media/tours/:tourId', async () => {
+  it('useMedia fetches official tour gallery photos via GET /api/tours/:tourId', async () => {
     const mockMedia = [{ id: 'm-1', url: '/images/tour1.jpg' }];
     vi.spyOn(api, 'get').mockResolvedValue(mockMedia);
 
@@ -128,7 +135,7 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(api.get).toHaveBeenCalledWith('/admin/media/tours/tour-123');
+    expect(api.get).toHaveBeenCalledWith('/tours/tour-123');
     expect(result.current.galleryImages.length).toBe(1);
   });
 });

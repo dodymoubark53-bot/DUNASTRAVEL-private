@@ -180,12 +180,16 @@ export async function apiRequest(path, options = {}, { raw = false, _retry = fal
     } else {
       _isRefreshing = true;
       try {
+        const csrfToken = await fetchCsrfToken();
         const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
           method: 'POST',
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
             ...(guestToken ? { 'x-guest-token': guestToken } : {}),
+            // Refresh uses the HttpOnly refresh cookie, so it is an
+            // ambient-authority request and must satisfy the CSRF guard.
+            ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
           },
         });
         

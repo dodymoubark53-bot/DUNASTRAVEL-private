@@ -82,30 +82,20 @@ const HieroglyphicName = () => {
 
     try {
       const { default: api } = await import('../../utils/api');
-      let data = await api
-        .post('/ai/hieroglyphics', { text: trimmed, name: trimmed, language: currentLang })
-        .catch(() => api.post('/tools/hieroglyphics', { text: trimmed }))
-        .catch(() => null);
+      const data = await api.post('/tools/hieroglyphics', { text: trimmed });
 
-      if (data) {
-        const glyphs = data.glyphs || data.translation || data.result || localFallback.glyphs;
-        const translit = data.transliteration || data.translit || data.phonetic || localFallback.translit;
-        const note = data.historicNote || data.note || data.meaning || 'Hieroglyphic transliteration by Dunas AI Proxy';
+      if (data && (data.glyphs || data.translation || data.result)) {
+        const glyphs = data.glyphs || data.translation || data.result;
+        const translit = data.transliteration || data.translit || data.phonetic || trimmed;
+        const note = data.historicNote || data.note || data.meaning || 'Hieroglyphic transliteration by Dunas AI Service';
 
         setResult({ glyphs, translit, note });
       } else {
-        setResult({
-          glyphs: localFallback.glyphs,
-          translit: localFallback.translit,
-          note: 'Transliterated from phonetic mapping (Offline mode).',
-        });
+        throw new Error('Invalid response from AI Hieroglyphics Service');
       }
-    } catch {
-      setResult({
-        glyphs: localFallback.glyphs,
-        translit: localFallback.translit,
-        note: 'Transliterated from phonetic mapping (Offline mode).',
-      });
+    } catch (err) {
+      setError(err.message || 'AI Hieroglyphics Service unavailable');
+      setResult(null);
     } finally {
       setLoading(false);
     }
@@ -314,7 +304,7 @@ const HieroglyphicName = () => {
                     {INSCRIBE} Inscribe My Name {INSCRIBE}
                   </button>
 
-                  {(result || loading) && (
+                  {(result || loading || error) && (
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}

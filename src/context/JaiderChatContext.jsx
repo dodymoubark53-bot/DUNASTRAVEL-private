@@ -584,6 +584,9 @@ export const JaiderChatProvider = ({ children }) => {
     }
   };
 
+  const [leadFormState, setLeadFormState] = useState({ required: false, fields: [] });
+  const [handoffState, setHandoffState] = useState({ requested: false, status: null });
+
   // Handle incoming message
   const sendMessage = async (text) => {
     if (!text.trim()) return;
@@ -600,23 +603,41 @@ export const JaiderChatProvider = ({ children }) => {
 
     try {
       // Fetch response from the Nest backend chatbot API via central api client
-      const data = await api.post('/chat', {
+      const data = await api.post('/ai/chat/message', {
         message: text,
         sessionId,
-        language: i18n.language
+        locale: i18n.language,
+        pageContext: {
+          pathname: typeof window !== 'undefined' ? window.location.pathname : '/'
+        }
       });
       
-      // Simulate slight delay for human-like response rhythm
-      await new Promise(r => setTimeout(r, 600 + Math.random() * 400));
+      const assistantText = data?.message?.content || data?.text || FALLBACK_MESSAGES[i18n.language] || FALLBACK_MESSAGES.en;
+      const tours = data?.recommendations?.tours || [];
+      const destinations = data?.recommendations?.destinations || [];
+      const sources = data?.sources || [];
+      const suggestedReplies = data?.suggestedReplies || [];
+
+      if (data?.leadCapture?.required) {
+        setLeadFormState({ required: true, fields: data.leadCapture.fields });
+      }
+
+      if (data?.handoff?.requested) {
+        setHandoffState({ requested: true, status: data.handoff.status });
+      }
 
       setMessages(prev => [
         ...prev,
         {
           id: `msg-${Date.now()}-jaider`,
           sender: 'jaider',
-          text: data.text,
+          text: assistantText,
           timestamp: new Date(),
-          similarQuestions: data.similarQuestions && data.similarQuestions.length > 0 ? data.similarQuestions : undefined
+          tours,
+          destinations,
+          sources,
+          suggestedReplies,
+          similarQuestions: data?.similarQuestions && data.similarQuestions.length > 0 ? data.similarQuestions : undefined
         }
       ]);
     } catch (err) {
@@ -653,6 +674,53 @@ export const JaiderChatProvider = ({ children }) => {
     }
   };
 
+  const submitLead = async (visitorInfo) => {
+    try {
+      await api.post('/ai/chat/lead', {
+        sessionId,
+        ...visitorInfo
+      });
+      setLeadFormState({ required: false, fields: [] });
+      setMessages(prev => [
+        ...prev,
+        {
+          id: `msg-${Date.now()}-lead-sys`,
+          sender: 'jaider',
+          text: i18n.language.startsWith('ar')
+            ? 'شكراً لك! تم استلام بياناتك بنجاح وسيقوم مستشار السفر بالتواصل معك قريباً.'
+            : 'Thank you! Your details have been submitted. A travel specialist will contact you shortly.',
+          timestamp: new Date()
+        }
+      ]);
+      return true;
+    } catch (err) {
+      console.error("Failed to submit lead:", err);
+      return false;
+    }
+  };
+
+  const requestHandoff = async () => {
+    try {
+      await api.post('/ai/chat/handoff', { sessionId });
+      setHandoffState({ requested: true, status: 'HANDED_OFF' });
+      setMessages(prev => [
+        ...prev,
+        {
+          id: `msg-${Date.now()}-handoff-sys`,
+          sender: 'jaider',
+          text: i18n.language.startsWith('ar')
+            ? 'تم تقديم طلب التحدث مع ممثل مبيعات. يرجى الانتظار...'
+            : 'Human sales consultant requested. A travel specialist will be with you shortly.',
+          timestamp: new Date()
+        }
+      ]);
+      return true;
+    } catch (err) {
+      console.error("Failed to request handoff:", err);
+      return false;
+    }
+  };
+
   const getSuggestions = () => {
     const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
     const lang = SUPPORTED_LANGS.includes(activeLang) ? activeLang : 'en';
@@ -664,6 +732,8 @@ export const JaiderChatProvider = ({ children }) => {
     const newSessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
     localStorage.setItem('jaider_chat_session_id', newSessionId);
     setSessionId(newSessionId);
+    setLeadFormState({ required: false, fields: [] });
+    setHandoffState({ requested: false, status: null });
 
     const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
     const lang = SUPPORTED_LANGS.includes(activeLang) ? activeLang : 'en';
@@ -684,6 +754,10 @@ export const JaiderChatProvider = ({ children }) => {
         setIsOpen: handleSetIsOpen,
         messages,
         sendMessage,
+        submitLead,
+        requestHandoff,
+        leadFormState,
+        handoffState,
         clearMessages,
         isTyping,
         loadingKnowledge,
@@ -696,6 +770,7 @@ export const JaiderChatProvider = ({ children }) => {
     </JaiderChatContext.Provider>
   );
 };
+
 
 export const useJaiderChat = () => {
   const context = useContext(JaiderChatContext);

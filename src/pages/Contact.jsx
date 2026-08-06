@@ -7,7 +7,7 @@ import Button from '../components/ui/Button';
 import ContactForms from '../components/contact/ContactForms';
 
 const Contact = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   return (
     <div className="w-full bg-obsidian-50 pb-24">
       <Helmet>
@@ -102,16 +102,15 @@ const Contact = () => {
               try {
                 const { default: api } = await import('../utils/api');
                 const payload = {
-                  name: `${firstName} ${lastName}`.trim(),
                   firstName,
                   lastName,
                   email,
                   phone: phone || undefined,
                   subject: 'Contact Form Submission',
-                  message,
-                  type: 'inquiry',
+                  message: message.length >= 10 ? message : `${message} (Inquiry)`,
+                  locale: i18n.language || 'en',
                 };
-                await api.post('/contact', payload).catch(() => api.post('/contact-submissions', payload));
+                await api.post('/contact', payload);
                 alert(t('contact.success', 'Your message has been sent successfully.'));
                 form.reset();
               } catch (err) {

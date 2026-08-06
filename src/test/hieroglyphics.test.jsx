@@ -15,7 +15,7 @@ describe('Prompt 06: AI Hieroglyphics Name Translator Proxy', () => {
     vi.restoreAllMocks();
   });
 
-  it('sends name string to POST /api/ai/hieroglyphics and renders glyphs, transliteration, and historic note', async () => {
+  it('sends name string to POST /api/tools/hieroglyphics and renders glyphs, transliteration, and historic note', async () => {
     const mockAiResponse = {
       glyphs: 'B𓏏𓂋',
       transliteration: 'b-t-r',
@@ -38,42 +38,11 @@ describe('Prompt 06: AI Hieroglyphics Name Translator Proxy', () => {
       expect(screen.getByText('Written in royal cartouche for protection.')).toBeInTheDocument();
     });
 
-    expect(api.post).toHaveBeenCalledWith('/ai/hieroglyphics', expect.objectContaining({
-      text: 'Dina',
-      name: 'Dina',
-      language: 'en',
-    }));
+    expect(api.post).toHaveBeenCalledWith('/tools/hieroglyphics', { text: 'Dina' });
   });
 
-  it('falls back to POST /api/tools/hieroglyphics when AI endpoint fails', async () => {
-    vi.spyOn(api, 'post').mockImplementation((path) => {
-      if (path === '/ai/hieroglyphics') return Promise.reject(new Error('AI Busy'));
-      if (path === '/tools/hieroglyphics') {
-        return Promise.resolve({
-          translation: '𓄤𓆑𓂋',
-          translit: 'n-f-r',
-          note: 'Fallback scribal translation',
-        });
-      }
-      return Promise.reject(new Error('Not found'));
-    });
-
-    render(<HieroglyphicName />);
-
-    const input = screen.getByPlaceholderText(/e\.g\. Dina/i);
-    fireEvent.change(input, { target: { value: 'Sara' } });
-
-    const submitBtn = screen.getByRole('button', { name: /Inscribe My Name/i });
-    fireEvent.click(submitBtn);
-
-    await waitFor(() => {
-      expect(screen.getByText('𓄤𓆑𓂋')).toBeInTheDocument();
-      expect(screen.getByText('n-f-r')).toBeInTheDocument();
-    });
-  });
-
-  it('falls back gracefully to internal phonetic mapping when offline', async () => {
-    vi.spyOn(api, 'post').mockRejectedValue(new Error('Network offline'));
+  it('displays honest error message when AI service fails', async () => {
+    vi.spyOn(api, 'post').mockRejectedValue(new Error('AI Hieroglyphics Service unavailable'));
 
     render(<HieroglyphicName />);
 
@@ -84,7 +53,7 @@ describe('Prompt 06: AI Hieroglyphics Name Translator Proxy', () => {
     fireEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(screen.getByText(/Transliterated from phonetic mapping/i)).toBeInTheDocument();
+      expect(screen.getByText(/AI Hieroglyphics Service unavailable/i)).toBeInTheDocument();
     });
   });
 });

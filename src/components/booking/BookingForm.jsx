@@ -132,7 +132,7 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
         departureDate: b.departureDate,
         arrivalTime: b.arrivalTime,
         departureTime: b.departureTime,
-        language: b.language,
+        language: ['en', 'ar', 'es', 'pt', 'it'].includes(b.language?.toLowerCase()) ? b.language.toLowerCase() : 'en',
         activityType: b.activityType,
         adults: b.adults,
         children: b.children,

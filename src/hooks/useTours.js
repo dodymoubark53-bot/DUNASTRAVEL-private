@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
-import seedTours from '../data/tours';
 
 /**
  * Unified hook to fetch a list of tours from GET /api/tours
@@ -63,25 +62,11 @@ export function useTours(filters = {}) {
           setTours(mappedTours);
         }
       } catch (err) {
-        console.warn('[useTours] API network down, falling back to local seed data:', err.message);
+        // Operational catalog data must only come from the authoritative API.
+        // Showing seed data here could advertise unavailable tours or prices.
         if (isMounted) {
           setError(err);
-          // Fall back to local seed data ONLY when network connection is down
-          if (Array.isArray(seedTours)) {
-            let fallback = [...seedTours];
-            if (currentFilters.destination) {
-              fallback = fallback.filter(t => t.destination?.toLowerCase() === currentFilters.destination.toLowerCase());
-            }
-            if (currentFilters.category) {
-              fallback = fallback.filter(t => t.category?.toLowerCase() === currentFilters.category.toLowerCase() || t.type?.toLowerCase() === currentFilters.category.toLowerCase());
-            }
-            if (currentFilters.limit) {
-              fallback = fallback.slice(0, Number(currentFilters.limit));
-            }
-            setTours(fallback);
-          } else {
-            setTours([]);
-          }
+          setTours([]);
         }
       } finally {
         if (isMounted) setLoading(false);

@@ -219,7 +219,7 @@ className={`
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="font-display font-semibold tracking-wide text-base sm:text-lg truncate">
-                  Jaider
+                  Jaider AI Concierge
                 </span>
                 <span className="text-[11px] text-gold-400/90 font-medium tracking-wider uppercase flex items-center gap-1.5">
                 {loadingKnowledge ? (
@@ -230,14 +230,24 @@ className={`
                 ) : (
                   <>
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    Online · FAQ Expert
+                    Grounded RAG Sales Engine
                   </>
                 )}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const { requestHandoff } = useJaiderChat();
+                requestHandoff();
+              }}
+              title="Speak to Sales Specialist"
+              className="text-[11px] bg-gold-500/20 hover:bg-gold-500/30 text-gold-400 border border-gold-500/40 px-2.5 py-1 rounded-full font-semibold transition-all flex items-center gap-1"
+            >
+              Consultant
+            </button>
             <button
               onClick={clearMessages}
               title="Clear conversation"
@@ -278,7 +288,7 @@ className={`
                       height="28"
                     />
                   )}
-                  <div className="flex flex-col">
+                  <div className="flex flex-col space-y-2">
                     <div
                       dir="auto"
                       className={`px-4 py-2.5 sm:px-4 sm:py-2.5 rounded-2xl text-sm sm:text-[13px] leading-relaxed shadow-sm font-medium ${
@@ -289,8 +299,50 @@ className={`
                     >
                       {msg.text}
                     </div>
-                    
-                    {/* Similar Questions - Auto show when fallback message */}
+
+                    {/* Grounded Tour Recommendation Cards */}
+                    {msg.tours && msg.tours.length > 0 && (
+                      <div className="flex flex-col gap-2 pt-1">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-gold-500">Recommended Grounded Tours:</span>
+                        {msg.tours.map((t) => (
+                          <a
+                            key={t.id}
+                            href={t.publicUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex gap-3 bg-white dark:bg-obsidian-900 p-2.5 rounded-xl border border-gold-500/30 hover:border-gold-500 transition-all shadow-sm group"
+                          >
+                            {t.image && (
+                              <img src={t.image} alt={t.title} className="w-16 h-14 object-cover rounded-lg shrink-0" />
+                            )}
+                            <div className="flex flex-col justify-center min-w-0 flex-1">
+                              <h4 className="text-xs font-bold text-[#1a2a4a] dark:text-gray-100 group-hover:text-gold-500 transition-colors truncate">{t.title}</h4>
+                              <span className="text-[11px] text-gray-500 dark:text-gray-400">{t.destination}</span>
+                              <span className="text-xs font-bold text-gold-500 mt-0.5">${t.price} {t.currency}</span>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Grounded Destination Recommendation Cards */}
+                    {msg.destinations && msg.destinations.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {msg.destinations.map((d) => (
+                          <a
+                            key={d.id}
+                            href={d.publicUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-400 text-xs font-semibold hover:bg-gold-500/20 transition-all"
+                          >
+                            Explore {d.title} →
+                          </a>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Similar Questions */}
                     {msg.similarQuestions && msg.similarQuestions.length > 0 && visibleSimilarQuestions.has(msg.id) && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
@@ -403,6 +455,7 @@ className={`
           </button>
         </div>
       </motion.div>
+
     </AnimatePresence>
   );
 };

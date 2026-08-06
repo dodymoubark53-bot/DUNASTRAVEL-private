@@ -19,10 +19,10 @@ export function useMedia(tourId = null) {
         setError(null);
 
         const url = tourId
-          ? `/admin/media/tours/${encodeURIComponent(tourId)}`
-          : '/media';
+          ? `/tours/${encodeURIComponent(tourId)}`
+          : '/cms/gallery';
 
-        const res = await api.get(url).catch(() => (tourId ? api.get(`/media/tours/${encodeURIComponent(tourId)}`) : api.get('/media')));
+        const res = await api.get(url);
         if (isMounted && res) {
           const imgs = Array.isArray(res) ? res : (res.galleryImages || res.images || res.data || []);
           setGalleryImages(imgs);

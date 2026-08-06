@@ -457,7 +457,7 @@ const TourDetails = () => {
         </div>
       </section>
 
-      {tour?.slug && <ReviewsMap tourId={tour.slug} />}
+      {tour?.id && <ReviewsMap tourId={tour.id} />}
 
       {/* Related Tours */}
       <section className="container mx-auto px-6 py-24">

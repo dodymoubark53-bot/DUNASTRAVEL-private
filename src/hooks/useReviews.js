@@ -24,9 +24,9 @@ export function useReviews(tourId = null) {
 
         const path = tourId
           ? `/tours/${encodeURIComponent(tourId)}/reviews?lang=${lang}`
-          : `/tours/reviews?lang=${lang}`;
+          : `/tours/all/reviews?lang=${lang}`;
 
-        const res = await api.get(path).catch(() => api.get(`/reviews?lang=${lang}`));
+        const res = await api.get(path).catch(() => api.get(`/tours/${encodeURIComponent(tourId || 'general')}/reviews?lang=${lang}`));
 
         let items = [];
         if (Array.isArray(res)) items = res;

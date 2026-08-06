@@ -47,7 +47,17 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
     setError('');
     setStatus('submitting');
     try {
-      const payload = {
+      const passengerCount = (parseInt(formData.adults) || 1) + (parseInt(formData.children) || 0);
+      const transportPayload = {
+        serviceId: formData.vehicleId || 'std-trans',
+        pickupDate: new Date(formData.tripDate).toISOString(),
+        pickupTime: formData.pickupTime || '09:00',
+        pickupLocation: formData.pickupLocation,
+        dropoffLocation: formData.dropoffLocation,
+        passengerCount,
+      };
+
+      const genericPayload = {
         type: 'transport',
         tourTitle: `Transport: ${formData.pickupLocation} → ${formData.dropoffLocation}`,
         vehicleId: formData.vehicleId,
@@ -64,8 +74,14 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
         totalAmount: 0,
         currency: 'USD'
       };
-      // api.post fetches CSRF token and sends it automatically
-      const data = await api.post('/bookings', payload);
+
+      let data;
+      try {
+        data = await api.post('/transportation/bookings', transportPayload);
+      } catch {
+        data = await api.post('/bookings', genericPayload);
+      }
+
       setBookingResult(data);
       setStatus('success');
     } catch (err) {

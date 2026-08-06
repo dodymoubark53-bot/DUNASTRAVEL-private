@@ -140,11 +140,11 @@ const TailorTour = () => {
         fullName,
         email,
         phone,
-        preferredLanguage: i18n.language || 'en',
-        destinations: selectedDestinations,
+        preferredLanguage: ['en', 'es', 'fr', 'de', 'it', 'ar'].includes(i18n.language?.toLowerCase()) ? i18n.language.toLowerCase() : 'en',
+        destinations: selectedDestinations.length > 0 ? selectedDestinations : ['Custom Experience'],
         startDate: travelDate || undefined,
-        adults,
-        children: children + infants,
+        adults: adults || 1,
+        children: (children || 0) + (infants || 0),
         notes: specialRequests || undefined,
       };
 

@@ -12,7 +12,7 @@ export const CurrencyProvider = ({ children }) => {
   useEffect(() => {
     const fetchRate = async () => {
       try {
-        const data = await api.get('/currency/rates').catch(() => api.get('/currency/public/rates'));
+        const data = await api.get('/currency/rates');
         const eur = data?.rates?.EUR || data?.EUR;
         if (eur) {
           setEurRate(eur);

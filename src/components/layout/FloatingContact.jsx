@@ -1,26 +1,22 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaFacebook, FaInstagram, FaPhone, FaEnvelope, FaCommentDots, FaTimes } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaPhone, FaEnvelope, FaRobot, FaTimes, FaCommentDots } from 'react-icons/fa';
+import { useJaiderChat } from '../../context/JaiderChatContext';
 
 const FloatingContact = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { setIsOpen: setJaiderOpen, isOpen: isJaiderOpen } = useJaiderChat();
 
-  const socials = [
-    { icon: FaFacebook, href: 'https://www.facebook.com/share/1BnRWtoUdo/', label: 'Facebook' },
+  const options = [
+    { icon: FaRobot, action: () => { setJaiderOpen(true); setIsOpen(false); }, label: 'AI Travel Concierge', isButton: true },
     { icon: FaInstagram, href: 'https://www.instagram.com/dunas_travel?igsh=bWkyb2FhY2hoNnNo', label: 'Instagram' },
     { icon: FaPhone, href: 'tel:+20233746643', label: 'Call us' },
     { icon: FaEnvelope, href: 'mailto:info@dunas-travel.com', label: 'Email' },
   ];
 
-  // Animation variants for the child items to fan out radially
   const itemVariants = {
     closed: { opacity: 0, x: 0, y: 0, scale: 0 },
     open: (index) => {
-      // Calculate radial positions (arc from top to left)
-      // index 0: straight up
-      // index 1: diagonal up-left
-      // index 2: diagonal left-up
-      // index 3: straight left
       const positions = [
         { x: 0, y: -75 },
         { x: -38, y: -65 },
@@ -42,15 +38,36 @@ const FloatingContact = () => {
     }
   };
 
+  if (isJaiderOpen) return null;
+
   return (
     <div id="floating-contact-container" className="floating-contact fixed bottom-6 right-6 z-50 flex items-center justify-center">
       <AnimatePresence>
-        {isOpen && socials.map((social, idx) => {
-          const Icon = social.icon;
+        {isOpen && options.map((item, idx) => {
+          const Icon = item.icon;
+          if (item.isButton) {
+            return (
+              <motion.button
+                key={item.label}
+                onClick={item.action}
+                custom={idx}
+                variants={itemVariants}
+                initial="closed"
+                animate="open"
+                exit="closed"
+                title={item.label}
+                aria-label={item.label}
+                className="absolute w-12 h-12 bg-[#061d5d] border border-gold-500 rounded-full flex items-center justify-center text-gold-400 shadow-glass hover:bg-gold-500 hover:text-obsidian-900 transition-colors duration-300"
+              >
+                <Icon size={20} />
+              </motion.button>
+            );
+          }
+
           return (
             <motion.a
-              key={social.label}
-              href={social.href}
+              key={item.label}
+              href={item.href}
               target="_blank"
               rel="noopener noreferrer"
               custom={idx}
@@ -58,8 +75,8 @@ const FloatingContact = () => {
               initial="closed"
               animate="open"
               exit="closed"
-              title={social.label}
-              aria-label={social.label}
+              title={item.label}
+              aria-label={item.label}
               className="absolute w-12 h-12 bg-obsidian-900 border border-gold-500 rounded-full flex items-center justify-center text-gold-500 shadow-glass hover:bg-gold-500 hover:text-obsidian-900 transition-colors duration-300"
             >
               <Icon size={20} />
@@ -68,7 +85,6 @@ const FloatingContact = () => {
         })}
       </AnimatePresence>
 
-      {/* Ripple ring */}
       {!isOpen && (
         <motion.span
           className="absolute inset-0 rounded-full border-2 border-gold-400"
@@ -83,10 +99,12 @@ const FloatingContact = () => {
           transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
         />
       )}
-<motion.button
+      <motion.button
         onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? "Close contact options" : "Open contact options"}
-        className="relative z-10 w-16 h-16 rounded-full flex items-center justify-center text-obsidian-900 bg-gradient-to-tr from-gold-700 via-gold-500 to-gold-300 shadow-[0_0_24px_rgba(201,162,39,0.35)] hover:shadow-[0_0_32px_rgba(201,162,39,0.5)] transition-shadow duration-300"
+        aria-expanded={isOpen}
+        aria-haspopup="true"
+        className="relative z-10 w-16 h-16 rounded-full flex items-center justify-center text-obsidian-900 bg-gradient-to-tr from-gold-700 via-gold-500 to-gold-300 shadow-[0_0_24px_rgba(201,162,39,0.35)] hover:shadow-[0_0_32px_rgba(201,162,39,0.5)] focus:outline-none focus:ring-2 focus:ring-gold-400 focus:ring-offset-2 transition-shadow duration-300"
         animate={!isOpen ? { scale: [1, 1.06, 1] } : { scale: 1 }}
         transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
       >
