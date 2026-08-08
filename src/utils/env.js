@@ -18,7 +18,7 @@ export function validateEnv() {
   }
   
   // Ensure no sensitive private backend secrets are accidentally exposed on import.meta.env
-  const forbiddenKeys = ['DATABASE_URL', 'NEON_DB_URI', 'JWT_SECRET', 'OPENAI_API_KEY', 'STRIPE_SECRET_KEY'];
+  const forbiddenKeys = ['DATABASE_URL', 'NEON_DB_URI', 'JWT_SECRET', 'OPENAI_API_KEY'];
   for (const key of forbiddenKeys) {
     if (import.meta.env[key]) {
       console.error(`[env] SECURITY WARNING: Private key ${key} is exposed in public environment!`);

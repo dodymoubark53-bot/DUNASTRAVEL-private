@@ -83,7 +83,7 @@ const BookingSuccess = () => {
               {t('payment.verifyingTitle', 'Verifying Payment...')}
             </h1>
             <p className="text-body-md text-ivory-300 mb-8 leading-relaxed">
-              {t('payment.verifyingDesc', 'Please wait while we confirm your payment status with Stripe.')}
+              {t('payment.verifyingDesc', 'Please wait while we confirm your payment status.')}
             </p>
           </div>
         ) : paymentStatus === 'FAILED' ? (

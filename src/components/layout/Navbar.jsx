@@ -8,6 +8,7 @@ import { useTheme } from '../../context/ThemeContext';
 import LoginModal from '../auth/LoginModal';
 import Logo from '../ui/Logo';
 import CurrencySelector from '../ui/CurrencySelector';
+import CustomerNotificationBell from '../ui/CustomerNotificationBell';
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -198,6 +199,9 @@ const Navbar = () => {
                   </button>
                 )}
               </div>
+
+              {/* Customer Notifications */}
+              {user && <CustomerNotificationBell />}
 
               {/* Currency */}
               <div className="flex">
