@@ -15,10 +15,16 @@ const JaiderChatWindow = () => {
     clearMessages,
     isTyping,
     loadingKnowledge,
-    suggestions
+    suggestions,
+    leadFormState,
+    submitLead
   } = useJaiderChat();
 
   const [input, setInput] = React.useState('');
+  const [leadName, setLeadName] = React.useState('');
+  const [leadEmail, setLeadEmail] = React.useState('');
+  const [leadPhone, setLeadPhone] = React.useState('');
+  const [isSubmittingLead, setIsSubmittingLead] = React.useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const chatWindowRef = useRef(null);
@@ -411,6 +417,49 @@ className={`
 
           <div ref={messagesEndRef} />
         </div>
+
+        {/* Inline Lead Capture Form */}
+        {leadFormState?.required && (
+          <div className="px-4 py-3 bg-gradient-to-r from-[#102a71] to-[#0a1969] border-t border-gold-500/30 flex flex-col gap-2 shrink-0">
+            <span className="text-xs font-bold text-gold-400">
+              {isRtl ? 'أدخل تفاصيلك ليصلك عرض أسعار مخصص:' : 'Enter your details to receive a custom quote:'}
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <input
+                type="text"
+                placeholder={isRtl ? 'الاسم' : 'Name'}
+                value={leadName}
+                onChange={(e) => setLeadName(e.target.value)}
+                className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-gold-500"
+              />
+              <input
+                type="email"
+                placeholder={isRtl ? 'البريد الإلكتروني' : 'Email'}
+                value={leadEmail}
+                onChange={(e) => setLeadEmail(e.target.value)}
+                className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-gold-500"
+              />
+              <input
+                type="tel"
+                placeholder={isRtl ? 'رقم الهاتف' : 'Phone'}
+                value={leadPhone}
+                onChange={(e) => setLeadPhone(e.target.value)}
+                className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-gold-500"
+              />
+            </div>
+            <button
+              disabled={isSubmittingLead || !leadEmail}
+              onClick={async () => {
+                setIsSubmittingLead(true);
+                await submitLead({ name: leadName, email: leadEmail, phone: leadPhone });
+                setIsSubmittingLead(false);
+              }}
+              className="mt-1 py-1.5 bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian-950 font-bold text-xs rounded-lg hover:brightness-110 transition-all disabled:opacity-50"
+            >
+              {isSubmittingLead ? (isRtl ? 'جاري الإرسال...' : 'Submitting...') : (isRtl ? 'إرسال الطلب' : 'Submit Request')}
+            </button>
+          </div>
+        )}
 
         {/* Suggestion Chips */}
         {messages.length === 1 && !isTyping && (

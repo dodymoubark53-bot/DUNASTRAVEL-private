@@ -4,6 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { journeysRoutesData } from '../../data/journeys_routes_data';
 import { useTours } from '../../hooks/useTours';
+import api from '../../utils/api';
 
 // Fix Leaflet default marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
@@ -67,6 +68,39 @@ const InteractiveJourneyMap = () => {
   ];
 
   const { tours: _liveTours } = useTours({ limit: 50 });
+  const [apiJourneys, setApiJourneys] = useState([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchApiJourneys = async () => {
+      try {
+        const res = await api.get('/journey-maps');
+        const items = Array.isArray(res) ? res : (res?.items || res?.data || []);
+        if (isMounted && items.length > 0) {
+          const mapped = items.map(item => ({
+            id: item.id,
+            title: item.name || 'Journey Route',
+            destination: item.destination || 'Egypt',
+            tourSlug: item.tour?.slug,
+            stops: Array.isArray(item.pointsJsonb) ? item.pointsJsonb.map(p => ({
+              name: p.label || p.name || 'Stop',
+              coords: [p.lat, p.lng],
+              description: p.description || ''
+            })) : []
+          }));
+          setApiJourneys(mapped);
+        }
+      } catch (err) {
+        console.warn('[InteractiveJourneyMap] Failed to load journey routes from API:', err);
+      }
+    };
+    fetchApiJourneys();
+    return () => { isMounted = false; };
+  }, []);
+
+  const activeJourneysData = useMemo(() => {
+    return apiJourneys.length > 0 ? apiJourneys : journeysRoutesData;
+  }, [apiJourneys]);
 
   const [activeCategory, setActiveCategory] = useState(() => {
     try {
@@ -78,27 +112,27 @@ const InteractiveJourneyMap = () => {
   const [selectedJourneyId, setSelectedJourneyId] = useState(() => {
     try {
       const cached = localStorage.getItem('dunas_travel_map_journey_id');
-      if (cached && journeysRoutesData.some(j => j.id === cached)) return cached;
+      if (cached && activeJourneysData.some(j => j.id === cached)) return cached;
     } catch {
       // ignore
     }
-    return journeysRoutesData[0]?.id || '';
+    return activeJourneysData[0]?.id || '';
   });
 
   // Filter journeys by destination
   const filteredJourneys = useMemo(() => {
-    if (activeCategory === "All") return journeysRoutesData;
-    return journeysRoutesData.filter(j => j.destination === activeCategory);
-  }, [activeCategory]);
+    if (activeCategory === "All") return activeJourneysData;
+    return activeJourneysData.filter(j => j.destination === activeCategory);
+  }, [activeCategory, activeJourneysData]);
 
   // Active selected journey object
   const activeJourney = useMemo(() => {
-    const found = journeysRoutesData.find(j => j.id === selectedJourneyId);
+    const found = activeJourneysData.find(j => j.id === selectedJourneyId);
     if (found && (activeCategory === "All" || found.destination === activeCategory)) return found;
     // Fallback to first filtered journey
     if (filteredJourneys.length > 0) return filteredJourneys[0];
-    return journeysRoutesData[0];
-  }, [selectedJourneyId, filteredJourneys, activeCategory]);
+    return activeJourneysData[0];
+  }, [selectedJourneyId, filteredJourneys, activeCategory, activeJourneysData]);
 
   // Persist selections
   useEffect(() => {
