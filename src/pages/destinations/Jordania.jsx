@@ -171,12 +171,12 @@ const Jordania = () => {
           className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto"
         >
           <div className="bg-ivory-50 dark:bg-[#1a1a30] rounded-xl p-8 border border-gold-500/10 dark:border-amber-700">
-            <h3 className="text-display-md text-2xl text-obsidian-900 dark:text-black mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h3 className="text-display-md text-2xl text-obsidian-900 dark:text-ivory-50 mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
               {t('tourDetail.included', 'What is Included')}
             </h3>
             <ul className="flex flex-col gap-3">
               {t('dest.jordan.includesList', { returnObjects: true }).map((item, idx) => (
-                <li key={idx} className="flex items-start gap-3 text-body-md text-obsidian-700 dark:text-black">
+                <li key={idx} className="flex items-start gap-3 text-body-md text-obsidian-700 dark:text-ivory-100">
                   <FaCheckCircle className="text-sage-500 dark:text-green-400 mt-1 flex-shrink-0" />
                   <span>{item}</span>
                 </li>
@@ -187,12 +187,12 @@ const Jordania = () => {
             </p>
           </div>
           <div className="bg-ivory-50 dark:bg-[#1a1a30] rounded-xl p-8 border border-gold-500/10 dark:border-amber-700">
-            <h3 className="text-display-md text-2xl text-obsidian-900 dark:text-black mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h3 className="text-display-md text-2xl text-obsidian-900 dark:text-ivory-50 mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
               {t('tourDetail.excluded', 'What is Excluded')}
             </h3>
             <ul className="flex flex-col gap-3">
               {t('dest.jordan.excludesList', { returnObjects: true }).map((item, idx) => (
-                <li key={idx} className="flex items-start gap-3 text-body-md text-obsidian-700 dark:text-black">
+                <li key={idx} className="flex items-start gap-3 text-body-md text-obsidian-700 dark:text-ivory-100">
                   <FaTimes className="text-red-400 dark:text-red-300 mt-1 flex-shrink-0" />
                   <span>{item}</span>
                 </li>

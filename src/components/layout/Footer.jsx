@@ -40,49 +40,6 @@ const Footer = () => {
 @keyframes blink{50%{opacity:0}}
 @keyframes dotSlideIn{from{opacity:0;transform:translateX(30px) scale(0.15)}to{opacity:1;transform:translateX(0) scale(1)}}
 @keyframes arrowBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-#backToTop{
-  position:fixed;left:28px;bottom:28px;
-  width:54px;height:54px;border-radius:50%;
-  border:1px solid var(--gold,#C9A227);
-  background:var(--navy-deep,#081830);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;z-index:200;
-  opacity:0;visibility:hidden;
-  transform:translateY(16px);
-  transition:opacity .35s ease,transform .35s ease,visibility .35s ease,border-color .3s ease,background .3s ease;
-  box-shadow:0 14px 34px rgba(8,24,48,0.28);
-}
-#backToTop.show{opacity:1!important;visibility:visible!important;transform:translateY(0)!important}
-#backToTop:hover{background:var(--gold,#C9A227);border-color:var(--gold,#C9A227)}
-#backToTop svg{width:20px;height:20px;stroke:var(--gold-light,#E8CB72);transition:stroke .3s ease;animation:arrowBounce 1.6s ease-in-out infinite}
-#backToTop:hover svg{stroke:var(--navy-deep,#081830)}
-
-#askJaiderFloat{
-  position:fixed;left:28px;bottom:96px;
-  height:54px;border-radius:27px;
-  border:1px solid var(--gold,#C9A227);
-  background:var(--navy-deep,#081830);
-  display:flex;align-items:center;justify-content:center;
-  padding:0 20px;
-  cursor:pointer;z-index:200;
-  opacity:0;visibility:hidden;
-  transform:translateY(16px);
-  transition:opacity .35s ease,transform .35s ease,visibility .35s ease,border-color .3s ease,background .3s ease,color .3s ease;
-  box-shadow:0 14px 34px rgba(8,24,48,0.28);
-  color:var(--gold-light,#E8CB72);
-  font-family:'Space Grotesk', sans-serif;
-  font-weight:600;
-  font-size:13px;
-  gap:8px;
-}
-#askJaiderFloat.show{opacity:1!important;visibility:visible!important;transform:translateY(0)!important}
-#askJaiderFloat:hover{background:var(--gold,#C9A227);border-color:var(--gold,#C9A227);color:var(--navy-deep,#081830)}
-#askJaiderFloat svg{animation:float 3s ease-in-out infinite}
-
-@media(max-width:640px){
-  #backToTop{left:18px;bottom:18px;width:48px;height:48px}
-  #askJaiderFloat{left:18px;bottom:76px;height:48px;border-radius:24px;padding:0 14px;font-size:11px;gap:6px}
-}
 `}</style>
       <div className="relative z-10 w-full px-6 sm:px-12 lg:px-20 pt-8 sm:pt-10 lg:pt-12 flex flex-col sm:flex-row justify-between items-start gap-6">
         <div className="max-w-lg">
@@ -161,17 +118,31 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Ask Jaider Floating Button */}
-      <button id="askJaiderFloat" onClick={scrollToJaider} aria-label="Ask Jaider" className={showBackToTop ? 'show' : ''}>
-        <FaRobot size={20} />
-        <span>{t('footer.askJaider', i18n.language && i18n.language.startsWith('ar') ? 'اسأل جايدر' : i18n.language && i18n.language.startsWith('es') ? 'Pregunta a Jaider' : i18n.language && i18n.language.startsWith('pt') ? 'Pergunte ao Jaider' : i18n.language && i18n.language.startsWith('it') ? 'Chiedi a Jaider' : 'Ask Jaider')}</span>
-      </button>
-
-      {/* Back to Top */}
-      <button id="backToTop" onClick={scrollToTop} aria-label="Back to top" className={showBackToTop ? 'show' : ''}>
-        <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 19V5"></path>
-          <path d="M5 12l7-7 7 7"></path>
+      {/* Back to Top Floating Button */}
+      <button
+        id="backToTop"
+        onClick={scrollToTop}
+        title={isRtl ? 'العودة للأعلى' : 'Back to Top'}
+        aria-label={isRtl ? 'العودة للأعلى' : 'Back to Top'}
+        className={`fixed z-[9990] w-12 h-12 rounded-full bg-slate-950/90 backdrop-blur-md border border-gold-500/50 shadow-[0_6px_20px_rgba(0,0,0,0.5)] flex items-center justify-center text-gold-400 hover:text-slate-950 hover:bg-gold-500 hover:border-gold-400 hover:scale-110 active:scale-95 transition-all duration-300 ${
+          isRtl ? 'right-6 bottom-6' : 'left-6 bottom-6'
+        } ${
+          showBackToTop
+            ? 'opacity-100 visible translate-y-0'
+            : 'opacity-0 invisible translate-y-4 pointer-events-none'
+        }`}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="w-5 h-5 transition-transform duration-300 group-hover:-translate-y-0.5"
+        >
+          <path d="M12 19V5" />
+          <path d="M5 12l7-7 7 7" />
         </svg>
       </button>
     </footer>

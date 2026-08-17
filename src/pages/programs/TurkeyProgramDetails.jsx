@@ -306,7 +306,7 @@ const TurkeyProgramDetails = () => {
       {/* Related Tours */}
       <section className="container mx-auto px-6 py-24">
         <div className="text-center mb-16">
-          <h2 className="text-display-lg text-obsidian-900 dark:text-black mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <h2 className="text-display-lg text-obsidian-900 dark:text-ivory-50 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
             {t('tourDetail.relatedTitle', 'You May Also Like')}
           </h2>
           <div className="w-24 h-1 bg-gold-500 mx-auto mb-4"></div>

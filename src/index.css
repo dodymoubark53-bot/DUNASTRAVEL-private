@@ -455,6 +455,9 @@ html {
   .marquee-track {
     animation: marquee 40s linear infinite;
     width: max-content;
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
   }
 
   .marquee-track:hover {
@@ -462,8 +465,8 @@ html {
   }
 
   @keyframes marquee {
-    0% { transform: translateX(-33.333%); }
-    100% { transform: translateX(0); }
+    0% { transform: translate3d(-33.333%, 0, 0); }
+    100% { transform: translate3d(0, 0, 0); }
   }
 
   /* ── Glassmorphism ──────────────────────────────────────────── */
@@ -490,20 +493,20 @@ html {
 
 /* ── Marquee Keyframes (global) ──────────────────────────── */
 @keyframes tourMarquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
 }
 @keyframes tourMarqueeRTL {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(50%); }
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(50%, 0, 0); }
 }
 @keyframes marqueeVideo {
-  0% { transform: translateX(-33.333%); }
-  100% { transform: translateX(0); }
+  0% { transform: translate3d(-33.333%, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
 }
 @keyframes marqueeVideoRTL {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(33.333%); }
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(33.333%, 0, 0); }
 }
 
 /* ── Cinematic Transitions ──────────────────────────────────────── */
@@ -647,3 +650,38 @@ footer a.footer-social:hover {
   background-color: #1a1a30 !important;
   color: #f0efe7 !important;
 }
+
+/* ── Arabic Typography & RTL Support ──────────────────────────────── */
+html[lang="ar"],
+html[dir="rtl"] {
+  font-family: 'Cairo', 'Tajawal', 'Montserrat', -apple-system, sans-serif;
+  letter-spacing: 0 !important;
+}
+
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3,
+html[lang="ar"] h4,
+html[lang="ar"] h5,
+html[lang="ar"] h6,
+html[dir="rtl"] .font-display,
+html[lang="ar"] .font-display {
+  font-family: 'Cairo', 'Playfair Display', serif;
+  letter-spacing: normal !important;
+}
+
+html[dir="rtl"] .rtl-flip {
+  display: inline-block;
+  transform: scaleX(-1);
+}
+
+/* Fix dropdown border in RTL */
+html[dir="rtl"] .dropdown-item {
+  border-left: none;
+  border-right: 2px solid transparent;
+}
+html[dir="rtl"] .dropdown-item:hover {
+  border-left: none;
+  border-right: 2px solid var(--color-gold) !important;
+}
+

@@ -150,7 +150,9 @@ const JaiderChatWindow = () => {
       {isOpen && (
         <div
           onClick={handleOutsideClick}
-          className="fixed bottom-20 right-4 sm:right-6 z-[9999] flex flex-col items-end"
+          className={`fixed bottom-4 sm:bottom-6 z-[9999] flex flex-col ${
+            isRtl ? 'left-4 sm:left-6 items-start' : 'right-4 sm:right-6 items-end'
+          }`}
           dir={isRtl ? 'rtl' : 'ltr'}
           role="dialog"
           aria-modal="true"
@@ -158,11 +160,12 @@ const JaiderChatWindow = () => {
         >
           <motion.div
             ref={chatWindowRef}
-            initial={{ opacity: 0, scale: 0.92, y: 30 }}
+            style={{ transformOrigin: isRtl ? 'bottom left' : 'bottom right' }}
+            initial={{ opacity: 0, scale: 0.88, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 30 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="w-[92vw] sm:w-[440px] md:w-[480px] h-[640px] max-h-[82vh] bg-slate-950/95 backdrop-blur-2xl border border-gold-500/30 rounded-3xl shadow-2xl flex flex-col overflow-hidden text-slate-100 font-sans"
+            exit={{ opacity: 0, scale: 0.88, y: 24 }}
+            transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+            className="w-[94vw] sm:w-[440px] md:w-[480px] h-[640px] max-h-[86vh] bg-slate-950/95 backdrop-blur-2xl border border-gold-500/35 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.65)] flex flex-col overflow-hidden text-slate-100 font-sans"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-obsidian-900 via-slate-900 to-obsidian-900 p-4 border-b border-gold-500/20 flex items-center justify-between relative select-none">

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { FaStar, FaTimes, FaChevronLeft, FaChevronRight, FaMicrophone, FaMapMarkerAlt, FaEnvelope, FaPhoneAlt, FaHeadset, FaWhatsapp, FaArrowRight, FaCalendarAlt, FaSuitcase, FaUsers, FaMapMarkedAlt, FaGlobe } from "react-icons/fa";
+import { FaStar, FaTimes, FaChevronLeft, FaChevronRight, FaVolumeMute, FaVolumeUp, FaMapMarkerAlt, FaEnvelope, FaPhoneAlt, FaHeadset, FaWhatsapp, FaArrowRight, FaCalendarAlt, FaSuitcase, FaUsers, FaMapMarkedAlt, FaGlobe } from "react-icons/fa";
 import Button from "../components/ui/Button";
 import TourCard from "../components/tour/TourCard";
 import { useTours } from "../hooks/useTours";
@@ -662,10 +662,11 @@ const Home = () => {
         {/* Sound Toggle */}
         <button
           onClick={toggleMute}
-          className="absolute bottom-4 sm:bottom-6 md:bottom-8 right-4 sm:right-6 md:right-8 z-20 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full bg-obsidian-900/70 backdrop-blur-md border border-gold-500/30 flex items-center justify-center text-ivory-50 hover:text-gold-500 hover:bg-obsidian-900 transition-all shadow-lg"
-          aria-label={isMuted ? 'Unmute video' : 'Mute video'}
+          title={isMuted ? t('home.unmuteVideo', 'Unmute Hero Video') : t('home.muteVideo', 'Mute Hero Video')}
+          className="absolute bottom-4 sm:bottom-6 md:bottom-8 right-4 sm:right-6 md:right-8 z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-slate-950/80 backdrop-blur-md border border-gold-500/40 flex items-center justify-center text-gold-400 hover:text-gold-200 hover:border-gold-400 hover:bg-slate-900 hover:scale-108 active:scale-95 transition-all shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
+          aria-label={isMuted ? t('home.unmuteVideo', 'Unmute Hero Video') : t('home.muteVideo', 'Mute Hero Video')}
         >
-          {isMuted ? <FaMicrophone size={14} /> : <FaMicrophone size={14} className="text-green-500" />}
+          {isMuted ? <FaVolumeMute size={16} /> : <FaVolumeUp size={16} className="text-gold-300" />}
         </button>
       </section>
       {/* Search Section */}
@@ -677,6 +678,8 @@ const Home = () => {
             alt="Search tours and holiday packages background"
             className="w-full h-full object-cover object-center"
             fetchpriority="high"
+            loading="eager"
+            decoding="async"
             width="1440"
             height="600"
           />
@@ -857,6 +860,7 @@ const Home = () => {
                 width="600"
                 height="480"
                 loading="lazy"
+                decoding="async"
               />
             </motion.div>
           </div>
@@ -951,6 +955,7 @@ const Home = () => {
                     alt={t(dest.nameKey, dest.nameKey)}
                     className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
                     loading="lazy"
+                    decoding="async"
                   />
                   <div
                     className={`absolute inset-0 transition-colors duration-500 ${isActive ? "bg-obsidian-900/40" : "bg-obsidian-900/60 group-hover:bg-obsidian-900/40"}`}
@@ -1058,6 +1063,7 @@ const Home = () => {
                     height="450"
                     className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
                     loading="lazy"
+                    decoding="async"
                   />
                 <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/90 via-obsidian-900/20 to-transparent"></div>
 
@@ -1151,6 +1157,7 @@ const Home = () => {
                     alt={pkg.name}
                     className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
                     loading="lazy"
+                    decoding="async"
                   />
                   <div className={`absolute inset-0 transition-colors duration-500 ${isActive ? "bg-obsidian-900/40" : "bg-obsidian-900/60 group-hover:bg-obsidian-900/40"}`}></div>
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
@@ -1253,6 +1260,7 @@ const Home = () => {
                     height="450"
                     className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
                     loading="lazy"
+                    decoding="async"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/90 via-obsidian-900/20 to-transparent"></div>
                   
@@ -1380,6 +1388,7 @@ const Home = () => {
                       alt={vehicle.name}
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
+                      decoding="async"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900 via-obsidian-900/40 to-transparent"></div>
 
@@ -1840,6 +1849,7 @@ const Home = () => {
                       src={getOptimizedImageUrl(img.src, 400, 380)}
                       alt={img.dest}
                       loading="lazy"
+                      decoding="async"
                       width="280"
                       height="380"
                       className="h-[220px] md:h-[380px] w-auto object-cover transition-transform duration-300 group-hover:scale-105"
@@ -1915,6 +1925,8 @@ const Home = () => {
                     <img
                       src={`https://res.cloudinary.com/${cloudName}/video/upload/w_400,h_240,c_fill/${video.publicId}.jpg`}
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-obsidian-900/40 group-hover:bg-obsidian-900/20 transition-colors flex items-center justify-center">
@@ -2399,10 +2411,10 @@ const Home = () => {
               <span className="inline-block text-gold-600 uppercase tracking-[0.25em] text-[10px] md:text-xs font-bold px-5 py-2 rounded-full bg-gold-500/5 border border-gold-500/10 backdrop-blur-sm shadow-[0_4px_20px_rgba(201,162,39,0.05)]">
                 {isRtl ? "الرحلات الحصرية لعام ٢٠٢٦" : "EXCLUSIVE VOYAGES 2026"}
               </span>
-              <h2 className="text-display-lg text-black dark:text-black font-display tracking-wide leading-tight mt-2">
+              <h2 className="text-display-lg text-black dark:text-ivory-100 font-display tracking-wide leading-tight mt-2">
                 {isRtl ? "الوجهات" : t('nav.destinations', 'Destinations')}
               </h2>
-              <p className="text-black dark:text-black text-body-md max-w-xl mx-auto font-body font-medium leading-relaxed">
+              <p className="text-black dark:text-ivory-100 text-body-md max-w-xl mx-auto font-body font-medium leading-relaxed">
                 {isRtl 
                   ? "اكتشف عجائب الدنيا القديمة وعواصم الحداثة الفاخرة، رحلات منسقة خصيصًا لتلبي تطلعاتك."
                   : "Discover the wonders of the ancient world and the capitals of modern luxury, curated bespoke for you."
@@ -2702,6 +2714,7 @@ const Home = () => {
                         alt={t(`data.${tour.title}`, tour.title)}
                         className="w-full h-full object-cover"
                         loading="lazy"
+                        decoding="async"
                       />
                     </div>
 
@@ -2756,6 +2769,7 @@ const Home = () => {
                   width={400}
                   height={240}
                   loading="lazy"
+                  decoding="async"
                   className="max-h-20 md:max-h-24 max-w-[180px] md:max-w-[220px] w-auto h-auto object-contain hover:scale-105 transition-all duration-300"
                 />
               </div>

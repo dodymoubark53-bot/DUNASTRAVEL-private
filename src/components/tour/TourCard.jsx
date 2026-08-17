@@ -7,9 +7,10 @@ import Button from '../ui/Button';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useWishlist } from '../../hooks/useWishlist';
 import { trackEvent } from '../../utils/analytics';
+import { resolveTourTitle, resolveTourDuration, resolveTourOverview, resolveLocalizedText } from '../../utils/titleHelper';
 
 const marketFlag = (market) => {
-  const flags = { Brasil: '🇧🇷', Italia: '🇮🇹' };
+  const flags = { Brasil: '🇧🇷', Italia: '🇮🇹', Spain: '🇪🇸' };
   return flags[market] ?? '🌍';
 };
 
@@ -17,14 +18,25 @@ const TourCard = ({
   tour,
   linkBase = '/tours',
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language || 'en';
   const { formatPrice } = useCurrency();
   const { isFavorite, toggleFavorite } = useWishlist();
   const navigate = useNavigate();
-  const translatedDuration = t(`data.${tour.duration}`, tour.duration);
-  const durationLabel = translatedDuration.split('/')[0].trim();
 
-  const detailUrl = `${linkBase}/${tour.slug}`;
+  if (!tour) return null;
+
+  const title = resolveTourTitle(tour, t, lang);
+  const overview = resolveTourOverview(tour, t, lang);
+  const duration = resolveTourDuration(tour, t, lang);
+  const durationLabel = duration.split('/')[0].trim();
+
+  const tourPrice = parseFloat(tour.price || tour.basePriceUsd || (tour.raw && tour.raw.price) || 890);
+  const tourImage = (Array.isArray(tour.images) && tour.images.length > 0 && tour.images[0])
+    ? tour.images[0]
+    : (tour.heroImage || 'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=800&q=80');
+
+  const detailUrl = `${linkBase}/${tour.slug || tour.id}`;
   const fav = isFavorite(tour.id || tour.slug);
 
   const handleCardClick = () => {
@@ -44,7 +56,7 @@ const TourCard = ({
   return (
     <motion.div
       onClick={handleCardClick}
-      className="bg-white rounded-xl overflow-hidden flex flex-col h-full group cursor-pointer shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] hover:border-gold-500 hover:-translate-y-2 transition-all duration-300 ease-out z-10 hover:z-20 relative"
+      className="bg-white dark:bg-[#1a1a30] rounded-xl overflow-hidden flex flex-col h-full group cursor-pointer shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 dark:border-gray-700 hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] hover:border-gold-500 hover:-translate-y-2 transition-all duration-300 ease-out z-10 hover:z-20 relative text-left rtl:text-right"
       variants={variants.fadeInUp}
       initial="hidden"
       whileInView="visible"
@@ -66,7 +78,7 @@ const TourCard = ({
 
         {tour.badge && (
           <div className="absolute top-4 right-4 z-10 bg-gold-500 text-obsidian-900 text-caption font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-md">
-            {t(`data.${tour.badge}`, tour.badge)}
+            {resolveLocalizedText(tour.badge, t, lang)}
           </div>
         )}
 
@@ -77,74 +89,77 @@ const TourCard = ({
         )}
 
         <img
-          src={tour.images[0]}
-          alt={`${t(`data.${tour.title}`, tour.title)} — ${t(`nav.${tour.destination}`, tour.destination)}`}
+          src={tourImage}
+          alt={`${title} — ${tour.destination || 'Luxury Journey'}`}
           className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700"
           loading="lazy"
+          onError={(e) => {
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=800&q=80';
+          }}
         />
 
         {/* Hover Detail Card Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/90 via-obsidian-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-400 flex flex-col justify-end p-5 translate-y-4 group-hover:translate-y-0">
+        <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/95 via-obsidian-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-400 flex flex-col justify-end p-5 translate-y-4 group-hover:translate-y-0">
           <span className="text-gold-400 text-caption uppercase tracking-widest font-semibold mb-1">
-            {tour.code || t(`data.${tour.subtitle || tour.destination}`, tour.subtitle || tour.destination)}
+            {tour.code || resolveLocalizedText(tour.subtitle || tour.destination, t, lang)}
           </span>
-          <h4 className="text-white text-display-sm font-semibold mb-2 line-clamp-2">
-            {t(`data.${tour.title}`, tour.title)}
+          <h4 className="text-white text-display-sm font-semibold mb-2 line-clamp-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+            {title}
           </h4>
           <div className="flex items-center gap-3 mb-2">
             <span className="text-gold-400 text-caption font-bold">
-              {formatPrice(tour.price)}
+              {formatPrice(tourPrice)}
             </span>
             <span className="text-white/60 text-caption">|</span>
             <span className="text-white/80 text-caption">
               {durationLabel}
             </span>
           </div>
-          <p className="text-white/70 text-body-sm line-clamp-2 mb-2">
-            {t(`data.${tour.description}`, tour.description)}
+          <p className="text-white/80 text-body-sm line-clamp-2 mb-2">
+            {overview}
           </p>
-          <span className="text-gold-400 text-caption font-semibold tracking-wider uppercase">
-            {t('tourCard.viewDetails', 'View Details')} &rarr;
+          <span className="text-gold-400 text-caption font-semibold tracking-wider uppercase flex items-center gap-1">
+            {t('tourCard.viewDetails', 'View Details')} <span className="rtl-flip">&rarr;</span>
           </span>
         </div>
       </Link>
 
       {/* Content */}
       <div className="p-6 flex flex-col flex-grow">
-        <span className="text-caption text-gold-600 uppercase tracking-widest mb-1 block">
-          {tour.code || t(`data.${tour.subtitle || tour.destination}`, tour.subtitle || tour.destination)}
+        <span className="text-caption text-gold-600 dark:text-gold-400 uppercase tracking-widest mb-1 block">
+          {tour.code || resolveLocalizedText(tour.subtitle || tour.destination, t, lang)}
         </span>
 
         {tour.transportOptions && (
           <div className="mb-2">
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-obsidian-700 bg-gold-100 border border-gold-300 px-2.5 py-1 rounded-full">
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-obsidian-700 dark:text-ivory-200 bg-gold-100 dark:bg-gold-900/40 border border-gold-300 dark:border-gold-700 px-2.5 py-1 rounded-full">
               {tour.transportOptions}
             </span>
           </div>
         )}
 
         <Link to={detailUrl}>
-          <h3 className="text-display-md text-obsidian-900 mb-3 line-clamp-2 group-hover:text-gold-700 transition-colors">
-            {t(`data.${tour.title}`, tour.title)}
+          <h3 className="text-display-md text-obsidian-900 dark:text-ivory-50 mb-3 line-clamp-2 group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors" style={{ fontFamily: "'Playfair Display', serif" }}>
+            {title}
           </h3>
         </Link>
 
-        <p className="text-body-sm text-obsidian-500 line-clamp-3 mb-4 flex-grow">
-          {t(`data.${tour.description}`, tour.description)}
+        <p className="text-body-sm text-obsidian-600 dark:text-ivory-300 line-clamp-3 mb-4 flex-grow">
+          {overview}
         </p>
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 mt-auto">
+        <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 dark:border-gray-700 mt-auto">
           <div>
-            <span className="block text-caption text-obsidian-300 mb-1">
+            <span className="block text-caption text-obsidian-400 dark:text-ivory-400 mb-1">
               {t('tourCard.from', 'from')}
             </span>
-            <span className="text-display-md text-gold-700">
-              {formatPrice(tour.price)}
+            <span className="text-display-md text-gold-700 dark:text-gold-400 font-bold">
+              {formatPrice(tourPrice)}
             </span>
           </div>
 
-          <Link to={detailUrl}>
+          <Link to={detailUrl} aria-label={`${t('tourCard.viewDetails', 'View Details')} - ${title}`}>
             <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
               {t('tourCard.viewDetails', 'View Details')} <span className="rtl-flip">&rarr;</span>
             </Button>
@@ -155,4 +170,4 @@ const TourCard = ({
   );
 };
 
-export default TourCard;
+export default TourCard;

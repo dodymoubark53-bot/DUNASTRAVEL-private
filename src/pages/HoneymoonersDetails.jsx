@@ -212,14 +212,14 @@ const HoneymoonersDetails = () => {
 
         {/* Includes */}
         <motion.div variants={fadeInUp} className="mt-16 max-w-4xl mx-auto">
-          <h3 className="text-display-md text-obsidian-900 dark:text-black mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <h3 className="text-display-md text-obsidian-900 dark:text-ivory-50 mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
             {t('honeymooners.includes', 'Includes')}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {includes.map((inc, i) => (
               <div key={i} className="flex items-center gap-3 bg-ivory-50 dark:bg-[#1a1a30] rounded-xl p-4 shadow-sm">
                 <FaCheckCircle className="text-gold-500 shrink-0" size={18} />
-                <span className="text-body-md text-obsidian-700 dark:text-black font-medium">{t(inc.key, inc.default)}</span>
+                <span className="text-body-md text-obsidian-700 dark:text-ivory-100 font-medium">{t(inc.key, inc.default)}</span>
               </div>
             ))}
           </div>

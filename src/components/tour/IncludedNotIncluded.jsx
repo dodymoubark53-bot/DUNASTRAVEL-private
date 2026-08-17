@@ -38,10 +38,10 @@ const IncludedNotIncluded = ({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true }}
-      className="mt-16 bg-ivory-50 dark:bg-[#1a1a30] p-8 rounded-2xl shadow-sm border border-obsidian-900/5 dark:border-gray-700 text-left"
+      className="mt-16 bg-ivory-50 dark:bg-[#1a1a30] p-8 rounded-2xl shadow-sm border border-obsidian-900/5 dark:border-gray-700 text-left rtl:text-right"
     >
       <h2
-        className="text-display-md text-obsidian-900 dark:text-black mb-8 font-display font-semibold"
+        className="text-display-md text-obsidian-900 dark:text-ivory-50 mb-8 font-display font-semibold"
         style={{ fontFamily: "'Playfair Display', serif" }}
       >
         {sectionTitle || t('tourDetail.incExc', "What's Included & Excluded")}
@@ -50,13 +50,13 @@ const IncludedNotIncluded = ({
         {/* Included Column */}
         {Array.isArray(includedItems) && includedItems.length > 0 && (
           <div>
-            <h3 className="text-body-lg font-semibold text-sage-700 dark:text-green-400 mb-4 flex items-center gap-2 font-display">
+            <h3 className="text-body-lg font-semibold text-sage-700 dark:text-sage-300 mb-4 flex items-center gap-2 font-display">
               {inclusionsTitle || t('tourDetail.included', 'Included')}
             </h3>
             <ul className="space-y-3">
               {includedItems.map((item, idx) => (
-                <li key={idx} className="flex items-start gap-3 text-obsidian-500 dark:text-black">
-                  <FaCheckCircle className="text-sage-500 dark:text-green-400 mt-1 flex-shrink-0" />
+                <li key={idx} className="flex items-start gap-3 text-obsidian-700 dark:text-ivory-200">
+                  <FaCheckCircle className="text-sage-500 dark:text-sage-300 mt-1 flex-shrink-0" />
                   <span>{translateKey(item)}</span>
                 </li>
               ))}
@@ -67,13 +67,13 @@ const IncludedNotIncluded = ({
         {/* Excluded Column */}
         {Array.isArray(excludedItems) && excludedItems.length > 0 && (
           <div>
-            <h3 className="text-body-lg font-semibold text-red-700 dark:text-red-300 mb-4 flex items-center gap-2 font-display">
+            <h3 className="text-body-lg font-semibold text-red-700 dark:text-red-400 mb-4 flex items-center gap-2 font-display">
               {exclusionsTitle || t('tourDetail.excluded', 'Not Included')}
             </h3>
             <ul className="space-y-3">
               {excludedItems.map((item, idx) => (
-                <li key={idx} className="flex items-start gap-3 text-obsidian-500 dark:text-black">
-                  <FaTimesCircle className="text-red-500 dark:text-red-300 mt-1 flex-shrink-0" />
+                <li key={idx} className="flex items-start gap-3 text-obsidian-700 dark:text-ivory-200">
+                  <FaTimesCircle className="text-red-500 dark:text-red-400 mt-1 flex-shrink-0" />
                   <span>{translateKey(item)}</span>
                 </li>
               ))}
@@ -89,7 +89,7 @@ const IncludedNotIncluded = ({
             </h3>
             <ul className="space-y-3">
               {excursionsItems.map((item, idx) => (
-                <li key={idx} className="flex items-start gap-3 text-obsidian-500 dark:text-black">
+                <li key={idx} className="flex items-start gap-3 text-obsidian-700 dark:text-ivory-200">
                   <FaCheckCircle className="text-gold-500 mt-1 flex-shrink-0" />
                   <span>{translateKey(item)}</span>
                 </li>

@@ -1036,7 +1036,7 @@ const RouteMap = ({ itinerary }) => {
     locations.forEach((loc) => {
       const marker = L.marker(loc.coords)
         .addTo(map)
-        .bindPopup(`<b>${t('data.' + loc.name, loc.name)}</b><br/>${loc.description || ''}`);
+        .bindPopup(`<b>${loc.name}</b><br/>${loc.description || ''}`);
       markers.push(marker);
     });
 

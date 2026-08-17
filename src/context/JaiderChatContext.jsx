@@ -1,11 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import enJson from '../i18n/locales/en.json';
-import arJson from '../i18n/locales/ar.json';
-import esJson from '../i18n/locales/es.json';
-import ptJson from '../i18n/locales/pt.json';
-import itJson from '../i18n/locales/it.json';
-
 import api from '../utils/api';
 
 const JaiderChatContext = createContext(null);
@@ -90,7 +84,6 @@ export const JaiderChatProvider = ({ children }) => {
   const [isTyping, setIsTyping] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [conversationId, setConversationId] = useState(null);
-  const [loadingKnowledge, setLoadingKnowledge] = useState(false);
   const [sessionId, setSessionId] = useState(() => {
     if (typeof window === 'undefined') return '';
     let id = localStorage.getItem('jaider_chat_session_id');
@@ -105,10 +98,6 @@ export const JaiderChatProvider = ({ children }) => {
   const [handoffState, setHandoffState] = useState({ requested: false, status: null });
   const abortControllerRef = useRef(null);
 
-  const faqDataRef = useRef({});
-  const vocabIdfRef = useRef({});
-  const isLoadedRef = useRef(false);
-
   const detectLanguage = (text) => {
     if (!text) return 'en';
     if (/[\u0600-\u06FF]/.test(text)) return 'ar';
@@ -116,97 +105,6 @@ export const JaiderChatProvider = ({ children }) => {
     if (/[ãõâêîôûàèìòùç]/i.test(text)) return 'pt';
     if (/[àèéìíîòóùú]/i.test(text)) return 'it';
     return 'en';
-  };
-
-  const normalize = (text) => {
-    if (!text) return '';
-    return text
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[أإآ]/g, 'ا')
-      .replace(/ى/g, 'ي')
-      .replace(/ة/g, 'ه')
-      .replace(/[\u064B-\u0652]/g, '')
-      .replace(/[.,/#!$%^&*;:{}=\-_`~()?"'¿¡]/g, ' ')
-      .trim();
-  };
-
-  const tokenize = (text) => {
-    const norm = normalize(text);
-    return norm.split(/\s+/).filter(t => t.length > 1);
-  };
-
-  const flattenObject = (obj, prefix = '') => {
-    let result = {};
-    for (let key in obj) {
-      if (typeof obj[key] === 'object' && obj[key] !== null) {
-        Object.assign(result, flattenObject(obj[key], `${prefix}${key}.`));
-      } else {
-        result[`${prefix}${key}`] = obj[key];
-      }
-    }
-    return result;
-  };
-
-  const loadFaqKnowledge = () => {
-    if (isLoadedRef.current) return;
-    try {
-      setLoadingKnowledge(true);
-      const locales = {
-        en: flattenObject(enJson),
-        ar: flattenObject(arJson),
-        es: flattenObject(esJson),
-        pt: flattenObject(ptJson),
-        it: flattenObject(itJson)
-      };
-
-      SUPPORTED_LANGS.forEach(lang => {
-        const trans = locales[lang];
-        const faqItems = [];
-        const docFreq = {};
-
-        Object.keys(trans).forEach(key => {
-          const matchCat = key.match(/^faq\.([a-zA-Z0-9_-]+)\.q(\d+)$/);
-          if (matchCat) {
-            const catId = matchCat[1];
-            const idx = matchCat[2];
-            const answerKey = `faq.${catId}.a${idx}`;
-            const qText = trans[key];
-            const aText = trans[answerKey];
-            if (qText && aText && !aText.includes('[No answer')) {
-              faqItems.push({
-                id: `${catId}-${idx}`,
-                q: qText,
-                a: aText,
-                tokens: tokenize(qText)
-              });
-            }
-          }
-        });
-
-        faqItems.forEach(item => {
-          const uniqueTokens = new Set(item.tokens);
-          uniqueTokens.forEach(token => {
-            docFreq[token] = (docFreq[token] || 0) + 1;
-          });
-        });
-
-        const vocabIdf = {};
-        const N = Math.max(1, faqItems.length);
-        Object.keys(docFreq).forEach(token => {
-          vocabIdf[token] = Math.log(1 + (N / docFreq[token]));
-        });
-        vocabIdfRef.current[lang] = vocabIdf;
-        faqDataRef.current[lang] = faqItems;
-      });
-
-      isLoadedRef.current = true;
-    } catch (error) {
-      console.warn("Failed to load FAQ knowledge for GuideR:", error);
-    } finally {
-      setLoadingKnowledge(false);
-    }
   };
 
   // Restore previous chat history from backend on initial mount
@@ -259,7 +157,6 @@ export const JaiderChatProvider = ({ children }) => {
   }, [i18n.language]);
 
   useEffect(() => {
-    loadFaqKnowledge();
     if (sessionId) {
       restoreConversationHistory(sessionId);
     }

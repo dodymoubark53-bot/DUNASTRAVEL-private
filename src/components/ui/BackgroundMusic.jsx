@@ -1,14 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useJaiderChat } from '../../context/JaiderChatContext';
 
 const BackgroundMusic = () => {
   const location = useLocation();
+  const { i18n } = useTranslation();
+  const { isOpen: isJaiderOpen } = useJaiderChat();
   const isHomepage = location.pathname === '/' || location.pathname === '/home';
   const prevPathnameRef = useRef(location.pathname);
+  const isRtl = i18n.dir() === 'rtl';
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(() => sessionStorage.getItem('musicPlaying') === 'true');
-  const [isContactOpen, setIsContactOpen] = useState(false);
   const [ripples, setRipples] = useState([]);
   
   const iframeRef = useRef(null);
@@ -132,75 +136,33 @@ const BackgroundMusic = () => {
     };
   }, [isHomepage]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Monitor the WhatsApp / Social contact widget open state
-  useEffect(() => {
-    const contactEl = document.getElementById('floating-contact-container');
-    if (!contactEl) return;
+  if (isJaiderOpen) return null;
 
-    const checkState = () => {
-      // Check if expanded: multiple links rendered inside the container
-      const links = contactEl.querySelectorAll('a');
-      setIsContactOpen(links.length > 1);
-    };
-
-    // Initial check
-    checkState();
-
-    // Observe changes inside the container (AnimatePresence adding links)
-    const observer = new MutationObserver(checkState);
-    observer.observe(contactEl, { childList: true, subtree: true });
-
-    // Fallback click listener
-    const handleFallbackClick = () => {
-      setTimeout(checkState, 100);
-    };
-    contactEl.addEventListener('click', handleFallbackClick);
-
-    return () => {
-      observer.disconnect();
-      contactEl.removeEventListener('click', handleFallbackClick);
-    };
-  }, []);
+  const tooltipText = isPlaying
+    ? (isRtl ? 'كتم الموسيقى الترحيبية' : 'Mute Background Music')
+    : (isRtl ? 'تشغيل الموسيقى الفاخرة' : 'Play Background Music');
 
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes webflow-music-spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-
         @keyframes webflow-music-pulse {
-          0% {
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-            border-color: rgba(201, 162, 39, 0.4);
-          }
-          100% {
-            box-shadow: 0 4px 20px rgba(201, 162, 39, 0.25);
-            border-color: rgba(201, 162, 39, 0.8);
-          }
+          0% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); border-color: rgba(201, 162, 39, 0.4); }
+          100% { box-shadow: 0 4px 20px rgba(201, 162, 39, 0.25); border-color: rgba(201, 162, 39, 0.8); }
         }
-
         @keyframes webflow-ripple-animation {
-          0% {
-            width: 0px;
-            height: 0px;
-            opacity: 1;
-          }
-          100% {
-            width: 160px;
-            height: 160px;
-            opacity: 0;
-          }
+          0% { width: 0px; height: 0px; opacity: 1; }
+          100% { width: 160px; height: 160px; opacity: 0; }
         }
-
+        @keyframes eq-bar {
+          0%, 100% { height: 4px; }
+          50% { height: 14px; }
+        }
         .music-btn-pulse {
           animation: webflow-music-pulse 2s infinite alternate ease-in-out;
         }
-
-        .music-svg-spin {
-          animation: webflow-music-spin 3s linear infinite;
-        }
+        .eq-bar-1 { animation: eq-bar 0.8s ease-in-out infinite 0.1s; }
+        .eq-bar-2 { animation: eq-bar 0.6s ease-in-out infinite 0.3s; }
+        .eq-bar-3 { animation: eq-bar 0.9s ease-in-out infinite 0.2s; }
       ` }} />
 
       {/* Hidden YouTube Iframe */}
@@ -228,21 +190,23 @@ const BackgroundMusic = () => {
       <button
         id="webflow-music-toggle-btn"
         onClick={togglePlay}
-        style={{
-          bottom: isContactOpen ? '320px' : '90px',
-          transition: 'bottom 0.3s cubic-bezier(0.165, 0.84, 0.44, 1), transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease'
-        }}
-        className={`fixed right-8 w-12 h-12 rounded-full bg-obsidian-900/80 backdrop-blur-sm border border-gold-500/40 shadow-glass flex items-center justify-center text-gold-500 z-[9998] hover:scale-110 hover:bg-obsidian-900 hover:border-gold-500/80 active:scale-95 ${
-          isPlaying ? '' : 'music-btn-pulse'
-        }`}
-        aria-label="Toggle Background Music"
+        title={tooltipText}
+        aria-label={tooltipText}
+        className={`fixed bottom-[146px] sm:bottom-[156px] z-[9997] w-11 h-11 rounded-full bg-slate-950/90 backdrop-blur-md border border-gold-500/50 shadow-[0_4px_20px_rgba(0,0,0,0.45)] flex items-center justify-center text-gold-300 hover:text-gold-200 hover:border-gold-400 hover:scale-108 active:scale-95 transition-all duration-300 ${
+          isRtl ? 'left-6.5' : 'right-6.5'
+        } ${isPlaying ? '' : 'music-btn-pulse'}`}
       >
-        <svg
-          viewBox="0 0 24 24"
-          className={`w-5 h-5 fill-current ${isPlaying ? 'music-svg-spin' : ''}`}
-        >
-          <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h6V3h-8z" />
-        </svg>
+        {isPlaying ? (
+          <div className="flex items-end justify-center gap-[2.5px] h-4 w-4">
+            <span className="w-[2.5px] bg-gold-400 rounded-full eq-bar-1" />
+            <span className="w-[2.5px] bg-gold-400 rounded-full eq-bar-2" />
+            <span className="w-[2.5px] bg-gold-400 rounded-full eq-bar-3" />
+          </div>
+        ) : (
+          <svg viewBox="0 0 24 24" className="w-4.5 h-4.5 fill-current">
+            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h6V3h-8z" />
+          </svg>
+        )}
       </button>
 
       {/* Ripple Effects Container */}

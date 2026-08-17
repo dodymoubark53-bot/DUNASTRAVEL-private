@@ -29,10 +29,15 @@ export default defineConfig({
         manualChunks(id) {
           if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/') || id.includes('node_modules/react-router')) return 'vendor-react';
           if (id.includes('node_modules/framer-motion')) return 'vendor-motion';
-          if (id.includes('node_modules/i18next') || id.includes('node_modules/react-i18next')) return 'vendor-i18n';
+          if (id.includes('node_modules/i18next') || id.includes('node_modules/react-i18next') || id.includes('node_modules/i18next-browser-languagedetector')) return 'vendor-i18n';
           if (id.includes('node_modules/react-icons')) return 'vendor-icons';
           if (id.includes('node_modules/gsap')) return 'vendor-gsap';
+          if (id.includes('node_modules/leaflet')) return 'vendor-leaflet';
           if (id.includes('node_modules/react-helmet-async')) return 'vendor-helmet';
+          if (id.includes('src/i18n/locales/')) {
+            const match = id.match(/locales[\\/]([a-z]{2})\.json/);
+            if (match) return `locale-${match[1]}`;
+          }
         },
       },
     },

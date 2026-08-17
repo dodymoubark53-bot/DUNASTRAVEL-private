@@ -68,7 +68,7 @@ const Egipto = () => {
       {/* Destination Brief & Tours Grid */}
       <section className="container mx-auto px-6 mt-16">
         <div className="max-w-3xl mx-auto text-center mb-16">
-          <p className="text-body-lg text-obsidian-500 dark:text-black leading-relaxed">
+          <p className="text-body-lg text-obsidian-600 dark:text-ivory-200 leading-relaxed">
             {t('dest.egypt.brief', 'A civilisation that has captivated the world for millennia. Egypt blends monumental history with warm hospitality and breathtaking landscapes — from the iconic Pyramids and the Nile cruise to the coral reefs of the Red Sea. Every itinerary is crafted to deliver maximum comfort, luxury and authentic cultural immersion.')}
           </p>
         </div>
@@ -104,10 +104,10 @@ const Egipto = () => {
           <motion.span variants={fadeInUp} className="inline-block font-body text-gold-500 tracking-[0.2em] uppercase text-sm mb-4">
             {t('dest.egypt.programsSubtitle', 'Egypt Programs')}
           </motion.span>
-          <motion.h2 variants={fadeInUp} className="text-display-lg text-obsidian-900 dark:text-black mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <motion.h2 variants={fadeInUp} className="text-display-lg text-obsidian-900 dark:text-ivory-50 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
             {t('dest.egypt.programsTitle', 'Exclusive Egypt Experiences')}
           </motion.h2>
-          <motion.p variants={fadeInUp} className="text-body-lg text-obsidian-500 dark:text-black max-w-2xl mx-auto">
+          <motion.p variants={fadeInUp} className="text-body-lg text-obsidian-600 dark:text-ivory-300 max-w-2xl mx-auto">
             {t('dest.egypt.programsDesc', 'Discover our curated programs designed to make your Egypt journey truly unforgettable.')}
           </motion.p>
         </motion.div>
@@ -120,18 +120,18 @@ const Egipto = () => {
           viewport={{ once: true, margin: "-50px" }}
         >
           {/* Classic Program */}
-          <motion.div variants={fadeInUp} className="bg-white rounded-xl overflow-hidden flex flex-col h-full group shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] hover:border-gold-500 hover:-translate-y-2 transition-all duration-300 ease-out z-10 hover:z-20 relative">
+          <motion.div variants={fadeInUp} className="bg-white dark:bg-[#1a1a30] rounded-xl overflow-hidden flex flex-col h-full group shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 dark:border-gray-700 hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] hover:border-gold-500 hover:-translate-y-2 transition-all duration-300 ease-out z-10 hover:z-20 relative">
             <Link to="/programs/classic/classic-program" className="block relative h-[240px] overflow-hidden">
               <img src="https://res.cloudinary.com/degbrq3ck/image/upload/v1783029636/Classic_Program_gfal0s.jpg" alt="Classic Program" className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700" loading="lazy" />
             </Link>
             <div className="p-6 flex flex-col flex-grow">
-              <span className="text-caption text-gold-600 uppercase tracking-widest font-semibold mb-1">{t('nav.classic', 'Classic')}</span>
+              <span className="text-caption text-gold-600 dark:text-gold-400 uppercase tracking-widest font-semibold mb-1">{t('nav.classic', 'Classic')}</span>
               <Link to="/programs/classic/classic-program">
-                <h3 className="text-display-md text-obsidian-900 dark:text-black mt-1 mb-3 group-hover:text-gold-700 transition-colors line-clamp-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                <h3 className="text-display-md text-obsidian-900 dark:text-ivory-50 mt-1 mb-3 group-hover:text-gold-500 transition-colors line-clamp-2" style={{ fontFamily: "'Playfair Display', serif" }}>
                   {t('nav.classicProgram', 'Classic Program')}
                 </h3>
               </Link>
-              <p className="text-body-sm text-obsidian-500 dark:text-black line-clamp-3 mb-4 flex-grow">
+              <p className="text-body-sm text-obsidian-600 dark:text-ivory-300 line-clamp-3 mb-4 flex-grow">
                 {t('classic.shortDesc', 'Experience the timeless beauty of Egypt with our signature classic itinerary covering all the iconic landmarks.')}
               </p>
               <div className="flex items-center justify-end pt-4 border-t border-gold-500/10 mt-auto">
@@ -145,18 +145,18 @@ const Egipto = () => {
           </motion.div>
 
           {/* Honeymooners Package */}
-          <motion.div variants={fadeInUp} className="bg-white rounded-xl overflow-hidden flex flex-col h-full group shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] hover:border-gold-500 hover:-translate-y-2 transition-all duration-300 ease-out z-10 hover:z-20 relative">
+          <motion.div variants={fadeInUp} className="bg-white dark:bg-[#1a1a30] rounded-xl overflow-hidden flex flex-col h-full group shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 dark:border-gray-700 hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] hover:border-gold-500 hover:-translate-y-2 transition-all duration-300 ease-out z-10 hover:z-20 relative">
             <Link to="/programs/honeymooners" className="block relative h-[240px] overflow-hidden">
               <img src="https://thfvnext.bing.com/th/id/R.ddcd0b2a355a2267797bf6cd444de51d?rik=Lv4r4rM4ltmLhg&pid=ImgRaw&r=0" alt="Honeymooners" className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700" loading="lazy" />
             </Link>
             <div className="p-6 flex flex-col flex-grow">
-              <span className="text-caption text-gold-600 uppercase tracking-widest font-semibold mb-1">{t('nav.honeymooners', 'Honeymooners Package')}</span>
+              <span className="text-caption text-gold-600 dark:text-gold-400 uppercase tracking-widest font-semibold mb-1">{t('nav.honeymooners', 'Honeymooners Package')}</span>
               <Link to="/programs/honeymooners">
-                <h3 className="text-display-md text-obsidian-900 dark:text-black mt-1 mb-3 group-hover:text-gold-700 transition-colors line-clamp-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                <h3 className="text-display-md text-obsidian-900 dark:text-ivory-50 mt-1 mb-3 group-hover:text-gold-500 transition-colors line-clamp-2" style={{ fontFamily: "'Playfair Display', serif" }}>
                   {t('nav.honeymooners', 'Honeymooners Package')}
                 </h3>
               </Link>
-              <p className="text-body-sm text-obsidian-500 dark:text-black line-clamp-3 mb-4 flex-grow">
+              <p className="text-body-sm text-obsidian-600 dark:text-ivory-300 line-clamp-3 mb-4 flex-grow">
                 {t('dest.egypt.honeymoonersDesc', 'Celebrate your love with intimate candlelit dinners, private yacht cruises, and unmatched romantic luxury.')}
               </p>
               <div className="flex items-center justify-end pt-4 border-t border-gold-500/10 mt-auto">
@@ -170,18 +170,18 @@ const Egipto = () => {
           </motion.div>
 
           {/* Religious Programs */}
-          <motion.div variants={fadeInUp} className="bg-white rounded-xl overflow-hidden flex flex-col h-full group shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] hover:border-gold-500 hover:-translate-y-2 transition-all duration-300 ease-out z-10 hover:z-20 relative">
+          <motion.div variants={fadeInUp} className="bg-white dark:bg-[#1a1a30] rounded-xl overflow-hidden flex flex-col h-full group shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 dark:border-gray-700 hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] hover:border-gold-500 hover:-translate-y-2 transition-all duration-300 ease-out z-10 hover:z-20 relative">
             <Link to="/programs/religious" className="block relative h-[240px] overflow-hidden">
               <img src="https://www.saintjeromechurch.org/wp-content/uploads/2025/03/14714-what-is-ccd-in-catholic-church-religious-education-programs-explained.png" alt="Religious Programs" className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700" loading="lazy" />
             </Link>
             <div className="p-6 flex flex-col flex-grow">
-              <span className="text-caption text-gold-600 uppercase tracking-widest font-semibold mb-1">{t('nav.religious', 'Religious Programs')}</span>
+              <span className="text-caption text-gold-600 dark:text-gold-400 uppercase tracking-widest font-semibold mb-1">{t('nav.religious', 'Religious Programs')}</span>
               <Link to="/programs/religious">
-                <h3 className="text-display-md text-obsidian-900 dark:text-black mt-1 mb-3 group-hover:text-gold-700 transition-colors line-clamp-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                <h3 className="text-display-md text-obsidian-900 dark:text-ivory-50 mt-1 mb-3 group-hover:text-gold-500 transition-colors line-clamp-2" style={{ fontFamily: "'Playfair Display', serif" }}>
                   {t('nav.religious', 'Religious Programs')}
                 </h3>
               </Link>
-              <p className="text-body-sm text-obsidian-500 dark:text-black line-clamp-3 mb-4 flex-grow">
+              <p className="text-body-sm text-obsidian-600 dark:text-ivory-300 line-clamp-3 mb-4 flex-grow">
                 {t('dest.egypt.religiousDesc', 'A spiritual journey through Egypt tracing ancient Coptic monasteries and sacred sites.')}
               </p>
               <div className="flex items-center justify-end pt-4 border-t border-gold-500/10 mt-auto">
@@ -195,18 +195,18 @@ const Egipto = () => {
           </motion.div>
 
           {/* Multi-Country Tours */}
-          <motion.div variants={fadeInUp} className="bg-white rounded-xl overflow-hidden flex flex-col h-full group shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] hover:border-gold-500 hover:-translate-y-2 transition-all duration-300 ease-out z-10 hover:z-20 relative">
+          <motion.div variants={fadeInUp} className="bg-white dark:bg-[#1a1a30] rounded-xl overflow-hidden flex flex-col h-full group shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 dark:border-gray-700 hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] hover:border-gold-500 hover:-translate-y-2 transition-all duration-300 ease-out z-10 hover:z-20 relative">
             <Link to="/programs/multi-country" className="block relative h-[240px] overflow-hidden">
               <img src="https://res.cloudinary.com/degbrq3ck/image/upload/v1783030113/Gemini_Generated_Image_cb2enncb2enncb2e_wvyejn.jpg" alt="Multi-Country Tours" className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700" loading="lazy" />
             </Link>
             <div className="p-6 flex flex-col flex-grow">
-              <span className="text-caption text-gold-600 uppercase tracking-widest font-semibold mb-1">{t('nav.multiCountry', 'Multi-Country Tours')}</span>
+              <span className="text-caption text-gold-600 dark:text-gold-400 uppercase tracking-widest font-semibold mb-1">{t('nav.multiCountry', 'Multi-Country Tours')}</span>
               <Link to="/programs/multi-country">
-                <h3 className="text-display-md text-obsidian-900 dark:text-black mt-1 mb-3 group-hover:text-gold-700 transition-colors line-clamp-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                <h3 className="text-display-md text-obsidian-900 dark:text-ivory-50 mt-1 mb-3 group-hover:text-gold-500 transition-colors line-clamp-2" style={{ fontFamily: "'Playfair Display', serif" }}>
                   {t('nav.multiCountry', 'Multi-Country Tours')}
                 </h3>
               </Link>
-              <p className="text-body-sm text-obsidian-500 dark:text-black line-clamp-3 mb-4 flex-grow">
+              <p className="text-body-sm text-obsidian-600 dark:text-ivory-300 line-clamp-3 mb-4 flex-grow">
                 {t('dest.egypt.multiCountryDesc', 'Explore combined itineraries spanning Egypt, Jordan, Turkey and beyond for a truly grand adventure.')}
               </p>
               <div className="flex items-center justify-end pt-4 border-t border-gold-500/10 mt-auto">
@@ -220,18 +220,18 @@ const Egipto = () => {
           </motion.div>
 
           {/* EXTENSION */}
-          <motion.div variants={fadeInUp} className="bg-white rounded-xl overflow-hidden flex flex-col h-full group shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] hover:border-gold-500 hover:-translate-y-2 transition-all duration-300 ease-out z-10 hover:z-20 relative">
+          <motion.div variants={fadeInUp} className="bg-white dark:bg-[#1a1a30] rounded-xl overflow-hidden flex flex-col h-full group shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 dark:border-gray-700 hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] hover:border-gold-500 hover:-translate-y-2 transition-all duration-300 ease-out z-10 hover:z-20 relative">
             <Link to="/programs/extension" className="block relative h-[240px] overflow-hidden">
               <img src="https://res.cloudinary.com/degbrq3ck/image/upload/v1783030445/Gemini_Generated_Image_kenvzkkenvzkkenv_h9kz07.png" alt="Extension" className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700" loading="lazy" />
             </Link>
             <div className="p-6 flex flex-col flex-grow">
-              <span className="text-caption text-gold-600 uppercase tracking-widest font-semibold mb-1">EXTENSION</span>
+              <span className="text-caption text-gold-600 dark:text-gold-400 uppercase tracking-widest font-semibold mb-1">EXTENSION</span>
               <Link to="/programs/extension">
-                <h3 className="text-display-md text-obsidian-900 dark:text-black mt-1 mb-3 group-hover:text-gold-700 transition-colors line-clamp-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                <h3 className="text-display-md text-obsidian-900 dark:text-ivory-50 mt-1 mb-3 group-hover:text-gold-500 transition-colors line-clamp-2" style={{ fontFamily: "'Playfair Display', serif" }}>
                   {t('dest.egypt.extensionTitle', 'Egypt Extensions')}
                 </h3>
               </Link>
-              <p className="text-body-sm text-obsidian-500 dark:text-black line-clamp-3 mb-4 flex-grow">
+              <p className="text-body-sm text-obsidian-600 dark:text-ivory-300 line-clamp-3 mb-4 flex-grow">
                 {t('dest.egypt.extensionDesc', 'Extend your Egypt journey with added destinations like Hurghada, Sharm El Sheikh, or Siwa Oasis.')}
               </p>
               <div className="flex items-center justify-end pt-4 border-t border-gold-500/10 mt-auto">

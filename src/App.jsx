@@ -110,16 +110,7 @@ const FallbackLoader = () => (
 function App() {
   const location = useLocation();
   const { scrollYProgress } = useScroll();
-  const [initialLoading, setInitialLoading] = React.useState(true);
   const { i18n } = useTranslation();
-
-  React.useEffect(() => {
-    // Cinematic load duration
-    const timer = setTimeout(() => {
-      setInitialLoading(false);
-    }, 1800);
-    return () => clearTimeout(timer);
-  }, []);
 
   React.useEffect(() => {
     const dir = i18n.language === "ar" ? "rtl" : "ltr";
@@ -132,23 +123,15 @@ function App() {
     trackEvent('page_view', { pathname: location.pathname });
   }, [location.pathname]);
 
-
   return (
     <>
       <motion.div
         style={{ scaleX: scrollYProgress, transformOrigin: "0%" }}
-        className="fixed top-0 left-0 right-0 h-[3px] z-[9999] bg-gradient-to-r from-gold-500 via-gold-300 to-gold-500"
+        className="fixed top-0 left-0 right-0 h-[3px] z-[9999] bg-gradient-to-r from-gold-500 via-gold-300 to-gold-500 pointer-events-none"
       />
 
-      <AnimatePresence>
-        {initialLoading && (
-          <CinematicLoader onComplete={() => setInitialLoading(false)} />
-        )}
-      </AnimatePresence>
-
-      {!initialLoading && (
-        <Suspense fallback={<FallbackLoader />}>
-          <AnimatePresence mode="wait">
+      <Suspense fallback={<FallbackLoader />}>
+        <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
               <Route path="/" element={<Layout />}>
                 <Route
@@ -597,7 +580,6 @@ function App() {
             </Routes>
           </AnimatePresence>
         </Suspense>
-      )}
     </>
   );
 }
