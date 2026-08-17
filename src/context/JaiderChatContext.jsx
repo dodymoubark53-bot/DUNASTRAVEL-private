@@ -33,45 +33,45 @@ const FALLBACK_MESSAGES = {
 const SUGGESTIONS = {
   en: [
     "Recommend top Nile Cruise packages",
-    "How can I customize a private tour?",
-    "What payment methods do you accept?",
-    "What is your cancellation policy?",
-    "Airport transfer services"
+    "Compare Egypt Classic and Historic Egypt",
+    "Design a 10-day custom luxury Egypt tour",
+    "What payment methods & deposit rules apply?",
+    "What is your cancellation & refund policy?"
   ],
   es: [
     "Recomienda paquetes de Crucero por el Nilo",
-    "¿Cómo personalizar un tour privado?",
-    "¿Qué métodos de pago aceptan?",
-    "¿Cuál es su política de cancelación?",
-    "Servicios de traslado al aeropuerto"
+    "Compara Egipto Clásico e Histórico",
+    "Diseña un tour personalizado de 10 días en Egipto",
+    "¿Qué métodos de pago y anticipos aplican?",
+    "¿Cuál es su política de cancelación y reembolso?"
   ],
   pt: [
-    "Recomende cruzeiros no Nilo",
-    "Como personalizar um tour privado?",
-    "Quais métodos de pagamento aceitam?",
-    "Qual é a política de cancelamento?",
-    "Serviços de transporte e aeroporto"
+    "Recomende os melhores cruzeiros no Nilo",
+    "Compare Egito Clássico e Egito Histórico",
+    "Planeje um roteiro de luxo de 10 dias no Egito",
+    "Quais métodos de pagamento e sinal são aceitos?",
+    "Qual é a política de cancelamento e reembolso?"
   ],
   it: [
-    "Consigliami crociere sul Nilo",
-    "Come posso personalizzare un tour privato?",
-    "Quali metodi di pagamento accettate?",
-    "Qual è la vostra politica di cancellazione?",
-    "Servizi di trasferimento aeroportuale"
+    "Consigliami le migliori crociere sul Nilo",
+    "Confronta Egitto Classico ed Egitto Storico",
+    "Pianifica un tour di lusso su misura di 10 giorni",
+    "Quali metodi di pagamento e acconti accettate?",
+    "Qual è la vostra politica di cancellazione?"
   ],
   ar: [
-    "اقترح علي أفضل رحلات النيل البحرية",
-    "كيف يمكنني تصميم رحلة مخصصة؟",
-    "ما هي طرق الدفع المتاحة؟",
-    "ما هي سياسة الإلغاء لديكم؟",
-    "خدمات التوصيل من وإلى المطار"
+    "اقترح علي أفضل رحلات النايل كروز الفاخرة",
+    "قارن بين رحلة مصر الكلاسيكية ومصر التاريخية",
+    "صمم لي برنامج سياحي خاص 10 أيام في مصر",
+    "ما هي طرق الدفع وشروط الإيداع المعتمدة؟",
+    "ما هي سياسة الإلغاء والاسترداد المعتمدة؟"
   ],
   'ar-eg': [
-    "عايز أحسن رحلة نايل كروز في مصر",
-    "إزاي أعمل برنامج سياحي مخصوص لعيلتي؟",
-    "إيه طرق الدفع المتاحة عندكم؟",
-    "إيه سياسة الإلغاء والاسترداد؟",
-    "بتوفروا توصيل من وإلى المطار؟"
+    "عايز أحسن رحلة نايل كروز فاخرة في مصر",
+    "قارن بين الرحلة الكلاسيكية والتاريخية",
+    "صمملي برنامج 10 أيام مخصص لعيلتي",
+    "إيه طرق الدفع ونسبة المقدم المطلوبة؟",
+    "إيه سياسة الإلغاء واسترداد الفلوس؟"
   ]
 };
 
@@ -88,6 +88,8 @@ export const JaiderChatProvider = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [conversationId, setConversationId] = useState(null);
   const [loadingKnowledge, setLoadingKnowledge] = useState(false);
   const [sessionId, setSessionId] = useState(() => {
     if (typeof window === 'undefined') return '';
@@ -101,102 +103,56 @@ export const JaiderChatProvider = ({ children }) => {
 
   const [leadFormState, setLeadFormState] = useState({ required: false, fields: [] });
   const [handoffState, setHandoffState] = useState({ requested: false, status: null });
+  const abortControllerRef = useRef(null);
 
-  // Knowledge base client-side index for offline/instant fallback
   const faqDataRef = useRef({});
   const vocabIdfRef = useRef({});
   const isLoadedRef = useRef(false);
 
-  const normalizeArabic = (text) => {
+  const detectLanguage = (text) => {
+    if (!text) return 'en';
+    if (/[\u0600-\u06FF]/.test(text)) return 'ar';
+    if (/[áéíóúüñ¿¡]/i.test(text)) return 'es';
+    if (/[ãõâêîôûàèìòùç]/i.test(text)) return 'pt';
+    if (/[àèéìíîòóùú]/i.test(text)) return 'it';
+    return 'en';
+  };
+
+  const normalize = (text) => {
     if (!text) return '';
     return text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
       .replace(/[أإآ]/g, 'ا')
       .replace(/ى/g, 'ي')
       .replace(/ة/g, 'ه')
-      .replace(/ئ/g, 'ء')
-      .replace(/ؤ/g, 'ء')
-      .replace(/[\u064B-\u0652]/g, '');
+      .replace(/[\u064B-\u0652]/g, '')
+      .replace(/[.,/#!$%^&*;:{}=\-_`~()?"'¿¡]/g, ' ')
+      .trim();
   };
 
   const tokenize = (text) => {
-    if (!text) return [];
-    const normalized = text
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[.,/#!$%^&*;:{}=\-_`~()?"'¿¡]/g, " ");
-
-    const rawTokens = normalized.split(/\s+/).filter(word => word.length > 0);
-    const isArabic = /[\u0600-\u06FF]/.test(text);
-
-    if (isArabic) {
-      return rawTokens.map(token => {
-        let stemmed = normalizeArabic(token);
-        if (stemmed.startsWith('ال') && stemmed.length > 3) stemmed = stemmed.substring(2);
-        if (stemmed.startsWith('بال') && stemmed.length > 4) stemmed = stemmed.substring(3);
-        if (stemmed.startsWith('وال') && stemmed.length > 4) stemmed = stemmed.substring(3);
-        if (stemmed.startsWith('كال') && stemmed.length > 4) stemmed = stemmed.substring(3);
-        if (stemmed.startsWith('لل') && stemmed.length > 3) stemmed = stemmed.substring(2);
-        if (stemmed.startsWith('و') && stemmed.length > 3) stemmed = stemmed.substring(1);
-        if (stemmed.startsWith('ب') && stemmed.length > 3) stemmed = stemmed.substring(1);
-        if (stemmed.startsWith('ل') && stemmed.length > 3) stemmed = stemmed.substring(1);
-        return stemmed;
-      });
-    }
-    return rawTokens;
+    const norm = normalize(text);
+    return norm.split(/\s+/).filter(t => t.length > 1);
   };
 
-  const detectLanguage = (text) => {
-    if (/[\u0600-\u06FF]/.test(text)) {
-      const isEg = /(عايز|عاوز|بكام|فين|ازاي|ايه|ليه|ده|دي|عشان|شغال|يا فندم|أوضة|عربية)/.test(text);
-      return isEg ? 'ar-eg' : 'ar';
-    }
-    const tokens = tokenize(text);
-    const scores = { en: 0, es: 0, pt: 0, it: 0 };
-    tokens.forEach(token => {
-      SUPPORTED_LANGS.forEach(lang => {
-        if (lang === 'ar') return;
-        if (STOPWORDS[lang] && STOPWORDS[lang].includes(token)) {
-          scores[lang]++;
-        }
-      });
-    });
-
-    let bestLang = null;
-    let maxScore = 0;
-    Object.keys(scores).forEach(lang => {
-      if (scores[lang] > maxScore) {
-        maxScore = scores[lang];
-        bestLang = lang;
-      }
-    });
-
-    if (bestLang && maxScore > 0) return bestLang;
-    const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
-    return SUPPORTED_LANGS.includes(activeLang) ? activeLang : 'en';
-  };
-
-  const flattenObject = (ob) => {
-    const toReturn = {};
-    for (const i in ob) {
-      if (!Object.prototype.hasOwnProperty.call(ob, i)) continue;
-      if ((typeof ob[i]) === 'object' && ob[i] !== null && !Array.isArray(ob[i])) {
-        const flatObject = flattenObject(ob[i]);
-        for (const x in flatObject) {
-          if (!Object.prototype.hasOwnProperty.call(flatObject, x)) continue;
-          toReturn[i + '.' + x] = flatObject[x];
-        }
+  const flattenObject = (obj, prefix = '') => {
+    let result = {};
+    for (let key in obj) {
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        Object.assign(result, flattenObject(obj[key], `${prefix}${key}.`));
       } else {
-        toReturn[i] = ob[i];
+        result[`${prefix}${key}`] = obj[key];
       }
     }
-    return toReturn;
+    return result;
   };
 
   const loadFaqKnowledge = () => {
     if (isLoadedRef.current) return;
-    setLoadingKnowledge(true);
     try {
+      setLoadingKnowledge(true);
       const locales = {
         en: flattenObject(enJson),
         ar: flattenObject(arJson),
@@ -260,17 +216,21 @@ export const JaiderChatProvider = ({ children }) => {
       const res = await api.get(`/ai/chat/history?sessionId=${currentSessionId}`);
       const data = res?.data?.data || res?.data || res;
       if (data && data.messages && data.messages.length > 0) {
+        setConversationId(data.conversationId);
         const mapped = data.messages.map((m) => ({
           id: m.id,
-          sender: m.role === 'user' ? 'user' : 'jaider',
+          sender: m.role === 'user' ? 'user' : (m.role === 'staff' ? 'staff' : 'jaider'),
           text: m.content,
+          structuredContent: m.structuredContent,
           timestamp: new Date(m.createdAt),
           tours: m.tours,
           sources: m.sources,
+          proposal: m.structuredContent?.proposal || null,
+          comparison: m.structuredContent?.comparison || null,
         }));
         setMessages(mapped);
-        if (data.status === 'HANDED_OFF') {
-          setHandoffState({ requested: true, status: 'HANDED_OFF' });
+        if (data.status === 'HANDED_OFF' || data.status === 'HUMAN_ACTIVE') {
+          setHandoffState({ requested: true, status: data.status });
         }
       } else {
         const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
@@ -322,6 +282,15 @@ export const JaiderChatProvider = ({ children }) => {
     }
   };
 
+  const stopGenerating = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setIsTyping(false);
+    setIsStreaming(false);
+  };
+
   // Send message
   const sendMessage = async (text) => {
     if (!text.trim()) return;
@@ -335,6 +304,7 @@ export const JaiderChatProvider = ({ children }) => {
 
     setMessages(prev => [...prev, userMsg]);
     setIsTyping(true);
+    abortControllerRef.current = new AbortController();
 
     try {
       const response = await api.post('/ai/chat/message', {
@@ -344,12 +314,18 @@ export const JaiderChatProvider = ({ children }) => {
         pageContext: {
           pathname: typeof window !== 'undefined' ? window.location.pathname : '/'
         }
+      }, {
+        signal: abortControllerRef.current.signal
       });
 
       const data = response?.data?.data || response?.data || response;
+      if (data?.conversationId) setConversationId(data.conversationId);
+
       const assistantText = data?.message?.content || data?.text || FALLBACK_MESSAGES[i18n.language] || FALLBACK_MESSAGES.en;
       const tours = data?.recommendations?.tours || [];
       const destinations = data?.recommendations?.destinations || [];
+      const proposal = data?.recommendations?.proposal || data?.message?.structuredContent?.proposal || null;
+      const comparison = data?.recommendations?.comparison || data?.message?.structuredContent?.comparison || null;
       const sources = data?.sources || [];
       const suggestedReplies = data?.suggestedReplies || [];
 
@@ -364,17 +340,23 @@ export const JaiderChatProvider = ({ children }) => {
       setMessages(prev => [
         ...prev,
         {
-          id: `msg-${Date.now()}-jaider`,
+          id: data?.message?.id || `msg-${Date.now()}-jaider`,
           sender: 'jaider',
           text: assistantText,
           timestamp: new Date(),
           tours,
           destinations,
+          proposal,
+          comparison,
           sources,
           suggestedReplies,
         }
       ]);
     } catch (err) {
+      if (err?.name === 'CanceledError' || err?.message === 'canceled') {
+        console.log("GuideR generation aborted by traveler");
+        return;
+      }
       console.warn("GuideR backend call encountered network/fallback mode:", err);
 
       const userLang = detectLanguage(text);
@@ -391,6 +373,30 @@ export const JaiderChatProvider = ({ children }) => {
       ]);
     } finally {
       setIsTyping(false);
+      setIsStreaming(false);
+      abortControllerRef.current = null;
+    }
+  };
+
+  const refineItinerary = (instruction) => {
+    sendMessage(instruction);
+  };
+
+  const submitFeedback = async (messageId, rating, category, comments) => {
+    if (!conversationId) return false;
+    try {
+      await api.post('/ai/chat/feedback', {
+        conversationId,
+        messageId,
+        rating,
+        category,
+        comments,
+        locale: i18n.language,
+      });
+      return true;
+    } catch (err) {
+      console.warn("Could not record feedback:", err);
+      return false;
     }
   };
 
@@ -453,6 +459,7 @@ export const JaiderChatProvider = ({ children }) => {
     const newSessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
     localStorage.setItem('jaider_chat_session_id', newSessionId);
     setSessionId(newSessionId);
+    setConversationId(null);
     setLeadFormState({ required: false, fields: [] });
     setHandoffState({ requested: false, status: null });
 
@@ -475,6 +482,9 @@ export const JaiderChatProvider = ({ children }) => {
         setIsOpen: handleSetIsOpen,
         messages,
         sendMessage,
+        refineItinerary,
+        submitFeedback,
+        stopGenerating,
         submitLead,
         requestHandoff,
         leadFormState,
@@ -482,6 +492,7 @@ export const JaiderChatProvider = ({ children }) => {
         clearMessages: startNewChat,
         startNewChat,
         isTyping,
+        isStreaming,
         loadingKnowledge,
         suggestions: getSuggestions(),
         detectLanguage,
