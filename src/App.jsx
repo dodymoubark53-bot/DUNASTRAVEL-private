@@ -6,6 +6,67 @@ import Layout from "./components/layout/Layout";
 import Logo from "./components/ui/Logo";
 import { trackEvent } from "./utils/analytics";
 
+// ── Global Error Boundary ────────────────────────────────────────────────────
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    console.error('[ErrorBoundary]', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#060d1a',
+          color: '#E8CB72',
+          fontFamily: 'sans-serif',
+          padding: '2rem',
+          textAlign: 'center',
+          gap: '1rem'
+        }}>
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#C9A227" strokeWidth="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 8v4M12 16h.01"/>
+          </svg>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#C9A227', margin: 0 }}>
+            حدث خطأ غير متوقع
+          </h1>
+          <p style={{ color: '#aaa', margin: 0, fontSize: '0.95rem' }}>
+            An unexpected error occurred. Please refresh the page.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              marginTop: '0.5rem',
+              padding: '0.6rem 1.8rem',
+              background: '#C9A227',
+              color: '#060d1a',
+              border: 'none',
+              borderRadius: '999px',
+              fontWeight: 700,
+              fontSize: '0.95rem',
+              cursor: 'pointer'
+            }}
+          >
+            🔄 Refresh Page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 // Lazy loaded pages for performance
 const Home = lazy(() => import("./pages/Home"));
 const About = lazy(() => import("./pages/About"));
@@ -124,7 +185,7 @@ function App() {
   }, [location.pathname]);
 
   return (
-    <>
+    <ErrorBoundary>
       <motion.div
         style={{ scaleX: scrollYProgress, transformOrigin: "0%" }}
         className="fixed top-0 left-0 right-0 h-[3px] z-[9999] bg-gradient-to-r from-gold-500 via-gold-300 to-gold-500 pointer-events-none"
@@ -580,7 +641,7 @@ function App() {
             </Routes>
           </AnimatePresence>
         </Suspense>
-    </>
+    </ErrorBoundary>
   );
 }
 

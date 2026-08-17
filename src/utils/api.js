@@ -13,7 +13,9 @@
  *  5. Guest Token: attaches header 'x-guest-token' from localStorage ('dunas_guest_token') on all requests.
  */
 
-const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const rawApiUrl =
+  import.meta.env.VITE_API_URL ||
+  'https://dunastravel-backend-seven.vercel.app/api';
 const BASE_URL = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
 
 // ── CSRF Token Cache ──────────────────────────────────────────────────────────
@@ -165,8 +167,8 @@ export async function apiRequest(path, options = {}, { raw = false, _retry = fal
         : undefined,
   });
 
-  // Handle 401 Unauthorized for Refresh Token
-  if (res.status === 401 && !_retry && !path.includes('/auth/refresh') && !path.includes('/auth/login')) {
+  // Handle 401 Unauthorized for Refresh Token (exclude /auth/me, /auth/login, /auth/refresh)
+  if (res.status === 401 && !_retry && !path.includes('/auth/refresh') && !path.includes('/auth/login') && !path.includes('/auth/me')) {
     if (_isRefreshing) {
       const success = await new Promise((resolve) => addRefreshSubscriber(resolve));
       if (success) {

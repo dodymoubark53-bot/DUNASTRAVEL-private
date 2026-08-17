@@ -230,10 +230,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  if (isLoading) {
-    return null;
-  }
-
   return (
     <AuthContext.Provider
       value={{

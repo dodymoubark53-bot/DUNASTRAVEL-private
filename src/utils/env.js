@@ -3,7 +3,7 @@
  */
 
 export const env = {
-  apiUrl: (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, ''),
+  apiUrl: (import.meta.env.VITE_API_URL || 'https://dunastravel-backend-seven.vercel.app').replace(/\/+$/, ''),
   isDev: import.meta.env.DEV,
   isProd: import.meta.env.PROD,
   mode: import.meta.env.MODE,
