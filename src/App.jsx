@@ -113,6 +113,7 @@ const Login = lazy(() => import("./pages/auth/Login"));
 const Register = lazy(() => import("./pages/auth/Register"));
 const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
+const VerifyEmail = lazy(() => import("./pages/auth/VerifyEmail"));
 const UserDashboard = lazy(() => import("./pages/user/UserDashboard"));
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
@@ -588,6 +589,14 @@ function App() {
                   element={
                     <PageTransition>
                       <ResetPassword />
+                    </PageTransition>
+                  }
+                />
+                <Route
+                  path="verify-email"
+                  element={
+                    <PageTransition>
+                      <VerifyEmail />
                     </PageTransition>
                   }
                 />
