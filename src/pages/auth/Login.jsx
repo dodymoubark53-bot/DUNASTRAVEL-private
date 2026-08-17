@@ -18,7 +18,11 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const { login, user } = useAuth();
+  const [isResending, setIsResending] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState('');
+  const [showResendBtn, setShowResendBtn] = useState(false);
+
+  const { login, resendVerification, user } = useAuth();
 
   if (user) {
     navigate(from, { replace: true });
@@ -27,15 +31,40 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setResendSuccess('');
+    setShowResendBtn(false);
     setIsLoading(true);
 
     try {
       await login(email, password);
       navigate(from, { replace: true });
-    } catch {
-      setError(t('auth.invalidCredentials', 'Invalid email or password'));
+    } catch (err) {
+      const msg = err.message || '';
+      if (msg.toLowerCase().includes('verify') || msg.toLowerCase().includes('verification')) {
+        setError(t('auth.unverifiedEmailError', 'Please verify your email before logging in.'));
+        setShowResendBtn(true);
+      } else if (msg.toLowerCase().includes('credential') || msg.toLowerCase().includes('password') || err.status === 401) {
+        setError(t('auth.invalidCredentials', 'Invalid email or password'));
+      } else {
+        setError(msg || t('common.errorOccurred', 'An error occurred'));
+      }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!email) return;
+    setIsResending(true);
+    setError('');
+    setResendSuccess('');
+    try {
+      await resendVerification(email);
+      setResendSuccess(t('auth.verificationResent', 'Verification email sent! Please check your inbox.'));
+    } catch (err) {
+      setError(err.message || t('auth.resendFailed', 'Failed to resend verification email'));
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -59,8 +88,24 @@ const Login = () => {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 rounded-xl bg-red-500/15 border border-red-500/40 text-red-400 text-body-sm text-center">
-            {error}
+          <div className="mb-6 p-4 rounded-xl bg-red-500/15 border border-red-500/40 text-red-400 text-body-sm text-center space-y-2">
+            <p>{error}</p>
+            {showResendBtn && (
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={isResending}
+                className="inline-block mt-2 px-4 py-1.5 rounded-lg bg-gold-500/20 text-gold-400 hover:bg-gold-500/30 text-xs font-semibold transition-all border border-gold-500/30"
+              >
+                {isResending ? t('common.loading', 'Sending...') : t('auth.resendVerificationBtn', 'Resend Verification Email')}
+              </button>
+            )}
+          </div>
+        )}
+
+        {resendSuccess && (
+          <div className="mb-6 p-4 rounded-xl bg-sage-500/15 border border-sage-500/40 text-sage-400 text-body-sm text-center">
+            {resendSuccess}
           </div>
         )}
 

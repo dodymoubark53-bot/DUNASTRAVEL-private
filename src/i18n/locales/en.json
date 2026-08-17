@@ -5493,5 +5493,9 @@
   "auth.ruleLength": "8+ characters",
   "auth.ruleUpper": "Uppercase (A-Z)",
   "auth.ruleLower": "Lowercase (a-z)",
-  "auth.ruleDigit": "Number (0-9)"
+  "auth.ruleDigit": "Number (0-9)",
+  "auth.unverifiedEmailError": "Please verify your email before logging in.",
+  "auth.resendVerificationBtn": "Resend Verification Email",
+  "auth.verificationResent": "Verification email sent! Please check your inbox.",
+  "auth.resendFailed": "Failed to resend verification email"
 }

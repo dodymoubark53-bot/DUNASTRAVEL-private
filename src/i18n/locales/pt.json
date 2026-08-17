@@ -5493,5 +5493,9 @@
   "auth.ruleLength": "8+ caracteres",
   "auth.ruleUpper": "Maiúscula (A-Z)",
   "auth.ruleLower": "Minúscula (a-z)",
-  "auth.ruleDigit": "Número (0-9)"
+  "auth.ruleDigit": "Número (0-9)",
+  "auth.unverifiedEmailError": "Por favor, verifique o seu email antes de iniciar sessão.",
+  "auth.resendVerificationBtn": "Reenviar email de verificação",
+  "auth.verificationResent": "Email de verificação enviado! Por favor, verifique a sua caixa de entrada.",
+  "auth.resendFailed": "Falha ao reenviar o email de verificação"
 }

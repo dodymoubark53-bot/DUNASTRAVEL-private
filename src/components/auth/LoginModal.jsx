@@ -21,16 +21,19 @@ const LoginModal = ({ isOpen, onClose }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [showResendBtn, setShowResendBtn] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   
-  const { login, register } = useAuth();
+  const { login, register, resendVerification } = useAuth();
 
   // Reset form when switching views
   const switchView = (newView) => {
     setView(newView);
     setError('');
     setSuccess('');
+    setShowResendBtn(false);
     setPassword('');
     setConfirmPassword('');
   };
@@ -39,16 +42,41 @@ const LoginModal = ({ isOpen, onClose }) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setShowResendBtn(false);
     setIsLoading(true);
     
     try {
       await login(email, password);
       onClose();
       window.location.href = '/'; // Redirect to home
-    } catch {
-      setError(t('auth.invalidCredentials', 'Invalid email or password'));
+    } catch (err) {
+      const msg = err.message || '';
+      if (msg.toLowerCase().includes('verify') || msg.toLowerCase().includes('verification')) {
+        setError(t('auth.unverifiedEmailError', 'Please verify your email before logging in.'));
+        setShowResendBtn(true);
+      } else if (msg.toLowerCase().includes('credential') || msg.toLowerCase().includes('password') || err.status === 401) {
+        setError(t('auth.invalidCredentials', 'Invalid email or password'));
+      } else {
+        setError(msg || t('common.errorOccurred', 'An error occurred'));
+      }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!email) return;
+    setIsResending(true);
+    setError('');
+    setSuccess('');
+    try {
+      await resendVerification(email);
+      setSuccess(t('auth.verificationResent', 'Verification email sent! Please check your inbox.'));
+      setShowResendBtn(false);
+    } catch (err) {
+      setError(err.message || t('auth.resendFailed', 'Failed to resend verification email'));
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -158,12 +186,22 @@ const LoginModal = ({ isOpen, onClose }) => {
 
               {/* Status Messages */}
               {error && (
-                <div className="mb-5 p-3 rounded bg-red-500/10 border border-red-500/50 text-red-400 text-caption text-center">
-                  {error}
+                <div className="mb-5 p-3.5 rounded-xl bg-red-500/15 border border-red-500/50 text-red-400 text-caption text-center space-y-2">
+                  <p>{error}</p>
+                  {showResendBtn && (
+                    <button
+                      type="button"
+                      onClick={handleResendVerification}
+                      disabled={isResending}
+                      className="inline-block mt-1 px-3 py-1 rounded-lg bg-gold-500/20 text-gold-400 hover:bg-gold-500/30 text-xs font-semibold transition-all border border-gold-500/30"
+                    >
+                      {isResending ? t('common.loading', 'Sending...') : t('auth.resendVerificationBtn', 'Resend Verification Email')}
+                    </button>
+                  )}
                 </div>
               )}
               {success && (
-                <div className="mb-5 p-3 rounded bg-sage-500/10 border border-sage-500/50 text-sage-500 text-caption text-center">
+                <div className="mb-5 p-3.5 rounded-xl bg-sage-500/15 border border-sage-500/50 text-sage-400 text-caption text-center">
                   {success}
                 </div>
               )}

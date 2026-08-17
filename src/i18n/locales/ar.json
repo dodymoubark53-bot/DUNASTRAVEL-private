@@ -5493,5 +5493,9 @@
   "auth.ruleLength": "8+ أحرف",
   "auth.ruleUpper": "حرف كبير (A-Z)",
   "auth.ruleLower": "حرف صغير (a-z)",
-  "auth.ruleDigit": "رقم (0-9)"
+  "auth.ruleDigit": "رقم (0-9)",
+  "auth.unverifiedEmailError": "يرجى تفعيل بريدك الإلكتروني قبل تسجيل الدخول.",
+  "auth.resendVerificationBtn": "إعادة إرسال رابط التفعيل",
+  "auth.verificationResent": "تم إرسال رابط التفعيل إلى بريدك الإلكتروني بنجاح!",
+  "auth.resendFailed": "فشل في إعادة إرسال رابط التفعيل"
 }
