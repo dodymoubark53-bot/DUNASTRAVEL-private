@@ -80,13 +80,35 @@ export function useTour(slug) {
         const data = await api.get(`/tours/${encodeURIComponent(slug)}?lang=${lang}`);
         if (isMounted) {
           if (data && (data.id || data.slug || data.title)) {
+            const parseList = (val) => {
+              if (Array.isArray(val)) return val;
+              if (typeof val === 'string') return val.split(',').map(s => s.trim()).filter(Boolean);
+              return [];
+            };
+
+            const normalizedImages = Array.isArray(data.images) && data.images.length > 0
+              ? data.images.map(img => (typeof img === 'string' ? img : img.imageUrl || img.url || '')).filter(Boolean)
+              : data.heroImage
+              ? [data.heroImage]
+              : ['https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=800&q=80'];
+
+            const normalizedItinerary = Array.isArray(data.itinerary)
+              ? data.itinerary.map((item, idx) => ({
+                  ...item,
+                  day: item.day || (typeof item.sortOrder === 'number' ? item.sortOrder + 1 : idx + 1),
+                  title: item.title || item.dayLabel || `Day ${idx + 1}`,
+                  description: item.description || item.desc || '',
+                  meals: item.meals || null,
+                }))
+              : [];
+
             setTour({
               ...data,
-              images: Array.isArray(data.images) && data.images.length > 0
-                ? data.images
-                : data.heroImage
-                ? [data.heroImage]
-                : ['https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=800&q=80'],
+              images: normalizedImages.length > 0 ? normalizedImages : ['https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=800&q=80'],
+              included: parseList(data.included || data.includedServices),
+              excluded: parseList(data.excluded || data.excludedServices),
+              itinerary: normalizedItinerary,
+              price: parseFloat(data.price || data.basePriceUsd || 0),
             });
           } else {
             const fallback = findFallbackTour(slug);
