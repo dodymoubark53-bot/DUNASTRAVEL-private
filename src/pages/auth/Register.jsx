@@ -25,6 +25,14 @@ const Register = () => {
 
   const { register } = useAuth();
 
+  // Password Complexity Metrics
+  const hasLength = password.length >= 8;
+  const hasUpper = /[A-Z]/.test(password);
+  const hasLower = /[a-z]/.test(password);
+  const hasDigit = /\d/.test(password);
+  const strengthScore = [hasLength, hasUpper, hasLower, hasDigit].filter(Boolean).length;
+  const isPasswordValid = hasLength && hasUpper && hasLower && hasDigit;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -33,8 +41,8 @@ const Register = () => {
     if (!name || !email || !phone || !password || !confirmPassword) {
       return setError(t('auth.allFieldsRequired', 'All fields are required'));
     }
-    if (password.length < 8) {
-      return setError(t('auth.passwordLengthError', 'Password must be at least 8 characters'));
+    if (!isPasswordValid) {
+      return setError(t('auth.passwordComplexityError', 'Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, and a number'));
     }
     if (password !== confirmPassword) {
       return setError(t('auth.passwordsDoNotMatch', 'Passwords do not match'));
@@ -171,6 +179,65 @@ const Register = () => {
                 {showPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
               </button>
             </div>
+
+            {/* Password Complexity / Strength Indicator */}
+            {password.length > 0 && (
+              <div className="mt-2.5 p-3 rounded-xl bg-obsidian-800/60 border border-gold-500/20 text-xs">
+                {/* Strength Progress Bar */}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-medium text-ivory-400">
+                    {t('auth.passwordStrength', 'Password Strength')}:
+                  </span>
+                  <span className={`text-[11px] font-bold ${
+                    strengthScore === 4 ? 'text-emerald-400' :
+                    strengthScore >= 3 ? 'text-gold-400' :
+                    strengthScore >= 2 ? 'text-amber-400' : 'text-rose-400'
+                  }`}>
+                    {strengthScore === 4 ? t('auth.strengthStrong', 'Strong') :
+                     strengthScore >= 3 ? t('auth.strengthGood', 'Good') :
+                     strengthScore >= 2 ? t('auth.strengthFair', 'Fair') : t('auth.strengthWeak', 'Weak')}
+                  </span>
+                </div>
+                <div className="grid grid-cols-4 gap-1.5 mb-2.5 h-1.5">
+                  {[1, 2, 3, 4].map((step) => (
+                    <div
+                      key={step}
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        step <= strengthScore
+                          ? strengthScore === 4
+                            ? 'bg-emerald-400'
+                            : strengthScore >= 3
+                            ? 'bg-gold-400'
+                            : strengthScore >= 2
+                            ? 'bg-amber-400'
+                            : 'bg-rose-400'
+                          : 'bg-white/10'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                {/* Requirements Checklist */}
+                <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+                  <div className={`flex items-center gap-1.5 transition-colors ${hasLength ? 'text-emerald-400 font-semibold' : 'text-ivory-400/70'}`}>
+                    <span>{hasLength ? '✓' : '•'}</span>
+                    <span>{t('auth.ruleLength', '8+ characters')}</span>
+                  </div>
+                  <div className={`flex items-center gap-1.5 transition-colors ${hasUpper ? 'text-emerald-400 font-semibold' : 'text-ivory-400/70'}`}>
+                    <span>{hasUpper ? '✓' : '•'}</span>
+                    <span>{t('auth.ruleUpper', 'Uppercase (A-Z)')}</span>
+                  </div>
+                  <div className={`flex items-center gap-1.5 transition-colors ${hasLower ? 'text-emerald-400 font-semibold' : 'text-ivory-400/70'}`}>
+                    <span>{hasLower ? '✓' : '•'}</span>
+                    <span>{t('auth.ruleLower', 'Lowercase (a-z)')}</span>
+                  </div>
+                  <div className={`flex items-center gap-1.5 transition-colors ${hasDigit ? 'text-emerald-400 font-semibold' : 'text-ivory-400/70'}`}>
+                    <span>{hasDigit ? '✓' : '•'}</span>
+                    <span>{t('auth.ruleDigit', 'Number (0-9)')}</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div>

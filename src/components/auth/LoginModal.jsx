@@ -52,6 +52,14 @@ const LoginModal = ({ isOpen, onClose }) => {
     }
   };
 
+  // Password Complexity Metrics
+  const hasLength = password.length >= 8;
+  const hasUpper = /[A-Z]/.test(password);
+  const hasLower = /[a-z]/.test(password);
+  const hasDigit = /\d/.test(password);
+  const strengthScore = [hasLength, hasUpper, hasLower, hasDigit].filter(Boolean).length;
+  const isPasswordValid = hasLength && hasUpper && hasLower && hasDigit;
+
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -61,8 +69,8 @@ const LoginModal = ({ isOpen, onClose }) => {
     if (!name || !email || !phone || !password || !confirmPassword) {
       return setError(t('auth.allFieldsRequired', 'All fields are required'));
     }
-    if (password.length < 8) {
-      return setError(t('auth.passwordLengthError', 'Password must be at least 8 characters'));
+    if (!isPasswordValid) {
+      return setError(t('auth.passwordComplexityError', 'Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, and a number'));
     }
     if (password !== confirmPassword) {
       return setError(t('auth.passwordsDoNotMatch', 'Passwords do not match'));
@@ -281,6 +289,60 @@ const LoginModal = ({ isOpen, onClose }) => {
                         {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
                       </button>
                     </div>
+
+                    {/* Password Complexity Checklist */}
+                    {password.length > 0 && (
+                      <div className="mt-2 p-2.5 rounded-lg bg-obsidian-950/80 border border-gold-500/20 text-xs">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[10px] text-ivory-400 font-medium">{t('auth.passwordStrength', 'Password Strength')}:</span>
+                          <span className={`text-[10px] font-bold ${
+                            strengthScore === 4 ? 'text-emerald-400' :
+                            strengthScore >= 3 ? 'text-gold-400' :
+                            strengthScore >= 2 ? 'text-amber-400' : 'text-rose-400'
+                          }`}>
+                            {strengthScore === 4 ? t('auth.strengthStrong', 'Strong') :
+                             strengthScore >= 3 ? t('auth.strengthGood', 'Good') :
+                             strengthScore >= 2 ? t('auth.strengthFair', 'Fair') : t('auth.strengthWeak', 'Weak')}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-4 gap-1 mb-2 h-1">
+                          {[1, 2, 3, 4].map((step) => (
+                            <div
+                              key={step}
+                              className={`h-full rounded-full transition-all duration-300 ${
+                                step <= strengthScore
+                                  ? strengthScore === 4
+                                    ? 'bg-emerald-400'
+                                    : strengthScore >= 3
+                                    ? 'bg-gold-400'
+                                    : strengthScore >= 2
+                                    ? 'bg-amber-400'
+                                    : 'bg-rose-400'
+                                  : 'bg-white/10'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <div className="grid grid-cols-2 gap-1 text-[10px]">
+                          <div className={`flex items-center gap-1 ${hasLength ? 'text-emerald-400 font-semibold' : 'text-ivory-400/60'}`}>
+                            <span>{hasLength ? '✓' : '•'}</span>
+                            <span>{t('auth.ruleLength', '8+ characters')}</span>
+                          </div>
+                          <div className={`flex items-center gap-1 ${hasUpper ? 'text-emerald-400 font-semibold' : 'text-ivory-400/60'}`}>
+                            <span>{hasUpper ? '✓' : '•'}</span>
+                            <span>{t('auth.ruleUpper', 'Uppercase (A-Z)')}</span>
+                          </div>
+                          <div className={`flex items-center gap-1 ${hasLower ? 'text-emerald-400 font-semibold' : 'text-ivory-400/60'}`}>
+                            <span>{hasLower ? '✓' : '•'}</span>
+                            <span>{t('auth.ruleLower', 'Lowercase (a-z)')}</span>
+                          </div>
+                          <div className={`flex items-center gap-1 ${hasDigit ? 'text-emerald-400 font-semibold' : 'text-ivory-400/60'}`}>
+                            <span>{hasDigit ? '✓' : '•'}</span>
+                            <span>{t('auth.ruleDigit', 'Number (0-9)')}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-1 relative">

@@ -5483,5 +5483,15 @@
   "tailor.errorAlert": "Invio della richiesta personalizzata fallito. Verifica i campi obbligatori.",
   "transportation.moreFeatures": "Servizi e Comfort del Trasporto VIP",
   "hotel.room.reviewsCountVal": "Recensioni Verificate degli Ospiti",
-  "about.tradeShow": "Fiere Internazionali del Turismo di Lusso"
+  "about.tradeShow": "Fiere Internazionali del Turismo di Lusso",
+  "auth.passwordComplexityError": "La password deve contenere almeno 8 caratteri, tra cui una lettera maiuscola, una minuscola e un numero.",
+  "auth.passwordStrength": "Efficacia della password",
+  "auth.strengthStrong": "Forte",
+  "auth.strengthGood": "Buona",
+  "auth.strengthFair": "Media",
+  "auth.strengthWeak": "Debole",
+  "auth.ruleLength": "8+ caratteri",
+  "auth.ruleUpper": "Maiuscola (A-Z)",
+  "auth.ruleLower": "Minuscola (a-z)",
+  "auth.ruleDigit": "Numero (0-9)"
 }

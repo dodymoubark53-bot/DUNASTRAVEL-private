@@ -5483,5 +5483,15 @@
   "tailor.errorAlert": "Failed to submit custom tour request. Please check mandatory fields.",
   "transportation.moreFeatures": "VIP Chauffeur & Transfer Amenities",
   "hotel.room.reviewsCountVal": "Verified Guest Reviews",
-  "about.tradeShow": "International Luxury Travel Exhibitions"
+  "about.tradeShow": "International Luxury Travel Exhibitions",
+  "auth.passwordComplexityError": "Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, and a number.",
+  "auth.passwordStrength": "Password Strength",
+  "auth.strengthStrong": "Strong",
+  "auth.strengthGood": "Good",
+  "auth.strengthFair": "Fair",
+  "auth.strengthWeak": "Weak",
+  "auth.ruleLength": "8+ characters",
+  "auth.ruleUpper": "Uppercase (A-Z)",
+  "auth.ruleLower": "Lowercase (a-z)",
+  "auth.ruleDigit": "Number (0-9)"
 }

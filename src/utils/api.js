@@ -230,10 +230,10 @@ export async function apiRequest(path, options = {}, { raw = false, _retry = fal
       clearCsrfToken();
     }
     // Extract error message from backend's error envelope
-    const message =
-      body?.data?.message ||
-      body?.message ||
-      `Request failed with status ${res.status}`;
+    const rawMsg = body?.data?.message || body?.message;
+    const message = Array.isArray(rawMsg)
+      ? rawMsg.join(' • ')
+      : (rawMsg || `Request failed with status ${res.status}`);
     const error = new Error(message);
     error.status = res.status;
     error.body = body;

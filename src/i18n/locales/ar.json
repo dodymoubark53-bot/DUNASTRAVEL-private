@@ -5483,5 +5483,15 @@
   "tailor.errorAlert": "تعذر إرسال طلب الرحلة المخصصة، يرجى التحقق من الحقول الإلزامية.",
   "transportation.moreFeatures": "مزايا وخدمات النقل الفاخر الإضافية",
   "hotel.room.reviewsCountVal": "تقييمات الضيوف المعتمدة",
-  "about.tradeShow": "مشاركاتنا في المعارض الدولية للسياحة الفاخرة"
+  "about.tradeShow": "مشاركاتنا في المعارض الدولية للسياحة الفاخرة",
+  "auth.passwordComplexityError": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتحتوي على حرف كبير (A-Z) وحرف صغير (a-z) ورقم (0-9).",
+  "auth.passwordStrength": "قوة كلمة المرور",
+  "auth.strengthStrong": "قوية جداً",
+  "auth.strengthGood": "جيدة",
+  "auth.strengthFair": "متوسطة",
+  "auth.strengthWeak": "ضعيفة",
+  "auth.ruleLength": "8+ أحرف",
+  "auth.ruleUpper": "حرف كبير (A-Z)",
+  "auth.ruleLower": "حرف صغير (a-z)",
+  "auth.ruleDigit": "رقم (0-9)"
 }
