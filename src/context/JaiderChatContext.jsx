@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import enJson from '../i18n/locales/en.json';
 import arJson from '../i18n/locales/ar.json';
@@ -13,65 +13,65 @@ const JaiderChatContext = createContext(null);
 const SUPPORTED_LANGS = ['en', 'ar', 'es', 'pt', 'it'];
 
 const WELCOME_MESSAGES = {
-  en: "Hi there! 👋 I'm Jaider, your AI assistant. Ask me anything and I'll do my best to help you",
-  es: "¡Hola! 👋 Soy Jaider, tu asistente de IA. Pregúntame lo que quieras y haré todo lo posible para ayudarte según nuestras preguntas frecuentes.",
-  pt: "Olá! 👋 Eu sou o Jaider, seu assistente de IA. Pergunte-me qualquer coisa e farei o meu melhor para ajudar com base no nosso FAQ!",
-  it: "Ciao! 👋 Sono Jaider, il tuo assistente AI. Chiedimi qualsiasi cosa e farò del mio meglio per aiutarti in base alle nostre FAQ!",
-  ar: "مرحباً! 👋 أنا جايدر، مساعدك الذكي. اسألني عن أي شيء وسأبذل قصارى جهدي للمساعدة بناءً على الأسئلة الشائعة لدينا!",
-  'ar-eg': "أهلاً بيك يا فندم! 👋 أنا جايدر، مساعدك الذكي. اسألني على أي حاجة وهعمل اللي عليا عشان أساعدك من الأسئلة الشائعة عندنا!"
+  en: "Hi there! 👋 I'm GuideR, your luxury AI Travel Concierge for Dunas Travel. How can I assist you with planning your dream trip today?",
+  es: "¡Hola! 👋 Soy GuideR, tu conserje de viajes de lujo para Dunas Travel. ¿Cómo puedo ayudarte a planificar tu viaje soñado hoy?",
+  pt: "Olá! 👋 Sou o GuideR, seu concierge de viagens de luxo da Dunas Travel. Como posso ajudar a planejar a sua viagem dos sonhos hoje?",
+  it: "Ciao! 👋 Sono GuideR, il tuo concierge di viaggio di lusso per Dunas Travel. Come posso aiutarti a pianificare il tuo viaggio ideale oggi?",
+  ar: "أهلاً بك! 👋 أنا جايدر (GuideR)، مستشارك السياحي الذكي في دوناس ترافيل. كيف يمكنني مساعدتك في التخطيط لرحلتك الفاخرة اليوم؟",
+  'ar-eg': "أهلاً بيك يا فندم! 👋 أنا جايدر (GuideR)، مستشارك السياحي الذكي في دوناس ترافيل. تؤمرني بإيه النهارده عشان نخطط لأحلى رحلة؟"
 };
 
 const FALLBACK_MESSAGES = {
-  en: "I'm sorry, I couldn't find an answer to your question in our FAQ. Please feel free to contact our support team at info@dunas-travel.com or via our Contact page.",
-  es: "Lo siento, no pude encontrar una respuesta a tu pregunta en nuestras preguntas frecuentes. Por favor, no dudes en ponerte en contacto con nuestro equipo de soporte en info@dunas-travel.com o a través de nuestra página de Contacto.",
-  pt: "Desculpe, não consegui encontrar uma resposta para a sua pergunta no nosso FAQ. Por favor, não hesite em entrar em contato com a nossa equipe de suporte em info@dunas-travel.com ou através da nossa página de Contato.",
-  it: "Mi dispiace, non ho trovato una risposta alla tua domanda nelle nostre FAQ. Non esitare a contattare il nostro team di supporto all'indirizzo info@dunas-travel.com o tramite la nostra pagina Contatti.",
-  ar: "عذراً، لم أتمكن من العثور على إجابة لسؤالك في الأسئلة الشائعة. لا تتردد في الاتصال بفريق الدعم لدينا على info@dunas-travel.com أو من خلال صفحة الاتصال بنا.",
-  'ar-eg': "معلش يا فندم، ملقتش إجابة لسؤالك في الأسئلة الشائعة عندنا. تقدر كلم فريق الدعم بتاعنا على info@dunas-travel.com أو من خلال صفحة اتصل بينا."
+  en: "I'd be delighted to help you with that! You can explore our signature tour packages, request a tailor-made luxury itinerary, or connect directly with our senior travel specialists.",
+  es: "¡Con gusto te ayudo! Puedes explorar nuestros paquetes turísticos, solicitar un itinerario de lujo personalizado o contactar a nuestros especialistas.",
+  pt: "Terei todo o prazer em ajudar! Pode explorar os nossos pacotes turísticos, solicitar um itinerário personalizado ou falar com os nossos especialistas.",
+  it: "Sarò lieto di aiutarti! Puoi esplorare i nostri pacchetti turistici, richiedere un itinerario personalizzato o contattare i nostri specialisti.",
+  ar: "يسعدني جداً مساعدتك! يمكنك استعراض باقات رحلاتنا الفاخرة، أو طلب تصميم برنامج مخصص لعائلتك، أو التواصل المباشر مع خبراء المبيعات لدينا.",
+  'ar-eg': "تحت أمرك يا فندم! تقدر تشوف رحلاتنا المميزة، أو نصمملك برنامج مخصوص لحضرتك ولعيلتك، أو تكلم فريق المبيعات مباشرة."
 };
 
 const SUGGESTIONS = {
   en: [
-    "How do I book a tour?",
+    "Recommend top Nile Cruise packages",
+    "How can I customize a private tour?",
     "What payment methods do you accept?",
     "What is your cancellation policy?",
-    "Can you assist with visas?",
-    "I need help"
+    "Airport transfer services"
   ],
   es: [
-    "¿Cómo reservo un tour?",
+    "Recomienda paquetes de Crucero por el Nilo",
+    "¿Cómo personalizar un tour privado?",
     "¿Qué métodos de pago aceptan?",
     "¿Cuál es su política de cancelación?",
-    "¿Pueden ayudar con las visas?",
-    "Necesito ayuda"
+    "Servicios de traslado al aeropuerto"
   ],
   pt: [
-    "Como faço para reservar um tour?",
-    "Quais métodos de pagamento vocês aceitam?",
-    "Qual é a sua política de cancelamento?",
-    "Vocês podem ajudar com os vistos?",
-    "Preciso de ajuda"
+    "Recomende cruzeiros no Nilo",
+    "Como personalizar um tour privado?",
+    "Quais métodos de pagamento aceitam?",
+    "Qual é a política de cancelamento?",
+    "Serviços de transporte e aeroporto"
   ],
   it: [
-    "Come posso prenotare un tour?",
+    "Consigliami crociere sul Nilo",
+    "Come posso personalizzare un tour privato?",
     "Quali metodi di pagamento accettate?",
     "Qual è la vostra politica di cancellazione?",
-    "Potete aiutarmi con i visti?",
-    "Ho bisogno di aiuto"
+    "Servizi di trasferimento aeroportuale"
   ],
   ar: [
-    "كيف يمكنني حجز رحلة؟",
-    "ما هي طرق الدفع المقبولة؟",
+    "اقترح علي أفضل رحلات النيل البحرية",
+    "كيف يمكنني تصميم رحلة مخصصة؟",
+    "ما هي طرق الدفع المتاحة؟",
     "ما هي سياسة الإلغاء لديكم؟",
-    "هل يمكنكم المساعدة في الحصول على التأشيرات؟",
-    "أنا محتاج مساعدة"
+    "خدمات التوصيل من وإلى المطار"
   ],
   'ar-eg': [
-    "عايز أحجز رحلة، أعمل إيه؟",
-    "إيه طرق الدفع المتاحة؟",
-    "إيه سياسة الإلغاء عندكم؟",
-    "بتساعدوا في استخراج الفيزا؟",
-    "أنا محتاج مساعدة"
+    "عايز أحسن رحلة نايل كروز في مصر",
+    "إزاي أعمل برنامج سياحي مخصوص لعيلتي؟",
+    "إيه طرق الدفع المتاحة عندكم؟",
+    "إيه سياسة الإلغاء والاسترداد؟",
+    "بتوفروا توصيل من وإلى المطار؟"
   ]
 };
 
@@ -98,13 +98,15 @@ export const JaiderChatProvider = ({ children }) => {
     }
     return id;
   });
-  
-  // Knowledge base index
-  const faqDataRef = useRef({}); // { en: [ { q, a, tokens, tfIdfVector, norm } ], es: ... }
-  const vocabIdfRef = useRef({}); // { en: { word: idf }, es: ... }
+
+  const [leadFormState, setLeadFormState] = useState({ required: false, fields: [] });
+  const [handoffState, setHandoffState] = useState({ requested: false, status: null });
+
+  // Knowledge base client-side index for offline/instant fallback
+  const faqDataRef = useRef({});
+  const vocabIdfRef = useRef({});
   const isLoadedRef = useRef(false);
 
-  // Helper to normalize Arabic characters
   const normalizeArabic = (text) => {
     if (!text) return '';
     return text
@@ -113,27 +115,23 @@ export const JaiderChatProvider = ({ children }) => {
       .replace(/ة/g, 'ه')
       .replace(/ئ/g, 'ء')
       .replace(/ؤ/g, 'ء')
-      .replace(/[\u064B-\u0652]/g, ''); // Remove tashkeel
+      .replace(/[\u064B-\u0652]/g, '');
   };
 
-  // Helper to tokenize text with language-specific stemming and synonyms
   const tokenize = (text) => {
     if (!text) return [];
-    
     const normalized = text
       .toLowerCase()
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // removes accents/diacritics
-      .replace(/[.,/#!$%^&*;:{}=\-_`~()?"'¿¡]/g, " "); // removes punctuation
-      
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[.,/#!$%^&*;:{}=\-_`~()?"'¿¡]/g, " ");
+
     const rawTokens = normalized.split(/\s+/).filter(word => word.length > 0);
-    
     const isArabic = /[\u0600-\u06FF]/.test(text);
+
     if (isArabic) {
       return rawTokens.map(token => {
         let stemmed = normalizeArabic(token);
-        
-        // Strip common prefixes
         if (stemmed.startsWith('ال') && stemmed.length > 3) stemmed = stemmed.substring(2);
         if (stemmed.startsWith('بال') && stemmed.length > 4) stemmed = stemmed.substring(3);
         if (stemmed.startsWith('وال') && stemmed.length > 4) stemmed = stemmed.substring(3);
@@ -142,197 +140,19 @@ export const JaiderChatProvider = ({ children }) => {
         if (stemmed.startsWith('و') && stemmed.length > 3) stemmed = stemmed.substring(1);
         if (stemmed.startsWith('ب') && stemmed.length > 3) stemmed = stemmed.substring(1);
         if (stemmed.startsWith('ل') && stemmed.length > 3) stemmed = stemmed.substring(1);
-        if (stemmed.startsWith('ف') && stemmed.length > 3) stemmed = stemmed.substring(1);
-        if (stemmed.startsWith('ك') && stemmed.length > 3) stemmed = stemmed.substring(1);
-        
-        // Normalize common colloquial/MSA conjugations and synonyms
-        if (/^(حجز|احجز|احجزلي|الحجز|حجوزات|يحجز|تحجز|نحجز)$/.test(stemmed)) {
-          return 'حجز';
-        }
-        if (/^(الغاء|إلغاء|الغاءات|الالغاء|يلغي|تلغي|نلغي|يلغى)$/.test(stemmed)) {
-          return 'لغى';
-        }
-        if (/^(استرداد|استرجاع|يرجع|يرتجع|استرد|استرجع|ترجع)$/.test(stemmed)) {
-          return 'رجع';
-        }
-        if (/^(دفع|الدفع|يدفع|تدفع|ندفع|مدفوعات)$/.test(stemmed)) {
-          return 'دفع';
-        }
-        if (/^(سعر|اسعار|الاسعار|تسعير|تكلفة|تكلفه)$/.test(stemmed)) {
-          return 'سعر';
-        }
-        if (/^(تأشيرة|تاشيرة|تأشيرات|فيزا|الفيزا)$/.test(stemmed)) {
-          return 'فيزا';
-        }
-        if (/^(طيران|طائره|طيارة|الطيارة|طيارات|مطار|المطار)$/.test(stemmed)) {
-          return 'طيران';
-        }
-        if (/^(تذكرة|تذاكر|التذاكر)$/.test(stemmed)) {
-          return 'تذكرة';
-        }
-        if (/^(فندق|فنادق|الفنادق|الفندق)$/.test(stemmed)) {
-          return 'فندق';
-        }
-        if (/^(غرفة|اوضة|غرف|أوض|الاوض|الاوضة)$/.test(stemmed)) {
-          return 'غرفة';
-        }
-        if (/^(بكم|بكام|كم)$/.test(stemmed)) {
-          return 'كم';
-        }
-        if (/^(اين|فين)$/.test(stemmed)) {
-          return 'اين';
-        }
-        if (/^(كيف|ازاي)$/.test(stemmed)) {
-          return 'كيف';
-        }
-        if (/^(ماذا|ايه)$/.test(stemmed)) {
-          return 'ما';
-        }
-        if (/^(جولة|رحلة|رحلات|جولات)$/.test(stemmed)) {
-          return 'رحلة';
-        }
-        
         return stemmed;
       });
     }
-    
     return rawTokens;
   };
 
-  // Keywords indicating Egyptian Colloquial Arabic
-  const EGYPTIAN_KEYWORDS = [
-    'عايز', 'عايزة', 'عاوز', 'عاوزة', 'عايزين', 'عاوزين', 'بكام', 'فين', 'ازاي', 'إزاي', 'ايه', 'إيه', 'ليه', 'مين', 'ده',
-    'دي', 'دول', 'عشان', 'علشان', 'مش', 'اوي', 'أوي', 'كده', 'كدا', 'شغال', 'دلوقتي', 'دلوأتي',
-    'بتاع', 'بتاعت', 'بتوع', 'لسه', 'لسة', 'خالص', 'حاجة', 'معلش', 'تمام', 'احجز', 'أحجز', 'بينا',
-    'يافندم', 'يا فندم', 'بأد', 'بقد', 'بكام', 'فنادق', 'أوضة', 'اوضة', 'شنط', 'هدوم', 'عربية', 'أتوبيس'
-  ];
-
-  // Helper to map Egyptian colloquial keywords to MSA counterparts for better matching
-  const mapColloquialToMsa = (query) => {
-    let mapped = query;
-    const mappings = [
-      [/\b(عايز|عاوز|حابب)\b/g, 'أريد'],
-      [/\b(عايزة|عاوزة)\b/g, 'أريد'],
-      [/\b(عايزين|عاوزين)\b/g, 'نريد'],
-      [/\bبكام\b/g, 'بكم سعر'],
-      [/\b(ازاي|إزاي)\b/g, 'كيف'],
-      [/\bفين\b/g, 'أين'],
-      [/\b(ايه|إيه)\b/g, 'ما'],
-      [/\bليه\b/g, 'لماذا'],
-      [/\b(امتى|إمتى)\b/g, 'متى'],
-      [/\b(عشان|علشان)\b/g, 'لأن'],
-      [/\bمش\b/g, 'لا'],
-      [/\b(اوضة|أوضة)\b/g, 'غرفة'],
-      [/\b(شنط|حقائب)\b/g, 'حقائب'],
-      [/\bعربية\b/g, 'سيارة']
-    ];
-    mappings.forEach(([pattern, repl]) => {
-      mapped = mapped.replace(pattern, repl);
-    });
-    return mapped;
-  };
-
-  // Helper to translate Standard Arabic answers to Egyptian Colloquial Arabic
-  const toEgyptianColloquial = (text) => {
-    if (!text) return text;
-    
-    let egText = text;
-    
-    const replacements = [
-      [/\bنعم\b/g, 'أيوة طبعاً'],
-      [/\bيمكنك\b/g, 'تقدر'],
-      [/\bيمكنكم\b/g, 'تقدروا'],
-      [/\bتستطيع\b/g, 'تقدر'],
-      [/\bتستطيعون\b/g, 'تقدروا'],
-      [/\bيرجى\b/g, 'يا ريت'],
-      [/\bالرجاء\b/g, 'لو سمحت'],
-      [/\bسوف\b/g, 'هنـ'],
-      [/\bسوف نقوم\b/g, 'هنقوم'],
-      [/\bسوف يتم\b/g, 'هييتم'],
-      [/\bلكن\b/g, 'بس'],
-      [/\bالذي\b/g, 'اللي'],
-      [/\bالتي\b/g, 'اللي'],
-      [/\bالذين\b/g, 'اللي'],
-      [/\bهذا\b/g, 'ده'],
-      [/\bهذه\b/g, 'دي'],
-      [/\bهؤلاء\b/g, 'دول'],
-      [/\bأريد\b/g, 'عايز'],
-      [/\bنريد\b/g, 'عايزين'],
-      [/\bلماذا\b/g, 'ليه'],
-      [/\bكيف\b/g, 'إزاي'],
-      [/\bمتى\b/g, 'إمتى'],
-      [/\bأين\b/g, 'فين'],
-      [/\bماذا\b/g, 'إيه'],
-      [/\bبكم\b/g, 'بكام'],
-      [/\bسنوات\b/g, 'سنين'],
-      [/\bأيام\b/g, 'أيام'],
-      [/\bيوم\b/g, 'يوم'],
-      [/\bجداً\b/g, 'أوي'],
-      [/\bإطلاقاً\b/g, 'خالص'],
-      [/\bمرحباً\b/g, 'أهلاً بيك'],
-      [/\bأهلاً بك\b/g, 'أهلاً بيك يا فندم'],
-      [/\bشكراً لك\b/g, 'شكراً ليك جداً'],
-      [/\bتواصل معنا\b/g, 'كلمّنا'],
-      [/\bاتصل بنا\b/g, 'اتصل بينا'],
-      [/\bإلغاء\b/g, 'إلغاء'],
-      [/\bالدفع\b/g, 'الدفع'],
-      [/\bبطاقة الائتمان\b/g, 'الفيزا أو الكارت'],
-      [/\bتأشيرة\b/g, 'فيزا'],
-      [/\bتأشيرات\b/g, 'فيز'],
-      [/\bغرفة\b/g, 'أوضة'],
-      [/\bغرف\b/g, 'أوض'],
-      [/\bحقائب\b/g, 'شنط'],
-      [/\bملابس\b/g, 'هدوم'],
-      [/\bتذكرة\b/g, 'تذكرة'],
-      [/\bتذاكر\b/g, 'تذاكر'],
-      [/\bسيارة\b/g, 'عربية'],
-      [/\bسيارات\b/g, 'عربيات'],
-      [/\bحافلة\b/g, 'أتوبيس'],
-      [/\bحافلات\b/g, 'أتوبيسات'],
-      [/\bشخص\b/g, 'فرد'],
-      [/\bأشخاص\b/g, 'أفراد'],
-      [/\bطفل\b/g, 'طفل'],
-      [/\bأطفال\b/g, 'أطفال'],
-      [/\bجواز سفر\b/g, 'الباسبور'],
-      [/\bجوازات سفر\b/g, 'باسبورات']
-    ];
-
-    replacements.forEach(([pattern, repl]) => {
-      egText = egText.replace(pattern, repl);
-    });
-
-    if (!egText.includes('يا فندم')) {
-      egText = egText.replace(/(أيوة طبعاً|أهلاً بيك|شكراً ليك)/g, '$1 يا فندم');
-    }
-
-    egText = egText.replace(/هنـ(ن|ت|ي|أ)/g, 'هنـ$1');
-    return egText;
-  };
-
-  // Helper to detect language
   const detectLanguage = (text) => {
-    // 1. Check for Arabic characters
     if (/[\u0600-\u06FF]/.test(text)) {
-      const rawWords = text
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u064B-\u0652]/g, "")
-        .replace(/[.,/#!$%^&*;:{}=\-_`~()?"'¿¡]/g, " ")
-        .split(/\s+/)
-        .filter(w => w.length > 0)
-        .map(normalizeArabic);
-
-      const hasEgyptian = rawWords.some(word => 
-        EGYPTIAN_KEYWORDS.map(normalizeArabic).includes(word)
-      );
-      
-      return hasEgyptian ? 'ar-eg' : 'ar';
+      const isEg = /(عايز|عاوز|بكام|فين|ازاي|ايه|ليه|ده|دي|عشان|شغال|يا فندم|أوضة|عربية)/.test(text);
+      return isEg ? 'ar-eg' : 'ar';
     }
-
-    // 2. Count matching stop words
     const tokens = tokenize(text);
     const scores = { en: 0, es: 0, pt: 0, it: 0 };
-    
     tokens.forEach(token => {
       SUPPORTED_LANGS.forEach(lang => {
         if (lang === 'ar') return;
@@ -351,39 +171,9 @@ export const JaiderChatProvider = ({ children }) => {
       }
     });
 
-    // If we have a clear stopword winner, return it
     if (bestLang && maxScore > 0) return bestLang;
-
-    // 3. Fallback to active site language if supported, else default to 'en'
     const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
     return SUPPORTED_LANGS.includes(activeLang) ? activeLang : 'en';
-  };
-
-  // Find similar questions based on keyword matching
-  const findSimilarQuestions = (query, lang, limit = 3) => {
-    const faqItems = faqDataRef.current[lang] || [];
-    const queryTokens = tokenize(query);
-    
-    if (faqItems.length === 0 || queryTokens.length === 0) return [];
-
-    // Score each FAQ question based on token overlap
-    const scoredItems = faqItems.map(item => {
-      const itemTokens = new Set(item.tokens);
-      let matches = 0;
-      queryTokens.forEach(token => {
-        if (itemTokens.has(token)) matches++;
-      });
-      return { item, score: matches };
-    });
-
-    // Sort by score descending, filter out zero matches
-    scoredItems
-      .filter(x => x.score > 0)
-      .sort((a, b) => b.score - a.score);
-
-    return scoredItems
-      .slice(0, limit)
-      .map(x => x.item.q);
   };
 
   const flattenObject = (ob) => {
@@ -403,7 +193,6 @@ export const JaiderChatProvider = ({ children }) => {
     return toReturn;
   };
 
-  // Load FAQ data dynamically from all locales
   const loadFaqKnowledge = () => {
     if (isLoadedRef.current) return;
     setLoadingKnowledge(true);
@@ -416,24 +205,19 @@ export const JaiderChatProvider = ({ children }) => {
         it: flattenObject(itJson)
       };
 
-      // Process each language
       SUPPORTED_LANGS.forEach(lang => {
         const trans = locales[lang];
         const faqItems = [];
         const docFreq = {};
-        
-        // Extract raw Q&As
+
         Object.keys(trans).forEach(key => {
-          // 1. Match category-based format like faq.general.q1
           const matchCat = key.match(/^faq\.([a-zA-Z0-9_-]+)\.q(\d+)$/);
           if (matchCat) {
             const catId = matchCat[1];
             const idx = matchCat[2];
             const answerKey = `faq.${catId}.a${idx}`;
-            
             const qText = trans[key];
             const aText = trans[answerKey];
-            
             if (qText && aText && !aText.includes('[No answer')) {
               faqItems.push({
                 id: `${catId}-${idx}`,
@@ -443,28 +227,8 @@ export const JaiderChatProvider = ({ children }) => {
               });
             }
           }
-
-          // 2. Match legacy/flat format like faq.qBookingTailor
-          const matchFlat = key.match(/^faq\.q([a-zA-Z0-9_-]+)$/);
-          if (matchFlat) {
-            const flatId = matchFlat[1];
-            const answerKey = `faq.a${flatId}`;
-            
-            const qText = trans[key];
-            const aText = trans[answerKey];
-            
-            if (qText && aText && !aText.includes('[No answer')) {
-              faqItems.push({
-                id: `flat-${flatId}`,
-                q: qText,
-                a: aText,
-                tokens: tokenize(qText)
-              });
-            }
-          }
         });
 
-        // Compute Document Frequency (DF)
         faqItems.forEach(item => {
           const uniqueTokens = new Set(item.tokens);
           uniqueTokens.forEach(token => {
@@ -472,100 +236,74 @@ export const JaiderChatProvider = ({ children }) => {
           });
         });
 
-        // Compute Inverse Document Frequency (IDF)
         const vocabIdf = {};
-        const N = faqItems.length;
+        const N = Math.max(1, faqItems.length);
         Object.keys(docFreq).forEach(token => {
           vocabIdf[token] = Math.log(1 + (N / docFreq[token]));
         });
         vocabIdfRef.current[lang] = vocabIdf;
-
-        // Represent each question as TF-IDF vector
-        faqItems.forEach(item => {
-          const vector = {};
-          let squareSum = 0;
-          
-          // Term Frequency (TF)
-          const tokenCounts = {};
-          item.tokens.forEach(t => {
-            tokenCounts[t] = (tokenCounts[t] || 0) + 1;
-          });
-
-          Object.keys(tokenCounts).forEach(token => {
-            const tf = tokenCounts[token] / item.tokens.length;
-            const idf = vocabIdf[token] || 0;
-            vector[token] = tf * idf;
-            squareSum += vector[token] * vector[token];
-          });
-
-          item.tfIdfVector = vector;
-          item.norm = Math.sqrt(squareSum);
-        });
-
         faqDataRef.current[lang] = faqItems;
       });
 
       isLoadedRef.current = true;
     } catch (error) {
-      console.error("Failed to load FAQ knowledge for Jaider:", error);
+      console.warn("Failed to load FAQ knowledge for GuideR:", error);
     } finally {
       setLoadingKnowledge(false);
     }
   };
 
+  // Restore previous chat history from backend on initial mount
+  const restoreConversationHistory = useCallback(async (currentSessionId) => {
+    if (!currentSessionId) return;
+    try {
+      const res = await api.get(`/ai/chat/history?sessionId=${currentSessionId}`);
+      const data = res?.data?.data || res?.data || res;
+      if (data && data.messages && data.messages.length > 0) {
+        const mapped = data.messages.map((m) => ({
+          id: m.id,
+          sender: m.role === 'user' ? 'user' : 'jaider',
+          text: m.content,
+          timestamp: new Date(m.createdAt),
+          tours: m.tours,
+          sources: m.sources,
+        }));
+        setMessages(mapped);
+        if (data.status === 'HANDED_OFF') {
+          setHandoffState({ requested: true, status: 'HANDED_OFF' });
+        }
+      } else {
+        const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
+        const lang = SUPPORTED_LANGS.includes(activeLang) ? activeLang : 'en';
+        setMessages([
+          {
+            id: 'welcome',
+            sender: 'jaider',
+            text: WELCOME_MESSAGES[lang],
+            timestamp: new Date()
+          }
+        ]);
+      }
+    } catch (err) {
+      const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
+      const lang = SUPPORTED_LANGS.includes(activeLang) ? activeLang : 'en';
+      setMessages([
+        {
+          id: 'welcome',
+          sender: 'jaider',
+          text: WELCOME_MESSAGES[lang],
+          timestamp: new Date()
+        }
+      ]);
+    }
+  }, [i18n.language]);
+
   useEffect(() => {
     loadFaqKnowledge();
-  }, []);
-
-  // Perform cosine similarity matching
-  const findBestFaqMatch = (query, lang) => {
-    const faqItems = faqDataRef.current[lang] || [];
-    const vocabIdf = vocabIdfRef.current[lang] || {};
-    const queryTokens = tokenize(query);
-
-    if (faqItems.length === 0 || queryTokens.length === 0) return null;
-
-    // Calculate Query TF-IDF Vector
-    const queryTokenCounts = {};
-    queryTokens.forEach(t => {
-      queryTokenCounts[t] = (queryTokenCounts[t] || 0) + 1;
-    });
-
-    const queryVector = {};
-    let querySquareSum = 0;
-    Object.keys(queryTokenCounts).forEach(token => {
-      const tf = queryTokenCounts[token] / queryTokens.length;
-      const idf = vocabIdf[token] || 0;
-      queryVector[token] = tf * idf;
-      querySquareSum += queryVector[token] * queryVector[token];
-    });
-    const queryNorm = Math.sqrt(querySquareSum);
-
-    if (queryNorm === 0) return null;
-
-    let bestItem = null;
-    let maxSim = 0;
-
-    // Compare with all FAQ items
-    faqItems.forEach(item => {
-      if (item.norm === 0) return;
-
-      let dotProduct = 0;
-      Object.keys(queryVector).forEach(token => {
-        if (item.tfIdfVector[token]) {
-          dotProduct += queryVector[token] * item.tfIdfVector[token];
-        }
-      });
-
-      const similarity = dotProduct / (queryNorm * item.norm);
-      if (similarity > maxSim) {
-        maxSim = similarity;
-        bestItem = item;
-      }
-    });
-
-    return { item: bestItem, score: maxSim };
-  };
+    if (sessionId) {
+      restoreConversationHistory(sessionId);
+    }
+  }, [sessionId, restoreConversationHistory]);
 
   const handleSetIsOpen = (open) => {
     const nextOpen = typeof open === 'function' ? open(isOpen) : open;
@@ -584,10 +322,7 @@ export const JaiderChatProvider = ({ children }) => {
     }
   };
 
-  const [leadFormState, setLeadFormState] = useState({ required: false, fields: [] });
-  const [handoffState, setHandoffState] = useState({ requested: false, status: null });
-
-  // Handle incoming message
+  // Send message
   const sendMessage = async (text) => {
     if (!text.trim()) return;
 
@@ -602,8 +337,7 @@ export const JaiderChatProvider = ({ children }) => {
     setIsTyping(true);
 
     try {
-      // Fetch response from the Nest backend chatbot API via central api client
-      const data = await api.post('/ai/chat/message', {
+      const response = await api.post('/ai/chat/message', {
         message: text,
         sessionId,
         locale: i18n.language,
@@ -611,7 +345,8 @@ export const JaiderChatProvider = ({ children }) => {
           pathname: typeof window !== 'undefined' ? window.location.pathname : '/'
         }
       });
-      
+
+      const data = response?.data?.data || response?.data || response;
       const assistantText = data?.message?.content || data?.text || FALLBACK_MESSAGES[i18n.language] || FALLBACK_MESSAGES.en;
       const tours = data?.recommendations?.tours || [];
       const destinations = data?.recommendations?.destinations || [];
@@ -637,27 +372,13 @@ export const JaiderChatProvider = ({ children }) => {
           destinations,
           sources,
           suggestedReplies,
-          similarQuestions: data?.similarQuestions && data.similarQuestions.length > 0 ? data.similarQuestions : undefined
         }
       ]);
     } catch (err) {
-      console.error("Error processing query in Jaider backend:", err);
-      
-      // Client-side fallback logic in case of network/server failure
+      console.warn("GuideR backend call encountered network/fallback mode:", err);
+
       const userLang = detectLanguage(text);
-      const searchLang = userLang === 'ar-eg' ? 'ar' : userLang;
-      const queryToMatch = userLang === 'ar-eg' ? mapColloquialToMsa(text) : text;
-      const result = findBestFaqMatch(queryToMatch, searchLang);
-      
-      let replyText = '';
-      let similarQuestions = [];
-      
-      if (result && result.item && result.score >= 0.35) {
-        replyText = userLang === 'ar-eg' ? toEgyptianColloquial(result.item.a) : result.item.a;
-      } else {
-        replyText = FALLBACK_MESSAGES[userLang] || FALLBACK_MESSAGES[searchLang];
-        similarQuestions = findSimilarQuestions(queryToMatch, searchLang, 3);
-      }
+      const replyText = FALLBACK_MESSAGES[userLang] || FALLBACK_MESSAGES.en;
 
       setMessages(prev => [
         ...prev,
@@ -666,7 +387,6 @@ export const JaiderChatProvider = ({ children }) => {
           sender: 'jaider',
           text: replyText,
           timestamp: new Date(),
-          similarQuestions: similarQuestions.length > 0 ? similarQuestions : undefined
         }
       ]);
     } finally {
@@ -687,8 +407,8 @@ export const JaiderChatProvider = ({ children }) => {
           id: `msg-${Date.now()}-lead-sys`,
           sender: 'jaider',
           text: i18n.language.startsWith('ar')
-            ? 'شكراً لك! تم استلام بياناتك بنجاح وسيقوم مستشار السفر بالتواصل معك قريباً.'
-            : 'Thank you! Your details have been submitted. A travel specialist will contact you shortly.',
+            ? 'شكراً لك! تم استلام بياناتك بنجاح وسيقوم مستشار السفر بالتواصل معك قريباً لتزويدك بكافة التفاصيل وعرض الأسعار.'
+            : 'Thank you! Your details have been submitted. A senior travel specialist will contact you shortly.',
           timestamp: new Date()
         }
       ]);
@@ -709,8 +429,8 @@ export const JaiderChatProvider = ({ children }) => {
           id: `msg-${Date.now()}-handoff-sys`,
           sender: 'jaider',
           text: i18n.language.startsWith('ar')
-            ? 'تم تقديم طلب التحدث مع ممثل مبيعات. يرجى الانتظار...'
-            : 'Human sales consultant requested. A travel specialist will be with you shortly.',
+            ? 'تم إرسال طلب التحدث مع مستشار مبيعات. سيتواصل معك أحد خبرائنا فوراً عبر الدردشة أو البريد.'
+            : 'Sales specialist requested. A senior travel advisor has been notified.',
           timestamp: new Date()
         }
       ]);
@@ -723,12 +443,13 @@ export const JaiderChatProvider = ({ children }) => {
 
   const getSuggestions = () => {
     const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
+    const isEg = i18n.language === 'ar-eg';
+    if (isEg) return SUGGESTIONS['ar-eg'];
     const lang = SUPPORTED_LANGS.includes(activeLang) ? activeLang : 'en';
     return SUGGESTIONS[lang] || SUGGESTIONS.en;
   };
 
-  const clearMessages = () => {
-    // Generate a fresh session ID to clear history on both frontend and backend
+  const startNewChat = () => {
     const newSessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
     localStorage.setItem('jaider_chat_session_id', newSessionId);
     setSessionId(newSessionId);
@@ -758,19 +479,18 @@ export const JaiderChatProvider = ({ children }) => {
         requestHandoff,
         leadFormState,
         handoffState,
-        clearMessages,
+        clearMessages: startNewChat,
+        startNewChat,
         isTyping,
         loadingKnowledge,
         suggestions: getSuggestions(),
         detectLanguage,
-        findSimilarQuestions
       }}
     >
       {children}
     </JaiderChatContext.Provider>
   );
 };
-
 
 export const useJaiderChat = () => {
   const context = useContext(JaiderChatContext);
