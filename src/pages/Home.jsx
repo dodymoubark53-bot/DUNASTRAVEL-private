@@ -648,7 +648,7 @@ const Home = () => {
             muted={isMuted}
             playsInline
             preload="auto"
-            fetchpriority="high"
+            fetchPriority="high"
             poster="/imgs/hero-poster.webp"
             className="w-full h-full object-contain"
             width="1440"
@@ -677,7 +677,7 @@ const Home = () => {
             src="https://res.cloudinary.com/degbrq3ck/image/upload/w_1440,h_600,c_fill,q_auto,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.jpg"
             alt="Search tours and holiday packages background"
             className="w-full h-full object-cover object-center"
-            fetchpriority="high"
+            fetchPriority="high"
             loading="eager"
             decoding="async"
             width="1440"

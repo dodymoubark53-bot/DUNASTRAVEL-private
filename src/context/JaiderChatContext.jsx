@@ -390,7 +390,7 @@ export const JaiderChatProvider = ({ children }) => {
         startNewChat,
         isTyping,
         isStreaming,
-        loadingKnowledge,
+        loadingKnowledge: false,
         suggestions: getSuggestions(),
         detectLanguage,
       }}

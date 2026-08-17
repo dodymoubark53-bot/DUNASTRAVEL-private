@@ -46,7 +46,7 @@ const Grecia = () => {
             alt={t('dest.greece.heroAlt', 'Santorini, Greece')}
             className="w-full h-full object-cover object-center"
             loading="eager"
-            fetchpriority="high"
+            fetchPriority="high"
           />
           <div
             className="absolute inset-0"

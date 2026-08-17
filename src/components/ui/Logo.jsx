@@ -9,7 +9,7 @@ const Logo = ({ height = 60 }) => {
       className="flex-shrink-0 object-contain"
       width={width}
       height={height}
-      fetchpriority="high"
+      fetchPriority="high"
       style={{ height: `${height}px`, width: `${width}px` }}
     />
   );
