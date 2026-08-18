@@ -4,6 +4,7 @@ import { FaPlus, FaMinus, FaCheckCircle, FaPaperPlane, FaGlobeAmericas, FaUser, 
 import InvoiceModal from './InvoiceModal';
 import api from '../../utils/api';
 import { trackEvent } from '../../utils/analytics';
+import { useAuth } from '../../context/AuthContext';
 
 const inputClass = "w-full p-3 rounded-xl outline-none transition-all text-[14px] bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-[rgba(201,162,39,0.5)] focus:shadow-[0_0_20px_rgba(201,162,39,0.1)] [color-scheme:dark]";
 const labelClass = "block text-caption text-gold-500 font-medium mb-1 text-[12px] uppercase tracking-[1px]";
@@ -19,7 +20,8 @@ const languages = [
 ];
 
 const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoice }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { user } = useAuth();
 
   useEffect(() => {
     trackEvent('booking_started', { tourSlug: tourTitle || tourId });
@@ -51,15 +53,34 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
   const [b, setB] = useState({
-    arrivalDate: '', departureDate: '', arrivalTime: '', departureTime: '', language: '', activityType: '',
+    arrivalDate: '', departureDate: '', arrivalTime: '', departureTime: '', language: user?.preferredLanguage || i18n.language || 'en', activityType: '',
     adults: 1, children: 0, infants: 0,
-    fullName: '', email: '', phone: '',
+    fullName: user?.name || '', email: user?.email || '', phone: user?.phone || '',
     invoiceType: 'personal', companyName: '', taxId: '', address: '', city: '', country: '',
     notes: ''
   });
   const [passengerNames, setPassengerNames] = useState({});
 
-  const [inq, setInq] = useState({ name: '', email: '', phone: '', language: '', message: '' });
+  const [inq, setInq] = useState({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '', language: user?.preferredLanguage || i18n.language || 'en', message: '' });
+
+  useEffect(() => {
+    if (user) {
+      setB(prev => ({
+        ...prev,
+        fullName: prev.fullName || user.name || '',
+        email: prev.email || user.email || '',
+        phone: prev.phone || user.phone || '',
+        language: prev.language || user.preferredLanguage || i18n.language || 'en',
+      }));
+      setInq(prev => ({
+        ...prev,
+        name: prev.name || user.name || '',
+        email: prev.email || user.email || '',
+        phone: prev.phone || user.phone || '',
+        language: prev.language || user.preferredLanguage || i18n.language || 'en',
+      }));
+    }
+  }, [user, i18n.language]);
 
   const updateB = (k, v) => {
     const num = ['adults', 'children', 'infants'];

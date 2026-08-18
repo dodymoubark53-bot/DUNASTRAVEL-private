@@ -494,6 +494,14 @@ function App() {
                 </Route>
                 <Route path="tours">
                   <Route
+                    index
+                    element={
+                      <PageTransition>
+                        <Services />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
                     path=":slug"
                     element={
                       <PageTransition>
@@ -522,6 +530,14 @@ function App() {
                 />
                 <Route
                   path="tailor-a-tour"
+                  element={
+                    <PageTransition>
+                      <TailorTour />
+                    </PageTransition>
+                  }
+                />
+                <Route
+                  path="tailor-tour"
                   element={
                     <PageTransition>
                       <TailorTour />

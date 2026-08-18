@@ -4,9 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlane, FaWhatsapp, FaPhone, FaFacebookF, FaInstagram } from 'react-icons/fa';
 import Button from '../components/ui/Button';
+import { useAuth } from '../context/AuthContext';
 
 const TailorTour = () => {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const isRtl = i18n.dir() === 'rtl';
 
   const [step, setStep] = useState(1);
@@ -15,13 +17,22 @@ const TailorTour = () => {
   const [destError, setDestError] = useState(false);
 
   // Traveler contact & info state
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [nationality, setNationality] = useState('');
-  const [phone, setPhone] = useState('');
+  const [fullName, setFullName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [nationality, setNationality] = useState(user?.country || user?.nationality || '');
+  const [phone, setPhone] = useState(user?.phone || '');
   const [travelDate, setTravelDate] = useState('');
   const [dateError, setDateError] = useState(false);
   const [budget, setBudget] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      if (!fullName && user.name) setFullName(user.name);
+      if (!email && user.email) setEmail(user.email);
+      if (!phone && user.phone) setPhone(user.phone);
+      if (!nationality && (user.country || user.nationality)) setNationality(user.country || user.nationality);
+    }
+  }, [user]);
 
   // Today's date logic using local time
   const getTodayString = () => {

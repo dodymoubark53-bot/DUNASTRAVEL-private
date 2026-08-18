@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
@@ -9,6 +8,8 @@ import { useTours } from '../../hooks/useTours';
 import { useCmsBlock } from '../../hooks/useCmsBlock';
 import { trackEvent } from '../../utils/analytics';
 import { useEffect } from 'react';
+import SEOHead from '../../components/seo/SEOHead';
+import HieroglyphicTranslator from '../../components/ui/HieroglyphicTranslator';
 
 const Egipto = () => {
   const { t } = useTranslation();
@@ -21,12 +22,40 @@ const Egipto = () => {
   
   const { tours: egyptTours, loading } = useTours({ destination: 'egypt' });
 
+  const egyptSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristDestination',
+    name: 'Egypt',
+    description: t('dest.egypt.seoDesc', 'Discover Egypt in grand style. From the majestic Pyramids of Giza to the temples of Luxor and the Red Sea coast, embark on an unforgettable luxury journey.'),
+    image: 'https://dunastravel.com/imgs/egyothero.png',
+    touristType: 'Luxury Travelers',
+    includesAttraction: [
+      { '@type': 'TouristAttraction', name: 'Pyramids of Giza' },
+      { '@type': 'TouristAttraction', name: 'Karnak Temple Luxor' },
+      { '@type': 'TouristAttraction', name: 'Valley of the Kings' },
+      { '@type': 'TouristAttraction', name: 'Abu Simbel' },
+      { '@type': 'TouristAttraction', name: 'Nile Cruise' }
+    ]
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://dunastravel.com/' },
+      { '@type': 'ListItem', position: 2, name: 'Destinations', item: 'https://dunastravel.com/destinations' },
+      { '@type': 'ListItem', position: 3, name: 'Egypt', item: 'https://dunastravel.com/destinations/egypt' }
+    ]
+  };
+
   return (
     <div className="w-full bg-obsidian-50 pb-24">
-      <Helmet>
-        <title>{t('dest.egypt.seoTitle', 'Luxury Egypt Tours & Vacations | Dunas Travel')}</title>
-        <meta name="description" content={t('dest.egypt.seoDesc', 'Discover Egypt in grand style. From the majestic Pyramids of Giza to the temples of Luxor and the Red Sea coast, embark on an unforgettable luxury journey.')} />
-      </Helmet>
+      <SEOHead
+        title={t('dest.egypt.seoTitle', 'Luxury Egypt Tours & Vacations')}
+        description={t('dest.egypt.seoDesc', 'Discover Egypt in grand style. From the majestic Pyramids of Giza to the temples of Luxor and the Red Sea coast, embark on an unforgettable luxury journey.')}
+        ogImage="https://dunastravel.com/imgs/egyothero.png"
+        schema={[egyptSchema, breadcrumbSchema]}
+      />
 
       {/* Destination Hero */}
       <section className="relative w-full h-[400px] md:h-[600px] flex items-center justify-center overflow-hidden">
@@ -35,7 +64,8 @@ const Egipto = () => {
             src="/imgs/egyothero.png"
             alt="Pyramids of Giza Egypt Hero"
             className="w-full h-full object-cover object-center"
-            loading="lazy"
+            loading="eager"
+            fetchPriority="high"
           />
           <div
             className="absolute inset-0"
@@ -244,6 +274,11 @@ const Egipto = () => {
             </div>
           </motion.div>
         </motion.div>
+      </section>
+
+      {/* Royal Scribe Hieroglyphic Translator */}
+      <section className="container mx-auto px-6 py-8">
+        <HieroglyphicTranslator />
       </section>
 
       <section className="relative py-24 mt-24 overflow-hidden">

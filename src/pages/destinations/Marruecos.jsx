@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
@@ -8,6 +7,7 @@ import Button from '../../components/ui/Button';
 import { useTours } from '../../hooks/useTours';
 import { trackEvent } from '../../utils/analytics';
 import { useEffect } from 'react';
+import SEOHead from '../../components/seo/SEOHead';
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1920&q=80';
 
@@ -21,16 +21,43 @@ const Marruecos = () => {
 
   const { tours: programs, loading } = useTours({ destination: 'morocco' });
 
+  const moroccoSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristDestination',
+    name: 'Morocco',
+    description: t('dest.morocco.seoDesc', 'Explore luxury journeys in Morocco. From imperial cities to the Sahara, discover our exclusive travel experiences.'),
+    image: HERO_IMG,
+    touristType: 'Luxury Travelers',
+    includesAttraction: [
+      { '@type': 'TouristAttraction', name: 'Marrakech Medina & Souks' },
+      { '@type': 'TouristAttraction', name: 'Sahara Desert Luxury Glamping' },
+      { '@type': 'TouristAttraction', name: 'Fez Royal Palaces' },
+      { '@type': 'TouristAttraction', name: 'Chefchaouen Blue City' }
+    ]
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://dunastravel.com/' },
+      { '@type': 'ListItem', position: 2, name: 'Destinations', item: 'https://dunastravel.com/destinations' },
+      { '@type': 'ListItem', position: 3, name: 'Morocco', item: 'https://dunastravel.com/destinations/morocco' }
+    ]
+  };
+
   return (
     <div className="w-full min-h-screen bg-obsidian-50 pb-24">
-      <Helmet>
-        <title>{t('dest.morocco.seoTitle', 'Luxury Morocco Tours & Vacations | Dunas Travel')}</title>
-        <meta name="description" content={t('dest.morocco.seoDesc', 'Explore luxury journeys in Morocco. From imperial cities to the Sahara, discover our exclusive travel experiences.')} />
-      </Helmet>
+      <SEOHead
+        title={t('dest.morocco.seoTitle', 'Luxury Morocco Tours & Vacations')}
+        description={t('dest.morocco.seoDesc', 'Explore luxury journeys in Morocco. From imperial cities to the Sahara, discover our exclusive travel experiences.')}
+        ogImage={HERO_IMG}
+        schema={[moroccoSchema, breadcrumbSchema]}
+      />
 
       <section className="relative w-full h-[400px] md:h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img src={HERO_IMG} alt={t('dest.morocco.title', 'Morocco')} className="w-full h-full object-cover object-center" loading="lazy" />
+          <img src={HERO_IMG} alt={t('dest.morocco.title', 'Morocco')} className="w-full h-full object-cover object-center" loading="eager" fetchPriority="high" />
           <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(to bottom, rgba(15,13,11,0.3), rgba(15,13,11,0.65))' }} />
         </div>
         <motion.div className="relative z-10 container mx-auto px-6 text-center mt-20" variants={staggerContainer} initial="hidden" animate="visible">

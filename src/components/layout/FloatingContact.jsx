@@ -12,7 +12,7 @@ const FloatingContact = () => {
   const isRtl = i18n.dir() === 'rtl';
 
   const options = [
-    { icon: FaWhatsapp, href: 'https://wa.me/201000000000', label: 'WhatsApp', bg: 'bg-[#25D366] text-white hover:bg-[#1ebd5a]' },
+    { icon: FaWhatsapp, href: 'https://wa.me/201149401111', label: 'WhatsApp', bg: 'bg-[#25D366] text-white hover:bg-[#1ebd5a]' },
     { icon: FaInstagram, href: 'https://www.instagram.com/dunas_travel?igsh=bWkyb2FhY2hoNnNo', label: 'Instagram', bg: 'bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white hover:opacity-90' },
     { icon: FaPhone, href: 'tel:+20233746643', label: 'Call us', bg: 'bg-[#1E3A8A] text-white hover:bg-[#172554]' },
     { icon: FaEnvelope, href: 'mailto:info@dunas-travel.com', label: 'Email', bg: 'bg-slate-900 border border-gold-500/50 text-gold-400 hover:bg-gold-500 hover:text-slate-950' },

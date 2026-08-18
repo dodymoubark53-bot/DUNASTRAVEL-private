@@ -4,81 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import TourCard from '../../components/tour/TourCard';
-
-const destinationsData = [
-  {
-    id: 'egypt',
-    name: 'Egypt',
-    tag: 'Pharaohs & Wonders',
-    image: 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'turkey',
-    name: 'Turkey',
-    tag: 'East Meets West',
-    image: 'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'jordan',
-    name: 'Jordan',
-    tag: 'Desert & Ancient Ruins',
-    image: 'https://images.unsplash.com/photo-1579606032821-4e6161c81bd3?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'morocco',
-    name: 'Morocco',
-    tag: 'Colors & Culture',
-    image: 'https://images.unsplash.com/photo-1539020140153-e479b8c22e70?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'greece',
-    name: 'Greece',
-    tag: 'Myths & Blue Horizons',
-    image: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'dubai',
-    name: 'Dubai',
-    tag: 'Luxury & Skylines',
-    image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'tunisia',
-    name: 'Tunisia',
-    tag: 'Sahara & Sea',
-    image: 'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'holyland',
-    name: 'Holy Land',
-    tag: 'Faith & History',
-    image: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'brazil',
-    name: 'Brazil',
-    tag: 'Samba & Sunshine',
-    image: 'https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'italy',
-    name: 'Italy',
-    tag: 'La Dolce Vita',
-    image: 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'spain',
-    name: 'Spain',
-    tag: 'Passion & Elegance',
-    image: 'https://images.unsplash.com/photo-1543783207-ec64e4d95325?auto=format&fit=crop&w=800&q=80'
-  }
-];
-
 import { useTours } from '../../hooks/useTours';
+import { useDestinations } from '../../hooks/useDestinations';
 
 const Destinations = () => {
   const { t } = useTranslation();
-  const { tours: allToursList, loading } = useTours({ limit: 100 });
+  const { tours: allToursList, loading: toursLoading } = useTours({ limit: 100 });
+  const { destinations: destinationsData, loading: destsLoading } = useDestinations();
+  const loading = toursLoading || destsLoading;
 
   return (
     <div className="w-full bg-obsidian-50 pb-24">

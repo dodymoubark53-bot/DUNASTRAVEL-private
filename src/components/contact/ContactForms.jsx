@@ -160,19 +160,25 @@ const ContactForms = () => {
     }
 
     try {
+      const b2cMessage = [
+        `Destination: ${b2cForm.destination}`,
+        `Travel Date: ${b2cForm.date}`,
+        `Duration: ${b2cForm.duration} days`,
+        `Travelers: ${b2cForm.adults} Adults, ${b2cForm.children} Children`,
+        `Accommodation: ${b2cForm.accommodation}`,
+        `Pace: ${b2cForm.pace}`,
+        `Preferred Guides: ${Array.from(b2cLanguages).join(', ')}`,
+        `Estimated Budget: $${getB2cPrice()}`
+      ].join('\n');
+
       await api.post('/contact', {
-        type: 'b2c',
-        fullName: `${b2cForm.firstName} ${b2cForm.lastName}`,
-        email: b2cForm.email,
-        phone: b2cForm.phone,
-        destination: b2cForm.destination,
-        travelDate: b2cForm.date,
-        duration: b2cForm.duration,
-        adults: b2cForm.adults,
-        children: b2cForm.children,
-        accommodation: b2cForm.accommodation,
-        pace: b2cForm.pace,
-        languages: Array.from(b2cLanguages),
+        firstName: b2cForm.firstName.trim(),
+        lastName: b2cForm.lastName.trim(),
+        email: b2cForm.email.trim(),
+        phone: b2cForm.phone.trim() || undefined,
+        subject: `B2C Inquiry: ${b2cForm.destination.toUpperCase()} (${b2cForm.duration} days)`,
+        message: b2cMessage,
+        locale: ['en', 'es', 'fr', 'de', 'ar', 'pt'].includes(i18n?.language) ? i18n.language : 'en',
       });
       setB2cSubmitted(true);
     } catch (err) {
@@ -264,21 +270,47 @@ const ContactForms = () => {
     }
 
     try {
+      const b2bMessage = [
+        `B2B Partnership Application`,
+        `Agent: ${b2bForm.agentName} (${b2bForm.jobTitle})`,
+        `Agency: ${b2bForm.agencyName}`,
+        `Website: ${b2bForm.website || 'N/A'}`,
+        `Address: ${b2bForm.address}`,
+        `IATA / Tax ID: ${b2bForm.iataNumber}`,
+        `Source Country: ${b2bForm.sourceCountry}`,
+        `Expected Volume: ${b2bForm.expectedVolume}`,
+        `Interested Destinations: ${Array.from(b2bDestinations).join(', ')}`,
+        `Commission Tier: ${commission.tier} (${commission.rate})`,
+        `Notes: ${b2bForm.additionalInfo || 'N/A'}`
+      ].join('\n');
+
+      const nameParts = b2bForm.agentName.trim().split(' ');
+      const firstName = nameParts[0] || b2bForm.agentName.trim();
+      const lastName = nameParts.slice(1).join(' ') || 'Agent';
+
       await api.post('/contact', {
-        type: 'b2b',
-        agentName: b2bForm.agentName,
-        jobTitle: b2bForm.jobTitle,
-        email: b2bForm.agentEmail,
-        phone: b2bForm.agentPhone,
-        agencyName: b2bForm.agencyName,
-        website: b2bForm.website,
-        address: b2bForm.address,
-        iataNumber: b2bForm.iataNumber,
-        expectedVolume: b2bForm.expectedVolume,
-        sourceCountry: b2bForm.sourceCountry,
-        destinations: Array.from(b2bDestinations),
-        additionalInfo: b2bForm.additionalInfo,
+        firstName,
+        lastName,
+        email: b2bForm.agentEmail.trim(),
+        phone: b2bForm.agentPhone.trim() || undefined,
+        subject: `B2B Partnership: ${b2bForm.agencyName}`,
+        message: b2bMessage,
+        locale: ['en', 'es', 'fr', 'de', 'ar', 'pt'].includes(i18n?.language) ? i18n.language : 'en',
       });
+
+      try {
+        await api.post('/agencies/register', {
+          name: b2bForm.agencyName.trim(),
+          email: b2bForm.agentEmail.trim(),
+          phone: b2bForm.agentPhone.trim() || undefined,
+          taxId: b2bForm.iataNumber.trim(),
+          address: b2bForm.address.trim() || undefined,
+          website: b2bForm.website.trim() && b2bForm.website.startsWith('http') ? b2bForm.website.trim() : undefined,
+        });
+      } catch {
+        // Ignore duplicate agency error
+      }
+
       setB2bSubmitted(true);
     } catch (err) {
       console.error('B2B contact submission error', err);

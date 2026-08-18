@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
@@ -9,6 +8,7 @@ import { useTours } from '../../hooks/useTours';
 import { useCmsBlock } from '../../hooks/useCmsBlock';
 import { trackEvent } from '../../utils/analytics';
 import { useEffect } from 'react';
+import SEOHead from '../../components/seo/SEOHead';
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80';
 
@@ -23,17 +23,45 @@ const Dubai = () => {
   const { tours: programs, loading } = useTours({ destination: 'dubai' });
   const { data: cmsData } = useCmsBlock('destination_dubai');
 
+  const dubaiSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristDestination',
+    name: 'Dubai & Emirates',
+    description: t('dest.dubai.seoDesc', 'Discover the dazzling metropolis of Dubai — a city of futuristic skyscrapers, golden deserts, and world-class luxury.'),
+    image: HERO_IMG,
+    touristType: 'Luxury Travelers',
+    includesAttraction: [
+      { '@type': 'TouristAttraction', name: 'Burj Khalifa' },
+      { '@type': 'TouristAttraction', name: 'Palm Jumeirah' },
+      { '@type': 'TouristAttraction', name: 'Dubai Desert Safari' },
+      { '@type': 'TouristAttraction', name: 'Dubai Marina Luxury Yacht' },
+      { '@type': 'TouristAttraction', name: 'Museum of the Future' }
+    ]
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://dunastravel.com/' },
+      { '@type': 'ListItem', position: 2, name: 'Destinations', item: 'https://dunastravel.com/destinations' },
+      { '@type': 'ListItem', position: 3, name: 'Dubai', item: 'https://dunastravel.com/destinations/dubai' }
+    ]
+  };
+
   return (
     <div className="w-full min-h-screen bg-obsidian-50 pb-24">
-      <Helmet>
-        <title>{t('dest.dubai.seoTitle', 'Luxury Dubai Tours & Vacations | Dunas Travel')}</title>
-        <meta name="description" content={t('dest.dubai.seoDesc', 'Discover the dazzling metropolis of Dubai — a city of futuristic skyscrapers, golden deserts, and world-class luxury.')} />
-      </Helmet>
+      <SEOHead
+        title={t('dest.dubai.seoTitle', 'Luxury Dubai Tours & Vacations')}
+        description={t('dest.dubai.seoDesc', 'Discover the dazzling metropolis of Dubai — a city of futuristic skyscrapers, golden deserts, and world-class luxury.')}
+        ogImage={HERO_IMG}
+        schema={[dubaiSchema, breadcrumbSchema]}
+      />
 
       {/* Hero */}
       <section className="relative w-full h-[400px] md:h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img src={HERO_IMG} alt={t('dest.dubai.title', 'Dubai')} className="w-full h-full object-cover object-center" loading="lazy" />
+          <img src={HERO_IMG} alt={t('dest.dubai.title', 'Dubai')} className="w-full h-full object-cover object-center" loading="eager" fetchPriority="high" />
           <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(to bottom, rgba(15,13,11,0.3), rgba(15,13,11,0.65))' }}></div>
         </div>
         <motion.div className="relative z-10 container mx-auto px-6 text-center mt-20" variants={staggerContainer} initial="hidden" animate="visible">

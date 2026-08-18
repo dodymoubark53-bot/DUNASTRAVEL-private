@@ -48,7 +48,6 @@ const LoginModal = ({ isOpen, onClose }) => {
     try {
       await login(email, password);
       onClose();
-      window.location.href = '/'; // Redirect to home
     } catch (err) {
       const msg = err.message || '';
       if (msg.toLowerCase().includes('verify') || msg.toLowerCase().includes('verification')) {

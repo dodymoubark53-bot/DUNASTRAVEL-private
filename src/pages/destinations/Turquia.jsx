@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
@@ -8,6 +7,7 @@ import TourCard from '../../components/tour/TourCard';
 import { useTours } from '../../hooks/useTours';
 import { trackEvent } from '../../utils/analytics';
 import { useEffect } from 'react';
+import SEOHead from '../../components/seo/SEOHead';
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1920&q=80';
 
@@ -21,17 +21,45 @@ const Turquia = () => {
 
   const { tours: programs, loading } = useTours({ destination: 'turkey' });
 
+  const turkeySchema = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristDestination',
+    name: 'Turkey',
+    description: t('dest.turkey.desc', 'From the majestic Hagia Sophia to the fairy chimneys of Cappadocia and the turquoise waters of the Aegean, Turkey bridges continents and millennia.'),
+    image: HERO_IMG,
+    touristType: 'Luxury Travelers',
+    includesAttraction: [
+      { '@type': 'TouristAttraction', name: 'Hagia Sophia Istanbul' },
+      { '@type': 'TouristAttraction', name: 'Cappadocia Hot Air Balloons' },
+      { '@type': 'TouristAttraction', name: 'Pamukkale Thermal Pools' },
+      { '@type': 'TouristAttraction', name: 'Ephesus Ancient City' },
+      { '@type': 'TouristAttraction', name: 'Bosphorus Luxury Cruise' }
+    ]
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://dunastravel.com/' },
+      { '@type': 'ListItem', position: 2, name: 'Destinations', item: 'https://dunastravel.com/destinations' },
+      { '@type': 'ListItem', position: 3, name: 'Turkey', item: 'https://dunastravel.com/destinations/turkey' }
+    ]
+  };
+
   return (
     <div className="w-full min-h-screen bg-obsidian-50 pb-24">
-      <Helmet>
-        <title>{t('dest.turkey.seoTitle', 'Luxury Turkey Tours & Vacations | Dunas Travel')}</title>
-        <meta name="description" content={t('dest.turkey.seoDesc', 'Explore luxury journeys in Turkey. Custom itineraries coming soon.')} />
-      </Helmet>
+      <SEOHead
+        title={t('dest.turkey.seoTitle', 'Luxury Turkey Tours & Vacations')}
+        description={t('dest.turkey.seoDesc', 'From the majestic Hagia Sophia to Cappadocia and the Aegean coast, explore bespoke luxury journeys in Turkey with Dunas Travel.')}
+        ogImage={HERO_IMG}
+        schema={[turkeySchema, breadcrumbSchema]}
+      />
 
       {/* Hero */}
       <section className="relative w-full h-[400px] md:h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img src={HERO_IMG} alt={t('dest.turkey.title', 'Turkey')} className="w-full h-full object-cover object-center" loading="lazy" />
+          <img src={HERO_IMG} alt={t('dest.turkey.title', 'Turkey')} className="w-full h-full object-cover object-center" loading="eager" fetchPriority="high" />
           <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(to bottom, rgba(15,13,11,0.3), rgba(15,13,11,0.65))' }}></div>
         </div>
         <motion.div className="relative z-10 container mx-auto px-6 text-center mt-20" variants={staggerContainer} initial="hidden" animate="visible">

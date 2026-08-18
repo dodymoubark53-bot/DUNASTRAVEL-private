@@ -3,7 +3,8 @@
  * Sends privacy-aware visitor events to POST /api/v1/analytics/events
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const rawApiUrl = import.meta.env.VITE_API_URL || 'https://dunastravel-backend-seven.vercel.app/api';
+const BASE_URL = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
 
 function getSessionId() {
   if (typeof window === 'undefined') return null;
@@ -52,7 +53,7 @@ export async function trackEvent(eventName, payload = {}) {
       properties: payload.properties,
     };
 
-    const url = `${API_BASE_URL}/api/v1/analytics/events`;
+    const url = `${BASE_URL}/analytics/events`;
 
     if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
       const blob = new Blob([JSON.stringify(body)], { type: 'application/json' });

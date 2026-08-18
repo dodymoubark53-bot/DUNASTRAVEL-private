@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { 
   FaUserCircle, FaBookmark, FaLock, FaUser, FaEnvelope, 
   FaPhone, FaSignOutAlt, FaCalendarAlt, FaFileInvoiceDollar, FaGlobeAmericas,
-  FaHeart, FaTimesCircle
+  FaHeart, FaTimesCircle, FaEye, FaEyeSlash, FaCheck, FaTimes
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { useWishlist } from '../../hooks/useWishlist';
@@ -44,16 +44,54 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
     newPassword: '',
     confirmPassword: '',
   });
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [pwdMsg, setPwdMsg] = useState({ type: '', text: '' });
   const [changingPwd, setChangingPwd] = useState(false);
+
+  // Password complexity calculations
+  const hasLength = pwdForm.newPassword.length >= 8;
+  const hasUpper = /[A-Z]/.test(pwdForm.newPassword);
+  const hasLower = /[a-z]/.test(pwdForm.newPassword);
+  const hasDigit = /\d/.test(pwdForm.newPassword);
+  const strengthScore = [hasLength, hasUpper, hasLower, hasDigit].filter(Boolean).length;
+  const isPasswordValid = hasLength && hasUpper && hasLower && hasDigit;
+
+  useEffect(() => {
+    if (user) {
+      setProfileForm({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        country: user.country || '',
+        preferredLanguage: user.preferredLanguage || i18n.language || 'en',
+      });
+    }
+  }, [user, i18n.language]);
 
   useEffect(() => {
     let isMounted = true;
     const fetchBookings = async () => {
       setLoadingBookings(true);
-      const data = await getUserBookings();
+      const tourBookings = (await getUserBookings()) || [];
+      let transportBookings = [];
+      try {
+        const transRes = await api.get('/transportation/bookings/my');
+        const transList = Array.isArray(transRes) ? transRes : (transRes?.data || []);
+        transportBookings = transList.map(tb => ({
+          ...tb,
+          isTransport: true,
+          tourTitle: tb.tourTitle || `Transport: ${tb.pickupLocation || 'Pickup'} → ${tb.dropoffLocation || 'Dropoff'}`,
+          referenceCode: tb.referenceCode || tb.bookingReference || tb.id,
+          totalPrice: tb.totalPrice || tb.totalAmount || 0,
+        }));
+      } catch {
+        // user may not have transport bookings
+      }
+
       if (isMounted) {
-        setBookings(data);
+        setBookings([...tourBookings, ...transportBookings]);
         setLoadingBookings(false);
       }
     };
@@ -79,8 +117,11 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
     e.preventDefault();
     setPwdMsg({ type: '', text: '' });
 
-    if (pwdForm.newPassword.length < 8) {
-      return setPwdMsg({ type: 'error', text: t('auth.passwordLengthError', 'New password must be at least 8 characters') });
+    if (!isPasswordValid) {
+      return setPwdMsg({ 
+        type: 'error', 
+        text: t('auth.passwordComplexityError', 'Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, and a number') 
+      });
     }
     if (pwdForm.newPassword !== pwdForm.confirmPassword) {
       return setPwdMsg({ type: 'error', text: t('auth.passwordsDoNotMatch', 'Passwords do not match') });
@@ -403,40 +444,103 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
                 <form onSubmit={handlePasswordSubmit} className="space-y-4 max-w-md">
                   <div>
                     <label className={labelClass}>{t('user.oldPassword', 'Current Password')}</label>
-                    <input
-                      type="password"
-                      required
-                      value={pwdForm.oldPassword}
-                      onChange={(e) => setPwdForm({ ...pwdForm, oldPassword: e.target.value })}
-                      className={inputClass}
-                    />
+                    <div className="relative">
+                      <input
+                        type={showOldPassword ? 'text' : 'password'}
+                        required
+                        value={pwdForm.oldPassword}
+                        onChange={(e) => setPwdForm({ ...pwdForm, oldPassword: e.target.value })}
+                        className={`${inputClass} pr-10`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowOldPassword(!showOldPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ivory-400 hover:text-gold-500 transition-colors"
+                        aria-label="Toggle current password visibility"
+                      >
+                        {showOldPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+                      </button>
+                    </div>
                   </div>
+
                   <div>
                     <label className={labelClass}>{t('user.newPassword', 'New Password')}</label>
-                    <input
-                      type="password"
-                      required
-                      value={pwdForm.newPassword}
-                      onChange={(e) => setPwdForm({ ...pwdForm, newPassword: e.target.value })}
-                      className={inputClass}
-                    />
+                    <div className="relative">
+                      <input
+                        type={showNewPassword ? 'text' : 'password'}
+                        required
+                        value={pwdForm.newPassword}
+                        onChange={(e) => setPwdForm({ ...pwdForm, newPassword: e.target.value })}
+                        className={`${inputClass} pr-10`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ivory-400 hover:text-gold-500 transition-colors"
+                        aria-label="Toggle new password visibility"
+                      >
+                        {showNewPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+                      </button>
+                    </div>
+
+                    {/* Password Strength Meter */}
+                    {pwdForm.newPassword && (
+                      <div className="mt-2 space-y-1.5">
+                        <div className="flex gap-1 h-1.5 w-full bg-obsidian-800 rounded-full overflow-hidden">
+                          <div className={`h-full transition-all duration-300 ${strengthScore >= 1 ? (strengthScore === 1 ? 'bg-red-500 w-1/4' : strengthScore === 2 ? 'bg-amber-500 w-1/2' : strengthScore === 3 ? 'bg-yellow-500 w-3/4' : 'bg-emerald-500 w-full') : 'w-0'}`} />
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-1 text-[11px] pt-1">
+                          <div className={`flex items-center gap-1.5 ${hasLength ? 'text-emerald-400' : 'text-ivory-400'}`}>
+                            {hasLength ? <FaCheck size={9} /> : <FaTimes size={9} />}
+                            <span>{t('auth.reqLength', '8+ characters')}</span>
+                          </div>
+                          <div className={`flex items-center gap-1.5 ${hasUpper ? 'text-emerald-400' : 'text-ivory-400'}`}>
+                            {hasUpper ? <FaCheck size={9} /> : <FaTimes size={9} />}
+                            <span>{t('auth.reqUppercase', 'Uppercase letter')}</span>
+                          </div>
+                          <div className={`flex items-center gap-1.5 ${hasLower ? 'text-emerald-400' : 'text-ivory-400'}`}>
+                            {hasLower ? <FaCheck size={9} /> : <FaTimes size={9} />}
+                            <span>{t('auth.reqLowercase', 'Lowercase letter')}</span>
+                          </div>
+                          <div className={`flex items-center gap-1.5 ${hasDigit ? 'text-emerald-400' : 'text-ivory-400'}`}>
+                            {hasDigit ? <FaCheck size={9} /> : <FaTimes size={9} />}
+                            <span>{t('auth.reqNumber', 'Number (0-9)')}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
+
                   <div>
                     <label className={labelClass}>{t('auth.confirmPassword', 'Confirm New Password')}</label>
-                    <input
-                      type="password"
-                      required
-                      value={pwdForm.confirmPassword}
-                      onChange={(e) => setPwdForm({ ...pwdForm, confirmPassword: e.target.value })}
-                      className={inputClass}
-                    />
+                    <div className="relative">
+                      <input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        required
+                        value={pwdForm.confirmPassword}
+                        onChange={(e) => setPwdForm({ ...pwdForm, confirmPassword: e.target.value })}
+                        className={`${inputClass} pr-10`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ivory-400 hover:text-gold-500 transition-colors"
+                        aria-label="Toggle confirm password visibility"
+                      >
+                        {showConfirmPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+                      </button>
+                    </div>
+                    {pwdForm.confirmPassword && pwdForm.newPassword !== pwdForm.confirmPassword && (
+                      <p className="text-[11px] text-red-400 mt-1">{t('auth.passwordsDoNotMatch', 'Passwords do not match.')}</p>
+                    )}
                   </div>
 
                   <Button
                     variant="gold-glow"
                     type="submit"
                     className="py-3 px-8 text-[12px] uppercase tracking-[1.5px] font-bold mt-4"
-                    disabled={changingPwd}
+                    disabled={changingPwd || !isPasswordValid || pwdForm.newPassword !== pwdForm.confirmPassword}
                   >
                     {changingPwd ? t('common.updating', 'Updating...') : t('user.updatePasswordBtn', 'Update Password')}
                   </Button>

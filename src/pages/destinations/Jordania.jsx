@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { FaCheckCircle, FaMapMarkerAlt, FaTimes } from 'react-icons/fa';
@@ -8,6 +7,7 @@ import Button from '../../components/ui/Button';
 import { useTours } from '../../hooks/useTours';
 import { trackEvent } from '../../utils/analytics';
 import { useEffect } from 'react';
+import SEOHead from '../../components/seo/SEOHead';
 
 const HERO_IMG = 'https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg';
 
@@ -21,16 +21,43 @@ const Jordania = () => {
 
   const { tours: programs, loading } = useTours({ destination: 'jordan' });
 
+  const jordanSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristDestination',
+    name: 'Jordan',
+    description: t('dest.jordan.desc', 'From the rose-red city of Petra to the otherworldly desert of Wadi Rum and the healing waters of the Dead Sea, Jordan is a land of timeless wonders.'),
+    image: HERO_IMG,
+    touristType: 'Luxury Travelers',
+    includesAttraction: [
+      { '@type': 'TouristAttraction', name: 'Petra Ancient Rose City' },
+      { '@type': 'TouristAttraction', name: 'Wadi Rum Luxury Camp' },
+      { '@type': 'TouristAttraction', name: 'Dead Sea Wellness Resort' },
+      { '@type': 'TouristAttraction', name: 'Jerash Roman Ruins' }
+    ]
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://dunastravel.com/' },
+      { '@type': 'ListItem', position: 2, name: 'Destinations', item: 'https://dunastravel.com/destinations' },
+      { '@type': 'ListItem', position: 3, name: 'Jordan', item: 'https://dunastravel.com/destinations/jordan' }
+    ]
+  };
+
   return (
     <div className="w-full min-h-screen bg-obsidian-50 pb-24">
-      <Helmet>
-        <title>{t('dest.jordan.seoTitle', 'Luxury Jordan Tours & Vacations | Dunas Travel')}</title>
-        <meta name="description" content={t('dest.jordan.seoDesc', 'Explore luxury journeys in Jordan. Custom itineraries coming soon.')} />
-      </Helmet>
+      <SEOHead
+        title={t('dest.jordan.seoTitle', 'Luxury Jordan Tours & Vacations')}
+        description={t('dest.jordan.seoDesc', 'Discover Petra, Wadi Rum, and the Dead Sea with bespoke private luxury journeys in Jordan by Dunas Travel.')}
+        ogImage={HERO_IMG}
+        schema={[jordanSchema, breadcrumbSchema]}
+      />
 
       <section className="relative w-full h-[400px] md:h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img src={HERO_IMG} alt={t('dest.jordan.title', 'Jordan')} className="w-full h-full object-cover object-center" loading="lazy" />
+          <img src={HERO_IMG} alt={t('dest.jordan.title', 'Jordan')} className="w-full h-full object-cover object-center" loading="eager" fetchPriority="high" />
           <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(to bottom, rgba(15,13,11,0.3), rgba(15,13,11,0.65))' }}></div>
         </div>
         <motion.div className="relative z-10 container mx-auto px-6 text-center mt-20" variants={staggerContainer} initial="hidden" animate="visible">

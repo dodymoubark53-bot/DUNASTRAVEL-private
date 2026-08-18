@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -8,6 +7,7 @@ import Button from '../../components/ui/Button';
 import { useTours } from '../../hooks/useTours';
 import { trackEvent } from '../../utils/analytics';
 import { useEffect } from 'react';
+import SEOHead from '../../components/seo/SEOHead';
 
 // ── destination image constants ────────────────────────────────────────────
 const HERO_IMG =
@@ -25,18 +25,39 @@ const Grecia = () => {
 
   const { tours: greekTours, loading } = useTours({ destination: 'greece' });
 
+  const greeceSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristDestination',
+    name: 'Greece & Greek Islands',
+    description: t('dest.greece.seoDesc', 'Discover Athens, Mykonos, Santorini, and Crete with bespoke luxury itineraries by Dunas Travel.'),
+    image: HERO_IMG,
+    touristType: 'Luxury Travelers',
+    includesAttraction: [
+      { '@type': 'TouristAttraction', name: 'Acropolis of Athens' },
+      { '@type': 'TouristAttraction', name: 'Santorini Caldera & Sunset' },
+      { '@type': 'TouristAttraction', name: 'Mykonos Windmills & Beaches' },
+      { '@type': 'TouristAttraction', name: 'Crete Palace of Knossos' }
+    ]
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://dunastravel.com/' },
+      { '@type': 'ListItem', position: 2, name: 'Destinations', item: 'https://dunastravel.com/destinations' },
+      { '@type': 'ListItem', position: 3, name: 'Greece', item: 'https://dunastravel.com/destinations/greece' }
+    ]
+  };
+
   return (
     <div className="w-full bg-obsidian-50 pb-24">
-      <Helmet>
-        <title>{t('dest.greece.seoTitle', 'Luxury Greece Tours & Vacations | Dunas Travel')}</title>
-        <meta
-          name="description"
-          content={t(
-            'dest.greece.seoDesc',
-            'Discover the best of Greece with Dunas Travel — Athens, Mykonos, Santorini and Crete in one luxury itinerary with Spanish-speaking guides.',
-          )}
-        />
-      </Helmet>
+      <SEOHead
+        title={t('dest.greece.seoTitle', 'Luxury Greece Tours & Vacations')}
+        description={t('dest.greece.seoDesc', 'Discover the best of Greece with Dunas Travel — Athens, Mykonos, Santorini, and Crete in one bespoke luxury itinerary.')}
+        ogImage={HERO_IMG}
+        schema={[greeceSchema, breadcrumbSchema]}
+      />
 
       {/* ── Hero ───────────────────────────────────────────────────────── */}
       <section className="relative w-full h-[400px] md:h-[600px] flex items-center justify-center overflow-hidden">

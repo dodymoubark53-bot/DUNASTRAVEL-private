@@ -144,11 +144,14 @@ export async function apiRequest(path, options = {}, { raw = false, _retry = fal
     ...options.headers,
   };
 
-  // Attach CSRF token for mutating requests
+  // Attach CSRF token and Idempotency-Key for mutating requests
   if (isMutating) {
     const token = await fetchCsrfToken();
     if (token) {
       headers['x-csrf-token'] = token;
+    }
+    if (!headers['idempotency-key'] && !headers['Idempotency-Key']) {
+      headers['idempotency-key'] = 'idemp_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now().toString(36);
     }
   }
 

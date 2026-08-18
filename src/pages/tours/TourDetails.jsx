@@ -20,6 +20,8 @@ import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import ErrorState from '../../components/ui/ErrorState';
 import { resolveTourTitle, resolveTourOverview, resolveTourDuration, resolveLocalizedText } from '../../utils/titleHelper';
 
+import SEOHead from '../../components/seo/SEOHead';
+
 const TourDetails = () => {
   const { t, i18n } = useTranslation();
   const lang = i18n.language || 'en';
@@ -68,9 +70,10 @@ const TourDetails = () => {
     return (
       <div className="w-full bg-obsidian-50 dark:bg-[#0f0f1a] min-h-screen pt-32 px-6 container mx-auto">
         <ErrorState
-          title={t('tours.notFoundTitle', 'Tour Not Found')}
-          message={t('tours.notFoundDesc', 'The requested journey could not be located.')}
-          onRetry={() => window.location.reload()}
+          title={t('common.errorOccurred', 'Tour not found')}
+          message={error || t('tour.notFoundDesc', 'We could not find the requested luxury tour.')}
+          actionLabel={t('tour.browseAll', 'Browse Tours')}
+          actionLink="/tours"
         />
       </div>
     );
@@ -83,12 +86,45 @@ const TourDetails = () => {
     ? tour.images[0]
     : (tour.heroImage || 'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=1920&q=80');
 
+  const tourSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristTrip',
+    name: title,
+    description: overview,
+    touristType: 'Luxury Travelers',
+    image: heroImg,
+    offers: {
+      '@type': 'Offer',
+      price: tour.basePriceUsd || tour.price || 0,
+      priceCurrency: 'USD',
+      availability: 'https://schema.org/InStock',
+    },
+    provider: {
+      '@type': 'TravelAgency',
+      name: 'Dunas Travel',
+      url: 'https://dunastravel.com',
+    },
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://dunastravel.com/' },
+      { '@type': 'ListItem', position: 2, name: resolveLocalizedText(tour.destination || 'egypt', t, lang), item: `https://dunastravel.com/destinations/${tour.destination || 'egypt'}` },
+      { '@type': 'ListItem', position: 3, name: title, item: `https://dunastravel.com/tours/${tour.slug}` },
+    ],
+  };
+
   return (
     <div className="w-full bg-obsidian-50 dark:bg-[#0f0f1a] min-h-screen text-left rtl:text-right">
-      <Helmet>
-        <title>{title} | {t('site.luxuryTravel', 'Luxury Travel')}</title>
-        <meta name="description" content={overview.substring(0, 150) + '...'} />
-      </Helmet>
+      <SEOHead
+        title={title}
+        description={overview}
+        ogImage={heroImg}
+        ogType="product"
+        schema={[tourSchema, breadcrumbSchema]}
+      />
 
       {/* 1. Breadcrumb & Title */}
       <section className="pt-32 pb-10 bg-obsidian-900 text-center px-6">
@@ -129,7 +165,8 @@ const TourDetails = () => {
           src={heroImg}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
-          loading="lazy"
+          loading="eager"
+          fetchPriority="high"
           onError={(e) => {
             e.currentTarget.src = 'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=1920&q=80';
           }}

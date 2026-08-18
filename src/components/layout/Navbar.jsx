@@ -89,12 +89,12 @@ const Navbar = () => {
       dropdown: [
         {
           name: t('nav.hotelsTab', { defaultValue: 'Hotels' }),
-          path: '/programs/hotels',
+          path: '/services',
           subItems: [
-            { name: 'Sol Pyramid Hotel', path: '/programs/hotels/sol-pyramid-hotel' }
+            { name: 'Sol Pyramid Hotel', path: '/services/hotels/sol-pyramid-hotel' }
           ]
         },
-        { name: t('nav.transportation', { defaultValue: 'Transportation' }), path: '/programs/transportation' },
+        { name: t('nav.transportation', { defaultValue: 'Transportation' }), path: '/transportation' },
       ]
     },
     {
@@ -187,7 +187,7 @@ const Navbar = () => {
                     aria-label="User profile options"
                     className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/20 hover:border-[#F5A623]/40 transition-all duration-300 hover:scale-110"
                   >
-                    <span className="font-bold text-[10px] text-[#F5A623]">{user.avatar}</span>
+                    <span className="font-bold text-[10px] text-[#F5A623]">{user.avatar || user.name?.charAt(0)?.toUpperCase() || 'U'}</span>
                   </button>
                 ) : (
                   <button
@@ -537,7 +537,7 @@ const Navbar = () => {
                   </button>
                 </div>
 
-                  {user && (
+                  {user ? (
                   <div className="flex flex-col gap-3 mt-4">
                     <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="w-full py-3 px-4 bg-obsidian-50 dark:bg-obsidian-800 text-obsidian-900 dark:text-ivory-50 rounded-xl text-lg font-medium flex items-center gap-3 border border-obsidian-100 dark:border-obsidian-700">
                       <FaUserCircle className="text-[#F5A623]" /> {t('nav.myProfile', 'My Profile')}
@@ -550,6 +550,18 @@ const Navbar = () => {
                       className="w-full py-3.5 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl text-lg font-semibold flex items-center justify-center gap-2 border border-red-200 dark:border-red-800 transition-colors active:bg-red-100 dark:active:bg-red-900/50"
                     >
                       <FaSignOutAlt /> {t('nav.logout', 'Logout')}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3 mt-4">
+                    <button
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        setIsLoginModalOpen(true);
+                      }}
+                      className="w-full py-3.5 px-4 bg-gradient-to-r from-gold-500/20 to-gold-600/20 text-gold-500 rounded-xl text-lg font-semibold flex items-center justify-center gap-2 border border-gold-500/30 hover:bg-gold-500/30 transition-all"
+                    >
+                      <FaUserCircle size={18} /> {t('auth.signIn', 'Sign In / Register')}
                     </button>
                   </div>
                 )}

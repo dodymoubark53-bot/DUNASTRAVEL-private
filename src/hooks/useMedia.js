@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
+import { galleryImages as staticImages, videos as staticVideos } from '../data/media';
 
 /**
- * Hook to fetch gallery media (images and videos) or official tour gallery photos via GET /api/admin/media/tours/:tourId or GET /api/media
+ * Hook to fetch gallery media (images and videos) with resilient fallback
  */
 export function useMedia(tourId = null) {
   const [galleryImages, setGalleryImages] = useState([]);
@@ -25,15 +26,16 @@ export function useMedia(tourId = null) {
         const res = await api.get(url);
         if (isMounted && res) {
           const imgs = Array.isArray(res) ? res : (res.galleryImages || res.images || res.data || []);
-          setGalleryImages(imgs);
-          setVideos(res.videos || []);
+          const vids = res.videos || [];
+          setGalleryImages(imgs.length > 0 ? imgs : staticImages);
+          setVideos(vids.length > 0 ? vids : staticVideos);
         }
       } catch (err) {
         if (isMounted) {
-          console.warn('[useMedia] Failed to fetch media from API:', err);
+          console.warn('[useMedia] Failed to fetch media from API, using fallback:', err);
           setError(err);
-          setGalleryImages([]);
-          setVideos([]);
+          setGalleryImages(staticImages);
+          setVideos(staticVideos);
         }
       } finally {
         if (isMounted) setLoading(false);
