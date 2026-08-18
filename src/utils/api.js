@@ -119,6 +119,29 @@ function notifyUnauthorized() {
   }
 }
 
+// ── Centralized Network Observability & Redaction ─────────────────────────────
+const SENSITIVE_KEYS = /password|token|authorization|cookie|secret|apiKey|accessToken|refreshToken|card|cvv/i;
+
+export function redactSensitiveData(data) {
+  if (!data || typeof data !== 'object') return data;
+  if (Array.isArray(data)) return data.map(redactSensitiveData);
+  const clean = {};
+  for (const [k, v] of Object.entries(data)) {
+    if (SENSITIVE_KEYS.test(k)) {
+      clean[k] = '[REDACTED]';
+    } else if (v && typeof v === 'object') {
+      clean[k] = redactSensitiveData(v);
+    } else {
+      clean[k] = v;
+    }
+  }
+  return clean;
+}
+
+const isDevLogging = typeof process !== 'undefined' && process.env?.NODE_ENV === 'test'
+  ? false
+  : Boolean(import.meta.env?.DEV || (typeof window !== 'undefined' && window.localStorage?.getItem('dunas_debug_api') === 'true'));
+
 // ── Core Request Function ─────────────────────────────────────────────────────
 const MUTATING_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'];
 
@@ -137,9 +160,11 @@ export async function apiRequest(path, options = {}, { raw = false, _retry = fal
 
   // Build headers
   const guestToken = getOrCreateGuestToken();
+  const requestId = options.headers?.['x-request-id'] || `req_${Math.random().toString(36).substring(2, 9)}_${Date.now()}`;
 
   const headers = {
     'Content-Type': 'application/json',
+    'x-request-id': requestId,
     ...(guestToken ? { 'x-guest-token': guestToken } : {}),
     ...options.headers,
   };
@@ -156,6 +181,20 @@ export async function apiRequest(path, options = {}, { raw = false, _retry = fal
   }
 
   const url = `${BASE_URL}${path}`;
+  const startTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
+
+  if (isDevLogging) {
+    let safeBody;
+    try {
+      safeBody = options.body ? redactSensitiveData(typeof options.body === 'string' ? JSON.parse(options.body) : options.body) : undefined;
+    } catch {
+      safeBody = '[Unparseable Body]';
+    }
+    console.debug(`[API REQUEST] id: ${requestId} | ${method} ${path}`, {
+      url,
+      body: safeBody,
+    });
+  }
 
   let res = await fetch(url, {
     ...options,
@@ -225,6 +264,15 @@ export async function apiRequest(path, options = {}, { raw = false, _retry = fal
     body = await res.json();
   } else {
     body = await res.text();
+  }
+
+  const duration = typeof performance !== 'undefined' ? Math.round(performance.now() - startTime) : 0;
+  if (isDevLogging) {
+    console.debug(`[API RESPONSE] id: ${requestId} | status: ${res.status} | duration: ${duration}ms`, {
+      path,
+      ok: res.ok,
+      summary: typeof body === 'object' ? redactSensitiveData(body) : String(body).substring(0, 100),
+    });
   }
 
   if (!res.ok) {
