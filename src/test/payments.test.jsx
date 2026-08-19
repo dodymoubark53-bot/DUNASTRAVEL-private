@@ -30,7 +30,7 @@ describe('Prompt 05: Payments & Invoice System Integration', () => {
     });
 
     render(
-      <MemoryRouter initialEntries={['/booking-success?session_id=sess_123']}>
+      <MemoryRouter initialEntries={['/booking-success?payment_id=1b75ef8c-5b72-4f8a-a9cb-03c7403282d5']}>
         <Routes>
           <Route path="/booking-success" element={<BookingSuccess />} />
         </Routes>
@@ -41,14 +41,14 @@ describe('Prompt 05: Payments & Invoice System Integration', () => {
       expect(screen.getByText('Payment Successful!')).toBeInTheDocument();
     });
 
-    expect(api.get).toHaveBeenCalledWith('/payments/sess_123/status');
+    expect(api.get).toHaveBeenCalledWith('/payments/1b75ef8c-5b72-4f8a-a9cb-03c7403282d5/status');
   });
 
   it('renders FAILED payment state when status endpoint returns FAILED', async () => {
     vi.spyOn(api, 'get').mockResolvedValue({ status: 'FAILED' });
 
     render(
-      <MemoryRouter initialEntries={['/booking-success?session_id=sess_failed']}>
+      <MemoryRouter initialEntries={['/booking-success?payment_id=1b75ef8c-5b72-4f8a-a9cb-03c7403282d5']}>
         <Routes>
           <Route path="/booking-success" element={<BookingSuccess />} />
         </Routes>
@@ -58,6 +58,23 @@ describe('Prompt 05: Payments & Invoice System Integration', () => {
     await waitFor(() => {
       expect(screen.getByText('Payment Unsuccessful')).toBeInTheDocument();
     });
+  });
+
+  it('does not claim success when the payment-status request fails', async () => {
+    vi.spyOn(api, 'get').mockRejectedValue(new Error('network failure'));
+
+    render(
+      <MemoryRouter initialEntries={['/booking-success?payment_id=1b75ef8c-5b72-4f8a-a9cb-03c7403282d5']}>
+        <Routes>
+          <Route path="/booking-success" element={<BookingSuccess />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Payment Unsuccessful')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Payment Successful!')).not.toBeInTheDocument();
   });
 
   it('InvoiceModal fetches invoice document breakdown via GET /api/invoices/:invoiceNumber', async () => {

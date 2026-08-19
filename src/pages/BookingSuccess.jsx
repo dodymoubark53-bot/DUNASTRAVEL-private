@@ -10,8 +10,10 @@ const BookingSuccess = () => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
   const [searchParams] = useSearchParams();
-  const sessionId = searchParams.get('session_id') || searchParams.get('payment_id');
-  const bookingId = searchParams.get('booking_id') || searchParams.get('referenceCode');
+  // Only the server-issued payment record UUID is a valid status resource.
+  // Provider session IDs and booking references are different identifiers.
+  const paymentId = searchParams.get('payment_id');
+  const bookingId = searchParams.get('booking_id') || searchParams.get('bookingId') || searchParams.get('referenceCode');
 
   const [paymentStatus, setPaymentStatus] = useState('loading'); // loading, SUCCEEDED, PENDING, FAILED
   const [invoiceNumber, setInvoiceNumber] = useState(null);
@@ -25,15 +27,14 @@ const BookingSuccess = () => {
     let timerId;
 
     const verifyStatus = async () => {
-      const idToVerify = sessionId || bookingId;
-      if (!idToVerify) {
-        if (isMounted) setPaymentStatus('SUCCEEDED');
+      if (!paymentId) {
+        if (isMounted) setPaymentStatus('FAILED');
         return;
       }
 
       try {
-        const res = await api.get(`/payments/${encodeURIComponent(idToVerify)}/status`).catch(() => null);
-        const status = (res?.status || res?.paymentStatus || 'SUCCEEDED').toUpperCase();
+        const res = await api.get(`/payments/${encodeURIComponent(paymentId)}/status`);
+        const status = (res?.status || res?.paymentStatus || 'PENDING').toUpperCase();
         const invNum = res?.invoiceNumber || res?.invoice?.invoiceNumber;
 
         if (isMounted) {
@@ -51,11 +52,12 @@ const BookingSuccess = () => {
               timerId = setTimeout(verifyStatus, 500);
             }
           } else {
-            setPaymentStatus('SUCCEEDED');
+            setPaymentStatus('FAILED');
           }
         }
       } catch {
-        if (isMounted) setPaymentStatus('SUCCEEDED');
+        // A status lookup failure cannot be treated as payment confirmation.
+        if (isMounted) setPaymentStatus('FAILED');
       }
     };
 
@@ -65,7 +67,7 @@ const BookingSuccess = () => {
       isMounted = false;
       if (timerId) clearTimeout(timerId);
     };
-  }, [sessionId, bookingId]);
+  }, [paymentId, bookingId]);
 
   return (
     <div className="min-h-screen bg-obsidian-900 flex items-center justify-center p-4 pt-28 font-body" dir={isRtl ? 'rtl' : 'ltr'}>

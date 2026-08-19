@@ -56,7 +56,7 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
     arrivalDate: '', departureDate: '', arrivalTime: '', departureTime: '', language: user?.preferredLanguage || i18n.language || 'en', activityType: '',
     adults: 1, children: 0, infants: 0,
     fullName: user?.name || '', email: user?.email || '', phone: user?.phone || '',
-    invoiceType: 'personal', companyName: '', taxId: '', address: '', city: '', country: '',
+    invoiceType: 'PERSONAL', companyName: '', taxId: '', address: '', city: '', country: '',
     notes: ''
   });
   const [passengerNames, setPassengerNames] = useState({});
@@ -95,16 +95,22 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
 
   useEffect(() => {
     if (!tourId || tab !== 'booking') return;
+    if (!b.arrivalDate) {
+      setPricePreview(null);
+      setPromoMessage('');
+      return;
+    }
     const fetchPrice = async () => {
       try {
         // Pricing calculation must NEVER rely on client-side math; always call POST /api/bookings/calculate
         const data = await api.post('/bookings/calculate', {
           tourId,
-          departureDate: b.departureDate || b.arrivalDate || undefined,
+          date: b.arrivalDate,
           adults: b.adults,
           children: b.children,
-          singleRooms: b.singleRooms || 0,
+          infants: b.infants,
           promoCode,
+          language: b.language,
         });
         setPricePreview(data);
         if (promoCode && data?.promoMessage) {
@@ -113,7 +119,9 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
           setPromoMessage('');
         }
       } catch {
-        // Calculation preview fallback handled safely
+        // Never retain an estimate after its authoritative server preview
+        // could not be calculated for the current form state.
+        setPricePreview(null);
       }
     };
     const debounce = setTimeout(fetchPrice, 400);
@@ -432,10 +440,10 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
                     <div className="mt-3 space-y-3 bg-[rgba(255,252,247,0.02)] rounded-xl p-3 border border-[rgba(201,162,39,0.08)]">
                       <label htmlFor="invoice-type-select" className="sr-only">{t('booking.invoiceType', 'Invoice Type')}</label>
                       <select id="invoice-type-select" value={b.invoiceType} onChange={e => updateB('invoiceType', e.target.value)} className={`${inputClass} appearance-none`}>
-                        <option value="personal">{t('booking.personal', 'Personal')}</option>
-                        <option value="company">{t('booking.company', 'Company')}</option>
+                      <option value="PERSONAL">{t('booking.personal', 'Personal')}</option>
+                      <option value="COMPANY">{t('booking.company', 'Company')}</option>
                       </select>
-                      {b.invoiceType === 'company' && (
+                      {b.invoiceType === 'COMPANY' && (
                         <>
                           <label htmlFor="company-name-input" className="sr-only">{t('booking.companyName', 'Company Name')}</label>
                           <input id="company-name-input" type="text" placeholder={t('booking.companyName', 'Company Name')} value={b.companyName} onChange={e => updateB('companyName', e.target.value)} className={inputClass} />
