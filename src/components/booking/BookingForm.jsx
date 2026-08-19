@@ -95,11 +95,6 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
 
   useEffect(() => {
     if (!tourId || tab !== 'booking') return;
-    if (!b.arrivalDate) {
-      setPricePreview(null);
-      setPromoMessage('');
-      return;
-    }
     const fetchPrice = async () => {
       try {
         // Pricing calculation must NEVER rely on client-side math; always call POST /api/bookings/calculate

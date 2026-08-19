@@ -122,11 +122,9 @@ const Footer = () => {
       <button
         id="backToTop"
         onClick={scrollToTop}
-        title={isRtl ? 'العودة للأعلى' : 'Back to Top'}
-        aria-label={isRtl ? 'العودة للأعلى' : 'Back to Top'}
-        className={`fixed z-[9990] w-12 h-12 rounded-full bg-slate-950/90 backdrop-blur-md border border-gold-500/50 shadow-[0_6px_20px_rgba(0,0,0,0.5)] flex items-center justify-center text-gold-400 hover:text-slate-950 hover:bg-gold-500 hover:border-gold-400 hover:scale-110 active:scale-95 transition-all duration-300 ${
-          isRtl ? 'right-6 bottom-6' : 'left-6 bottom-6'
-        } ${
+        title={t('footer.backToTop', 'Back to Top')}
+        aria-label={t('footer.backToTop', 'Back to Top')}
+        className={`fixed left-5 sm:left-6 bottom-5 sm:bottom-6 z-[9997] w-12 h-12 rounded-full bg-slate-950/90 backdrop-blur-md border border-gold-500/50 shadow-[0_6px_20px_rgba(0,0,0,0.5)] flex items-center justify-center text-gold-400 hover:text-slate-950 hover:bg-gold-500 hover:border-gold-400 hover:scale-110 active:scale-95 transition-all duration-300 ${
           showBackToTop
             ? 'opacity-100 visible translate-y-0'
             : 'opacity-0 invisible translate-y-4 pointer-events-none'

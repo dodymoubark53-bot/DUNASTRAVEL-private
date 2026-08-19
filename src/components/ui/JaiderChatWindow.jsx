@@ -23,7 +23,7 @@ import {
 import { useJaiderChat } from '../../context/JaiderChatContext';
 
 const JaiderChatWindow = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const isRtl = i18n.dir() === 'rtl';
   const {
@@ -150,17 +150,15 @@ const JaiderChatWindow = () => {
       {isOpen && (
         <div
           onClick={handleOutsideClick}
-          className={`fixed bottom-4 sm:bottom-6 z-[9999] flex flex-col ${
-            isRtl ? 'left-4 sm:left-6 items-start' : 'right-4 sm:right-6 items-end'
-          }`}
+          className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-[9999] flex flex-col items-end"
           dir={isRtl ? 'rtl' : 'ltr'}
           role="dialog"
           aria-modal="true"
-          aria-label={isRtl ? 'مساعد دوناس ترافيل الذكي' : 'Dunas Travel AI Concierge'}
+          aria-label={t('jaider.title', 'Dunas Travel AI Concierge')}
         >
           <motion.div
             ref={chatWindowRef}
-            style={{ transformOrigin: isRtl ? 'bottom left' : 'bottom right' }}
+            style={{ transformOrigin: 'bottom right' }}
             initial={{ opacity: 0, scale: 0.88, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.88, y: 24 }}
@@ -190,7 +188,7 @@ const JaiderChatWindow = () => {
                     </h3>
                   </div>
                   <p className="text-[11px] text-slate-400">
-                    {isRtl ? 'مستشارك السياحي الفاخر لدوناس ترافيل' : 'Dunas Travel Luxury Travel Concierge'}
+                    {t('jaider.subtitle', 'Dunas Travel Luxury Travel Concierge')}
                   </p>
                 </div>
               </div>
@@ -198,16 +196,16 @@ const JaiderChatWindow = () => {
               <div className="flex items-center gap-1">
                 <button
                   onClick={startNewChat}
-                  title={isRtl ? 'محادثة جديدة' : 'New Chat'}
-                  aria-label={isRtl ? 'محادثة جديدة' : 'New Chat'}
+                  title={t('jaider.newChat', 'New Chat')}
+                  aria-label={t('jaider.newChat', 'New Chat')}
                   className="p-2 text-slate-400 hover:text-gold-400 transition-colors rounded-full hover:bg-slate-800"
                 >
                   <FaRedoAlt size={13} />
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  title={isRtl ? 'إغلاق' : 'Close'}
-                  aria-label={isRtl ? 'إغلاق' : 'Close'}
+                  title={t('jaider.close', 'Close')}
+                  aria-label={t('jaider.close', 'Close')}
                   className="p-2 text-slate-400 hover:text-rose-400 transition-colors rounded-full hover:bg-slate-800"
                 >
                   <FaTimes size={15} />
@@ -254,7 +252,7 @@ const JaiderChatWindow = () => {
                         {isStaff && (
                           <span className="text-[10px] font-bold text-gold-400 bg-gold-500/10 px-2 py-0.5 rounded-md self-start border border-gold-500/30 flex items-center gap-1">
                             <FaCrown size={9} />
-                            {isRtl ? 'فريق دونas للكونسيرج (مستشار بشري)' : 'Dunas Concierge Staff (Human Agent)'}
+                            {t('jaider.humanAgent', 'Dunas Concierge Staff (Human Agent)')}
                           </span>
                         )}
 
@@ -276,22 +274,22 @@ const JaiderChatWindow = () => {
                             <div className="flex items-center justify-between border-b border-gold-500/20 pb-2">
                               <span className="text-xs font-bold text-gold-300 flex items-center gap-1.5">
                                 <FaBalanceScale size={12} className="text-gold-400" />
-                                {isRtl ? 'مقارنة الرحلات المعتمدة:' : 'Grounded Tour Comparison:'}
+                                {t('jaider.tourComparison', 'Grounded Tour Comparison:')}
                               </span>
                             </div>
 
                             <div className="grid grid-cols-2 gap-2">
-                              {msg.comparison.tours.map((t, idx) => (
+                              {msg.comparison.tours.map((tItem, idx) => (
                                 <div key={idx} className="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800 flex flex-col justify-between">
                                   <div>
-                                    <h5 className="font-bold text-[11px] text-gold-300 truncate">{t.title}</h5>
-                                    <p className="text-[10px] text-slate-400 mt-0.5">{t.durationDays} Days • ${t.price} {t.currency}</p>
+                                    <h5 className="font-bold text-[11px] text-gold-300 truncate">{tItem.title}</h5>
+                                    <p className="text-[10px] text-slate-400 mt-0.5">{tItem.durationDays} Days • ${tItem.price} {tItem.currency}</p>
                                   </div>
                                   <button
-                                    onClick={() => handleNavigateToTour(t.publicUrl)}
+                                    onClick={() => handleNavigateToTour(tItem.publicUrl)}
                                     className="mt-2 w-full py-1 bg-gold-500/20 hover:bg-gold-500 hover:text-slate-950 text-gold-300 text-[10px] font-bold rounded-lg transition-all"
                                   >
-                                    {isRtl ? 'عرض البرنامج' : 'View Tour'}
+                                    {t('jaider.viewTour', 'View Tour')}
                                   </button>
                                 </div>
                               ))}
@@ -385,19 +383,19 @@ const JaiderChatWindow = () => {
                                 className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-gold-300 text-[10px] font-semibold rounded-lg border border-slate-700 transition-all flex items-center gap-1"
                               >
                                 <FaSlidersH size={8} />
-                                {isRtl ? '+ ليلة في الأقصر' : '+1 Luxor Night'}
+                                {t('jaider.addLuxorNight', '+1 Luxor Night')}
                               </button>
                               <button
                                 onClick={() => refineItinerary(isRtl ? 'احذف الغردقة وخليها آثار فقط' : 'Remove Hurghada, focus on history')}
                                 className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-semibold rounded-lg border border-slate-700 transition-all"
                               >
-                                {isRtl ? 'بدون الغردقة' : 'No Beach'}
+                                {t('jaider.noBeach', 'No Beach')}
                               </button>
                               <button
                                 onClick={() => refineItinerary(isRtl ? 'خفض الميزانية واقترح خيارات بديلة' : 'Reduce budget and suggest best value')}
                                 className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-semibold rounded-lg border border-slate-700 transition-all"
                               >
-                                {isRtl ? 'تخفيض الميزانية' : 'Lower Budget'}
+                                {t('jaider.lowerBudget', 'Lower Budget')}
                               </button>
                             </div>
 
@@ -410,7 +408,7 @@ const JaiderChatWindow = () => {
                                 }}
                                 className="flex-1 py-2 bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian-950 font-bold text-xs rounded-xl hover:brightness-110 transition-all text-center shadow-md"
                               >
-                                {isRtl ? 'اعتماد وتخصيص الرحلة ←' : 'Customize This Trip →'}
+                                {t('jaider.customizeTrip', 'Customize This Trip →')}
                               </button>
                             </div>
                           </div>
@@ -421,38 +419,38 @@ const JaiderChatWindow = () => {
                           <div className="flex flex-col gap-2.5 pt-1">
                             <span className="text-[11px] font-bold uppercase tracking-wider text-gold-400 flex items-center gap-1.5">
                               <FaTag size={10} />
-                              {isRtl ? 'الرحلات المعتمدة المطابقة:' : 'Verified Catalog Tours:'}
+                              {t('jaider.verifiedTours', 'Verified Catalog Tours:')}
                             </span>
-                            {msg.tours.map((t) => (
+                            {msg.tours.map((tItem) => (
                               <div
-                                key={t.id}
-                                onClick={() => handleNavigateToTour(t.publicUrl)}
+                                key={tItem.id}
+                                onClick={() => handleNavigateToTour(tItem.publicUrl)}
                                 className="flex flex-col bg-slate-900/95 hover:bg-slate-800/95 p-3 rounded-2xl border border-gold-500/30 hover:border-gold-400 transition-all shadow-md group cursor-pointer"
                               >
                                 <div className="flex gap-3">
                                   <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-slate-800 relative">
                                     <img
-                                      src={t.image || '/imgs/tito-mascot.webp'}
-                                      alt={t.title}
+                                      src={tItem.image || '/imgs/tito-mascot.webp'}
+                                      alt={tItem.title}
                                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                     />
                                   </div>
                                   <div className="flex flex-col justify-between min-w-0 flex-1 py-0.5">
                                     <div>
                                       <h4 className="text-xs sm:text-[13px] font-bold text-white group-hover:text-gold-300 transition-colors truncate">
-                                        {t.title}
+                                        {tItem.title}
                                       </h4>
                                       <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5 truncate">
                                         <FaMapMarkerAlt size={9} className="text-gold-400 shrink-0" />
-                                        {t.destination}
+                                        {tItem.destination}
                                       </p>
                                     </div>
                                     <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-800">
                                       <span className="text-xs font-bold text-gold-400">
-                                        ${t.price} {t.currency}
+                                        ${tItem.price} {tItem.currency}
                                       </span>
                                       <span className="text-[10px] bg-gold-500/20 text-gold-300 font-bold px-2 py-0.5 rounded-md group-hover:bg-gold-500 group-hover:text-slate-950 transition-all">
-                                        {isRtl ? 'عرض الرحلة ←' : 'View Tour →'}
+                                        {t('jaider.viewTour', 'View Tour →')}
                                       </span>
                                     </div>
                                   </div>
@@ -538,7 +536,7 @@ const JaiderChatWindow = () => {
                     <span className="w-1.5 h-1.5 bg-gold-400 rounded-full animate-pulse delay-100"></span>
                     <span className="w-1.5 h-1.5 bg-gold-400 rounded-full animate-pulse delay-200"></span>
                     <span className="text-[11px] text-slate-400 ml-1">
-                      {isRtl ? 'جايدر يبحث في الكتالوج...' : 'GuideR is searching catalog...'}
+                      {t('jaider.searching', 'GuideR is searching catalog...')}
                     </span>
                   </div>
                 </motion.div>
@@ -555,7 +553,7 @@ const JaiderChatWindow = () => {
                   className="flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 px-3 py-1 rounded-full border border-rose-500/30 transition-all font-semibold"
                 >
                   <FaStopCircle size={12} />
-                  {isRtl ? 'إيقاف الرد' : 'Stop generating'}
+                  {t('jaider.stop', 'Stop generating')}
                 </button>
               </div>
             )}
@@ -643,7 +641,7 @@ const JaiderChatWindow = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleInputKeyDown}
-                  placeholder={isRtl ? 'اكتب استفسارك أو طلبك هنا...' : 'Ask GuideR about tours, cruises, or custom trips...'}
+                  placeholder={t('jaider.placeholder', 'Ask GuideR about tours, cruises, or custom trips...')}
                   className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-gold-400/50 shadow-inner"
                 />
                 <button
@@ -654,7 +652,7 @@ const JaiderChatWindow = () => {
                       ? 'bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian-950 shadow-md hover:brightness-110'
                       : 'bg-slate-800 text-slate-600 cursor-not-allowed'
                   }`}
-                  aria-label={isRtl ? 'إرسال' : 'Send'}
+                  aria-label={t('jaider.send', 'Send')}
                 >
                   <FaPaperPlane size={13} className={isRtl ? 'rotate-180' : ''} />
                 </button>

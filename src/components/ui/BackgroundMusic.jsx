@@ -5,7 +5,7 @@ import { useJaiderChat } from '../../context/JaiderChatContext';
 
 const BackgroundMusic = () => {
   const location = useLocation();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { isOpen: isJaiderOpen } = useJaiderChat();
   const isHomepage = location.pathname === '/' || location.pathname === '/home';
   const prevPathnameRef = useRef(location.pathname);
@@ -139,8 +139,8 @@ const BackgroundMusic = () => {
   if (isJaiderOpen) return null;
 
   const tooltipText = isPlaying
-    ? (isRtl ? 'كتم الموسيقى الترحيبية' : 'Mute Background Music')
-    : (isRtl ? 'تشغيل الموسيقى الفاخرة' : 'Play Background Music');
+    ? t('music.mute', 'Mute Background Music')
+    : t('music.play', 'Play Background Music');
 
   return (
     <>
@@ -192,9 +192,9 @@ const BackgroundMusic = () => {
         onClick={togglePlay}
         title={tooltipText}
         aria-label={tooltipText}
-        className={`fixed bottom-[146px] sm:bottom-[156px] z-[9997] w-11 h-11 rounded-full bg-slate-950/90 backdrop-blur-md border border-gold-500/50 shadow-[0_4px_20px_rgba(0,0,0,0.45)] flex items-center justify-center text-gold-300 hover:text-gold-200 hover:border-gold-400 hover:scale-108 active:scale-95 transition-all duration-300 ${
-          isRtl ? 'left-6.5' : 'right-6.5'
-        } ${isPlaying ? '' : 'music-btn-pulse'}`}
+        className={`fixed left-5 sm:left-6 bottom-[80px] sm:bottom-[88px] z-[9997] w-11 h-11 rounded-full bg-slate-950/90 backdrop-blur-md border border-gold-500/50 shadow-[0_4px_20px_rgba(0,0,0,0.45)] flex items-center justify-center text-gold-300 hover:text-gold-200 hover:border-gold-400 hover:scale-108 active:scale-95 transition-all duration-300 ${
+          isPlaying ? '' : 'music-btn-pulse'
+        }`}
       >
         {isPlaying ? (
           <div className="flex items-end justify-center gap-[2.5px] h-4 w-4">

@@ -45,9 +45,7 @@ const FloatingContact = () => {
   return (
     <div
       id="floating-contact-container"
-      className={`floating-contact fixed bottom-[88px] sm:bottom-[98px] z-[9997] flex items-center justify-center ${
-        isRtl ? 'left-6' : 'right-6'
-      }`}
+      className="floating-contact fixed bottom-[88px] sm:bottom-[98px] right-6 z-[9997] flex items-center justify-center"
     >
       <AnimatePresence>
         {isOpen && options.map((item, idx) => {

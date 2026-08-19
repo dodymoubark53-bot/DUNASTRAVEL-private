@@ -13,36 +13,33 @@ const TOOLTIP_TEXT = {
 };
 
 const FloatingGuideR = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { isOpen, setIsOpen } = useJaiderChat();
   const [isHovered, setIsHovered] = useState(false);
 
   const isRtl = i18n.dir() === 'rtl';
-  const langKey = i18n.language ? (i18n.language === 'ar-eg' ? 'ar-eg' : i18n.language.split('-')[0]) : 'en';
-  const tooltip = TOOLTIP_TEXT[langKey] || TOOLTIP_TEXT.en;
+  const tooltip = t('guider.tooltip', 'Ask GuideR • AI Travel Concierge');
 
   // Don't render the launcher when the chat modal is already open
   if (isOpen) return null;
 
   return (
     <div
-      className={`fixed bottom-5 z-[9998] flex items-center ${
-        isRtl ? 'left-5 flex-row-reverse' : 'right-5 flex-row'
-      }`}
+      dir="ltr"
+      className="fixed bottom-5 right-5 sm:right-6 z-[9998] flex items-center flex-row"
     >
       {/* Speech Bubble / Tooltip on Hover */}
       <AnimatePresence>
         {isHovered && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.85, x: isRtl ? -15 : 15 }}
+            initial={{ opacity: 0, scale: 0.85, x: 12 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
-            exit={{ opacity: 0, scale: 0.85, x: isRtl ? -15 : 15 }}
+            exit={{ opacity: 0, scale: 0.85, x: 12 }}
             transition={{ duration: 0.2 }}
-            className={`pointer-events-none hidden sm:flex items-center px-4 py-2 rounded-2xl bg-slate-950/90 backdrop-blur-md border border-gold-500/40 shadow-[0_8px_25px_rgba(0,0,0,0.4)] text-ivory-50 text-xs font-semibold whitespace-nowrap ${
-              isRtl ? 'ml-3' : 'mr-3'
-            }`}
+            className="pointer-events-none hidden sm:flex items-center px-4 py-2 rounded-2xl bg-slate-950/90 backdrop-blur-md border border-gold-500/40 shadow-[0_8px_25px_rgba(0,0,0,0.4)] text-ivory-50 text-xs font-semibold whitespace-nowrap mr-3"
+            dir={isRtl ? 'rtl' : 'ltr'}
           >
-            <span className="text-gold-400 mr-1 font-bold">✦</span>
+            <span className="text-gold-400 ml-1.5 font-bold">✦</span>
             <span>{tooltip}</span>
           </motion.div>
         )}
