@@ -5,34 +5,33 @@ import { FaWhatsapp, FaInstagram, FaPhone, FaEnvelope, FaTimes, FaHeadset } from
 import { useJaiderChat } from '../../context/JaiderChatContext';
 
 const FloatingContact = () => {
-  const { i18n } = useTranslation();
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const { isOpen: isJaiderOpen } = useJaiderChat();
 
-  const isRtl = i18n.dir() === 'rtl';
-
   const options = [
-    { icon: FaWhatsapp, href: 'https://wa.me/201149401111', label: 'WhatsApp', bg: 'bg-[#25D366] text-white hover:bg-[#1ebd5a]' },
-    { icon: FaInstagram, href: 'https://www.instagram.com/dunas_travel?igsh=bWkyb2FhY2hoNnNo', label: 'Instagram', bg: 'bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white hover:opacity-90' },
-    { icon: FaPhone, href: 'tel:+20233746643', label: 'Call us', bg: 'bg-[#1E3A8A] text-white hover:bg-[#172554]' },
-    { icon: FaEnvelope, href: 'mailto:info@dunas-travel.com', label: 'Email', bg: 'bg-slate-900 border border-gold-500/50 text-gold-400 hover:bg-gold-500 hover:text-slate-950' },
+    { icon: FaWhatsapp, href: 'https://wa.me/201149401111', label: t('contact.whatsapp', 'WhatsApp'), bg: 'bg-[#25D366] text-white hover:bg-[#1ebd5a]' },
+    { icon: FaInstagram, href: 'https://www.instagram.com/dunas_travel?igsh=bWkyb2FhY2hoNnNo', label: t('contact.instagram', 'Instagram'), bg: 'bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white hover:opacity-90' },
+    { icon: FaPhone, href: 'tel:+20233746643', label: t('contact.call', 'Call us'), bg: 'bg-[#1E3A8A] text-white hover:bg-[#172554]' },
+    { icon: FaEnvelope, href: 'mailto:info@dunas-travel.com', label: t('contact.email', 'Email'), bg: 'bg-[#EA4335] text-white hover:bg-[#d3382c]' },
   ];
 
   const itemVariants = {
     closed: { opacity: 0, x: 0, y: 0, scale: 0 },
     open: (index) => {
-      const angle = isRtl ? (180 - (index * 30)) : (index * 30);
-      const radius = 68;
-      const x = isRtl ? Math.sin((index + 1) * 0.4) * radius : -Math.sin((index + 1) * 0.4) * radius;
-      const y = -(index + 1) * 52;
+      const radius = 62;
+      const angleDeg = 90 + index * 30; // 90° (top) to 180° (left)
+      const angleRad = (angleDeg * Math.PI) / 180;
+      const x = Math.cos(angleRad) * radius;
+      const y = -Math.sin(angleRad) * radius;
       return {
         opacity: 1,
-        x: x,
-        y: y,
+        x: Math.round(x),
+        y: Math.round(y),
         scale: 1,
         transition: {
           type: 'spring',
-          stiffness: 300,
+          stiffness: 380,
           damping: 22,
           delay: index * 0.04
         }
@@ -61,11 +60,16 @@ const FloatingContact = () => {
               initial="closed"
               animate="open"
               exit="closed"
+              whileHover={{ scale: 1.18 }}
+              whileTap={{ scale: 0.92 }}
               title={item.label}
               aria-label={item.label}
-              className={`absolute w-11 h-11 rounded-full flex items-center justify-center shadow-[0_4px_16px_rgba(0,0,0,0.35)] transition-all duration-300 ${item.bg}`}
+              className={`absolute w-10 h-10 rounded-full flex items-center justify-center shadow-[0_4px_16px_rgba(0,0,0,0.35)] transition-all duration-200 group ${item.bg}`}
             >
               <Icon size={18} />
+              <span className="absolute hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none text-[10px] font-semibold tracking-wide px-2 py-0.5 rounded-md bg-slate-950/90 text-ivory-100 border border-gold-500/30 whitespace-nowrap -top-7 shadow-md">
+                {item.label}
+              </span>
             </motion.a>
           );
         })}
@@ -78,7 +82,7 @@ const FloatingContact = () => {
         aria-haspopup="true"
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.94 }}
-        className="relative z-10 w-12 h-12 rounded-full flex items-center justify-center text-gold-300 bg-slate-950/90 backdrop-blur-md border border-gold-500/50 shadow-[0_4px_20px_rgba(0,0,0,0.45)] hover:border-gold-400 hover:text-gold-200 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:ring-offset-2 transition-all duration-300"
+        className="relative z-10 w-12 h-12 rounded-full flex items-center justify-center text-gold-300 bg-slate-950/90 backdrop-blur-md border border-gold-500/50 shadow-[0_4px_20px_rgba(0,0,0,0.45)] hover:border-gold-400 hover:text-gold-200 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:ring-offset-2 transition-all duration-300 cursor-pointer"
       >
         <motion.div
           animate={{ rotate: isOpen ? 90 : 0 }}
@@ -92,3 +96,4 @@ const FloatingContact = () => {
 };
 
 export default FloatingContact;
+
