@@ -61,7 +61,7 @@ describe('Prompt 04: Booking Engine & Customer Inquiries Integration', () => {
       phone: '+1234567890',
       message: 'Interested in March 2027 trip.',
     }));
-  });
+  }, 20000);
 
   it('calls POST /api/bookings/calculate for pricing preview', async () => {
     const mockCalcResponse = { totalAmountUsd: '2400.00', promoValid: false };

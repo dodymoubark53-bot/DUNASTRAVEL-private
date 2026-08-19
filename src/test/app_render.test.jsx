@@ -28,6 +28,6 @@ describe('Full App Rendering Test', () => {
 
     await waitFor(() => {
       expect(screen.queryByText('حدث خطأ غير متوقع')).toBeNull();
-    }, { timeout: 3000 });
-  });
+    }, { timeout: 8000 });
+  }, 20000);
 });

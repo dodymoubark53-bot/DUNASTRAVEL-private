@@ -26,6 +26,7 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
   useEffect(() => {
     trackEvent('booking_started', { tourSlug: tourTitle || tourId });
   }, []);
+
   const [tab, setTab] = useState('booking');
   const [status, setStatus] = useState('idle');
   const [langOpen, setLangOpen] = useState(null);
@@ -53,7 +54,7 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
   const [b, setB] = useState({
-    arrivalDate: '', departureDate: '', arrivalTime: '', departureTime: '', language: user?.preferredLanguage || i18n.language || 'en', activityType: '',
+    arrivalDate: todayStr, departureDate: '', arrivalTime: '', departureTime: '', language: user?.preferredLanguage || i18n.language || 'en', activityType: '',
     adults: 1, children: 0, infants: 0,
     fullName: user?.name || '', email: user?.email || '', phone: user?.phone || '',
     invoiceType: 'PERSONAL', companyName: '', taxId: '', address: '', city: '', country: '',

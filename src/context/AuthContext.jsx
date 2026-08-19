@@ -1,7 +1,27 @@
 import { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import api, { clearCsrfToken } from '../utils/api';
 
-const AuthContext = createContext();
+const defaultAuthContext = {
+  user: null,
+  isLoading: false,
+  login: async () => null,
+  register: async () => null,
+  logout: async () => {},
+  logoutAll: async () => {},
+  refresh: async () => null,
+  getMe: async () => null,
+  checkAuth: async () => null,
+  getCsrf: async () => null,
+  updateProfile: async () => null,
+  changePassword: async () => null,
+  forgotPassword: async () => null,
+  resetPassword: async () => null,
+  verifyEmail: async () => null,
+  resendVerification: async () => null,
+  getUserBookings: async () => [],
+};
+
+const AuthContext = createContext(defaultAuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -257,4 +277,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext) || {};
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAuth = () => useContext(AuthContext) || defaultAuthContext;
