@@ -23,7 +23,7 @@
 *   **Greece** 🇬🇷
 *   **The Holy Land** 🇵🇸/🇮🇱
 
-The system is designed with a premium pharaonic aesthetic, utilizing deep navy and warm gold palettes, rich background gradients, and smooth scroll animations. It features full multi-language localization across 5 major languages and embeds unique interactive features such as an offline-resilient flight simulator itinerary map and an AI-driven hieroglyphic name translator.
+The system is designed with a premium pharaonic aesthetic, utilizing deep navy and warm gold palettes, rich background gradients, and smooth scroll animations. It features full multi-language localization across 5 major languages and embeds unique interactive features such as an offline-resilient flight simulator itinerary map.
 
 ---
 
@@ -97,7 +97,6 @@ DUNAS TRAVEL/
 │   │   ├── contact/
 │   │   │   └── ContactForms.jsx   # Multilingual multi-purpose contact interfaces
 │   │   ├── home/
-│   │   │   ├── HieroglyphicName.jsx # Pharaonic Name Hieroglyphic Translator Component
 │   │   │   └── InteractiveJourneyMap.jsx # Leaflet + Bezier Curve flight map simulator
 │   │   ├── layout/
 │   │   │   ├── FloatingContact.jsx# Sticky quick contact bubble
@@ -168,11 +167,6 @@ DUNAS TRAVEL/
 *   **Bezier Flight Paths**: Calculates curvature between stops and runs a smooth CSS/requestAnimationFrame micro-animation simulating a plane flying from one day’s destination to another.
 *   Includes a sidebar timeline allowing users to select days and automatically pan the map to the respective cities with animated popups.
 
-### 𓁹 3. Ancient Egyptian Hieroglyphic Translator
-*   An interactive papyrus-themed component where visitors enter their names in English, Spanish, Italian, or Portuguese.
-*   Invokes an Anthropic Claude API message pipeline to phonetically translate names and wrap them in a royal cartouche (`𓍹` name `𓍺`) using Unicode Egyptian Hieroglyphic block values `U+13000–U+1342F`.
-*   Includes an **offline local phonetic mapper** fallback if the external API key is missing or encounters CORS blockages.
-
 ### 💬 4. "Jaider" Conversational AI Chatbot
 *   **Egyptian Colloquial Support**: Detects and translates Egyptian Arabic colloquial statements (e.g. *"بكام"* or *"عايز أسافر مصر"*) into Modern Standard Arabic for query processing.
 *   **Stateful Context Awareness**: Tracks user preferences (destination, budget, duration, and last viewed tour slug) to answer context-aware follow-up questions (e.g. *"How much is it?"* or *"What is included in the hotels?"*).
@@ -215,7 +209,6 @@ DUNAS TRAVEL/
     MONGO_URI=mongodb+srv://yourUsername:yourPassword@yourCluster.mongodb.net/dunas_travel
     PORT=5000
     JWT_SECRET=your_super_secret_jwt_hash_key
-    ANTHROPIC_API_KEY=your_anthropic_secret_key # For Hieroglyphic translator API
     OPENAI_API_KEY=your_openai_secret_key # Optional: For chat completion
     ```
 
@@ -269,7 +262,7 @@ The main project dependencies parsed from `package.json` include:
 
 | Path | Component | Description |
 | :--- | :--- | :--- |
-| `/` | `Home.jsx` | Main landing page featuring featured packages, client reviews, interactive map, music player, and the Hieroglyphic name translator |
+| `/` | `Home.jsx` | Main landing page featuring featured packages, client reviews, interactive map, and music player |
 | `/media-gallery` | `MediaGallery.jsx` | High-fidelity horizontal-scrolling image and video gallery |
 | `/about` | `About.jsx` | Brand story, company history, and key milestones since 2010 |
 | `/blogs` | `Blogs.jsx` | Overview list of travel tips, destination guides, and articles |
