@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "test": "npx vitest run --pool=forks",
+    "test": "vitest run --pool=threads",
     "lint": "eslint .",
     "preview": "vite preview --host"
   },
