@@ -9,7 +9,6 @@ import { useCmsBlock } from '../../hooks/useCmsBlock';
 import { trackEvent } from '../../utils/analytics';
 import { useEffect } from 'react';
 import SEOHead from '../../components/seo/SEOHead';
-import HieroglyphicTranslator from '../../components/ui/HieroglyphicTranslator';
 
 const Egipto = () => {
   const { t } = useTranslation();
@@ -274,11 +273,6 @@ const Egipto = () => {
             </div>
           </motion.div>
         </motion.div>
-      </section>
-
-      {/* Royal Scribe Hieroglyphic Translator */}
-      <section className="container mx-auto px-6 py-8">
-        <HieroglyphicTranslator />
       </section>
 
       <section className="relative py-24 mt-24 overflow-hidden">
