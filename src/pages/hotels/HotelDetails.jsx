@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FaStar, FaBed, FaSmokingBan, FaDoorOpen,
@@ -11,15 +11,18 @@ import {
   FaEye, FaBan
 } from 'react-icons/fa';
 import { useCurrency } from '../../context/CurrencyContext';
+import { useCmsBlock } from '../../hooks/useCmsBlock';
 import Button from '../../components/ui/Button';
 
 const HotelDetails = () => {
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
   const location = useLocation();
+  const { slug } = useParams();
   const [activeImage, setActiveImage] = useState(null);
   const [playWalkthrough, setPlayWalkthrough] = useState(false);
 
+  const { data: catalogData } = useCmsBlock('hotels_catalog');
 
   // Dynamic link prefix based on path (programs vs services)
   const prefix = location.pathname.startsWith('/programs') ? '/programs' : '/services';
@@ -28,22 +31,29 @@ const HotelDetails = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  const matchedHotel = useMemo(() => {
+    if (!catalogData) return null;
+    const list = catalogData.content || (Array.isArray(catalogData) ? catalogData : []);
+    if (!Array.isArray(list)) return null;
+    return list.find(h => h.id === slug || h.slug === slug || h.name?.toLowerCase().includes(slug?.toLowerCase()));
+  }, [catalogData, slug]);
+
   const hotelOverview = {
-    name: 'Sol Pyramid Hotel',
-    stars: 3,
+    name: matchedHotel?.name || 'Sol Pyramid Hotel',
+    stars: matchedHotel?.stars || 5,
     yearBuilt: '2025',
     totalRooms: t('hotel.overview.roomsCount', '20 rooms (40 more coming soon)'),
     checkIn: '3:00 PM',
     checkOut: '12:00 PM',
     smoking: t('hotel.overview.smokingPolicyVal', 'Non-smoking throughout the entire property'),
     pets: t('hotel.overview.petsPolicyVal', 'Not allowed'),
-    location: '05 Rawdet al Ahram, Behind Le Meridien Pyramids St., Old Hadayek al Ahram – Haram – Giza – Egypt (close to the Pyramids of Giza)',
+    location: matchedHotel?.city ? `${matchedHotel.city}, ${matchedHotel.destination?.toUpperCase() || 'EGYPT'}` : '05 Rawdet al Ahram, Behind Le Meridien Pyramids St., Old Hadayek al Ahram – Haram – Giza – Egypt',
     telephones: ['+2 02 33775511', '+2 02 33775522'],
     cell: '(+2) 01149401111',
-    email: 'info@solpyramid-egypt.com',
-    facebook: 'https://www.facebook.com/share/1aiB2ma5oi/',
-    instagram: 'https://www.instagram.com/solpyramidhotel',
-    website: 'https://www.solpyramid-egypt.com/'
+    email: 'info@dunastravel.com',
+    facebook: 'https://www.facebook.com/dunastravel',
+    instagram: 'https://www.instagram.com/dunastravel',
+    website: 'https://dunastravel.com/'
   };
 
   const roomTypes = [

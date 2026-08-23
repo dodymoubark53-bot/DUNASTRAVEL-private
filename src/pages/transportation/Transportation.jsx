@@ -32,8 +32,8 @@ const Transportation = () => {
   const filteredVehicles = transportation.filter(vehicle => {
     if (activeFilter === 'All') return true;
     if (activeFilter === 'Buses') return vehicle.category === 'bus';
-    if (activeFilter === 'Coasters') return vehicle.category === 'coaster';
-    if (activeFilter === 'Private') return vehicle.category === 'private';
+    if (activeFilter === 'Coasters') return vehicle.category === 'coaster' || vehicle.category === 'van';
+    if (activeFilter === 'Private') return vehicle.category === 'private' || vehicle.category === 'luxury_sedan' || vehicle.category === 'suv';
     return true;
   });
 
