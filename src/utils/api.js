@@ -22,12 +22,32 @@ const BASE_URL = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
 let _csrfToken = null;
 let _csrfFetchPromise = null;
 
+function getCsrfFromCookie() {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
+  if (match && match[1]) {
+    try {
+      const decoded = decodeURIComponent(match[1]).trim();
+      return decoded.length >= 16 ? decoded : null;
+    } catch {
+      return match[1].length >= 16 ? match[1] : null;
+    }
+  }
+  return null;
+}
+
 /**
  * Fetches the CSRF token from the backend and caches it.
  * De-duplicates concurrent calls so only one request is made.
  */
 async function fetchCsrfToken() {
-  if (_csrfToken) return _csrfToken;
+  if (_csrfToken && _csrfToken.length >= 16) return _csrfToken;
+
+  const cookieToken = getCsrfFromCookie();
+  if (cookieToken) {
+    _csrfToken = cookieToken;
+    return _csrfToken;
+  }
 
   // De-duplicate concurrent calls
   if (_csrfFetchPromise) return _csrfFetchPromise;
@@ -40,17 +60,23 @@ async function fetchCsrfToken() {
       if (!res.ok) throw new Error('Failed to fetch CSRF token');
       const body = await res.json();
       // Backend returns { data: { csrfToken: "..." } } or { csrfToken: "..." }
-      _csrfToken =
+      const token =
         body?.data?.csrfToken ||
-        body?.data?.data?.csrfToken ||
+        body?.data?.token ||
         body?.csrfToken ||
+        body?.token ||
         null;
+      if (token && typeof token === 'string' && token.length >= 16) {
+        _csrfToken = token;
+      } else {
+        _csrfToken = getCsrfFromCookie();
+      }
       return _csrfToken;
     })
     .catch((err) => {
-      // Do not cache a failed attempt
       console.warn('[api] CSRF fetch failed:', err.message);
-      return null;
+      _csrfToken = getCsrfFromCookie();
+      return _csrfToken;
     })
     .finally(() => {
       _csrfFetchPromise = null;
