@@ -156,6 +156,7 @@ export function useTours(filters = {}) {
                   title: tour.title || tour.name,
                   overview: tour.overview || tour.description || tour.title,
                   duration: tour.duration || 'N/A',
+                  destination: String(tour.country || tour.destination || '').toLowerCase(),
                   images: tour.heroImage ? [tour.heroImage] : (tour.images && tour.images.length > 0 ? tour.images : ['https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=800&q=80']),
                   raw: { price: parseFloat(tour.basePriceUsd || tour.price || 0), type: tour.category || 'classic' },
                   price: parseFloat(tour.basePriceUsd || tour.price || 0),

@@ -14,6 +14,16 @@ describe('Prompt 04: Booking Engine & Customer Inquiries Integration', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     localStorage.clear();
+    vi.spyOn(api, 'get').mockResolvedValue({
+      availabilities: [
+        {
+          id: 'availability-2027-05-10',
+          date: '2027-05-10T00:00:00.000Z',
+          remainingSeats: 20,
+          status: 'AVAILABLE',
+        },
+      ],
+    });
   });
 
   it('submits inquiry payload via Nest API and presents success message', async () => {
@@ -72,8 +82,28 @@ describe('Prompt 04: Booking Engine & Customer Inquiries Integration', () => {
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith('/bookings/calculate', expect.objectContaining({
         tourId: 'tour-pyramids',
+        availabilityId: 'availability-2027-05-10',
         adults: 1,
         children: 0,
+      }));
+    });
+  });
+
+  it('uses the backend slug as the canonical booking identifier for static programs', async () => {
+    vi.spyOn(api, 'post').mockResolvedValue({ totalAmountUsd: '2400.00' });
+
+    render(
+      <BookingForm
+        tourId="local-program-id"
+        tourSlug="reg-22-stop-over-dubai"
+        tourTitle="Stop Over Dubai"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith('/bookings/calculate', expect.objectContaining({
+        tourId: 'reg-22-stop-over-dubai',
+        availabilityId: 'availability-2027-05-10',
       }));
     });
   });
@@ -91,6 +121,10 @@ describe('Prompt 04: Booking Engine & Customer Inquiries Integration', () => {
     });
 
     const { container } = render(<BookingForm tourId="tour-1" tourTitle="Cairo Discovery" />);
+
+    await waitFor(() => {
+      expect(container.querySelector('#arrival-date-input')?.tagName).toBe('SELECT');
+    });
 
     const arrivalInput = container.querySelector('#arrival-date-input');
     const departureInput = container.querySelector('#departure-date-input');
@@ -112,6 +146,12 @@ describe('Prompt 04: Booking Engine & Customer Inquiries Integration', () => {
     await waitFor(() => {
       expect(localStorage.getItem('dunas_guest_token')).toBe('gt_secret_token_12345');
     });
+
+    expect(api.post).toHaveBeenCalledWith('/bookings', expect.objectContaining({
+      tourId: 'tour-1',
+      availabilityId: 'availability-2027-05-10',
+      arrivalDate: '2027-05-10',
+    }));
   });
 
   it('handles 409 conflict and 422 validation errors with localized alert messages', async () => {
@@ -126,6 +166,10 @@ describe('Prompt 04: Booking Engine & Customer Inquiries Integration', () => {
     });
 
     const { container } = render(<BookingForm tourId="tour-1" tourTitle="Cairo Discovery" />);
+
+    await waitFor(() => {
+      expect(container.querySelector('#arrival-date-input')?.tagName).toBe('SELECT');
+    });
 
     const arrivalInput = container.querySelector('#arrival-date-input');
     const departureInput = container.querySelector('#departure-date-input');

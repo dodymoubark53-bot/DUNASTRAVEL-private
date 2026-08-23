@@ -19,9 +19,10 @@ const languages = [
   { value: 'ar', flag: '🇪🇬', labelKey: 'languages.arabic', fallback: 'Arabic' },
 ];
 
-const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoice }) => {
+const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTransportChoice }) => {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
+  const bookingTourKey = tourSlug || tourId;
 
   useEffect(() => {
     trackEvent('booking_started', { tourSlug: tourTitle || tourId });
@@ -38,6 +39,8 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
   const [pricePreview, setPricePreview] = useState(null);
   const [promoCode, setPromoCode] = useState('');
   const [promoMessage, setPromoMessage] = useState('');
+  const [availabilities, setAvailabilities] = useState([]);
+  const [availabilityStatus, setAvailabilityStatus] = useState('loading');
   const langRef = useRef(null);
   const activityRef = useRef(null);
 
@@ -63,6 +66,45 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
   const [passengerNames, setPassengerNames] = useState({});
 
   const [inq, setInq] = useState({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '', language: user?.preferredLanguage || i18n.language || 'en', message: '' });
+
+  useEffect(() => {
+    let isMounted = true;
+    const availabilityKey = tourSlug || tourId;
+    if (!availabilityKey) return undefined;
+    setAvailabilityStatus('loading');
+    api.get(`/tours/${encodeURIComponent(availabilityKey)}/availability`)
+      .then((response) => {
+        if (!isMounted) return;
+        const slots = Array.isArray(response?.availabilities)
+          ? response.availabilities
+          : Array.isArray(response?.data?.availabilities)
+            ? response.data.availabilities
+            : [];
+        setAvailabilities(slots);
+        setAvailabilityStatus(slots.length > 0 ? 'ready' : 'empty');
+        if (slots.length > 0) {
+          const firstDate = String(slots[0].date).slice(0, 10);
+          setB((current) => ({
+            ...current,
+            arrivalDate: slots.some((slot) => String(slot.date).slice(0, 10) === current.arrivalDate)
+              ? current.arrivalDate
+              : firstDate,
+          }));
+        }
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setAvailabilities([]);
+        setAvailabilityStatus('error');
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [tourId, tourSlug]);
+
+  const selectedAvailability = availabilities.find(
+    (slot) => String(slot.date).slice(0, 10) === b.arrivalDate,
+  );
 
   useEffect(() => {
     if (user) {
@@ -95,12 +137,13 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
   ];
 
   useEffect(() => {
-    if (!tourId || tab !== 'booking') return;
+    if (!bookingTourKey || tab !== 'booking') return;
     const fetchPrice = async () => {
       try {
         // Pricing calculation must NEVER rely on client-side math; always call POST /api/bookings/calculate
         const data = await api.post('/bookings/calculate', {
-          tourId,
+          tourId: bookingTourKey,
+          availabilityId: selectedAvailability?.id,
           date: b.arrivalDate,
           adults: b.adults,
           children: b.children,
@@ -122,12 +165,12 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
     };
     const debounce = setTimeout(fetchPrice, 400);
     return () => clearTimeout(debounce);
-  }, [tourId, b.arrivalDate, b.departureDate, b.adults, b.children, promoCode, tab]);
+  }, [bookingTourKey, selectedAvailability?.id, b.arrivalDate, b.adults, b.children, b.infants, b.language, promoCode, tab]);
 
   const handleValidatePromoCode = async () => {
     if (!promoCode) return;
     try {
-      const res = await api.post('/promotions/validate', { code: promoCode, promoCode, tourId });
+      const res = await api.post('/promotions/validate', { code: promoCode, promoCode, tourId: bookingTourKey });
       if (res) {
         setPromoMessage(res.message || t('booking.promoValid', 'Promotion code valid!'));
       }
@@ -146,11 +189,16 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
       return;
     }
     setTransportAlert(false);
+    if (!selectedAvailability?.id) {
+      setError(t('booking.noAvailability', 'No bookable departure is available for this date. Please select another departure or send an inquiry.'));
+      return;
+    }
     setStatus('submitting');
     try {
       const payload = {
         type: 'booking',
-        tourId,
+        tourId: bookingTourKey,
+        availabilityId: selectedAvailability.id,
         tourTitle,
         transportChoice: transportChoice || '',
         arrivalDate: b.arrivalDate,
@@ -307,13 +355,30 @@ const BookingForm = ({ tourId, tourTitle, transportChoice, requireTransportChoic
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label htmlFor="arrival-date-input" className={labelClass}><FaCalendarAlt className="inline mr-1.5 text-gold-400" size={11} />{t('booking.arrivalDate', 'Arrival Date')}</label>
-                    <input id="arrival-date-input" type="date" value={b.arrivalDate} min={todayStr} onChange={e => updateB('arrivalDate', e.target.value)} required className={inputClass} />
+                    {availabilities.length > 0 ? (
+                      <select id="arrival-date-input" value={b.arrivalDate} onChange={e => updateB('arrivalDate', e.target.value)} required className={`${inputClass} appearance-none`}>
+                        {availabilities.map((slot) => {
+                          const date = String(slot.date).slice(0, 10);
+                          return <option key={slot.id} value={date}>{date} ({slot.remainingSeats} {t('booking.seatsLeft', 'seats left')})</option>;
+                        })}
+                      </select>
+                    ) : (
+                      <input id="arrival-date-input" type="date" value={b.arrivalDate} min={todayStr} onChange={e => updateB('arrivalDate', e.target.value)} required className={inputClass} disabled={availabilityStatus === 'loading'} />
+                    )}
                   </div>
                   <div>
                     <label htmlFor="departure-date-input" className={labelClass}><FaCalendarAlt className="inline mr-1.5 text-gold-400" size={11} />{t('booking.departureDate', 'Departure Date')}</label>
                     <input id="departure-date-input" type="date" value={b.departureDate} min={b.arrivalDate || todayStr} onChange={e => updateB('departureDate', e.target.value)} required className={inputClass} />
                   </div>
                 </div>
+
+                {(availabilityStatus === 'empty' || availabilityStatus === 'error') && (
+                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3">
+                    <p className="text-body-sm text-amber-300">
+                      {t('booking.noAvailability', 'No bookable departure is available right now. Please use the inquiry tab and our team will confirm the nearest date.')}
+                    </p>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>

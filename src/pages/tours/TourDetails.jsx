@@ -390,7 +390,7 @@ const TourDetails = () => {
           {/* Sidebar - Booking Form */}
           <div className="lg:col-span-1">
             <div className="sticky top-28">
-              <BookingForm tourId={tour.id} tourTitle={title} />
+              <BookingForm tourId={tour.id} tourSlug={tour.slug} tourTitle={title} />
             </div>
           </div>
 
