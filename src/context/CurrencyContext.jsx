@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useState, useContext, useEffect, useCallback, useMemo } from 'react';
 import api from '../utils/api';
 const defaultCurrencyContext = {
   currency: 'USD',
@@ -23,11 +23,12 @@ export const CurrencyProvider = ({ children }) => {
   const [eurRate, setEurRate] = useState(0.92);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchRate = async () => {
       try {
         const data = await api.get('/currency/rates');
         const eur = data?.rates?.EUR || data?.EUR;
-        if (eur) {
+        if (eur && isMounted) {
           setEurRate(eur);
         }
       } catch (err) {
@@ -35,18 +36,21 @@ export const CurrencyProvider = ({ children }) => {
       }
     };
     fetchRate();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const setCurrency = (newCurrency) => {
+  const setCurrency = useCallback((newCurrency) => {
     if (newCurrency === 'USD' || newCurrency === 'EUR') {
       setCurrencyState(newCurrency);
       if (typeof window !== 'undefined') {
         localStorage.setItem('currency', newCurrency);
       }
     }
-  };
+  }, []);
 
-  const formatPrice = (amount) => {
+  const formatPrice = useCallback((amount) => {
     const numericAmount = Number(amount);
     if (isNaN(numericAmount)) return '';
 
@@ -64,10 +68,12 @@ export const CurrencyProvider = ({ children }) => {
       });
       return `€${formatted}`;
     }
-  };
+  }, [currency, eurRate]);
+
+  const value = useMemo(() => ({ currency, setCurrency, formatPrice }), [currency, setCurrency, formatPrice]);
 
   return (
-    <CurrencyContext.Provider value={{ currency, setCurrency, formatPrice }}>
+    <CurrencyContext.Provider value={value}>
       {children}
     </CurrencyContext.Provider>
   );

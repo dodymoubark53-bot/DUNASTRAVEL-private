@@ -24,9 +24,11 @@ const Login = () => {
 
   const { login, resendVerification, user } = useAuth();
 
-  if (user) {
-    navigate(from, { replace: true });
-  }
+  useEffect(() => {
+    if (user) {
+      navigate(from, { replace: true });
+    }
+  }, [user, from, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

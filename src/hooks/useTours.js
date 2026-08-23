@@ -54,6 +54,11 @@ const buildFallbackCatalog = () => {
 
 const fallbackCatalog = buildFallbackCatalog();
 
+// Unified in-memory cache and promise deduplication map
+const _toursCache = new Map();
+const _pendingToursPromises = new Map();
+const CACHE_TTL_MS = 60_000;
+
 /**
  * Unified hook to fetch a list of tours from GET /api/tours with resilient catalog fallback
  * 
@@ -63,16 +68,36 @@ export function useTours(filters = {}) {
   const { i18n } = useTranslation();
   const lang = i18n.language || 'en';
   
-  const [tours, setTours] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
   const filterKey = JSON.stringify(filters);
+  const cacheKey = `${lang}:${filterKey}`;
+
+  const [tours, setTours] = useState(() => {
+    const cached = _toursCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return cached.data;
+    }
+    return [];
+  });
+  const [loading, setLoading] = useState(() => {
+    const cached = _toursCache.get(cacheKey);
+    return !(cached && Date.now() - cached.timestamp < CACHE_TTL_MS);
+  });
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
     const currentFilters = filterKey ? JSON.parse(filterKey) : {};
-    
+
+    // Check fresh cache
+    const cached = _toursCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      if (isMounted) {
+        setTours(cached.data);
+        setLoading(false);
+      }
+      return;
+    }
+
     const getFallbackTours = () => {
       let filtered = [...fallbackCatalog];
       if (currentFilters.destination) {
@@ -101,52 +126,66 @@ export function useTours(filters = {}) {
         setLoading(true);
         setError(null);
 
-        // Always pass 'lang' query parameter matching active i18n language
-        const params = new URLSearchParams({ lang });
-        const filterKeys = ['destination', 'category', 'market', 'page', 'limit', 'search', 'isFeatured'];
-        Object.entries(currentFilters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== '' && (filterKeys.includes(key) || key === 'lang')) {
-            params.set(key, value);
-          }
-        });
+        // Deduplicate in-flight requests
+        let fetchPromise = _pendingToursPromises.get(cacheKey);
+        if (!fetchPromise) {
+          const params = new URLSearchParams({ lang });
+          const filterKeys = ['destination', 'category', 'market', 'page', 'limit', 'search', 'isFeatured'];
+          Object.entries(currentFilters).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== '' && (filterKeys.includes(key) || key === 'lang')) {
+              params.set(key, value);
+            }
+          });
 
-        const response = await api.get(`/tours?${params.toString()}`);
-        
-        let apiTours = [];
-        if (Array.isArray(response)) {
-          apiTours = response;
-        } else if (response && Array.isArray(response.data)) {
-          apiTours = response.data;
-        } else if (response && Array.isArray(response.items)) {
-          apiTours = response.items;
+          fetchPromise = api.get(`/tours?${params.toString()}`)
+            .then(response => {
+              let apiTours = [];
+              if (Array.isArray(response)) {
+                apiTours = response;
+              } else if (response && Array.isArray(response.data)) {
+                apiTours = response.data;
+              } else if (response && Array.isArray(response.items)) {
+                apiTours = response.items;
+              }
+
+              if (apiTours.length > 0) {
+                const mappedTours = apiTours.map(tour => ({
+                  ...tour,
+                  id: tour.id || tour.slug,
+                  slug: tour.slug,
+                  title: tour.title || tour.name,
+                  overview: tour.overview || tour.description || tour.title,
+                  duration: tour.duration || 'N/A',
+                  images: tour.heroImage ? [tour.heroImage] : (tour.images && tour.images.length > 0 ? tour.images : ['https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=800&q=80']),
+                  raw: { price: parseFloat(tour.basePriceUsd || tour.price || 0), type: tour.category || 'classic' },
+                  price: parseFloat(tour.basePriceUsd || tour.price || 0),
+                  code: tour.id || tour.slug,
+                  highlights: tour.highlights || tour.title,
+                }));
+                _toursCache.set(cacheKey, { data: mappedTours, timestamp: Date.now() });
+                return mappedTours;
+              } else {
+                const fallbacks = getFallbackTours();
+                _toursCache.set(cacheKey, { data: fallbacks, timestamp: Date.now() });
+                return fallbacks;
+              }
+            })
+            .finally(() => {
+              _pendingToursPromises.delete(cacheKey);
+            });
+
+          _pendingToursPromises.set(cacheKey, fetchPromise);
         }
 
+        const data = await fetchPromise;
         if (isMounted) {
-          if (apiTours.length > 0) {
-            const mappedTours = apiTours.map(tour => ({
-              ...tour,
-              id: tour.id || tour.slug,
-              slug: tour.slug,
-              title: tour.title || tour.name,
-              overview: tour.overview || tour.description || tour.title,
-              duration: tour.duration || 'N/A',
-              images: tour.heroImage ? [tour.heroImage] : (tour.images && tour.images.length > 0 ? tour.images : ['https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=800&q=80']),
-              raw: { price: parseFloat(tour.basePriceUsd || tour.price || 0), type: tour.category || 'classic' },
-              price: parseFloat(tour.basePriceUsd || tour.price || 0),
-              code: tour.id || tour.slug,
-              highlights: tour.highlights || tour.title,
-            }));
-            setTours(mappedTours);
-          } else {
-            // Fall back gracefully if backend returned empty list
-            setTours(getFallbackTours());
-          }
+          setTours(data);
         }
       } catch (err) {
-        // Fall back gracefully to curated luxury catalog on network/backend offline
         if (isMounted) {
           setError(err);
-          setTours(getFallbackTours());
+          const fallbacks = getFallbackTours();
+          setTours(fallbacks);
         }
       } finally {
         if (isMounted) setLoading(false);
@@ -158,7 +197,7 @@ export function useTours(filters = {}) {
     return () => {
       isMounted = false;
     };
-  }, [filterKey, lang]);
+  }, [cacheKey, filterKey, lang]);
 
   return { tours, loading, error };
 }
