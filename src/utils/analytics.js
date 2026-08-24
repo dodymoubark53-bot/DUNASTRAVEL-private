@@ -3,7 +3,9 @@
  * Sends privacy-aware visitor events to POST /api/v1/analytics/events
  */
 
-const rawApiUrl = import.meta.env.VITE_API_URL || 'https://dunastravel-backend-seven.vercel.app/api';
+const rawApiUrl = import.meta.env.DEV
+  ? '/api'
+  : import.meta.env.VITE_API_URL || 'https://dunastravel-backend-seven.vercel.app/api';
 const BASE_URL = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
 
 function getSessionId() {

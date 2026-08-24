@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // Custom plugin to convert render-blocking CSS link tags to preloaded async link tags
@@ -15,14 +15,29 @@ function asyncCssPlugin() {
 }
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [react(), asyncCssPlugin()],
-  base: '/',
-  server: {
-    watch: {
-      ignored: ['**/.claude/**', '**/.git/**']
-    }
-  },
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  const upstreamApi = env.VITE_API_URL || 'https://dunastravel-backend-seven.vercel.app/api';
+  const apiOrigin = new URL(upstreamApi).origin;
+
+  return {
+    plugins: [react(), asyncCssPlugin()],
+    base: '/',
+    server: {
+      watch: {
+        ignored: ['**/.claude/**', '**/.git/**']
+      },
+      // Production API intentionally rejects localhost origins. Proxy local
+      // browser requests through Vite so the app can be exercised locally
+      // without weakening production CORS policy.
+      proxy: {
+        '/api': {
+          target: apiOrigin,
+          changeOrigin: true,
+          secure: true,
+        },
+      },
+    },
   build: {
     rollupOptions: {
       output: {
@@ -50,4 +65,5 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.js',
   },
+  };
 })
