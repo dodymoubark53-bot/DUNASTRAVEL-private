@@ -16,9 +16,9 @@ export function useHotel(slug) {
   useEffect(() => {
     let active = true;
     if (!slug) {
-      setHotel(null);
-      setLoading(false);
-      return () => { active = false; };
+      return () => {
+        active = false;
+      };
     }
     const fetchHotel = async () => {
       setLoading(true);
@@ -36,8 +36,14 @@ export function useHotel(slug) {
       }
     };
     void fetchHotel();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [slug, i18n.language]);
 
-  return { hotel, loading, error };
+  return {
+    hotel: slug ? hotel : null,
+    loading: slug ? loading : false,
+    error: slug ? error : null,
+  };
 }

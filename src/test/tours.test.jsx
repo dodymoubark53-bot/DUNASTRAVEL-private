@@ -1,8 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, waitFor, renderHook, act, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, renderHook, fireEvent } from '@testing-library/react';
 import { useTours } from '../hooks/useTours';
 import { useTour } from '../hooks/useTour';
-import { useReviews } from '../hooks/useReviews';
 import { useCmsBlock } from '../hooks/useCmsBlock';
 import { useMedia } from '../hooks/useMedia';
 import ReviewsMap from '../components/tour/ReviewsMap';
