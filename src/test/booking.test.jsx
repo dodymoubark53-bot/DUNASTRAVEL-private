@@ -152,6 +152,11 @@ describe('Prompt 04: Booking Engine & Customer Inquiries Integration', () => {
       availabilityId: 'availability-2027-05-10',
       arrivalDate: '2027-05-10',
     }));
+    expect(api.get).toHaveBeenCalledWith('/payments/readiness');
+    expect(api.post).not.toHaveBeenCalledWith(
+      '/payments/initiate',
+      expect.anything(),
+    );
   });
 
   it('handles 409 conflict and 422 validation errors with localized alert messages', async () => {

@@ -248,23 +248,30 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
         localStorage.setItem('dunas_guest_token', tokenToSave);
       }
 
-      if (data?.id || data?.referenceCode) {
+      const bookingResultData = { ...data, type: 'booking' };
+      if ((data?.id || data?.referenceCode) && data?.paymentRequired !== false) {
         try {
-          const targetId = data.id || data.referenceCode;
-          const payData = await api.post('/payments/initiate', { bookingId: targetId }).catch(() =>
-            api.post('/payments/checkout-session', { bookingId: targetId })
-          );
-          const sessionUrl = payData?.session?.url || payData?.url || payData?.checkoutUrl;
-          if (sessionUrl) {
-            window.location.href = sessionUrl;
-            return;
+          const readiness = await api.get('/payments/readiness');
+          if (readiness?.enabled && readiness?.configured) {
+            const targetId = data.id || data.referenceCode;
+            const payData = await api.post('/payments/initiate', { bookingId: targetId });
+            const sessionUrl = payData?.sessionUrl || payData?.url;
+            if (sessionUrl) {
+              window.location.assign(sessionUrl);
+              return;
+            }
+          } else {
+            bookingResultData.paymentUnavailable = true;
+            bookingResultData.paymentProvider = readiness?.provider || 'GETPAYIN';
           }
         } catch (payErr) {
           console.error('Payment initiation failed', payErr);
+          bookingResultData.paymentUnavailable = true;
+          bookingResultData.paymentProvider = 'GETPAYIN';
         }
       }
 
-      setBookingResult(data);
+      setBookingResult(bookingResultData);
       setStatus('success');
     } catch (err) {
       // Rule 3: Handle 409 (Double booking) and 422 (Validation) errors gracefully with localized user alerts.
@@ -313,8 +320,14 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
             <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gold-500 to-gold-700 flex items-center justify-center mb-4 shadow-[0_0_25px_rgba(201,162,39,0.3)]">
               <FaCheckCircle className="text-obsidian-900 text-xl" />
             </div>
-            <h3 className="text-display-md text-ivory-50 mb-2 font-display">{t('booking.inquirySent', 'Inquiry Sent')}</h3>
-            <p className="text-body-sm text-ivory-400">{t('booking.successDesc', 'Our team will contact you within 24 hours.')}</p>
+            <h3 className="text-display-md text-ivory-50 mb-2 font-display">
+              {bookingResult.type === 'booking' ? t('booking.created', 'Booking Created') : t('booking.inquirySent', 'Inquiry Sent')}
+            </h3>
+            <p className="text-body-sm text-ivory-400">
+              {bookingResult.paymentUnavailable
+                ? t('payment.getPayInPending', 'Your booking is saved. Secure online payment will be available after GetPayIn activation; our team will contact you with the next step.')
+                : t('booking.successDesc', 'Our team will contact you within 24 hours.')}
+            </p>
             {bookingResult.type === 'booking' && bookingResult.invoiceNumber && (
               <button
                 type="button"

@@ -23,7 +23,7 @@ const BookingSuccess = () => {
   useEffect(() => {
     let isMounted = true;
     let pollCount = 0;
-    const maxPolls = 10;
+    const maxPolls = 20;
     let timerId;
 
     const verifyStatus = async () => {
@@ -41,9 +41,9 @@ const BookingSuccess = () => {
           setInvoiceNumber(invNum || null);
           if (res?.booking) setBookingData(res.booking);
 
-          if (status === 'SUCCEEDED' || status === 'PAID' || status === 'CONFIRMED') {
+          if (status === 'CAPTURED' || status === 'SUCCEEDED' || status === 'PAID' || status === 'CONFIRMED') {
             setPaymentStatus('SUCCEEDED');
-          } else if (status === 'FAILED' || status === 'CANCELLED') {
+          } else if (status === 'FAILED' || status === 'CANCELLED' || status === 'EXPIRED' || status === 'REFUNDED') {
             setPaymentStatus('FAILED');
           } else if (status === 'PENDING') {
             setPaymentStatus('PENDING');
