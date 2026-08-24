@@ -2,8 +2,6 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 import { FaGlobe, FaRoute, FaArrowRight } from 'react-icons/fa';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { journeysRoutesData } from '../../data/journeys_routes_data';
-import { useTours } from '../../hooks/useTours';
 import api from '../../utils/api';
 
 // Fix Leaflet default marker icon issue
@@ -45,6 +43,13 @@ const getCurvePoints = (from, to, numPoints = 50) => {
   return points;
 };
 
+const escapeHtml = (value) => String(value || '')
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&#039;');
+
 const InteractiveJourneyMap = () => {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
@@ -53,22 +58,8 @@ const InteractiveJourneyMap = () => {
   const planeMarkerRef = useRef(null);
   const markersRef = useRef([]);
 
-  // Hardcoded English categories for destinations
-  const categories = [
-    "All",
-    "Egypt",
-    "Turkey",
-    "Jordan",
-    "Dubai (UAE)",
-    "Tunisia",
-    "Morocco",
-    "Greece",
-    "Holy Land",
-    "Multi-Country Tours"
-  ];
-
-  const { tours: _liveTours } = useTours({ limit: 50 });
   const [apiJourneys, setApiJourneys] = useState([]);
+  const [journeyStatus, setJourneyStatus] = useState('loading');
 
   useEffect(() => {
     let isMounted = true;
@@ -76,31 +67,45 @@ const InteractiveJourneyMap = () => {
       try {
         const res = await api.get('/journey-maps');
         const items = Array.isArray(res) ? res : (res?.items || res?.data || []);
-        if (isMounted && items.length > 0) {
-          const mapped = items.map(item => ({
-            id: item.id,
-            title: item.name || 'Journey Route',
-            destination: item.destination || 'Egypt',
-            tourSlug: item.tour?.slug,
-            stops: Array.isArray(item.pointsJsonb) ? item.pointsJsonb.map(p => ({
-              name: p.label || p.name || 'Stop',
-              coords: [p.lat, p.lng],
-              description: p.description || ''
-            })) : []
-          }));
+        if (isMounted) {
+          const mapped = items
+            .filter((item) => item?.id && item?.name && item?.destination)
+            .map(item => ({
+              id: item.id,
+              title: item.name,
+              destination: item.destination,
+              tourSlug: item.tour?.slug,
+              stops: Array.isArray(item.pointsJsonb)
+                ? item.pointsJsonb
+                    .filter((point) => (point?.label || point?.name) && Number.isFinite(Number(point?.lat)) && Number.isFinite(Number(point?.lng)))
+                    .map(point => ({
+                      name: point.label || point.name,
+                      coords: [Number(point.lat), Number(point.lng)],
+                      description: point.description || '',
+                      day: point.day || null,
+                      city: point.city || '',
+                      country: point.country || '',
+                    }))
+                : []
+            }))
+            .filter((item) => item.stops.length > 0);
           setApiJourneys(mapped);
+          setJourneyStatus(mapped.length > 0 ? 'ready' : 'empty');
         }
       } catch (err) {
         console.warn('[InteractiveJourneyMap] Failed to load journey routes from API:', err);
+        if (isMounted) setJourneyStatus('error');
       }
     };
     fetchApiJourneys();
     return () => { isMounted = false; };
   }, []);
 
-  const activeJourneysData = useMemo(() => {
-    return apiJourneys.length > 0 ? apiJourneys : journeysRoutesData;
-  }, [apiJourneys]);
+  const activeJourneysData = apiJourneys;
+  const categories = useMemo(
+    () => ['All', ...new Set(activeJourneysData.map((journey) => journey.destination))],
+    [activeJourneysData],
+  );
 
   const [activeCategory, setActiveCategory] = useState(() => {
     try {
@@ -218,11 +223,8 @@ const InteractiveJourneyMap = () => {
         .bindPopup(`
           <div style="font-family: 'Inter', sans-serif; color: #041446; padding: 4px; direction: ltr; text-align: left;">
             <div style="font-weight: bold; font-size: 13px; color: #C07D0A; margin-bottom: 2px;">Stop ${index + 1}</div>
-            <div style="font-weight: 800; font-size: 14px; margin-bottom: 4px;">${stop.name}</div>
-            <div style="font-size: 12px; opacity: 0.9; display: flex; align-items: center; gap: 4px;">
-              <span>📍</span> <b>${stop.city}, ${stop.country}</b>
-            </div>
-            <div style="font-size: 11px; margin-top: 5px; color: #666;">Visited on Day ${stop.day}</div>
+            <div style="font-weight: 800; font-size: 14px; margin-bottom: 4px;">${escapeHtml(stop.name)}</div>
+            ${stop.description ? `<div style="font-size: 11px; margin-top: 5px; color: #666;">${escapeHtml(stop.description)}</div>` : ''}
           </div>
         `);
       
@@ -329,6 +331,23 @@ const InteractiveJourneyMap = () => {
     }
   };
 
+  if (journeyStatus !== 'ready') {
+    return (
+      <section className="w-full bg-obsidian-950 py-16 text-center text-ivory-50">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-display mb-4">Interactive Itinerary Map</h2>
+          <p className="text-ivory-300">
+            {journeyStatus === 'loading'
+              ? 'Loading published journey routes...'
+              : journeyStatus === 'error'
+                ? 'Journey routes could not be loaded from the server.'
+                : 'No journey routes have been published yet.'}
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <div dir="ltr" lang="en" className="w-full bg-obsidian-950 py-20 lg:py-28 text-ivory-50 relative overflow-hidden">
       {/* Background accents */}
@@ -409,11 +428,13 @@ const InteractiveJourneyMap = () => {
                     </div>
                     
                     <div>
-                      <span className="text-[10px] text-gold-500 font-bold block">Day {stop.day}</span>
+                      {stop.day && <span className="text-[10px] text-gold-500 font-bold block">Day {stop.day}</span>}
                       <h5 className="font-semibold text-body-sm text-white group-hover:text-gold-400 transition-colors">
                         {stop.name}
                       </h5>
-                      <span className="text-[11px] text-ivory-400 block">{stop.city}, {stop.country}</span>
+                      {(stop.city || stop.country) && (
+                        <span className="text-[11px] text-ivory-400 block">{[stop.city, stop.country].filter(Boolean).join(', ')}</span>
+                      )}
                     </div>
                   </div>
                 ))}

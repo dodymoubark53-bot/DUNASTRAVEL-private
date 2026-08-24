@@ -16,6 +16,7 @@ export function useCmsBlock(key) {
     const fetchBlock = async () => {
       try {
         setLoading(true);
+        setError(null);
         // GET /api/cms/:key?lang=${lang}
         const res = await api.get(`/cms/${encodeURIComponent(key)}?lang=${lang}`);
         if (isMounted && res) {
@@ -24,7 +25,7 @@ export function useCmsBlock(key) {
       } catch (err) {
         if (isMounted) {
           setError(err);
-          console.warn(`[CMS] Failed to fetch block '${key}', falling back to static content.`, err);
+          console.warn(`[CMS] Failed to fetch block '${key}'.`, err);
         }
       } finally {
         if (isMounted) setLoading(false);

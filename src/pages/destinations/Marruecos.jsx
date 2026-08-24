@@ -107,7 +107,7 @@ const Marruecos = () => {
               title: prog.title,
               description: prog.overview,
               duration: prog.duration,
-              price: 899,
+              price: prog.price,
               images: prog.images,
               type: 'Morocco Tour',
               code: prog.code,

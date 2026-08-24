@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
-import { blogs as staticBlogs } from '../data/blogs';
 
 /**
  * Hook to fetch blog posts from GET /api/blogs with resilient fallback
@@ -21,49 +20,37 @@ export function useBlogs(filters = {}) {
     let isMounted = true;
     const currentFilters = filterKey ? JSON.parse(filterKey) : {};
 
-    const getFallbackBlogs = () => {
-      let items = [...staticBlogs];
-      if (currentFilters.category) {
-        items = items.filter(b => (b.category || '').toLowerCase() === currentFilters.category.toLowerCase());
-      }
-      return items;
-    };
-
     const fetchBlogs = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const params = new URLSearchParams({ lang, locale: lang });
+        const params = new URLSearchParams({ locale: lang });
         Object.entries(currentFilters).forEach(([k, v]) => {
           if (v !== undefined && v !== null) params.append(k, v);
         });
 
         const res = await api.get(`/blogs?${params.toString()}`);
-        let items = [];
+        let items = null;
         if (Array.isArray(res)) items = res;
         else if (res && Array.isArray(res.data)) items = res.data;
         else if (res && Array.isArray(res.items)) items = res.items;
+        if (!items) throw new Error('Invalid blogs response');
 
         if (isMounted) {
-          if (items.length > 0) {
-            setBlogs(items);
-          } else {
-            setBlogs(getFallbackBlogs());
-          }
+          setBlogs(items);
         }
       } catch (err) {
         if (isMounted) {
-          console.warn('[useBlogs] Failed to fetch blogs from API, using fallback:', err);
           setError(err);
-          setBlogs(getFallbackBlogs());
+          setBlogs([]);
         }
       } finally {
         if (isMounted) setLoading(false);
       }
     };
 
-    fetchBlogs();
+    void fetchBlogs();
     return () => {
       isMounted = false;
     };

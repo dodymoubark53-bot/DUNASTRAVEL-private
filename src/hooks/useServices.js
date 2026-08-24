@@ -1,53 +1,113 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
 
+function readCmsCatalog(response, label) {
+  const content = Array.isArray(response)
+    ? response
+    : Array.isArray(response?.content)
+      ? response.content
+      : Array.isArray(response?.data?.content)
+        ? response.data.content
+        : null;
+  if (!content) throw new Error(`Invalid ${label} catalog response`);
+  return content;
+}
+
+function requireFiniteNumber(value, field, id, { positive = false } = {}) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || (positive ? parsed <= 0 : parsed < 0)) {
+    throw new Error(`Invalid ${field} for catalog item ${id}`);
+  }
+  return parsed;
+}
+
 function transformHotelToService(hotel) {
-  const destinationName = hotel.destination ? hotel.destination.charAt(0).toUpperCase() + hotel.destination.slice(1) : '';
-  const locationStr = hotel.city ? `${hotel.city}${destinationName ? ` • ${destinationName}` : ''}` : (destinationName || 'Egypt');
-  
+  if (!hotel?.id || !hotel?.name || !hotel?.destination || !hotel?.city) {
+    throw new Error('Invalid hotel catalog item');
+  }
+  const pricePerNight = requireFiniteNumber(hotel.pricePerNight, 'pricePerNight', hotel.id);
+  const rating = requireFiniteNumber(hotel.rating, 'rating', hotel.id);
+  const stars = requireFiniteNumber(hotel.stars, 'stars', hotel.id, { positive: true });
+  const amenities = Array.isArray(hotel.amenities) ? hotel.amenities : [];
+
   return {
-    id: hotel.id,
+    ...hotel,
     slug: hotel.id,
     category: 'hotels',
-    title: hotel.name || 'Luxury Hotel',
-    location: locationStr,
-    images: [
-      hotel.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80'
-    ],
-    rating: Number(hotel.rating) || 5.0,
-    stars: Number(hotel.stars) || 5,
-    price: Number(hotel.pricePerNight) || 300,
-    shortDesc: hotel.description || '5-Star Luxury Accommodation',
-    amenities: hotel.amenities || []
+    title: hotel.name,
+    location: `${hotel.city} • ${hotel.destination}`,
+    images: hotel.image ? [hotel.image] : [],
+    image: hotel.image || null,
+    rating,
+    stars,
+    price: pricePerNight,
+    pricePerNight,
+    shortDesc: hotel.description || '',
+    amenities,
+    isActive: hotel.isActive !== false,
   };
 }
 
 function transformTransportToService(vehicle) {
+  if (!vehicle?.id || !vehicle?.name || !vehicle?.category) {
+    throw new Error('Invalid transportation catalog item');
+  }
+  const seats = requireFiniteNumber(vehicle.seats, 'seats', vehicle.id, { positive: true });
+  const doors = requireFiniteNumber(vehicle.doors, 'doors', vehicle.id);
+  const rating = requireFiniteNumber(vehicle.rating, 'rating', vehicle.id);
+  const pricePerDay = requireFiniteNumber(vehicle.pricePerDay, 'pricePerDay', vehicle.id);
+  const features = Array.isArray(vehicle.features) ? vehicle.features : [];
+
   return {
-    id: vehicle.id,
+    ...vehicle,
     slug: vehicle.id,
-    category: 'transportation',
-    title: vehicle.name || 'Luxury Fleet Vehicle',
-    location: `${vehicle.seats || 4} Seats • ${vehicle.category?.toUpperCase() || 'VIP'}`,
-    images: [
-      vehicle.image || 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80'
-    ],
-    rating: Number(vehicle.rating) || 4.9,
-    price: Number(vehicle.pricePerDay) || 250,
-    shortDesc: (vehicle.features || []).join(' • ') || 'Premium VIP Transportation',
-    features: vehicle.features || []
+    title: vehicle.name,
+    location: `${seats} Seats • ${vehicle.category.toUpperCase()}`,
+    images: vehicle.image ? [vehicle.image] : [],
+    image: vehicle.image || null,
+    rating,
+    seats,
+    doors,
+    transmission: vehicle.transmission || '',
+    price: pricePerDay,
+    pricePerDay,
+    shortDesc: features.join(' • '),
+    features,
+    isActive: vehicle.isActive !== false,
   };
 }
 
-/**
- * Hook to fetch services, hotels, and transportation packages from backend CMS or /api/services
- * @param {string} category Optional service category ('hotels', 'transportation', 'safari', 'cruises', 'camping')
- */
+function readItems(response, label) {
+  if (Array.isArray(response)) return response;
+  if (Array.isArray(response?.data)) return response.data;
+  if (Array.isArray(response?.items)) return response.items;
+  throw new Error(`Invalid ${label} response`);
+}
+
+function transformTourToService(tour, category) {
+  if (!tour?.id || !tour?.slug || !tour?.title) throw new Error('Invalid tour service item');
+  const price = requireFiniteNumber(tour.basePriceUsd ?? tour.price, 'price', tour.id);
+  const images = tour.heroImage
+    ? [tour.heroImage]
+    : Array.isArray(tour.images)
+      ? tour.images.filter(Boolean)
+      : [];
+  return {
+    ...tour,
+    category,
+    title: tour.title,
+    location: tour.country || tour.destination || '',
+    images,
+    image: images[0] || null,
+    price,
+    shortDesc: tour.overview || tour.description || '',
+  };
+}
+
 export function useServices(category = null) {
   const { i18n } = useTranslation();
   const lang = i18n.language || 'en';
-
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -59,86 +119,40 @@ export function useServices(category = null) {
       try {
         setLoading(true);
         setError(null);
+        let items;
 
-        let items = [];
-
-        // 1. If fetching hotels, load from hotels_catalog CMS block
         if (category === 'hotels') {
-          try {
-            const res = await api.get(`/cms/hotels_catalog?lang=${lang}`);
-            const rawHotels = res?.content || res?.data?.content || (Array.isArray(res) ? res : []);
-            if (Array.isArray(rawHotels) && rawHotels.length > 0) {
-              items = rawHotels.map(transformHotelToService);
-            }
-          } catch (err) {
-            console.warn('[useServices] Falling back to /services for hotels:', err);
-          }
+          const response = await api.get(`/cms/hotels_catalog?lang=${lang}`);
+          items = readCmsCatalog(response, 'hotels')
+            .filter((hotel) => hotel?.isActive !== false)
+            .map(transformHotelToService);
+        } else if (category === 'transportation') {
+          const response = await api.get(`/cms/transportation_fleet?lang=${lang}`);
+          items = readCmsCatalog(response, 'transportation')
+            .filter((vehicle) => vehicle?.isActive !== false)
+            .map(transformTransportToService);
+        } else if (category) {
+          const params = new URLSearchParams({ lang, category, limit: '100' });
+          items = readItems(await api.get(`/tours?${params.toString()}`), 'tour services')
+            .map((tour) => transformTourToService(tour, category));
+        } else {
+          const [hotelsResponse, fleetResponse] = await Promise.all([
+            api.get(`/cms/hotels_catalog?lang=${lang}`),
+            api.get(`/cms/transportation_fleet?lang=${lang}`),
+          ]);
+          const hotels = readCmsCatalog(hotelsResponse, 'hotels')
+            .filter((hotel) => hotel?.isActive !== false)
+            .map(transformHotelToService);
+          const fleet = readCmsCatalog(fleetResponse, 'transportation')
+            .filter((vehicle) => vehicle?.isActive !== false)
+            .map(transformTransportToService);
+          items = [...hotels, ...fleet];
         }
 
-        // 2. If fetching transportation, load from transportation_fleet CMS block
-        if (category === 'transportation') {
-          try {
-            const res = await api.get(`/cms/transportation_fleet?lang=${lang}`);
-            const rawVehicles = res?.content || res?.data?.content || (Array.isArray(res) ? res : []);
-            if (Array.isArray(rawVehicles) && rawVehicles.length > 0) {
-              items = rawVehicles.map(transformTransportToService);
-            }
-          } catch (err) {
-            console.warn('[useServices] Falling back to /services for transportation:', err);
-          }
-        }
-
-        // 3. Fallback or generic services fetch from /services
-        if (items.length === 0) {
-          const params = new URLSearchParams({ lang });
-          if (category && category !== 'transportation' && category !== 'hotels') {
-            params.append('category', category);
-          }
-
-          const endpoint = `/services?${params.toString()}`;
-          const res = await api.get(endpoint);
-
-          let fetched = [];
-          if (Array.isArray(res)) fetched = res;
-          else if (res && Array.isArray(res.data)) fetched = res.data;
-          else if (res && Array.isArray(res.items)) fetched = res.items;
-
-          // If fetching all services (category === null), also fetch & merge hotels and transportation
-          if (!category) {
-            try {
-              const [hotelsRes, transRes] = await Promise.allSettled([
-                api.get(`/cms/hotels_catalog?lang=${lang}`),
-                api.get(`/cms/transportation_fleet?lang=${lang}`)
-              ]);
-
-              if (hotelsRes.status === 'fulfilled') {
-                const rawH = hotelsRes.value?.content || hotelsRes.value?.data?.content || [];
-                if (Array.isArray(rawH)) {
-                  fetched = [...fetched, ...rawH.map(transformHotelToService)];
-                }
-              }
-
-              if (transRes.status === 'fulfilled') {
-                const rawT = transRes.value?.content || transRes.value?.data?.content || [];
-                if (Array.isArray(rawT)) {
-                  fetched = [...fetched, ...rawT.map(transformTransportToService)];
-                }
-              }
-            } catch (mergeErr) {
-              console.warn('[useServices] Error merging CMS catalogs:', mergeErr);
-            }
-          }
-
-          items = fetched;
-        }
-
+        if (isMounted) setServices(items);
+      } catch (requestError) {
         if (isMounted) {
-          setServices(items);
-        }
-      } catch (err) {
-        if (isMounted) {
-          console.warn('[useServices] Failed to fetch services:', err);
-          setError(err);
+          setError(requestError);
           setServices([]);
         }
       } finally {
@@ -146,7 +160,7 @@ export function useServices(category = null) {
       }
     };
 
-    fetchServices();
+    void fetchServices();
     return () => {
       isMounted = false;
     };

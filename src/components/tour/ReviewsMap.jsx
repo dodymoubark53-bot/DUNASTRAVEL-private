@@ -3,8 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { FaCheckCircle, FaRegStar, FaStar } from 'react-icons/fa';
 import api from '../../utils/api';
 
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 function Stars({ rating, onRate, readOnly = false }) {
   return (
     <div className="flex gap-1" aria-label={`${rating} out of 5 stars`}>
@@ -20,7 +18,7 @@ function Stars({ rating, onRate, readOnly = false }) {
 function formatReview(review, locale) {
   return {
     id: review.id,
-    name: review.reviewerName || 'Verified Traveler',
+    name: review.reviewerName || 'Anonymous traveler',
     rating: review.rating,
     comment: review.comment || '',
     date: new Date(review.createdAt).toLocaleDateString(locale, { month: 'long', year: 'numeric' }),
@@ -41,19 +39,26 @@ export default function ReviewsMap({ tourId }) {
   useEffect(() => {
     if (!tourId) return undefined;
     let active = true;
-    setLoading(true);
-    setLoadError('');
+    void Promise.resolve().then(() => {
+      if (!active) return;
+      setLoading(true);
+      setLoadError('');
+    });
     api.get(`/tours/${encodeURIComponent(tourId)}/reviews`)
       .then((response) => {
         if (!active) return;
         const items = Array.isArray(response?.data) ? response.data : (Array.isArray(response) ? response : []);
         setReviews(items.map((review) => formatReview(review, i18n.language || 'en')));
-        setSummary(response?.ratingSummary || { averageRating: 4.9, totalReviews: items.length || 12 });
+        const averageRating = items.length
+          ? items.reduce((total, review) => total + Number(review.rating || 0), 0) / items.length
+          : 0;
+        setSummary(response?.ratingSummary || { averageRating, totalReviews: items.length });
       })
-      .catch(() => {
+      .catch((requestError) => {
         if (!active) return;
         setReviews([]);
-        setSummary({ averageRating: 4.9, totalReviews: 12 });
+        setSummary({ averageRating: 0, totalReviews: 0 });
+        setLoadError(requestError?.message || t('reviews.loadError', 'Reviews could not be loaded.'));
       })
       .finally(() => active && setLoading(false));
     return () => { active = false; };

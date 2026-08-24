@@ -1,10 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import api, { clearCsrfToken } from '../utils/api';
+import api, { clearCsrfToken, createClientRequestId } from '../utils/api';
 
 describe('Centralized API Client (api.js)', () => {
   beforeEach(() => {
     clearCsrfToken();
     vi.restoreAllMocks();
+  });
+
+  it('creates request identifiers from browser cryptographic randomness', () => {
+    const id = createClientRequestId('req');
+    expect(id).toMatch(/^req_[0-9a-f-]{32,36}$/i);
   });
 
   it('unwraps double-wrapped backend response envelopes', async () => {

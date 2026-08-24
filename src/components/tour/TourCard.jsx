@@ -31,10 +31,11 @@ const TourCard = ({
   const duration = resolveTourDuration(tour, t, lang);
   const durationLabel = duration.split('/')[0].trim();
 
-  const tourPrice = parseFloat(tour.price || tour.basePriceUsd || (tour.raw && tour.raw.price) || 890);
+  const parsedPrice = Number(tour.price ?? tour.basePriceUsd ?? tour.raw?.price);
+  const tourPrice = Number.isFinite(parsedPrice) ? parsedPrice : null;
   const tourImage = (Array.isArray(tour.images) && tour.images.length > 0 && tour.images[0])
     ? tour.images[0]
-    : (tour.heroImage || 'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=800&q=80');
+    : (tour.heroImage || null);
 
   const detailUrl = `${linkBase}/${tour.slug || tour.id}`;
   const fav = isFavorite(tour.id || tour.slug);
@@ -88,15 +89,18 @@ const TourCard = ({
           </div>
         )}
 
-        <img
-          src={tourImage}
-          alt={`${title} — ${tour.destination || 'Luxury Journey'}`}
-          className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700"
-          loading="lazy"
-          onError={(e) => {
-            e.currentTarget.src = 'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=800&q=80';
-          }}
-        />
+        {tourImage ? (
+          <img
+            src={tourImage}
+            alt={`${title} — ${tour.destination || ''}`}
+            className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700"
+            loading="lazy"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-obsidian-800 px-6 text-center text-sm text-ivory-300">
+            {t('tour.imageUnavailable', 'No image has been added for this tour.')}
+          </div>
+        )}
 
         {/* Hover Detail Card Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/95 via-obsidian-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-400 flex flex-col justify-end p-5 translate-y-4 group-hover:translate-y-0">
@@ -107,9 +111,9 @@ const TourCard = ({
             {title}
           </h4>
           <div className="flex items-center gap-3 mb-2">
-            <span className="text-gold-400 text-caption font-bold">
-              {formatPrice(tourPrice)}
-            </span>
+            {tourPrice !== null ? (
+              <span className="text-gold-400 text-caption font-bold">{formatPrice(tourPrice)}</span>
+            ) : null}
             <span className="text-white/60 text-caption">|</span>
             <span className="text-white/80 text-caption">
               {durationLabel}
@@ -150,14 +154,14 @@ const TourCard = ({
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 dark:border-gray-700 mt-auto">
-          <div>
+          {tourPrice !== null ? <div>
             <span className="block text-caption text-obsidian-400 dark:text-ivory-400 mb-1">
               {t('tourCard.from', 'from')}
             </span>
             <span className="text-display-md text-gold-700 dark:text-gold-400 font-bold">
               {formatPrice(tourPrice)}
             </span>
-          </div>
+          </div> : <span />}
 
           <Link to={detailUrl} aria-label={`${t('tourCard.viewDetails', 'View Details')} - ${title}`}>
             <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
@@ -170,4 +174,4 @@ const TourCard = ({
   );
 };
 
-export default TourCard;
+export default TourCard;

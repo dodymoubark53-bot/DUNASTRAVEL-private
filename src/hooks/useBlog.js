@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
-import { blogs as staticBlogs } from '../data/blogs';
 
 /**
  * Hook to fetch a single blog post by slug from GET /api/blogs/:slug with resilient fallback
@@ -21,34 +20,29 @@ export function useBlog(slug) {
       return;
     }
 
-    const getFallbackBlog = () => {
-      return staticBlogs.find(b => b.slug === slug || b.id === slug) || null;
-    };
-
     const fetchBlog = async () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await api.get(`/blogs/${slug}?lang=${lang}&locale=${lang}`);
+        const data = await api.get(`/blogs/${encodeURIComponent(slug)}?locale=${encodeURIComponent(lang)}`);
         if (isMounted) {
           if (data && (data.title || data.slug || data.id)) {
             setBlog(data);
           } else {
-            setBlog(getFallbackBlog());
+            throw new Error('Invalid blog response');
           }
         }
       } catch (err) {
         if (isMounted) {
-          console.warn(`[useBlog] Failed to fetch blog '${slug}', using fallback:`, err);
           setError(err);
-          setBlog(getFallbackBlog());
+          setBlog(null);
         }
       } finally {
         if (isMounted) setLoading(false);
       }
     };
 
-    fetchBlog();
+    void fetchBlog();
     return () => {
       isMounted = false;
     };

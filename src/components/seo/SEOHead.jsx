@@ -2,7 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=1200&q=80';
+const DEFAULT_IMAGE = 'https://dunastravel.com/dunas-travel-logo.png';
 const SITE_NAME = 'Dunas Travel - Luxury Egypt & Middle East Journeys';
 const SITE_URL = 'https://dunastravel.com';
 

@@ -59,7 +59,10 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
   const isPasswordValid = hasLength && hasUpper && hasLower && hasDigit;
 
   useEffect(() => {
-    if (user) {
+    if (!user) return undefined;
+    let isMounted = true;
+    queueMicrotask(() => {
+      if (!isMounted) return;
       setProfileForm({
         name: user.name || '',
         email: user.email || '',
@@ -67,7 +70,10 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
         country: user.country || '',
         preferredLanguage: user.preferredLanguage || i18n.language || 'en',
       });
-    }
+    });
+    return () => {
+      isMounted = false;
+    };
   }, [user, i18n.language]);
 
   useEffect(() => {

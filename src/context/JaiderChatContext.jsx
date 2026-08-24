@@ -15,7 +15,7 @@ const WELCOME_MESSAGES = {
   'ar-eg': "أهلاً بيك يا فندم! 👋 أنا جايدر (GuideR)، مستشارك السياحي الذكي في دوناس ترافيل. تؤمرني بإيه النهارده عشان نخطط لأحلى رحلة؟"
 };
 
-const FALLBACK_MESSAGES = {
+const _FALLBACK_MESSAGES = {
   en: "I'd be delighted to help you with that! You can explore our signature tour packages, request a tailor-made luxury itinerary, or connect directly with our senior travel specialists.",
   es: "¡Con gusto te ayudo! Puedes explorar nuestros paquetes turísticos, solicitar un itinerario de lujo personalizado o contactar a nuestros especialistas.",
   pt: "Terei todo o prazer em ajudar! Pode explorar os nossos pacotes turísticos, solicitar um itinerário personalizado ou falar com os nossos especialistas.",
@@ -69,7 +69,7 @@ const SUGGESTIONS = {
   ]
 };
 
-const STOPWORDS = {
+const _STOPWORDS = {
   ar: ['من', 'في', 'على', 'إلى', 'هذا', 'هل', 'كيف', 'أين', 'ما', 'يا', 'مع', 'عن', 'هو', 'هي', 'تم', 'كان'],
   en: ['the', 'is', 'are', 'of', 'to', 'and', 'a', 'in', 'how', 'what', 'where', 'can', 'you', 'i', 'do', 'my'],
   es: ['el', 'la', 'los', 'las', 'de', 'y', 'en', 'un', 'una', 'como', 'que', 'donde', 'puedo', 'mi', 'para', 'con'],
@@ -142,7 +142,7 @@ export const JaiderChatProvider = ({ children }) => {
           }
         ]);
       }
-    } catch (err) {
+    } catch {
       const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
       const lang = SUPPORTED_LANGS.includes(activeLang) ? activeLang : 'en';
       setMessages([
@@ -157,9 +157,9 @@ export const JaiderChatProvider = ({ children }) => {
   }, [i18n.language]);
 
   useEffect(() => {
-    if (sessionId) {
-      restoreConversationHistory(sessionId);
-    }
+    if (!sessionId) return undefined;
+    const restoreTimer = setTimeout(() => restoreConversationHistory(sessionId), 0);
+    return () => clearTimeout(restoreTimer);
   }, [sessionId, restoreConversationHistory]);
 
   const handleSetIsOpen = (open) => {
@@ -218,7 +218,8 @@ export const JaiderChatProvider = ({ children }) => {
       const data = response?.data?.data || response?.data || response;
       if (data?.conversationId) setConversationId(data.conversationId);
 
-      const assistantText = data?.message?.content || data?.text || FALLBACK_MESSAGES[i18n.language] || FALLBACK_MESSAGES.en;
+      const assistantText = data?.message?.content || data?.text;
+      if (!assistantText) throw new Error('GuideR returned an invalid response');
       const tours = data?.recommendations?.tours || [];
       const destinations = data?.recommendations?.destinations || [];
       const proposal = data?.recommendations?.proposal || data?.message?.structuredContent?.proposal || null;
@@ -254,10 +255,12 @@ export const JaiderChatProvider = ({ children }) => {
         console.log("GuideR generation aborted by traveler");
         return;
       }
-      console.warn("GuideR backend call encountered network/fallback mode:", err);
+      console.warn("GuideR backend call failed:", err);
 
       const userLang = detectLanguage(text);
-      const replyText = FALLBACK_MESSAGES[userLang] || FALLBACK_MESSAGES.en;
+      const replyText = userLang === 'ar'
+        ? 'خدمة GuideR غير متاحة حاليًا. لم يتم إنشاء رد بديل؛ يرجى المحاولة مرة أخرى أو التواصل مع فريق الرحلات.'
+        : 'GuideR is currently unavailable. No substitute answer was generated; please try again or contact our travel team.';
 
       setMessages(prev => [
         ...prev,

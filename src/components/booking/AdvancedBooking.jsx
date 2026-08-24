@@ -19,21 +19,27 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
   const [showInvoice, setShowInvoice] = useState(false);
   const [error, setError] = useState('');
   const [tourId, setTourId] = useState(predefinedTourId);
+  const [isResolvingTour, setIsResolvingTour] = useState(!predefinedTourId);
   const isEgyptJordanTour = tourTitle === "Combined EGYPT with Jordan - 14 DAYS / 13 Nights" || tourTitle?.includes("Combined EGYPT with Jordan");
 
   useEffect(() => {
     if (!tourId) {
-      api.get('/tours')
+      api.get('/tours?limit=100')
         .then((data) => {
           const items = data?.items || (Array.isArray(data) ? data : []);
           const match = items.find(
             (t) => (t.titleJsonb?.en || t.title)?.toLowerCase() === tourTitle?.toLowerCase()
           );
-          if (match) setTourId(match.id);
+          if (match) {
+            setTourId(match.id);
+          } else {
+            setError(t('booking.tourUnavailable', 'This tour is not available for booking.'));
+          }
         })
-        .catch((err) => console.error('Failed to fetch tours for tourId match', err));
+        .catch(() => setError(t('booking.tourLookupFailed', 'The tour could not be verified with the server.')))
+        .finally(() => setIsResolvingTour(false));
     }
-  }, [tourId, tourTitle]);
+  }, [tourId, tourTitle, t]);
 
   const getTodayString = () => {
     const d = new Date();
@@ -101,13 +107,12 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
     });
   };
 
-  const [calculatedTotal, setCalculatedTotal] = useState(basePricePerPerson ? basePricePerPerson * 2 : 300);
+  const [calculatedTotal, setCalculatedTotal] = useState(null);
 
   useEffect(() => {
     const fetchPrice = async () => {
       if (!tourId) {
-        const basePrice = basePricePerPerson || 150;
-        setCalculatedTotal(basePrice * (adults + children * 0.75 + infants * 0));
+        setCalculatedTotal(null);
         return;
       }
       try {
@@ -116,8 +121,8 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
         if (data?.totalAmountUsd) {
           setCalculatedTotal(parseFloat(data.totalAmountUsd));
         }
-      } catch (err) {
-        console.error('Failed to calculate price', err);
+      } catch {
+        setCalculatedTotal(null);
       }
     };
     fetchPrice();
@@ -135,12 +140,16 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
     e.preventDefault();
     if (departureDate && departureDate < todayStr) return;
     setError('');
+    if (!tourId) {
+      setError(t('booking.tourUnavailable', 'This tour is not available for booking.'));
+      return;
+    }
     setStatus('submitting');
     try {
       const payload = {
         type: activeTab === 'booking' ? 'booking' : 'inquiry',
         tourTitle,
-        tourId: tourId || 'placeholder-id-will-fail-backend-validation',
+        tourId,
         arrivalDate: departureDate || new Date().toISOString().split('T')[0],
         departureDate,
         language: ['en', 'ar', 'es', 'pt', 'it'].includes(language?.toLowerCase()) ? language.toLowerCase() : 'en',
@@ -161,19 +170,6 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
       };
       // api.post fetches CSRF token and sends it automatically
       const data = await api.post('/bookings', payload);
-
-      if (payload.type === 'booking' && data?.id) {
-        try {
-          const payData = await api.post('/payments/initiate', { bookingId: data.id });
-          const sessionUrl = payData?.session?.url || payData?.url;
-          if (sessionUrl) {
-            window.location.href = sessionUrl;
-            return;
-          }
-        } catch (payErr) {
-          console.error('Payment initiation failed', payErr);
-        }
-      }
 
       setBookingResult(data);
       setStatus('success');
@@ -591,7 +587,7 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
               )}
             </div>
 
-            {activeTab === 'booking' && (
+            {activeTab === 'booking' && calculatedTotal !== null && (
               <div className="mt-2 p-4 rounded-xl bg-[#0a1969] border border-[#c9a227]/25 flex items-center justify-between text-right shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]">
                 <span className="text-xl md:text-2xl font-bold text-[#E8C97A]">
                   ${calculatedTotal.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
@@ -603,7 +599,7 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
             <div className="flex justify-center mt-2 w-full">
               <Button
                 type="submit"
-                disabled={status === 'submitting'}
+                disabled={status === 'submitting' || isResolvingTour || !tourId}
                 className="w-full py-4 text-base font-bold rounded-full text-[#061D5D] hover:scale-[1.02] active:scale-[0.98] transition-all bg-gradient-to-r from-[#C9A227] to-[#E8C97A] flex items-center justify-center gap-2.5 cursor-pointer shadow-[0_0_20px_rgba(201,162,39,0.4)]"
               >
                 <span>

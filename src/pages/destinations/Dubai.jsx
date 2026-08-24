@@ -112,7 +112,7 @@ const Dubai = () => {
               title: prog.title,
               description: prog.overview,
               duration: prog.duration,
-              price: prog.raw?.price || 899,
+              price: prog.price,
               images: prog.images,
               type: prog.raw?.type || 'Dubai Tour',
               code: prog.code,

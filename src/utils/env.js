@@ -3,7 +3,7 @@
  */
 
 export const env = {
-  apiUrl: (import.meta.env.VITE_API_URL || 'https://dunastravel-backend-seven.vercel.app').replace(/\/+$/, ''),
+  apiUrl: (import.meta.env.VITE_API_URL || 'https://dunastravel-backend-seven.vercel.app/api').replace(/\/+$/, ''),
   isDev: import.meta.env.DEV,
   isProd: import.meta.env.PROD,
   mode: import.meta.env.MODE,
@@ -13,8 +13,8 @@ export const env = {
  * Validates frontend environment config on application startup.
  */
 export function validateEnv() {
-  if (!env.apiUrl) {
-    console.warn('[env] VITE_API_URL is undefined. Defaulting to http://localhost:5000');
+  if (!import.meta.env.VITE_API_URL) {
+    console.warn('[env] VITE_API_URL is undefined. Using the production API fallback.');
   }
   
   // Ensure no sensitive private backend secrets are accidentally exposed on import.meta.env

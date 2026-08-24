@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  FaChevronRight, FaClock, FaUserFriends, FaTag,
+  FaChevronRight, FaClock, FaTag,
   FaCheck, FaTimes, FaMapMarkerAlt, FaBed, FaCheckCircle
 } from 'react-icons/fa';
 import TourCard from '../../components/tour/TourCard';
@@ -84,7 +83,7 @@ const TourDetails = () => {
   const duration = resolveTourDuration(tour, t, lang);
   const heroImg = (Array.isArray(tour.images) && tour.images.length > 0 && tour.images[0])
     ? tour.images[0]
-    : (tour.heroImage || 'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=1920&q=80');
+    : (tour.heroImage || null);
 
   const tourSchema = {
     '@context': 'https://schema.org',
@@ -92,7 +91,7 @@ const TourDetails = () => {
     name: title,
     description: overview,
     touristType: 'Luxury Travelers',
-    image: heroImg,
+    ...(heroImg ? { image: heroImg } : {}),
     offers: {
       '@type': 'Offer',
       price: tour.basePriceUsd || tour.price || 0,
@@ -161,16 +160,19 @@ const TourDetails = () => {
 
       {/* 2. Photo Gallery */}
       <section className="relative w-full h-[50vh] lg:h-[70vh] overflow-hidden group cursor-pointer" onClick={() => setIsLightboxOpen(true)}>
-        <motion.img
-          src={heroImg}
-          alt={title}
-          className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
-          loading="eager"
-          fetchPriority="high"
-          onError={(e) => {
-            e.currentTarget.src = 'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=1920&q=80';
-          }}
-        />
+        {heroImg ? (
+          <motion.img
+            src={heroImg}
+            alt={title}
+            className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
+            loading="eager"
+            fetchPriority="high"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-obsidian-800 px-6 text-center text-ivory-300">
+            {t('tour.imageUnavailable', 'No image has been added for this tour.')}
+          </div>
+        )}
         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
         <div className="absolute bottom-6 right-6 bg-obsidian-900/80 backdrop-blur-md px-4 py-2 rounded-full text-ivory-50 text-caption border border-gold-500/20">
           {t('tour.clickGallery', 'Click to open gallery')}
@@ -180,7 +182,7 @@ const TourDetails = () => {
       {/* 3. Quick Info Bar */}
       <div className="container mx-auto px-6 -mt-12 relative z-20">
         <div className="bg-ivory-50 dark:bg-[#1a1a30] rounded-2xl shadow-card overflow-hidden border border-obsidian-200 dark:border-gray-700">
-          <div className="grid grid-cols-2 md:grid-cols-3 divide-x rtl:divide-x-reverse divide-y md:divide-y-0 divide-gray-100 dark:divide-gray-800 bg-obsidian-50 dark:bg-[#1a1a30]">
+          <div className="grid grid-cols-2 divide-x rtl:divide-x-reverse divide-gray-100 dark:divide-gray-800 bg-obsidian-50 dark:bg-[#1a1a30]">
             <div className="p-6 flex flex-col items-center justify-center text-center gap-2">
               <FaClock className="text-gold-500 text-2xl mb-1" />
               <span className="text-caption text-obsidian-500 dark:text-ivory-400 uppercase">{t('tour.duration', 'Duration')}</span>
@@ -189,12 +191,7 @@ const TourDetails = () => {
             <div className="p-6 flex flex-col items-center justify-center text-center gap-2">
               <FaTag className="text-gold-500 text-2xl mb-1" />
               <span className="text-caption text-obsidian-500 dark:text-ivory-400 uppercase">{t('tour.tourType', 'Tour Type')}</span>
-              <span className="text-body-md font-semibold text-obsidian-900 dark:text-ivory-50">{resolveLocalizedText(tour.type || tour.category || 'Classic', t, lang)}</span>
-            </div>
-            <div className="p-6 flex flex-col items-center justify-center text-center gap-2">
-              <FaUserFriends className="text-gold-500 text-2xl mb-1" />
-              <span className="text-caption text-obsidian-500 dark:text-ivory-400 uppercase">{t('tour.groupSize', 'Group Size')}</span>
-              <span className="text-body-md font-semibold text-obsidian-900 dark:text-ivory-50">{tour.market === 'Brasil' ? '2-16' : '2-12'}</span>
+              <span className="text-body-md font-semibold text-obsidian-900 dark:text-ivory-50">{resolveLocalizedText(tour.type || tour.category, t, lang)}</span>
             </div>
           </div>
         </div>

@@ -71,7 +71,9 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
     let isMounted = true;
     const availabilityKey = tourSlug || tourId;
     if (!availabilityKey) return undefined;
-    setAvailabilityStatus('loading');
+    queueMicrotask(() => {
+      if (isMounted) setAvailabilityStatus('loading');
+    });
     api.get(`/tours/${encodeURIComponent(availabilityKey)}/availability`)
       .then((response) => {
         if (!isMounted) return;
@@ -107,7 +109,10 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
   );
 
   useEffect(() => {
-    if (user) {
+    if (!user) return undefined;
+    let isMounted = true;
+    queueMicrotask(() => {
+      if (!isMounted) return;
       setB(prev => ({
         ...prev,
         fullName: prev.fullName || user.name || '',
@@ -122,7 +127,10 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
         phone: prev.phone || user.phone || '',
         language: prev.language || user.preferredLanguage || i18n.language || 'en',
       }));
-    }
+    });
+    return () => {
+      isMounted = false;
+    };
   }, [user, i18n.language]);
 
   const updateB = (k, v) => {

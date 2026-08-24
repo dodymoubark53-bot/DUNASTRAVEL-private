@@ -5,10 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlane, FaWhatsapp, FaPhone, FaFacebookF, FaInstagram } from 'react-icons/fa';
 import Button from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
+import { useDestinations } from '../hooks/useDestinations';
 
 const TailorTour = () => {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
+  const { destinations: publishedDestinations } = useDestinations();
   const isRtl = i18n.dir() === 'rtl';
 
   const [step, setStep] = useState(1);
@@ -26,12 +28,18 @@ const TailorTour = () => {
   const [budget, setBudget] = useState('');
 
   useEffect(() => {
-    if (user) {
+    if (!user) return undefined;
+    let isMounted = true;
+    queueMicrotask(() => {
+      if (!isMounted) return;
       if (!fullName && user.name) setFullName(user.name);
       if (!email && user.email) setEmail(user.email);
       if (!phone && user.phone) setPhone(user.phone);
       if (!nationality && (user.country || user.nationality)) setNationality(user.country || user.nationality);
-    }
+    });
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
   // Today's date logic using local time
@@ -209,48 +217,13 @@ const TailorTour = () => {
 
   const isFlying = animationState === 'flying-forward' || animationState === 'flying-backward';
 
-  const destinations = [
-    {
-      id: 'egypt',
-      name: t('nav.egypt', 'Egypt'),
-      img: 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'turkey',
-      name: t('nav.turkey', 'Turkey'),
-      img: 'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'jordan',
-      name: t('nav.jordan', 'Jordan'),
-      img: 'https://images.unsplash.com/photo-1579606032821-4e6161c81bd3?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'morocco',
-      name: t('nav.morocco', 'Morocco'),
-      img: 'https://images.unsplash.com/photo-1539020140153-e479b8c22e70?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'greece',
-      name: t('nav.greece', 'Greece'),
-      img: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'dubai',
-      name: t('nav.dubai', 'Dubai'),
-      img: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'tunisia',
-      name: t('nav.tunisia', 'Tunisia'),
-      img: 'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'holyland',
-      name: t('nav.holyland', 'Holy Land'),
-      img: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=800&q=80',
-    },
-  ];
+  const destinations = publishedDestinations
+    .filter((destination) => destination.heroImageUrl)
+    .map((destination) => ({
+      id: destination.slug,
+      name: destination.title,
+      img: destination.heroImageUrl,
+    }));
 
   const totalPassengers = adults + children + infants;
 

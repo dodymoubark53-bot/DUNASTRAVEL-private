@@ -110,7 +110,7 @@ const Turquia = () => {
               title: prog.title,
               description: prog.overview,
               duration: prog.duration,
-              price: prog.raw?.price || 899,
+              price: prog.price,
               images: prog.images,
               type: prog.raw?.type || 'Cultural Tour',
               code: prog.code,

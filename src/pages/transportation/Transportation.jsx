@@ -36,6 +36,7 @@ const Transportation = () => {
     if (activeFilter === 'Private') return vehicle.category === 'private' || vehicle.category === 'luxury_sedan' || vehicle.category === 'suv';
     return true;
   });
+  const fleetFeatures = [...new Set(transportation.flatMap((vehicle) => vehicle.features || []))];
 
   const handleReserveClick = (vehicleId = '') => {
     setSelectedVehicleId(vehicleId);
@@ -206,17 +207,10 @@ const Transportation = () => {
             <div className="mb-6">
               <h4 className="text-gold-400 font-semibold text-lg mb-4">{t('transportation.static.includeTitle', 'Our transfer services include:')}</h4>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {[
-                  'Airport transfers',
-                  'Hotel transfers',
-                  'Private vehicles',
-                  'Professional drivers',
-                  'Meet & assist service',
-                  'Available 24/7'
-                ].map((item, idx) => (
-                  <li key={idx} className="flex items-center gap-2 text-body-md text-ivory-300">
+                {fleetFeatures.map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-body-md text-ivory-300">
                     <span className="text-gold-500 text-lg font-bold">✓</span>
-                    <span>{t(`transportation.static.feature.${idx}`, item)}</span>
+                    <span>{item}</span>
                   </li>
                 ))}
               </ul>
@@ -230,16 +224,10 @@ const Transportation = () => {
                 {t('transportation.static.destTitle', 'Popular Destinations')}
               </h3>
               <ul className="space-y-4">
-                {[
-                  'Cairo Airport – Hotel',
-                  'Hurghada Airport – Hotel',
-                  'Luxor – Aswan',
-                  'Cairo – Alexandria',
-                  'Any customized route upon request'
-                ].map((dest, idx) => (
-                  <li key={idx} className="flex items-start gap-3 text-body-md text-ivory-300">
+                {transportation.map((vehicle) => (
+                  <li key={vehicle.id} className="flex items-start gap-3 text-body-md text-ivory-300">
                     <span className="w-1.5 h-1.5 bg-gold-500 rounded-full mt-2 shrink-0"></span>
-                    <span>{t(`transportation.static.dest.${idx}`, dest)}</span>
+                    <span>{vehicle.name} — {vehicle.seats} {t('transportation.seatsCount', 'Seats')}</span>
                   </li>
                 ))}
               </ul>

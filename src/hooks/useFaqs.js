@@ -22,10 +22,10 @@ export function useFaqs(category = null) {
         setLoading(true);
         setError(null);
 
-        const params = new URLSearchParams({ lang, locale: lang });
+        const params = new URLSearchParams({ locale: lang });
         if (category) params.append('category', category);
 
-        const res = await api.get(`/faq?${params.toString()}`).catch(() => api.get(`/faqs?${params.toString()}`));
+        const res = await api.get(`/faq?${params.toString()}`);
         let items = [];
         if (Array.isArray(res)) items = res;
         else if (res && Array.isArray(res.data)) items = res.data;

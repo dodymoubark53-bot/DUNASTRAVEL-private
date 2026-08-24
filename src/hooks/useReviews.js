@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
 
 /**
@@ -7,9 +6,6 @@ import api from '../utils/api';
  * @param {string} tourId Optional tour slug/id filter
  */
 export function useReviews(tourId = null) {
-  const { i18n } = useTranslation();
-  const lang = i18n.language || 'en';
-
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,15 +14,17 @@ export function useReviews(tourId = null) {
     let isMounted = true;
 
     const fetchReviews = async () => {
+      if (!tourId) {
+        if (isMounted) setLoading(false);
+        return;
+      }
       try {
         setLoading(true);
         setError(null);
 
-        const path = tourId
-          ? `/tours/${encodeURIComponent(tourId)}/reviews?lang=${lang}`
-          : `/tours/all/reviews?lang=${lang}`;
+        const path = `/tours/${encodeURIComponent(tourId)}/reviews`;
 
-        const res = await api.get(path).catch(() => api.get(`/tours/${encodeURIComponent(tourId || 'general')}/reviews?lang=${lang}`));
+        const res = await api.get(path);
 
         let items = [];
         if (Array.isArray(res)) items = res;
@@ -51,7 +49,7 @@ export function useReviews(tourId = null) {
     return () => {
       isMounted = false;
     };
-  }, [tourId, lang]);
+  }, [tourId]);
 
   const submitReview = async (tourSlug, { rating, comment }) => {
     const slugToUse = tourSlug || tourId;

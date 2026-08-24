@@ -22,6 +22,19 @@ const BASE_URL = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
 let _csrfToken = null;
 let _csrfFetchPromise = null;
 
+export function createClientRequestId(prefix) {
+  const cryptoApi = globalThis.crypto;
+  if (typeof cryptoApi?.randomUUID === 'function') {
+    return `${prefix}_${cryptoApi.randomUUID()}`;
+  }
+  if (typeof cryptoApi?.getRandomValues === 'function') {
+    const bytes = new Uint8Array(16);
+    cryptoApi.getRandomValues(bytes);
+    return `${prefix}_${Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')}`;
+  }
+  throw new Error('Secure browser randomness is unavailable');
+}
+
 function getCsrfFromCookie() {
   if (typeof document === 'undefined') return null;
   const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
@@ -97,7 +110,7 @@ export function getOrCreateGuestToken() {
   if (typeof window === 'undefined') return null;
   let token = localStorage.getItem('dunas_guest_token') || sessionStorage.getItem('dunas_guest_token');
   if (!token) {
-    token = 'gt_' + Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
+    token = createClientRequestId('gt');
     try {
       localStorage.setItem('dunas_guest_token', token);
     } catch {
@@ -186,7 +199,7 @@ export async function apiRequest(path, options = {}, { raw = false, _retry = fal
 
   // Build headers
   const guestToken = getOrCreateGuestToken();
-  const requestId = options.headers?.['x-request-id'] || `req_${Math.random().toString(36).substring(2, 9)}_${Date.now()}`;
+  const requestId = options.headers?.['x-request-id'] || createClientRequestId('req');
 
   const headers = {
     'Content-Type': 'application/json',
@@ -202,7 +215,7 @@ export async function apiRequest(path, options = {}, { raw = false, _retry = fal
       headers['x-csrf-token'] = token;
     }
     if (!headers['idempotency-key'] && !headers['Idempotency-Key']) {
-      headers['idempotency-key'] = 'idemp_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now().toString(36);
+      headers['idempotency-key'] = createClientRequestId('idemp');
     }
   }
 

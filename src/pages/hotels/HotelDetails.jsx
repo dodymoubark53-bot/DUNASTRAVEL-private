@@ -1,711 +1,109 @@
-import { useState, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Link, useLocation, useParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  FaStar, FaBed, FaSmokingBan, FaDoorOpen,
-  FaMapMarkerAlt, FaPhone, FaFacebook, FaInstagram, FaGlobe,
-  FaWifi, FaTv, FaShower, FaSnowflake, FaLock, FaBriefcase, FaUtensils,
-  FaBeer, FaCreditCard, FaTimes, FaTshirt, FaCheckCircle, FaUserFriends,
-  FaEye, FaBan
-} from 'react-icons/fa';
-import { useCurrency } from '../../context/CurrencyContext';
+import { FaCheckCircle, FaMapMarkerAlt, FaStar } from 'react-icons/fa';
 import { useCmsBlock } from '../../hooks/useCmsBlock';
-import Button from '../../components/ui/Button';
+import { useCurrency } from '../../context/CurrencyContext';
+import SkeletonLoader from '../../components/ui/SkeletonLoader';
+import ErrorState from '../../components/ui/ErrorState';
+import NotFound from '../NotFound';
+
+function readCatalog(block) {
+  if (Array.isArray(block)) return block;
+  if (Array.isArray(block?.content)) return block.content;
+  return [];
+}
 
 const HotelDetails = () => {
   const { t } = useTranslation();
-  const { formatPrice } = useCurrency();
-  const location = useLocation();
   const { slug } = useParams();
-  const [activeImage, setActiveImage] = useState(null);
-  const [playWalkthrough, setPlayWalkthrough] = useState(false);
+  const { formatPrice } = useCurrency();
+  const { block, loading, error } = useCmsBlock('hotels_catalog');
+  const hotel = readCatalog(block).find(
+    (item) => item?.isActive !== false && (item.id === slug || item.slug === slug),
+  );
 
-  const { data: catalogData } = useCmsBlock('hotels_catalog');
+  if (loading) return <SkeletonLoader count={3} />;
+  if (error) {
+    return <ErrorState message={error.message || t('hotel.loadError', 'Hotel data could not be loaded.')} />;
+  }
+  if (!hotel) return <NotFound />;
 
-  // Dynamic link prefix based on path (programs vs services)
-  const prefix = location.pathname.startsWith('/programs') ? '/programs' : '/services';
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
-  const matchedHotel = useMemo(() => {
-    if (!catalogData) return null;
-    const list = catalogData.content || (Array.isArray(catalogData) ? catalogData : []);
-    if (!Array.isArray(list)) return null;
-    return list.find(h => h.id === slug || h.slug === slug || h.name?.toLowerCase().includes(slug?.toLowerCase()));
-  }, [catalogData, slug]);
-
-  const hotelOverview = {
-    name: matchedHotel?.name || 'Sol Pyramid Hotel',
-    stars: matchedHotel?.stars || 5,
-    yearBuilt: '2025',
-    totalRooms: t('hotel.overview.roomsCount', '20 rooms (40 more coming soon)'),
-    checkIn: '3:00 PM',
-    checkOut: '12:00 PM',
-    smoking: t('hotel.overview.smokingPolicyVal', 'Non-smoking throughout the entire property'),
-    pets: t('hotel.overview.petsPolicyVal', 'Not allowed'),
-    location: matchedHotel?.city ? `${matchedHotel.city}, ${matchedHotel.destination?.toUpperCase() || 'EGYPT'}` : '05 Rawdet al Ahram, Behind Le Meridien Pyramids St., Old Hadayek al Ahram – Haram – Giza – Egypt',
-    telephones: ['+2 02 33775511', '+2 02 33775522'],
-    cell: '(+2) 01149401111',
-    email: 'info@dunastravel.com',
-    facebook: 'https://www.facebook.com/dunastravel',
-    instagram: 'https://www.instagram.com/dunastravel',
-    website: 'https://dunastravel.com/'
-  };
-
-  const roomTypes = [
-    {
-      id: 'double-room',
-      name: t('hotel.room.doubleTitle', 'Double Room'),
-      price: 85,
-      capacity: '1–2 Guests',
-      bed: t('hotel.room.doubleBed', '1 King Bed'),
-      view: t('hotel.room.doubleView', 'Pyramids View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg'
-    },
-    {
-      id: 'twin-room',
-      name: t('hotel.room.twinTitle', 'Twin Room'),
-      price: 85,
-      capacity: '2 Guests',
-      bed: t('hotel.room.twinBed', 'Double/Twin'),
-      view: t('hotel.room.twinView', 'Standard View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2026/02/Double-900x500.jpg'
-    },
-    {
-      id: 'triple-room',
-      name: t('hotel.room.tripleTitle', 'Triple Room'),
-      price: 110,
-      capacity: '3 Guests',
-      bed: t('hotel.room.tripleBed', 'Double/Twin'),
-      view: t('hotel.room.tripleView', 'Standard View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2026/02/Triple-900x500.jpg'
-    }
-  ];
-
-  const inRoomFacilities = [
-    { label: t('hotel.fac.wifi', 'Free Wi-Fi'), icon: <FaWifi className="text-gold-500" /> },
-    { label: t('hotel.fac.ac', 'Air conditioning (cold & heat)'), icon: <FaSnowflake className="text-gold-500" /> },
-    { label: t('hotel.fac.bathroom', 'Private bathroom with amenities'), icon: <FaShower className="text-gold-500" /> },
-    { label: t('hotel.fac.minibar', 'Mini bar — refrigerated, stocked (against charge)'), icon: <FaBeer className="text-gold-500" /> },
-    { label: t('hotel.fac.coffee', 'In-room coffee & tea — daily refreshment basis'), icon: <FaUtensils className="text-gold-500" /> },
-    { label: t('hotel.fac.linen', '100% Egyptian cotton linen & bed covers'), icon: <FaBed className="text-gold-500" /> },
-    { label: t('hotel.fac.tv', 'TV — Multi-language channels: Italian, Spanish, English, Portuguese, Sport, Kids, Arabic'), icon: <FaTv className="text-gold-500" /> },
-    { label: t('hotel.fac.safe', 'Free safe box'), icon: <FaLock className="text-gold-500" /> },
-    { label: t('hotel.fac.table', 'Dressing table'), icon: <FaDoorOpen className="text-gold-500" /> },
-    { label: t('hotel.fac.iron', 'Iron & ironing board (upon request)'), icon: <FaTshirt className="text-gold-500" /> },
-    { label: t('hotel.fac.phone', 'In-room phone'), icon: <FaPhone className="text-gold-500" /> },
-    { label: t('hotel.fac.hairdryer', 'Hair dryer'), icon: <FaDoorOpen className="text-gold-500" /> },
-    { label: t('hotel.fac.heater', 'Heater'), icon: <FaSnowflake className="text-gold-500" /> }
-  ]; 
-
-  const hotelWideFacilities = [
-    { label: t('hotel.fac.giftshop', 'Gift shop'), icon: <FaBriefcase className="text-gold-500" /> },
-    { label: t('hotel.fac.restaurant', 'Rooftop restaurant (coming soon)'), icon: <FaUtensils className="text-gold-500" /> },
-    { label: t('hotel.fac.bar', 'Bar with wide range of snack options (coming soon)'), icon: <FaBeer className="text-gold-500" /> },
-    { label: t('hotel.fac.payment', 'SSL-secured online payment'), icon: <FaCreditCard className="text-gold-500" /> }
-  ];
-
-  const galleryImages = [
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM5.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM4.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.45.12-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.45.58-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.00-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM6.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.00-PM-2.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM3.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.21-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.07-P2M.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM-copy.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.16-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.22-PM-1.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.25-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.26-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.19-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.35-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.32-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.30-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.33-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.34-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.36-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Hotel.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Tea-Tabel.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/TV-Unit.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/View.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0013.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0010.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0009.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0006.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0002.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0004.jpg'
-  ];
-
-  // Reviews state
-  const [reviews, setReviews] = useState([
-    { name: 'David Mercer', rating: 5, date: '2026-05-30', text: 'Stunning hotel with incredible proximity to the Pyramids entrance. Highly recommended!' },
-    { name: 'Elena Rostova', rating: 5, date: '2026-04-14', text: 'Comfortable 3-star service, brand new room equipment, and friendly staff. Rooftop dinner will be fantastic.' }
-  ]);
-  const [newReview, setNewReview] = useState({ name: '', rating: 5, text: '' });
-  const [reviewSuccess, setReviewSuccess] = useState(false);
-
-  const handleReviewSubmit = (e) => {
-    e.preventDefault();
-    if (!newReview.name || !newReview.text) return;
-    
-    const addedReview = {
-      name: newReview.name,
-      rating: parseInt(newReview.rating),
-      date: new Date().toISOString().split('T')[0],
-      text: newReview.text
-    };
-    
-    setReviews(prev => [addedReview, ...prev]);
-    setNewReview({ name: '', rating: 5, text: '' });
-    setReviewSuccess(true);
-    setTimeout(() => setReviewSuccess(false), 3000);
-  };
+  const stars = Number.isFinite(Number(hotel.stars)) ? Number(hotel.stars) : 0;
+  const rating = Number.isFinite(Number(hotel.rating)) ? Number(hotel.rating) : null;
+  const price = Number.isFinite(Number(hotel.pricePerNight)) ? Number(hotel.pricePerNight) : null;
+  const amenities = Array.isArray(hotel.amenities) ? hotel.amenities : [];
+  const location = [hotel.city, hotel.destination].filter(Boolean).join(', ');
 
   return (
-    <div className="w-full bg-[#FAF9F5] dark:bg-obsidian-900 pb-24 text-slate-800 dark:text-slate-200 leading-relaxed font-body">
+    <main className="min-h-screen bg-obsidian-50 pb-24 text-obsidian-900">
       <Helmet>
-        <title>{t('hotel.seoTitle', 'Sol Pyramid Hotel | Giza Pyramids View | Dunas Travel')}</title>
-        <meta name="description" content={t('hotel.seoDesc', 'Stay steps away from the Pyramids of Giza at Sol Pyramid Hotel. Enjoy modern 3-star luxury, elegant rooms with Pyramids views, rooftop dining coming soon, and family-friendly hospitality.')} />
+        <title>{hotel.name} | Dunas Travel</title>
+        <meta name="description" content={hotel.description || `${hotel.name} — ${location}`} />
       </Helmet>
 
-      {/* SECTION 1: HERO SECTION */}
-      <section className="relative min-h-[100svh] md:h-[75vh] md:min-h-[500px] flex items-end justify-center overflow-hidden pb-12 pt-32 md:pb-20 md:pt-0">
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/23/0d/4e/68/henann-park-resort.jpg?w=600&h=600&s=1"
-            alt="Sol Pyramid Hotel Facade"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-slate-900/60 bg-gradient-to-t from-[#FAF9F5] via-slate-900/40 to-transparent"></div>
-        </div>
-
-        <div className="relative z-10 container mx-auto px-6 max-w-6xl flex flex-col md:flex-row justify-between items-start md:items-end gap-6 w-full">
-          <div className="text-left w-full md:w-auto">
-            <div className="flex flex-wrap items-center justify-start gap-x-3 gap-y-2 mb-3">
-              <div className="flex items-center gap-2">
-                <span className="flex items-center gap-0.5 text-gold-500 text-base md:text-lg">
-                  <FaStar /><FaStar /><FaStar />
+      <section className="relative min-h-[480px] overflow-hidden bg-obsidian-900 text-white">
+        {hotel.image ? (
+          <img src={hotel.image} alt={hotel.name} className="absolute inset-0 h-full w-full object-cover" />
+        ) : null}
+        <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900 via-obsidian-900/65 to-obsidian-900/20" />
+        <div className="container relative z-10 mx-auto flex min-h-[480px] items-end px-6 py-16">
+          <div className="max-w-3xl">
+            <div className="mb-4 flex flex-wrap items-center gap-4 text-gold-400">
+              {stars > 0 ? (
+                <span className="flex items-center gap-1" aria-label={`${stars} stars`}>
+                  {Array.from({ length: stars }, (_, index) => <FaStar key={index} />)}
                 </span>
-                <span className="text-white text-[11px] md:text-xs font-semibold uppercase tracking-widest">{t('hotel.overview.starsLabel', '3-Star Hotel')}</span>
-              </div>
-              <span className="hidden sm:block w-1.5 h-1.5 rounded-full bg-gold-500"></span>
-              <div className="flex items-center gap-1 text-white text-[11px] md:text-xs font-semibold uppercase tracking-widest">
-                <FaMapMarkerAlt className="text-sm shrink-0" /> 
-                <span className="whitespace-normal">{t('hotel.overview.gizaEgypt', 'Giza, Egypt')}</span>
-              </div>
+              ) : null}
+              {location ? (
+                <span className="flex items-center gap-2 text-white/85"><FaMapMarkerAlt />{location}</span>
+              ) : null}
             </div>
-            
-            <h1 className="text-4xl sm:text-5xl md:text-display-xl text-white font-display font-semibold drop-shadow-lg mb-3 leading-tight">
-              {hotelOverview.name}
-            </h1>
-            
-            <p className="text-slate-200 text-lg md:text-xl font-medium italic mb-6">
-              "{t('hotel.tagline', 'Steps from the Pyramids of Giza — Where History Meets Comfort')}"
-            </p>
-
-            {/* Quick Info Badges */}
-            <div className="flex flex-wrap gap-2.5">
-              <span className="bg-slate-900/70 border border-slate-700 px-3.5 py-1.5 rounded-full text-xs font-semibold text-white">
-                {t('hotel.overview.checkInLabel', 'Check-in')}: {hotelOverview.checkIn}
-              </span>
-              <span className="bg-slate-900/70 border border-slate-700 px-3.5 py-1.5 rounded-full text-xs font-semibold text-white">
-                {t('hotel.overview.checkOutLabel', 'Check-out')}: {hotelOverview.checkOut}
-              </span>
-              <span className="bg-slate-900/70 border border-slate-700 px-3.5 py-1.5 rounded-full text-xs font-semibold text-white">
-                {hotelOverview.totalRooms}
-              </span>
-              <span className="bg-slate-900/70 border border-slate-700 px-3.5 py-1.5 rounded-full text-xs font-semibold text-white flex items-center gap-1">
-                <FaSmokingBan className="text-red-400" /> {t('hotel.overview.smokingPolicyVal', 'No Smoking')}
-              </span>
-              <span className="bg-slate-900/70 border border-slate-700 px-3.5 py-1.5 rounded-full text-xs font-semibold text-white flex items-center gap-1">
-                <FaBan className="text-red-400" /> {t('hotel.overview.petsPolicyVal', 'No Pets')}
-              </span>
-            </div>
-          </div>
-
-          <div className="bg-slate-900/90 backdrop-blur-md p-6 rounded-2xl border border-white/10 text-white w-full md:w-auto shadow-xl shrink-0 text-center md:text-right">
-            <div className="text-gold-500 text-xs uppercase tracking-widest mb-1">{t('tourCard.startingFrom', 'Rooms From')}</div>
-            <div className="text-3xl font-semibold text-gold-400 mb-3">{formatPrice(85)}<span className="text-sm font-normal text-slate-300"> / {t('hotel.night', 'night')}</span></div>
-            <Link to="/tailor-a-tour">
-              <Button variant="glass" className="w-full px-6 py-2.5 text-xs uppercase font-bold">
-                {t('home.tailorTour', 'Customize Your Stay')}
-              </Button>
-            </Link>
+            <h1 className="text-4xl font-bold md:text-6xl">{hotel.name}</h1>
+            {hotel.description ? <p className="mt-6 max-w-2xl text-lg text-white/80">{hotel.description}</p> : null}
           </div>
         </div>
       </section>
 
-      {/* SECTION 2: HOTEL OVERVIEW SECTION */}
-      <section className="container mx-auto px-6 py-12 max-w-6xl -mt-10 relative z-20">
-        <div className="bg-white dark:bg-obsidian-800 rounded-2xl shadow-card border border-slate-200/50 dark:border-obsidian-700 p-5 md:p-12 text-left">
-          <h2 className="text-3xl font-display font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
-            <span className="w-1.5 h-8 bg-gold-500 rounded-full"></span>
-            {t('hotel.overview.title', 'Hotel Overview')}
-          </h2>
-          
-          <p className="text-lg text-slate-700 dark:text-slate-200 leading-relaxed mb-10">
-            "{t('hotel.overview.desc', 'Sol Pyramid Hotel is a modern 3-star establishment built in 2025, designed for travellers who want to explore Egypt\'s greatest sights. Combining elegant room design with a family atmosphere, it offers complete modern facilities with personal and qualified service — all located steps away from the Pyramids of Giza.')}"
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <div className="bg-slate-50 dark:bg-obsidian-700/50 p-5 rounded-xl border border-slate-200/60 dark:border-obsidian-600 flex items-start gap-4">
-              <div className="w-10 h-10 rounded-lg bg-gold-500/10 flex items-center justify-center text-gold-600 shrink-0 text-xl font-bold">🏗️</div>
-              <div>
-                <span className="text-[11px] uppercase tracking-wider text-slate-400 dark:text-slate-300 block font-bold">{t('hotel.overview.yearBuilt', 'Built')}</span>
-                <span className="font-semibold text-slate-900 dark:text-white text-sm">2025</span>
-              </div>
-            </div>
-            <div className="bg-slate-50 dark:bg-obsidian-700/50 p-5 rounded-xl border border-slate-200/60 dark:border-obsidian-600 flex items-start gap-4">
-              <div className="w-10 h-10 rounded-lg bg-gold-500/10 flex items-center justify-center text-gold-600 shrink-0 text-xl font-bold">⭐</div>
-              <div>
-                <span className="text-[11px] uppercase tracking-wider text-slate-400 dark:text-slate-300 block font-bold">{t('tour.tourType', 'Rating')}</span>
-                <span className="font-semibold text-slate-900 dark:text-white text-sm">{t('hotel.overview.starsLabel', '3-Star Hotel')}</span>
-              </div>
-            </div>
-            <div className="bg-slate-50 dark:bg-obsidian-700/50 p-5 rounded-xl border border-slate-200/60 dark:border-obsidian-600 flex items-start gap-4">
-              <div className="w-10 h-10 rounded-lg bg-gold-500/10 flex items-center justify-center text-gold-600 shrink-0 text-xl font-bold">🛏️</div>
-              <div>
-                <span className="text-[11px] uppercase tracking-wider text-slate-400 dark:text-slate-300 block font-bold">{t('hotel.overview.totalRooms', 'Total Rooms')}</span>
-                <span className="font-semibold text-slate-900 dark:text-white text-sm">{hotelOverview.totalRooms}</span>
-              </div>
-            </div>
-            <div className="bg-slate-50 dark:bg-obsidian-700/50 p-5 rounded-xl border border-slate-200/60 dark:border-obsidian-600 flex items-start gap-4">
-              <div className="w-10 h-10 rounded-lg bg-gold-500/10 flex items-center justify-center text-gold-600 shrink-0 text-xl font-bold">🕒</div>
-              <div>
-                <span className="text-[11px] uppercase tracking-wider text-slate-400 dark:text-slate-300 block font-bold">{t('hotel.overview.checkInOut', 'Check-in / Check-out')}</span>
-                <span className="font-semibold text-slate-900 dark:text-white text-sm">{hotelOverview.checkIn} / {hotelOverview.checkOut}</span>
-              </div>
-            </div>
-            <div className="bg-slate-50 dark:bg-obsidian-700/50 p-5 rounded-xl border border-slate-200/60 dark:border-obsidian-600 flex items-start gap-4">
-              <div className="w-10 h-10 rounded-lg bg-gold-500/10 flex items-center justify-center text-gold-600 shrink-0 text-xl font-bold">🚭</div>
-              <div>
-                <span className="text-[11px] uppercase tracking-wider text-slate-400 dark:text-slate-300 block font-bold">{t('hotel.overview.smokingPolicy', 'Smoking')}</span>
-                <span className="font-semibold text-slate-900 dark:text-white text-xs">{t('hotel.overview.smokingPolicyVal', 'Non-smoking throughout')}</span>
-              </div>
-            </div>
-            <div className="bg-slate-50 dark:bg-obsidian-700/50 p-5 rounded-xl border border-slate-200/60 dark:border-obsidian-600 flex items-start gap-4">
-              <div className="w-10 h-10 rounded-lg bg-gold-500/10 flex items-center justify-center text-gold-600 shrink-0 text-xl font-bold">🐾</div>
-              <div>
-                <span className="text-[11px] uppercase tracking-wider text-slate-400 dark:text-slate-300 block font-bold">{t('hotel.overview.pets', 'Pets')}</span>
-                <span className="font-semibold text-slate-900 dark:text-white text-sm">{t('hotel.overview.petsPolicyVal', 'No pets allowed')}</span>
-              </div>
-            </div>
-            <div className="bg-slate-50 dark:bg-obsidian-700/50 p-5 rounded-xl border border-slate-200/60 dark:border-obsidian-600 col-span-1 sm:col-span-2 flex items-start gap-4">
-              <div className="w-10 h-10 rounded-lg bg-gold-500/10 flex items-center justify-center text-gold-600 shrink-0 text-xl font-bold">💳</div>
-              <div>
-                <span className="text-[11px] uppercase tracking-wider text-slate-400 dark:text-slate-300 block font-bold">{t('hotel.fac.hotelWideTitle', 'Payments')}</span>
-                <span className="font-semibold text-slate-900 dark:text-white text-sm">{t('hotel.fac.payment', 'SSL-secured online payment')}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 3: ROOMS SECTION — 3 Clickable Room Cards */}
-      <section className="container mx-auto px-6 py-12 max-w-6xl text-left">
-        <div className="text-center mb-12">
-          <span className="text-gold-600 uppercase tracking-widest text-xs font-semibold block mb-2">{t('hotel.room.selection', 'ACCOMMODATIONS')}</span>
-          <h2 className="text-3xl md:text-5xl font-display font-semibold text-slate-900 dark:text-white">
-            {t('hotel.room.title', 'Available Room Types')}
-          </h2>
-          <div className="w-20 h-1 bg-gold-500 mx-auto mt-4"></div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {roomTypes.map((room) => (
-            <div
-              key={room.id}
-              className="bg-white dark:bg-obsidian-800 rounded-2xl overflow-hidden shadow-sm border border-slate-200/65 dark:border-obsidian-700 flex flex-col justify-between hover:shadow-md transition-shadow"
-            >
-              <div>
-                <div className="relative h-56 overflow-hidden">
-                  <img src={room.image} alt={room.name} className="w-full h-full object-cover" />
-                  <div className="absolute top-4 left-4 bg-slate-900/85 backdrop-blur-sm text-gold-500 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">
-                    {room.view}
-                  </div>
-                </div>
-
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
-                    {room.name}
-                  </h3>
-                  <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-300 mb-6 font-semibold">
-                    <span className="flex items-center gap-1"><FaUserFriends /> {room.capacity}</span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1"><FaBed /> {room.bed}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-6 bg-slate-50 dark:bg-obsidian-700/50 border-t border-slate-100 dark:border-obsidian-600 flex justify-between items-center">
-                <div>
-                  <span className="block text-[10px] text-slate-400 dark:text-slate-300 uppercase tracking-wider font-bold mb-0.5">{t('tourCard.startingFrom', 'Price')}</span>
-                  <span className="text-lg font-bold text-slate-900 dark:text-white">
-                    {t('tourCard.from', 'From')} {formatPrice(room.price)}
-                    <span className="text-xs text-slate-400 font-normal"> / {t('hotel.night', 'night')}</span>
-                  </span>
-                </div>
-                <Link to={`${prefix}/hotels/sol-pyramid-hotel/${room.id}`}>
-                  <Button variant="outline-gold" className="px-4 py-2 text-xs uppercase font-bold">
-                    {t('tourCard.viewDetails', 'View Details')}
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* SECTION 4: HOTEL FACILITIES SECTION */}
-      <section className="bg-slate-900 py-20 text-white border-y border-slate-800 text-left">
-        <div className="container mx-auto px-6 max-w-6xl">
-          <div className="text-center mb-16">
-            <span className="text-gold-500 uppercase tracking-widest text-xs font-semibold block mb-2">{t('hotel.fac.comfort', 'PREMIUM SERVICES')}</span>
-            <h2 className="text-3xl md:text-5xl font-display font-semibold text-gold-400">
-              {t('hotel.fac.title', 'Hotel Facilities')}
-            </h2>
-            <div className="w-20 h-1 bg-gold-500 mx-auto mt-4"></div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Column 1: In-Room Amenities */}
-            <div className="bg-slate-800/40 p-5 md:p-10 rounded-2xl border border-slate-800 shadow-inner">
-              <h3 className="text-xl font-display font-semibold text-gold-400 mb-6 border-b border-slate-700/50 pb-3 flex items-center gap-2">
-                📶 {t('hotel.fac.inRoomTitle', 'In-Room Amenities')}
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {inRoomFacilities.map((fac, idx) => (
-                  <div key={idx} className="flex items-center gap-3.5 text-slate-300">
-                    <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center shrink-0">
-                      {fac.icon}
-                    </div>
-                    <span className="text-sm font-medium">{fac.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Column 2: Hotel-Wide Facilities */}
-            <div className="bg-slate-800/40 p-5 md:p-10 rounded-2xl border border-slate-800 shadow-inner flex flex-col justify-between">
-              <div>
-                <h3 className="text-xl font-display font-semibold text-gold-400 mb-6 border-b border-slate-700/50 pb-3 flex items-center gap-2">
-                  🏢 {t('hotel.fac.hotelWideTitle', 'Hotel-Wide Facilities')}
-                </h3>
-                <div className="space-y-4">
-                  {hotelWideFacilities.map((fac, idx) => (
-                    <div key={idx} className="flex items-center gap-4 text-slate-300">
-                      <div className="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center shrink-0">
-                        {fac.icon}
-                      </div>
-                      <span className="text-sm font-medium">{fac.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-8 p-5 rounded-xl bg-gold-500/10 border border-gold-500/20 text-center">
-                <span className="text-gold-400 font-semibold block uppercase tracking-wider mb-1 text-xs">🔒 {t('hotel.fac.securePayTitle', 'SSL Secured Reservation')}</span>
-                <p className="text-[11px] text-slate-300">{t('hotel.fac.securePayDesc', 'Book with absolute confidence. All payments are processed through SSL-secured payment portals.')}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 5: LOCATION SECTION */}
-      <section className="container mx-auto px-6 py-20 max-w-6xl text-left scroll-mt-28">
-        <div className="text-center mb-12">
-          <span className="text-gold-600 uppercase tracking-widest text-xs font-semibold block mb-2">{t('hotel.location.subtitle', 'HOW TO FIND US')}</span>
-          <h2 className="text-3xl md:text-5xl font-display font-semibold text-slate-900 dark:text-white">
-            {t('hotel.location.proximityTitle', 'Steps From Giza Pyramids')}
-          </h2>
-          <div className="w-20 h-1 bg-gold-500 mx-auto mt-4"></div>
-        </div>
-
-        <div className="bg-white dark:bg-obsidian-800 rounded-3xl shadow-sm border border-slate-200/60 dark:border-obsidian-700 p-4 md:p-8 flex flex-col lg:flex-row gap-8 items-stretch">
-          <div className="lg:w-1/2 flex flex-col justify-between py-2">
-            <div>
-              <p className="text-slate-700 dark:text-slate-200 text-[15px] leading-relaxed mb-6">
-                "{t('hotel.location.proximityDesc', 'Sol Pyramid Hotel enjoys a premium spot in Haram, Giza, located right behind Le Meridien Pyramids. It puts you in immediate walking or short-driving distance to the ancient pyramids, making it the perfect base camp for history buffs and global travelers.')}"
-              </p>
-
-              <div className="space-y-3.5 text-sm text-slate-800 dark:text-slate-200 font-medium">
-                <div className="flex items-center gap-3">
-                  <FaCheckCircle className="text-green-600 text-lg shrink-0" />
-                  <span>{t('hotel.location.dist1', 'Giza Pyramids Entrance — 5 mins walk')}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <FaCheckCircle className="text-green-600 text-lg shrink-0" />
-                  <span>{t('hotel.location.dist2', 'Grand Egyptian Museum (GEM) — 10 mins drive')}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <FaCheckCircle className="text-green-600 text-lg shrink-0" />
-                  <span>{t('hotel.location.dist3', 'Cairo International Airport — 45 mins drive')}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 p-5 rounded-2xl bg-slate-50 dark:bg-obsidian-700/50 border border-slate-200 dark:border-obsidian-600 text-slate-700 dark:text-slate-200 flex items-start gap-4">
-              <FaMapMarkerAlt className="text-gold-600 text-xl mt-0.5 shrink-0" />
-              <div>
-                <span className="font-bold text-slate-900 dark:text-white block mb-1 text-xs uppercase tracking-wider">{t('hotel.location.exactAddress', 'Exact Address')}</span>
-                <p className="text-sm font-medium leading-relaxed">{hotelOverview.location}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Interactive Google Map Embed */}
-          <div className="lg:w-1/2 min-h-[350px] rounded-2xl overflow-hidden shadow-inner border border-slate-200 relative">
-            <iframe
-              src="https://maps.google.com/maps?q=29.98536,31.13627&t=&z=15&ie=UTF8&iwloc=&output=embed"
-              width="100%"
-              height="100%"
-              frameBorder="0"
-              style={{ border: 0, minHeight: '350px' }}
-              allowFullScreen=""
-              loading="lazy"
-              title={t('hotel.location.title', 'Hotel Location')}
-            ></iframe>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 6: CINEMATIC TOUR / VIDEO SECTION */}
-      <section className="bg-slate-900 py-20 text-white border-y border-slate-800 text-center">
-        <div className="container mx-auto px-6 max-w-4xl">
-          <span className="text-gold-500 uppercase tracking-widest text-xs font-semibold block mb-2">{t('hotel.video.subtitle', 'CINEMATIC TOUR')}</span>
-          <h2 className="text-3xl md:text-5xl font-display font-semibold text-gold-400 mb-4">
-            {t('hotel.video.title', 'Video Walkthrough')}
-          </h2>
-          <p className="text-sm text-slate-300 max-w-xl mx-auto mb-10">
-            "{t('hotel.video.desc', 'Watch our exclusive video tour to experience the family atmosphere, elegant accommodations, and views of Sol Pyramid Hotel.')}"
-          </p>
-
-          <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl border border-slate-800 bg-black">
-            {playWalkthrough ? (
-              <iframe
-                className="w-full h-full absolute inset-0"
-                src="https://www.youtube.com/embed/RFeQ5fjkYt8?autoplay=1"
-                title="Sol Pyramid Hotel Cinematic Video Tour"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              ></iframe>
-            ) : (
-              <div
-                className="w-full h-full absolute inset-0 cursor-pointer group focus:outline-none focus:ring-2 focus:ring-gold-500"
-                onClick={() => setPlayWalkthrough(true)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    setPlayWalkthrough(true);
-                  }
-                }}
-                tabIndex={0}
-                role="button"
-                aria-label="Play Sol Pyramid Hotel Cinematic Video Tour"
-              >
-                <img
-                  src="https://img.youtube.com/vi/RFeQ5fjkYt8/hqdefault.jpg"
-                  alt="Sol Pyramid Hotel Cinematic Video Tour Placeholder"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                  width="800"
-                  height="450"
-                />
-                <div className="absolute inset-0 bg-slate-950/30 group-hover:bg-slate-950/20 transition-colors flex items-center justify-center">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gold-500/90 text-slate-950 flex items-center justify-center shadow-2xl transition-transform duration-300 group-hover:scale-110 group-hover:bg-gold-400">
-                    <svg className="w-8 h-8 ml-1.5 fill-current" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 7: FULL PHOTO GALLERY SECTION */}
-      <section className="container mx-auto px-6 py-20 max-w-6xl text-left">
-        <div className="text-center mb-12">
-          <span className="text-gold-600 uppercase tracking-widest text-xs font-semibold block mb-2">{t('hotel.gallery.subtitle', 'VISUAL INSIGHTS')}</span>
-          <h2 className="text-3xl md:text-5xl font-display font-semibold text-slate-900 dark:text-white">
-            {t('hotel.gallery.title', 'Gallery')}
-          </h2>
-          <div className="w-20 h-1 bg-gold-500 mx-auto mt-4"></div>
-        </div>
-
-        <div className="columns-2 sm:columns-3 md:columns-4 gap-4">
-          {galleryImages.map((img, idx) => (
-            <div
-              key={idx}
-              className="break-inside-avoid rounded-xl overflow-hidden cursor-pointer group relative shadow-sm border border-slate-200 bg-slate-100 mb-4"
-              onClick={() => setActiveImage(img)}
-            >
-              <img src={img} alt={`Sol Pyramid Hotel Gallery ${idx + 1}`} className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-              <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <FaEye className="text-white text-2xl" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* SECTION 8: REVIEWS / RATINGS SECTION */}
-      <section className="bg-white dark:bg-obsidian-900 py-16 border-t border-slate-200 dark:border-obsidian-700 text-left">
-        <div className="container mx-auto px-6 max-w-4xl">
-          <div className="text-center mb-10">
-            <span className="text-gold-600 uppercase tracking-widest text-xs font-semibold block mb-2">{t('hotel.gallery.subtitle', 'GUEST FEEDBACK')}</span>
-            <h2 className="text-3xl font-display font-semibold text-slate-900 dark:text-white">{t('hotel.room.reviewsTitle', 'Reviews & Ratings')}</h2>
-            <div className="w-20 h-1 bg-gold-500 mx-auto mt-3"></div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start mb-12">
-            {/* Score display */}
-            <div className="bg-slate-50 dark:bg-obsidian-800 p-6 rounded-xl border border-slate-200/60 dark:border-obsidian-700 text-center">
-              <span className="text-5xl font-bold text-slate-900 dark:text-white">5.0</span>
-              <div className="flex justify-center gap-0.5 text-gold-500 my-2 text-lg">
-                <FaStar /><FaStar /><FaStar /><FaStar /><FaStar />
-              </div>
-              <span className="text-xs uppercase tracking-wider font-bold text-slate-400">
-                {t('hotel.room.reviewsCountVal', 'Based on {{count}} reviews', { count: reviews.length })}
-              </span>
-            </div>
-
-            {/* List */}
-            <div className="md:col-span-2 space-y-4">
-              {reviews.map((rev, idx) => (
-                <div key={idx} className="p-5 bg-slate-50 dark:bg-obsidian-800 rounded-xl border border-slate-100 dark:border-obsidian-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="font-semibold text-slate-900 dark:text-white">{rev.name}</h4>
-                    <span className="text-xs text-slate-400">{rev.date}</span>
-                  </div>
-                  <div className="flex gap-0.5 mb-2.5 text-gold-500">
-                    {[...Array(rev.rating)].map((_, i) => (
-                      <FaStar key={i} />
-                    ))}
-                  </div>
-                  <p className="text-slate-600 dark:text-slate-200 text-sm leading-relaxed">{rev.text}</p>
+      <section className="container mx-auto grid gap-8 px-6 py-16 lg:grid-cols-[1fr_340px]">
+        <div>
+          <h2 className="mb-6 text-3xl font-bold">{t('hotel.amenities', 'Amenities')}</h2>
+          {amenities.length ? (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {amenities.map((amenity) => (
+                <div key={amenity} className="flex items-center gap-3 rounded-xl border border-gold-500/15 bg-white p-4">
+                  <FaCheckCircle className="shrink-0 text-gold-500" />
+                  <span>{amenity}</span>
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleReviewSubmit} className="bg-slate-50 dark:bg-obsidian-800 p-6 rounded-xl border border-slate-200 dark:border-obsidian-700">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">{t('tour.leaveReview', 'Write a Review')}</h3>
-            {reviewSuccess && (
-              <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-lg text-sm font-medium flex items-center gap-2">
-                <FaCheckCircle /> {t('booking.reservationConfirmed', 'Review submitted successfully!')}
-              </div>
-            )}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1.5 font-bold">{t('booking.fullName', 'Name')}</label>
-                <input
-                  type="text"
-                  required
-                  placeholder={t('booking.fullName', 'Your Name')}
-                  value={newReview.name}
-                  onChange={(e) => setNewReview(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full p-3 rounded-lg border border-slate-300 dark:border-obsidian-600 text-slate-900 dark:text-white text-sm bg-white dark:bg-obsidian-700 outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1.5 font-bold">{t('tour.tourType', 'Rating')}</label>
-                <select
-                  value={newReview.rating}
-                  onChange={(e) => setNewReview(prev => ({ ...prev, rating: e.target.value }))}
-                  className="w-full p-3 rounded-lg border border-slate-300 dark:border-obsidian-600 text-slate-900 dark:text-white text-sm bg-white dark:bg-obsidian-700 outline-none"
-                >
-                  <option value="5">⭐⭐⭐⭐⭐ ({t('booking.guests', '5 Stars')})</option>
-                  <option value="4">⭐⭐⭐⭐ ({t('booking.guests', '4 Stars')})</option>
-                  <option value="3">⭐⭐⭐ ({t('booking.guests', '3 Stars')})</option>
-                  <option value="2">⭐⭐ ({t('booking.guests', '2 Stars')})</option>
-                  <option value="1">⭐ ({t('booking.guests', '1 Star')})</option>
-                </select>
-              </div>
-            </div>
-            <div className="mb-4">
-              <label className="block text-xs uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1.5 font-bold">{t('booking.specialRequirements', 'Comment')}</label>
-              <textarea
-                required
-                rows="3"
-                placeholder={t('booking.specialRequestPlaceholder', 'Share your experience at Sol Pyramid Hotel...')}
-                value={newReview.text}
-                onChange={(e) => setNewReview(prev => ({ ...prev, text: e.target.value }))}
-                className="w-full p-3 rounded-lg border border-slate-300 dark:border-obsidian-600 text-slate-900 dark:text-white text-sm bg-white dark:bg-obsidian-700 outline-none resize-none"
-              ></textarea>
-            </div>
-            <Button type="submit" variant="gold-glow" className="px-5 py-2.5 text-xs uppercase font-bold">
-              {t('tour.submitReview', 'Submit Review')}
-            </Button>
-          </form>
+          ) : (
+            <p className="text-obsidian-500">{t('hotel.noAmenities', 'Amenities have not been added yet.')}</p>
+          )}
         </div>
-      </section>
 
-      {/* SECTION 9: CONTACT & FOOTER INFO SECTION */}
-      <section className="container mx-auto px-6 py-6 max-w-6xl mt-8">
-        <div className="bg-slate-900 text-white p-5 md:p-8 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-6 text-left">
-          <div>
-            <h3 className="text-xl font-display font-semibold text-gold-400 mb-2">Sol Pyramid Hotel</h3>
-            <p className="text-xs text-slate-400 max-w-md">{hotelOverview.location}</p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 text-sm text-slate-300">
-            <div>
-              <span className="block text-[10px] text-slate-500 uppercase tracking-wider mb-1">📞 {t('booking.phone', 'Phone')}</span>
-              <span className="font-semibold block">{hotelOverview.telephones.join(' / ')}</span>
+        <aside className="h-fit rounded-2xl bg-obsidian-900 p-7 text-white shadow-xl">
+          {rating !== null ? (
+            <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-5">
+              <span>{t('hotel.rating', 'Rating')}</span>
+              <strong className="text-gold-400">{rating.toFixed(1)} / 5</strong>
             </div>
-            <div>
-              <span className="block text-[10px] text-slate-500 uppercase tracking-wider mb-1">📱 {t('booking.phone', 'Cell')}</span>
-              <span className="font-semibold block">{hotelOverview.cell}</span>
+          ) : null}
+          {price !== null ? (
+            <div className="mb-7">
+              <span className="block text-sm text-white/60">{t('hotel.pricePerNight', 'Price per night')}</span>
+              <strong className="text-3xl text-gold-400">{formatPrice(price)}</strong>
             </div>
-            <div>
-              <span className="block text-[10px] text-slate-500 uppercase tracking-wider mb-1">✉️ {t('booking.email', 'Email')}</span>
-              <span className="font-semibold block">{hotelOverview.email}</span>
-            </div>
-          </div>
-          <div className="flex gap-4">
-            <a href={hotelOverview.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-gold-500 hover:text-slate-900 transition-all text-slate-300">
-              <FaFacebook size={18} />
-            </a>
-            <a href={hotelOverview.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-gold-500 hover:text-slate-900 transition-all text-slate-300">
-              <FaInstagram size={18} />
-            </a>
-            <a href={hotelOverview.website} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-gold-500 hover:text-slate-900 transition-all text-slate-300">
-              <FaGlobe size={18} />
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* Lightbox Gallery Modal */}
-      <AnimatePresence>
-        {activeImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[99999] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4"
-            onClick={() => setActiveImage(null)}
+          ) : null}
+          <Link
+            to={`/contact?hotel=${encodeURIComponent(hotel.id)}`}
+            className="block rounded-full bg-gold-500 px-6 py-3 text-center font-bold text-obsidian-900 transition hover:bg-gold-400"
           >
-            <button className="absolute top-6 right-6 text-white hover:text-gold-500 z-50 transition-colors">
-              <FaTimes size={32} />
-            </button>
-            <img src={activeImage} className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl" alt="Gallery preview" />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+            {t('hotel.requestBooking', 'Request this hotel')}
+          </Link>
+        </aside>
+      </section>
+    </main>
   );
 };
 

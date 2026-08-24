@@ -8,11 +8,13 @@ import Button from "../components/ui/Button";
 import TourCard from "../components/tour/TourCard";
 import { useTours } from "../hooks/useTours";
 import { useMedia } from "../hooks/useMedia";
+import { useDestinations } from "../hooks/useDestinations";
+import { useCmsBlock } from "../hooks/useCmsBlock";
 import useScrollAnimations from "../hooks/useScrollAnimations";
 import { useCurrency } from "../context/CurrencyContext";
 
 
-const destinationsData = [
+const _destinationsData = [
   {
     id: "egypt",
     nameKey: "nav.egypt",
@@ -63,7 +65,7 @@ const destinationsData = [
   },
 ];
 
-const packagesData = [
+const _packagesData = [
   {
     id: "classic-program",
     name: "Classic Program",
@@ -101,7 +103,7 @@ const packagesData = [
   }
 ];
 
-const newDestinationsList = [
+const _newDestinationsList = [
   {
     id: "egypt",
     nameAr: "مصر",
@@ -224,177 +226,68 @@ const Home = () => {
   const [activeVideo, setActiveVideo] = useState(null);
   const { galleryImages = [], videos = [] } = useMedia();
   const { tours: allLiveTours } = useTours({ limit: 100 });
-  const { tours: turkeyPrograms } = useTours({ destination: 'turkey' });
-  const formattedTurkeyTours = turkeyPrograms.map((tp) => ({
-    id: tp.id,
-    slug: tp.slug,
-    destination: "turkey",
-    title: tp.title,
-    description: tp.overview || tp.description,
-    duration: tp.duration,
-    price: tp.raw?.price || tp.price || 899,
-    rating: 4.8,
-    reviewCount: 120,
-    images: tp.images,
-    type: tp.raw?.type || "Cultural Tour",
-    market: "Global",
-    highlights: tp.highlights,
-    code: tp.code
-  }));
-
-  const { tours: jordanPrograms } = useTours({ destination: 'jordan' });
-  const formattedJordanTours = jordanPrograms.map((jp) => ({
-    id: jp.id,
-    slug: jp.slug,
-    destination: "jordan",
-    title: jp.title,
-    description: jp.overview || jp.description,
-    duration: jp.duration,
-    price: jp.raw?.price || jp.price || 899,
-    rating: 4.8,
-    reviewCount: 120,
-    images: jp.images,
-    type: jp.raw?.type || "Cultural Tour",
-    market: "Global",
-    highlights: jp.highlights,
-    code: jp.code
-  }));
-
-  const { tours: dubaiPrograms } = useTours({ destination: 'dubai' });
-  const formattedDubaiTours = dubaiPrograms.map((dp) => ({
-    id: dp.id,
-    slug: dp.slug,
-    destination: "dubai",
-    title: dp.title,
-    description: dp.overview || dp.description,
-    duration: dp.duration,
-    price: dp.raw?.price || dp.price || 899,
-    rating: 4.8,
-    reviewCount: 120,
-    images: dp.images,
-    type: dp.raw?.type || "Dubai Tour",
-    market: "Global",
-    highlights: dp.highlights,
-    code: dp.code
-  }));
-
-  const { tours: moroccoPrograms } = useTours({ destination: 'morocco' });
-  const formattedMoroccoTours = moroccoPrograms.map((mp) => ({
-    id: mp.id,
-    slug: mp.slug,
-    destination: "morocco",
-    title: mp.title,
-    description: mp.overview || mp.description,
-    duration: mp.duration,
-    price: mp.raw?.price || mp.price || 899,
-    rating: 4.8,
-    reviewCount: 120,
-    images: mp.images,
-    type: mp.raw?.type || "Cultural Tour",
-    market: "Global",
-    highlights: mp.highlights,
-    code: mp.code
-  }));
+  const { destinations: liveDestinations } = useDestinations();
+  const { block: holidayPackages } = useCmsBlock('holiday_packages');
+  const liveDestinationCards = useMemo(() => liveDestinations.map((destination) => ({
+    id: destination.slug,
+    name: destination.title,
+    description: destination.description || destination.subtitle || '',
+    subtitle: destination.subtitle || '',
+    image: destination.heroImageUrl,
+    toursCount: destination.toursCount,
+    link: `/destinations/${destination.slug}`,
+  })), [liveDestinations]);
+  const livePackageCards = useMemo(() => {
+    if (!Array.isArray(holidayPackages)) return [];
+    return holidayPackages
+      .filter((item) => item?.id && item?.title && item?.image && Number.isFinite(Number(item?.price)))
+      .map((item) => {
+        const type = String(item.type || '').toLowerCase();
+        const categoryId = type.includes('honeymoon')
+          ? 'honeymooners'
+          : type.includes('combo')
+            ? 'multi-country'
+            : type.includes('classic')
+              ? 'classic-program'
+              : item.slug;
+        return {
+          id: categoryId,
+          recordId: item.id,
+          name: item.title,
+          desc: item.description || item.duration || '',
+          image: item.image,
+          price: Number(item.price),
+          link: '/tours',
+        };
+      });
+  }, [holidayPackages]);
+  const toursForDestination = (destination) =>
+    allLiveTours.filter((tour) => tour.destination === destination);
+  const formattedTurkeyTours = toursForDestination('turkey');
+  const formattedJordanTours = toursForDestination('jordan');
+  const formattedDubaiTours = toursForDestination('dubai');
+  const formattedMoroccoTours = toursForDestination('morocco');
 
   const allToursForMarquee = useMemo(() => {
-    const combined = [];
-    allLiveTours.forEach(tour => combined.push({ ...tour, description: tour.overview || tour.description, link: `/tours/${tour.slug}` }));
-    formattedTurkeyTours.forEach(t => combined.push({ ...t, link: `/programs/turkey/${t.slug}` }));
-    formattedJordanTours.forEach(t => combined.push({ ...t, link: `/programs/jordan/${t.slug}` }));
-    formattedDubaiTours.forEach(t => combined.push({ ...t, link: `/programs/dubai/${t.slug}` }));
-    formattedMoroccoTours.forEach(t => combined.push({ ...t, link: `/programs/morocco/${t.slug}` }));
-    return combined;
-  }, [allLiveTours, formattedTurkeyTours, formattedJordanTours, formattedDubaiTours, formattedMoroccoTours]);
+    return allLiveTours.map((tour) => ({
+      ...tour,
+      description: tour.overview || tour.description,
+      link: `/tours/${tour.slug}`,
+    }));
+  }, [allLiveTours]);
 
   const packagesToursMap = useMemo(() => {
+    const matches = (tour, values) => {
+      const searchable = `${tour.slug} ${tour.category} ${tour.title}`.toLowerCase();
+      return values.some((value) => searchable.includes(value));
+    };
+    const withLinkBase = (items) => items.map((tour) => ({ ...tour, linkBase: '/tours' }));
     return {
-      "classic-program": [{
-        id: "classic-prog-1",
-        slug: "classic-program",
-        destination: "egypt",
-        title: "Classic Egypt Programme",
-        description: "Experience the timeless wonders of Egypt.",
-        duration: "Classic",
-        price: 890,
-        rating: 5,
-        reviewCount: 312,
-        images: ["https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=600&q=40&fm=webp"],
-        linkBase: "/programs/classic"
-      }],
-      "honeymooners": [{
-        id: "hm-prog-1",
-        slug: "honeymooners",
-        destination: "egypt",
-        title: "Honeymoon in Egypt",
-        description: "A romantic escape across the magical landscapes of Egypt.",
-        duration: "Honeymoon",
-        price: 1500,
-        rating: 5,
-        reviewCount: 150,
-        images: ["https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=600&q=40&fm=webp"],
-        linkBase: "/programs"
-      }],
-      "religious": [{
-        id: "rel-prog-1",
-        slug: "religious",
-        destination: "egypt",
-        title: "JOURNEY OF THE HOLY FAMILY – 10 DAYS – 09 NIGHTS",
-        description: "Spiritual journey tracing the steps of the Holy Family in Egypt.",
-        duration: "10 Days / 9 Nights",
-        price: 1350,
-        rating: 5,
-        reviewCount: 110,
-        images: ["https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=40&fm=webp"],
-        linkBase: "/programs"
-      }],
-      "multi-country": allLiveTours.filter(t => t.category === 'multi-country').map(tour => ({
-        id: tour.id, slug: tour.slug, destination: tour.destination || "multi-country",
-        title: tour.title, description: tour.overview || tour.description,
-        duration: tour.duration, price: tour.price, rating: tour.rating || 5,
-        reviewCount: tour.reviewCount || 10, images: tour.images, type: tour.type,
-        linkBase: "/programs/multi-country"
-      })),
-      "extension": [
-        {
-          id: "ext-hurghada",
-          slug: "hurghada-4d3n",
-          destination: "egypt",
-          title: "Hurghada",
-          description: "Transfer to Cairo Airport and board your flight to Hurghada. Arrival and transfer to...",
-          duration: "4 Days / 3 Nights",
-          price: 450,
-          rating: 4.8,
-          reviewCount: 95,
-          images: ["https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&w=600&q=40&fm=webp"],
-          linkBase: "/trips"
-        },
-        {
-          id: "ext-sharm",
-          slug: "sharm-4d3n",
-          destination: "egypt",
-          title: "Sharm El Sheikh",
-          description: "Transfer to Cairo Airport and boarding the flight to Sharm El Sheikh. Arrival and transfer...",
-          duration: "4 Days / 3 Nights",
-          price: 500,
-          rating: 4.7,
-          reviewCount: 105,
-          images: ["https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=600&q=40&fm=webp"],
-          linkBase: "/trips"
-        },
-        {
-          id: "ext-siwa",
-          slug: "siwa-oasis-alexandria",
-          destination: "egypt",
-          title: "Oasis Siwa + Alexandria",
-          description: "Cairo → Wadi El Natroun → Marsa Matruh → Siwa → Alexandria → Cairo",
-          duration: "Various",
-          price: 600,
-          rating: 4.9,
-          reviewCount: 88,
-          images: ["https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=600&q=40&fm=webp"],
-          linkBase: "/trips"
-        }
-      ]
+      'classic-program': withLinkBase(allLiveTours.filter((tour) => matches(tour, ['classic', 'classico', 'clásico']))),
+      honeymooners: withLinkBase(allLiveTours.filter((tour) => matches(tour, ['honeymoon', 'luna de miel', 'شهر العسل']))),
+      religious: withLinkBase(allLiveTours.filter((tour) => matches(tour, ['religious', 'holy family', 'العائلة المقدسة']))),
+      'multi-country': withLinkBase(allLiveTours.filter((tour) => matches(tour, ['multi-country', 'combined', 'and-']))),
+      extension: withLinkBase(allLiveTours.filter((tour) => matches(tour, ['extension', 'escape']))),
     };
   }, [allLiveTours]);
 
@@ -440,35 +333,13 @@ const Home = () => {
   const [searchTour, setSearchTour] = useState("");
   const [searchPeople, setSearchPeople] = useState(1);
 
-  const destinations = [
-    { id: "egypt", label: t("dest.egypt.title", "Egypt"), img: "/imgs/destinations/egypt.webp" },
-    { id: "turkey", label: t("dest.turkey.title", "Turkey"), img: "/imgs/destinations/turkey.webp" },
-    { id: "dubai", label: t("dest.dubai.title", "Dubai"), img: "/imgs/destinations/dubai.webp" },
-    { id: "jordan", label: t("dest.jordan.title", "Jordan"), img: "/imgs/destinations/jordan.webp" },
-    { id: "tunisia", label: t("dest.tunisia.title", "Tunisia"), img: "/imgs/destinations/tunisia.webp" },
-    { id: "morocco", label: t("dest.morocco.title", "Morocco"), img: "/imgs/destinations/morocco.webp" },
-    { id: "greece", label: t("dest.greece.title", "Greece"), img: "https://res.cloudinary.com/degbrq3ck/image/upload/w_100,h_100,c_fill,q_auto,f_auto/v1783026773/13_wtazze.jpg" },
-    { id: "holyland", label: t("dest.holyland.title", "Holy Land"), img: "https://res.cloudinary.com/degbrq3ck/image/upload/w_100,h_100,c_fill,q_auto,f_auto/v1783026773/17_wpxrtt.jpg" },
-  ];
+  const destinations = liveDestinationCards.map((destination) => ({
+    id: destination.id,
+    label: destination.name,
+    img: destination.image,
+  }));
 
   const slugify = (str) => str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-
-  const TURKEY_IDS = ["REG-01", "IST-01", "REG-03", "REG-04", "REG-05", "REG-05-B", "REG-06", "REG-07", "REG-08", "REG-09", "REG-10", "REG-11", "REG-12", "REG-13", "REG-14"];
-  const JORDAN_IDS = ["REG-15", "REG-16", "REG-17", "REG-18", "REG-19", "REG-20", "REG-21"];
-  const DUBAI_IDS = ["REG-22", "REG-23", "REG-24", "REG-25", "REG-26", "REG-27", "REG-28", "HM001", "HM002"];
-  const EGYPT_IDS = ["REG-29"];
-  const MOROCCO_IDS = ["MRC-01"];
-
-  const programCountry = (id) => {
-    if (TURKEY_IDS.includes(id)) return "turkey";
-    if (JORDAN_IDS.includes(id)) return "jordan";
-    if (DUBAI_IDS.includes(id)) return "dubai";
-    if (EGYPT_IDS.includes(id)) return "egypt";
-    if (MOROCCO_IDS.includes(id)) return "morocco";
-    return "turkey";
-  };
-
-
 
   const getToursForDest = (destId) => {
     const result = [];
@@ -917,16 +788,8 @@ const Home = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {destinationsData.map((dest) => {
-              const tourCount = dest.id === "turkey"
-                ? formattedTurkeyTours.length
-                : dest.id === "jordan"
-                  ? formattedJordanTours.length
-                  : dest.id === "dubai"
-                    ? formattedDubaiTours.length
-                    : dest.id === "morocco"
-                      ? formattedMoroccoTours.length
-                      : allLiveTours.filter((t) => t.destination === dest.id).length;
+            {liveDestinationCards.map((dest) => {
+              const tourCount = dest.toursCount;
               const isActive = activeDestination === dest.id;
 
               return (
@@ -942,7 +805,7 @@ const Home = () => {
                   role="button"
                   tabIndex={0}
                   aria-pressed={isActive}
-                  aria-label={`${t("home.select", "Select")} ${t(dest.nameKey, dest.nameKey)} ${t("nav.tours", "Tours")}`}
+                  aria-label={`${t("home.select", "Select")} ${dest.name} ${t("nav.tours", "Tours")}`}
                   whileHover={{
                     y: -6,
                     boxShadow: "0 0 32px rgba(245,166,35,0.22)",
@@ -952,7 +815,7 @@ const Home = () => {
                 >
                   <img
                     src={dest.image}
-                    alt={t(dest.nameKey, dest.nameKey)}
+                    alt={dest.name}
                     className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
                     loading="lazy"
                     decoding="async"
@@ -962,9 +825,9 @@ const Home = () => {
                   ></div>
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
                     <h3 className="text-display-lg text-ivory-50 mb-2">
-                      {t(dest.nameKey, dest.nameKey)}
+                      {dest.name}
                     </h3>
-                    <p className="text-body-lg text-gold-500 font-medium mb-4 leading-relaxed" dangerouslySetInnerHTML={{ __html: t(dest.descKey, dest.descKey) }} />
+                    <p className="text-body-lg text-gold-500 font-medium mb-4 leading-relaxed">{dest.description}</p>
                     <span className="text-caption text-ivory-300 uppercase tracking-wider bg-obsidian-900/50 backdrop-blur-sm px-4 py-2 rounded-full border border-ivory-50/10">
                       {tourCount} {t("home.toursAvailable")}
                     </span>
@@ -1084,12 +947,14 @@ const Home = () => {
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1 text-gold-500 mb-4">
-                      <FaStar size={14} />
-                      <span className="text-ivory-50 ml-1 text-sm font-semibold">
-                        {(tData.rating || 5).toFixed(1)} <span className="text-ivory-300 font-normal">({tData.reviewCount || 100})</span>
-                      </span>
-                    </div>
+                    {Number.isFinite(Number(tData.rating)) && Number.isFinite(Number(tData.reviewCount)) ? (
+                      <div className="flex items-center gap-1 text-gold-500 mb-4">
+                        <FaStar size={14} />
+                        <span className="text-ivory-50 ml-1 text-sm font-semibold">
+                          {Number(tData.rating).toFixed(1)} <span className="text-ivory-300 font-normal">({tData.reviewCount})</span>
+                        </span>
+                      </div>
+                    ) : null}
 
                     <div className="block opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                       <Button variant="outline-gold" tabIndex={-1} className="w-full py-2">
@@ -1129,11 +994,11 @@ const Home = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
-            {packagesData.map((pkg) => {
+            {livePackageCards.map((pkg) => {
               const isActive = activePackage === pkg.id;
               return (
                 <motion.div
-                  key={pkg.id}
+                  key={pkg.recordId}
                   onClick={() => handlePackageClick(pkg.id)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -1165,8 +1030,9 @@ const Home = () => {
                       {t(`packages.${pkg.id}.name`, pkg.name)}
                     </h3>
                     <p className="text-body-lg text-gold-500 font-medium mb-4 leading-relaxed">
-                      {t(`packages.${pkg.id}.desc`, pkg.desc)}
+                      {pkg.desc}
                     </p>
+                    <span className="text-sm font-semibold text-ivory-50">{formatPrice(pkg.price)}</span>
                     <span className="text-caption text-ivory-300 uppercase tracking-wider bg-obsidian-900/50 backdrop-blur-sm px-4 py-2 rounded-full border border-ivory-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                       {t("home.explorePackage", "Explore Package")}
                     </span>
@@ -1187,7 +1053,7 @@ const Home = () => {
               >
                 <div className="pt-12">
                   <h3 className="text-display-md text-ivory-50 mb-8 text-center capitalize">
-                    {t(`packages.${activePackage}.name`, packagesData.find(p => p.id === activePackage)?.name)}{" "}
+                    {livePackageCards.find(p => p.id === activePackage)?.name}{" "}
                     {t("nav.tours", "Tours")}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1201,7 +1067,7 @@ const Home = () => {
                   </div>
                   {activePackageTours.length > 6 && (
                     <div className="flex justify-center mt-8">
-                      <Link to={packagesData.find(p => p.id === activePackage)?.link || "/tours"}>
+                      <Link to={livePackageCards.find(p => p.id === activePackage)?.link || "/tours"}>
                         <Button variant="outline-gold">
                           {t("home.viewAllTours", "View All Tours")}
                         </Button>
@@ -1281,14 +1147,14 @@ const Home = () => {
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-1 text-gold-500 mb-4">
-                        {[...Array(Math.floor(tData.rating || 5))].map((_, i) => (
-                          <FaStar key={i} size={12} />
-                        ))}
-                        <span className="text-ivory-50 ml-1 text-xs">
-                          ({tData.reviewCount || 100})
-                        </span>
-                      </div>
+                      {Number.isFinite(Number(tData.rating)) && Number.isFinite(Number(tData.reviewCount)) ? (
+                        <div className="flex items-center gap-1 text-gold-500 mb-4">
+                          {[...Array(Math.floor(Number(tData.rating)))].map((_, i) => (
+                            <FaStar key={i} size={12} />
+                          ))}
+                          <span className="text-ivory-50 ml-1 text-xs">({tData.reviewCount})</span>
+                        </div>
+                      ) : null}
 
                       <div className="block opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                         <Button variant="outline-gold" tabIndex={-1} className="w-full py-2">
@@ -2426,7 +2292,7 @@ const Home = () => {
 
           {/* Destinations Cinematic Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 max-w-6xl mx-auto">
-            {newDestinationsList.map((item, idx) => (
+            {liveDestinationCards.map((item, idx) => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: 50 }}
@@ -2462,12 +2328,12 @@ const Home = () => {
                     <div className="space-y-3 transform translate-y-6 group-hover:translate-y-0 transition-transform duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)]">
                       {/* Subheading / Tagline */}
                       <span className="text-[10px] font-bold uppercase tracking-[0.2em] block transform group-hover:scale-105 origin-left transition-transform duration-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] text-gold-400">
-                        {isRtl ? item.tagAr : item.tagEn}
+                        {item.subtitle}
                       </span>
                       
                       {/* Destination Name */}
                       <h3 className="text-2xl md:text-3xl font-bold font-display tracking-wide transition-colors duration-300 leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)] text-ivory-50 group-hover:text-gold-400">
-                        {isRtl ? item.nameAr : item.nameEn}
+                        {item.name}
                       </h3>
                       
                       {/* Divider line that expands from 0 to 100% on hover */}
@@ -2475,7 +2341,7 @@ const Home = () => {
 
                       {/* Description text */}
                       <p className="text-ivory-300 text-xs md:text-sm leading-relaxed font-body font-medium opacity-0 group-hover:opacity-100 transform translate-y-3 group-hover:translate-y-0 transition-all duration-[600ms] delay-75 ease-out max-w-[280px] drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-                        {isRtl ? item.descAr : item.descEn}
+                        {item.description}
                       </p>
                       
                       {/* Action Explore Button */}

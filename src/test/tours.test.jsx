@@ -44,7 +44,7 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
   });
 
   it('useTour passes active lang parameter to GET /api/tours/:slug', async () => {
-    const mockTour = { slug: 'greece-odyssey', title: 'Greece Odyssey', itinerary: [{ day: 1, title: 'Arrival' }] };
+    const mockTour = { id: 'tour-greece', slug: 'greece-odyssey', title: 'Greece Odyssey', basePriceUsd: 1200, itinerary: [{ day: 1, title: 'Arrival' }] };
     vi.spyOn(api, 'get').mockResolvedValue(mockTour);
 
     const { result } = renderHook(() => useTour('greece-odyssey'));
@@ -57,7 +57,7 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
     expect(result.current.tour.title).toBe('Greece Odyssey');
   });
 
-  it('falls back to seed data ONLY when network connection is down in useTour', async () => {
+  it('does not display seed data when the tour API is unavailable', async () => {
     vi.spyOn(api, 'get').mockRejectedValue(new Error('Network error'));
 
     const { result } = renderHook(() => useTour('classic-egypt-pyramids'));
@@ -67,8 +67,7 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
     });
 
     expect(result.current.error).toBeDefined();
-    // Verify fallback tour exists
-    expect(result.current.tour).toBeDefined();
+    expect(result.current.tour).toBeNull();
   });
 
   it('ReviewsMap uses the verified UUID review contract and never inserts a local review', async () => {
@@ -125,8 +124,8 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
     expect(result.current.data).toEqual({ title: 'Welcome Banner' });
   });
 
-  it('useMedia fetches official tour gallery photos via GET /api/tours/:tourId', async () => {
-    const mockMedia = [{ id: 'm-1', url: '/images/tour1.jpg' }];
+  it('useMedia fetches official tour gallery photos via GET /api/media/tours/:tourId', async () => {
+    const mockMedia = [{ id: 'm-1', secureUrl: '/images/tour1.jpg', mimeType: 'image/webp' }];
     vi.spyOn(api, 'get').mockResolvedValue(mockMedia);
 
     const { result } = renderHook(() => useMedia('tour-123'));
@@ -135,7 +134,7 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(api.get).toHaveBeenCalledWith('/tours/tour-123');
+    expect(api.get).toHaveBeenCalledWith('/media/tours/tour-123');
     expect(result.current.galleryImages.length).toBe(1);
   });
 });

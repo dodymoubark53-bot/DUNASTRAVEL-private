@@ -37,9 +37,12 @@ export default function CustomerNotificationBell() {
 
   useEffect(() => {
     if (!user) return;
-    fetchNotifications();
+    const initialFetch = setTimeout(fetchNotifications, 0);
     const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(initialFetch);
+      clearInterval(interval);
+    };
   }, [user, fetchNotifications]);
 
   const handleMarkAsRead = async (id, e) => {
