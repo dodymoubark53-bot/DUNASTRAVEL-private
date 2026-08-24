@@ -4,7 +4,12 @@ import api from '../utils/api';
 
 const toursCache = new Map();
 const pendingRequests = new Map();
-const CACHE_TTL_MS = 60_000;
+const CACHE_TTL_MS = 5_000;
+
+export function clearClientToursCache() {
+  toursCache.clear();
+  pendingRequests.clear();
+}
 const ALLOWED_FILTERS = new Set([
   'destination',
   'category',
