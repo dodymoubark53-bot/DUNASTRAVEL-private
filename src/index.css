@@ -6,6 +6,15 @@ html {
   scroll-behavior: smooth;
 }
 
+body {
+  pointer-events: auto !important;
+}
+
+body[data-scroll-locked],
+html[data-scroll-locked] {
+  pointer-events: auto !important;
+}
+
 @layer base {
   :root {
     --font-display: "Playfair Display", Georgia, serif;
