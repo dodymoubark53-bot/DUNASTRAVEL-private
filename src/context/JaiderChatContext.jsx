@@ -112,7 +112,7 @@ export const JaiderChatProvider = ({ children }) => {
     if (!currentSessionId) return;
     try {
       const res = await api.get(`/ai/chat/history?sessionId=${currentSessionId}`);
-      const data = res?.data?.data || res?.data || res;
+      const data = res;
       if (data && data.messages && data.messages.length > 0) {
         setConversationId(data.conversationId);
         const mapped = data.messages.map((m) => ({
@@ -215,7 +215,7 @@ export const JaiderChatProvider = ({ children }) => {
         signal: abortControllerRef.current.signal
       });
 
-      const data = response?.data?.data || response?.data || response;
+      const data = response;
       if (data?.conversationId) setConversationId(data.conversationId);
 
       const assistantText = data?.message?.content || data?.text;

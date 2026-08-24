@@ -2,42 +2,41 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
 
-function parseList(value) {
-  if (Array.isArray(value)) return value;
-  if (typeof value === 'string') return value.split(',').map((item) => item.trim()).filter(Boolean);
-  return [];
-}
-
 function normalizeTour(data) {
-  if (!data?.id || !data?.slug || !data?.title) {
+  if (!data?.id || !data?.slug || !data?.title || typeof data.currency !== 'string') {
     throw new Error('Invalid tour details response');
   }
-  const price = Number(data.price ?? data.basePriceUsd);
+  const price = Number(data.basePriceUsd);
   if (!Number.isFinite(price) || price < 0) {
     throw new Error(`Invalid tour price for ${data.slug}`);
   }
-  const images = Array.isArray(data.images)
-    ? data.images
-        .map((image) => (typeof image === 'string' ? image : image?.imageUrl || image?.url || ''))
-        .filter(Boolean)
-    : data.heroImage
-      ? [data.heroImage]
-      : [];
-  const itinerary = Array.isArray(data.itinerary)
-    ? data.itinerary.map((item, index) => ({
-        ...item,
-        day: item.day || (typeof item.sortOrder === 'number' ? item.sortOrder + 1 : index + 1),
-        title: item.title || item.dayLabel || '',
-        description: item.description || item.desc || '',
-        meals: item.meals || null,
-      }))
-    : [];
+  if (!Array.isArray(data.images) || !Array.isArray(data.itinerary)
+    || !Array.isArray(data.includedServices) || !Array.isArray(data.excludedServices)) {
+    throw new Error(`Invalid canonical tour presentation for ${data.slug}`);
+  }
+  const images = data.images.map((image) => {
+    if (!image?.id || typeof image.imageUrl !== 'string') {
+      throw new Error(`Invalid canonical tour image for ${data.slug}`);
+    }
+    return image.imageUrl;
+  });
+  const itinerary = data.itinerary.map((item) => {
+    if (!item?.id || !Number.isInteger(item.sortOrder) || typeof item.description !== 'string') {
+      throw new Error(`Invalid canonical itinerary item for ${data.slug}`);
+    }
+    return {
+      ...item,
+      day: item.sortOrder + 1,
+      title: item.dayLabel || '',
+      meals: item.meals || null,
+    };
+  });
 
   return {
     ...data,
     images,
-    included: parseList(data.included || data.includedServices),
-    excluded: parseList(data.excluded || data.excludedServices),
+    included: data.includedServices,
+    excluded: data.excludedServices,
     itinerary,
     price,
   };

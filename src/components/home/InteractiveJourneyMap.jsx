@@ -65,8 +65,8 @@ const InteractiveJourneyMap = () => {
     let isMounted = true;
     const fetchApiJourneys = async () => {
       try {
-        const res = await api.get('/journey-maps');
-        const items = Array.isArray(res) ? res : (res?.items || res?.data || []);
+        const items = await api.get('/journey-maps');
+        if (!Array.isArray(items)) throw new Error('Invalid journey-map collection');
         if (isMounted) {
           const mapped = items
             .filter((item) => item?.id && item?.name && item?.destination)

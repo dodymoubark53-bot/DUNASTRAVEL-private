@@ -60,7 +60,7 @@ describe('AuthContext Security & Session Integration', () => {
   it('connects register, updateProfile, changePassword, forgotPassword, resetPassword, verifyEmail, and resendVerification', async () => {
     vi.spyOn(api, 'get').mockRejectedValue({ status: 401, message: 'Unauthorized' });
     vi.spyOn(api, 'post').mockImplementation((path) => {
-      if (path === '/auth/register') return Promise.resolve({ user: { id: 'u-2', email: 'new@dunas.com', name: 'New User' } });
+      if (path === '/auth/register') return Promise.resolve({ id: 'u-2', email: 'new@dunas.com', name: 'New User' });
       if (path === '/auth/forgot-password') return Promise.resolve({ message: 'Instructions sent' });
       if (path === '/auth/reset-password') return Promise.resolve({ message: 'Password reset' });
       if (path === '/auth/change-password') return Promise.resolve({ message: 'Password changed' });
@@ -70,7 +70,7 @@ describe('AuthContext Security & Session Integration', () => {
       if (path === '/auth/refresh') return Promise.resolve({ message: 'Refreshed' });
       return Promise.resolve({});
     });
-    vi.spyOn(api, 'patch').mockResolvedValue({ user: { name: 'Updated Name', phone: '+123456789' } });
+    vi.spyOn(api, 'patch').mockResolvedValue({ name: 'Updated Name', phone: '+123456789' });
 
     let authRef;
     render(
@@ -88,7 +88,9 @@ describe('AuthContext Security & Session Integration', () => {
       await authRef.register({ name: 'New User', email: 'new@dunas.com', password: 'Password1!' });
     });
     expect(api.post).toHaveBeenCalledWith('/auth/register', expect.objectContaining({ email: 'new@dunas.com' }));
-    expect(authRef.user.email).toBe('new@dunas.com');
+    // Registration returns a safe user record, but intentionally does not
+    // authenticate the browser before login and email verification.
+    expect(authRef.user).toBeNull();
 
     // Test updateProfile
     await act(async () => {

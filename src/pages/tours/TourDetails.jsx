@@ -17,7 +17,7 @@ import { trackEvent } from '../../utils/analytics';
 import ReviewsMap from '../../components/tour/ReviewsMap';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import ErrorState from '../../components/ui/ErrorState';
-import { resolveTourTitle, resolveTourOverview, resolveTourDuration, resolveLocalizedText } from '../../utils/titleHelper';
+import { resolveLocalizedText } from '../../utils/titleHelper';
 
 import SEOHead from '../../components/seo/SEOHead';
 
@@ -78,12 +78,10 @@ const TourDetails = () => {
     );
   }
 
-  const title = resolveTourTitle(tour, t, lang);
-  const overview = resolveTourOverview(tour, t, lang);
-  const duration = resolveTourDuration(tour, t, lang);
-  const heroImg = (Array.isArray(tour.images) && tour.images.length > 0 && tour.images[0])
-    ? tour.images[0]
-    : (tour.heroImage || null);
+  const title = tour.title;
+  const overview = tour.overview;
+  const duration = tour.duration;
+  const heroImg = tour.images[0] || null;
 
   const tourSchema = {
     '@context': 'https://schema.org',
@@ -94,8 +92,8 @@ const TourDetails = () => {
     ...(heroImg ? { image: heroImg } : {}),
     offers: {
       '@type': 'Offer',
-      price: tour.basePriceUsd || tour.price || 0,
-      priceCurrency: 'USD',
+      price: tour.basePriceUsd,
+      priceCurrency: tour.currency,
       availability: 'https://schema.org/InStock',
     },
     provider: {

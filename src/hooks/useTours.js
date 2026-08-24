@@ -16,34 +16,30 @@ const ALLOWED_FILTERS = new Set([
 ]);
 
 function readTours(response) {
-  if (Array.isArray(response)) return response;
-  if (Array.isArray(response?.data)) return response.data;
-  if (Array.isArray(response?.items)) return response.items;
-  throw new Error('Invalid tours response');
+  if (!response || !Array.isArray(response.data) || !response.meta) {
+    throw new Error('Invalid canonical tours response');
+  }
+  return response.data;
 }
 
 function mapTour(tour) {
   if (!tour?.id || !tour?.slug || !tour?.title) {
     throw new Error('Invalid tour catalog item');
   }
-  const price = Number(tour.basePriceUsd ?? tour.price);
+  const price = Number(tour.basePriceUsd);
   if (!Number.isFinite(price) || price < 0) {
     throw new Error(`Invalid tour price for ${tour.slug}`);
   }
-  const images = tour.heroImage
-    ? [tour.heroImage]
-    : Array.isArray(tour.images)
-      ? tour.images.filter(Boolean)
-      : [];
+  const images = tour.heroImage ? [tour.heroImage] : [];
 
   return {
     ...tour,
     id: tour.id,
     slug: tour.slug,
     title: tour.title,
-    overview: tour.overview || tour.description || '',
-    duration: tour.duration || '',
-    destination: String(tour.country || tour.destination || '').toLowerCase(),
+    overview: typeof tour.overview === 'string' ? tour.overview : '',
+    duration: typeof tour.duration === 'string' ? tour.duration : '',
+    destination: String(tour.country || '').toLowerCase(),
     images,
     raw: { price, type: tour.category || '' },
     price,

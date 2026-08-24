@@ -2,26 +2,17 @@ import { Helmet } from 'react-helmet-async';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaCheckCircle, FaMapMarkerAlt, FaStar } from 'react-icons/fa';
-import { useCmsBlock } from '../../hooks/useCmsBlock';
+import { useHotel } from '../../hooks/useHotels';
 import { useCurrency } from '../../context/CurrencyContext';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import ErrorState from '../../components/ui/ErrorState';
 import NotFound from '../NotFound';
 
-function readCatalog(block) {
-  if (Array.isArray(block)) return block;
-  if (Array.isArray(block?.content)) return block.content;
-  return [];
-}
-
 const HotelDetails = () => {
   const { t } = useTranslation();
   const { slug } = useParams();
   const { formatPrice } = useCurrency();
-  const { block, loading, error } = useCmsBlock('hotels_catalog');
-  const hotel = readCatalog(block).find(
-    (item) => item?.isActive !== false && (item.id === slug || item.slug === slug),
-  );
+  const { hotel, loading, error } = useHotel(slug);
 
   if (loading) return <SkeletonLoader count={3} />;
   if (error) {
@@ -32,8 +23,10 @@ const HotelDetails = () => {
   const stars = Number.isFinite(Number(hotel.stars)) ? Number(hotel.stars) : 0;
   const rating = Number.isFinite(Number(hotel.rating)) ? Number(hotel.rating) : null;
   const price = Number.isFinite(Number(hotel.pricePerNight)) ? Number(hotel.pricePerNight) : null;
-  const amenities = Array.isArray(hotel.amenities) ? hotel.amenities : [];
-  const location = [hotel.city, hotel.destination].filter(Boolean).join(', ');
+  const amenities = Array.isArray(hotel.amenities)
+    ? hotel.amenities.filter((item) => typeof item === 'string')
+    : [];
+  const location = [hotel.city, hotel.destinationSlug].filter(Boolean).join(', ');
 
   return (
     <main className="min-h-screen bg-obsidian-50 pb-24 text-obsidian-900">
@@ -43,8 +36,8 @@ const HotelDetails = () => {
       </Helmet>
 
       <section className="relative min-h-[480px] overflow-hidden bg-obsidian-900 text-white">
-        {hotel.image ? (
-          <img src={hotel.image} alt={hotel.name} className="absolute inset-0 h-full w-full object-cover" />
+        {hotel.heroImageUrl ? (
+          <img src={hotel.heroImageUrl} alt={hotel.heroImageAlt || hotel.name} className="absolute inset-0 h-full w-full object-cover" />
         ) : null}
         <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900 via-obsidian-900/65 to-obsidian-900/20" />
         <div className="container relative z-10 mx-auto flex min-h-[480px] items-end px-6 py-16">
@@ -96,7 +89,7 @@ const HotelDetails = () => {
             </div>
           ) : null}
           <Link
-            to={`/contact?hotel=${encodeURIComponent(hotel.id)}`}
+            to={`/contact?hotel=${encodeURIComponent(hotel.slug)}`}
             className="block rounded-full bg-gold-500 px-6 py-3 text-center font-bold text-obsidian-900 transition hover:bg-gold-400"
           >
             {t('hotel.requestBooking', 'Request this hotel')}

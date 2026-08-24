@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import api, { clearCsrfToken, createClientRequestId } from '../utils/api';
+import api, { clearCsrfToken, createClientRequestId, unwrap } from '../utils/api';
 
 describe('Centralized API Client (api.js)', () => {
   beforeEach(() => {
@@ -12,15 +12,9 @@ describe('Centralized API Client (api.js)', () => {
     expect(id).toMatch(/^req_[0-9a-f-]{32,36}$/i);
   });
 
-  it('unwraps double-wrapped backend response envelopes', async () => {
+  it('unwraps exactly one canonical backend response envelope', async () => {
     const mockData = { id: 'tour-123', title: 'Grand Pyramids Luxury Tour' };
-    const mockResponse = {
-      data: {
-        success: true,
-        statusCode: 200,
-        data: mockData,
-      },
-    };
+    const mockResponse = { success: true, statusCode: 200, data: mockData, timestamp: '2026-08-24T00:00:00.000Z' };
 
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -32,13 +26,20 @@ describe('Centralized API Client (api.js)', () => {
     expect(result).toEqual(mockData);
   });
 
+  it('rejects malformed and failed HTTP-success envelopes', () => {
+    expect(() => unwrap({ data: { id: 'tour-123' } })).toThrow('Invalid API success envelope');
+    expect(() => unwrap({ success: true, data: { success: false, code: 'TOUR_NOT_PUBLISHABLE', message: 'Tour is not publishable' } })).toThrow('Tour is not publishable');
+  });
+
+  it('preserves zero, false, null, and a valid empty page', () => {
+    expect(unwrap({ success: true, statusCode: 200, data: { zero: 0, enabled: false, optional: null } }))
+      .toEqual({ zero: 0, enabled: false, optional: null });
+    expect(unwrap({ success: true, statusCode: 200, data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } }))
+      .toEqual({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
+  });
+
   it('normalizes error responses and attaches HTTP status code', async () => {
-    const errorResponse = {
-      data: {
-        statusCode: 404,
-        message: 'Tour not found',
-      },
-    };
+    const errorResponse = { success: false, statusCode: 404, code: 'NOT_FOUND', message: 'Tour not found' };
 
     global.fetch = vi.fn().mockResolvedValue({
       ok: false,
@@ -58,14 +59,14 @@ describe('Centralized API Client (api.js)', () => {
         return Promise.resolve({
           ok: true,
           headers: new Headers({ 'content-type': 'application/json' }),
-          json: async () => ({ data: { csrfToken } }),
+          json: async () => ({ success: true, statusCode: 200, data: { csrfToken } }),
         });
       }
 
       return Promise.resolve({
         ok: true,
         headers: new Headers({ 'content-type': 'application/json' }),
-        json: async () => ({ data: { success: true } }),
+        json: async () => ({ success: true, statusCode: 200, data: { success: true } }),
       });
     });
 
@@ -83,7 +84,7 @@ describe('Centralized API Client (api.js)', () => {
         return Promise.resolve({
           ok: true,
           headers: new Headers({ 'content-type': 'application/json' }),
-          json: async () => ({ data: { csrfToken: 'token-abc' } }),
+          json: async () => ({ success: true, statusCode: 200, data: { csrfToken: 'token-abc' } }),
         });
       }
       return Promise.resolve({

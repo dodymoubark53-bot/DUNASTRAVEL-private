@@ -3,22 +3,25 @@ import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
 
 function readDestinations(response) {
-  const items = Array.isArray(response)
-    ? response
-    : Array.isArray(response?.data)
-      ? response.data
-      : Array.isArray(response?.items)
-        ? response.items
-        : null;
-  if (!items) throw new Error('Invalid destinations response');
-  return items
-    .filter((item) => item?.id && item?.slug && item?.title)
-    .map((item) => ({
+  if (!response || !Array.isArray(response.data) || !response.meta) {
+    throw new Error('Invalid canonical destinations response');
+  }
+  const items = response.data;
+  return items.map((item) => {
+    if (!item?.id || !item.slug || typeof item.title !== 'string') {
+      throw new Error('Invalid destination catalog item');
+    }
+    const toursCount = Number(item.toursCount);
+    if (!Number.isInteger(toursCount) || toursCount < 0) {
+      throw new Error(`Invalid destination tours count for ${item.slug}`);
+    }
+    return {
       ...item,
       name: item.title,
       image: item.heroImageUrl || null,
-      toursCount: Number.isFinite(Number(item.toursCount)) ? Number(item.toursCount) : 0,
-    }));
+      toursCount,
+    };
+  });
 }
 
 export function useDestinations() {

@@ -24,8 +24,8 @@ export const useWishlist = () => {
     }
     setLoading(true);
     try {
-      const data = await api.get('/auth/favorites');
-      const items = Array.isArray(data) ? data : (data?.data || []);
+      const items = await api.get('/auth/favorites');
+      if (!Array.isArray(items)) throw new Error('Invalid favorites collection');
       setFavorites(items);
     } catch (err) {
       console.warn('[useWishlist] Failed to fetch user favorites from API, using guest fallback:', err);
@@ -44,8 +44,8 @@ export const useWishlist = () => {
       }
       setLoading(true);
       try {
-        const data = await api.get('/auth/favorites');
-        const items = Array.isArray(data) ? data : (data?.data || []);
+        const items = await api.get('/auth/favorites');
+        if (!Array.isArray(items)) throw new Error('Invalid favorites collection');
         if (isMounted) setFavorites(items);
       } catch (err) {
         console.warn('[useWishlist] Failed to initialize favorites:', err);

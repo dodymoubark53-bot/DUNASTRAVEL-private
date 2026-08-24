@@ -47,7 +47,9 @@ export default function ReviewsMap({ tourId }) {
     api.get(`/tours/${encodeURIComponent(tourId)}/reviews`)
       .then((response) => {
         if (!active) return;
-        const items = Array.isArray(response?.data) ? response.data : (Array.isArray(response) ? response : []);
+        const items = Array.isArray(response?.items)
+          ? response.items
+          : (Array.isArray(response?.data) ? response.data : (Array.isArray(response) ? response : []));
         setReviews(items.map((review) => formatReview(review, i18n.language || 'en')));
         const averageRating = items.length
           ? items.reduce((total, review) => total + Number(review.rating || 0), 0) / items.length

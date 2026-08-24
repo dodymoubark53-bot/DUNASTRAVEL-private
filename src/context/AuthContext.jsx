@@ -1,24 +1,28 @@
 import { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import api, { clearCsrfToken } from '../utils/api';
 
+const missingAuthProvider = async () => {
+  throw new Error('AuthProvider is required for authenticated operations');
+};
+
 const defaultAuthContext = {
   user: null,
   isLoading: false,
-  login: async () => null,
-  register: async () => null,
-  logout: async () => {},
-  logoutAll: async () => {},
-  refresh: async () => null,
-  getMe: async () => null,
-  checkAuth: async () => null,
-  getCsrf: async () => null,
-  updateProfile: async () => null,
-  changePassword: async () => null,
-  forgotPassword: async () => null,
-  resetPassword: async () => null,
-  verifyEmail: async () => null,
-  resendVerification: async () => null,
-  getUserBookings: async () => [],
+  login: missingAuthProvider,
+  register: missingAuthProvider,
+  logout: missingAuthProvider,
+  logoutAll: missingAuthProvider,
+  refresh: missingAuthProvider,
+  getMe: missingAuthProvider,
+  checkAuth: missingAuthProvider,
+  getCsrf: missingAuthProvider,
+  updateProfile: missingAuthProvider,
+  changePassword: missingAuthProvider,
+  forgotPassword: missingAuthProvider,
+  resetPassword: missingAuthProvider,
+  verifyEmail: missingAuthProvider,
+  resendVerification: missingAuthProvider,
+  getUserBookings: missingAuthProvider,
 };
 
 const AuthContext = createContext(defaultAuthContext);
@@ -42,9 +46,8 @@ export const AuthProvider = ({ children }) => {
   const getMe = useCallback(async () => {
     try {
       const data = await api.get('/auth/me');
-      const userData = data?.user || data;
-      setUser(userData);
-      return userData;
+      setUser(data);
+      return data;
     } catch (err) {
       setUser(null);
       throw err;
@@ -75,9 +78,8 @@ export const AuthProvider = ({ children }) => {
         : { email: emailOrObj, password: passwordParam };
 
     const data = await api.post('/auth/login', payload);
-    const userData = data?.user || data;
-    setUser(userData);
-    return userData;
+    setUser(data);
+    return data;
   };
 
   /**
@@ -100,10 +102,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     const data = await api.post('/auth/register', payload);
-    const userData = data?.user || data;
-    if (userData && (userData.id || userData.email)) {
-      setUser(userData);
-    }
+    // Registration does not establish an authenticated cookie session.
     return data;
   };
 
@@ -113,7 +112,7 @@ export const AuthProvider = ({ children }) => {
    */
   const updateProfile = async (profileData) => {
     const data = await api.patch('/auth/profile', profileData);
-    const updatedUser = data?.user || data;
+    const updatedUser = data;
     setUser((prev) => ({ ...prev, ...updatedUser }));
     return updatedUser;
   };
@@ -219,11 +218,7 @@ export const AuthProvider = ({ children }) => {
    * POST /api/auth/logout
    */
   const logout = async () => {
-    try {
-      await api.post('/auth/logout', {});
-    } catch {
-      // Ignore network errors on logout
-    }
+    await api.post('/auth/logout', {});
     clearCsrfToken();
     setUser(null);
   };
@@ -232,22 +227,13 @@ export const AuthProvider = ({ children }) => {
    * POST /api/auth/logout-all
    */
   const logoutAll = async () => {
-    try {
-      await api.post('/auth/logout-all', {});
-    } catch {
-      // Ignore network errors on logout-all
-    }
+    await api.post('/auth/logout-all', {});
     clearCsrfToken();
     setUser(null);
   };
 
   const getUserBookings = async () => {
-    try {
-      const data = await api.get('/bookings/me');
-      return Array.isArray(data) ? data : data?.data || [];
-    } catch {
-      return [];
-    }
+    return api.get('/bookings/me');
   };
 
   return (

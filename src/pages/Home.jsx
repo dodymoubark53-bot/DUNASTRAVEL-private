@@ -1708,12 +1708,12 @@ const Home = () => {
                     }}
                     tabIndex={isDuplicate ? -1 : 0}
                     role={isDuplicate ? undefined : "button"}
-                    aria-label={isDuplicate ? undefined : `${t("home.viewLarger", "View larger image of")} ${img.dest}`}
+                    aria-label={isDuplicate ? undefined : `${t("home.viewLarger", "View larger image of")} ${img.label}`}
                     aria-hidden={isDuplicate ? "true" : undefined}
                   >
                     <img
-                      src={getOptimizedImageUrl(img.src, 400, 380)}
-                      alt={img.dest}
+                      src={getOptimizedImageUrl(img.url, 400, 380)}
+                      alt={img.label}
                       loading="lazy"
                       decoding="async"
                       width="280"
@@ -1739,8 +1739,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Video Strip Section */}
-      <section className="py-16" style={{ background: 'linear-gradient(180deg, rgb(10,25,105) 0%, rgb(6,29,93) 50%, rgb(10,21,53) 100%)' }}>
+      {/* Render this only when the provider returns persisted video assets. */}
+      {videos.length > 0 && <section className="py-16" style={{ background: 'linear-gradient(180deg, rgb(10,25,105) 0%, rgb(6,29,93) 50%, rgb(10,21,53) 100%)' }}>
         <div className="container mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -1819,7 +1819,7 @@ const Home = () => {
             </button>
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* Services Section */}
       <section className="py-24 lg:py-32 relative overflow-hidden" style={{ background: 'linear-gradient(160deg, rgb(4,20,70) 0%, rgb(6,29,93) 50%, rgb(8,16,50) 100%)' }}>
@@ -2475,8 +2475,8 @@ const Home = () => {
               animate={{ opacity: 1, scale: zoomScale }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.3 }}
-              src={galleryImages[activeGalleryIndex].src}
-              alt={galleryImages[activeGalleryIndex].dest}
+              src={galleryImages[activeGalleryIndex].url}
+              alt={galleryImages[activeGalleryIndex].label}
               className="max-w-[90vw] max-h-[90vh] object-contain shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-md cursor-zoom-in"
               onClick={(e) => e.stopPropagation()}
               onWheel={(e) => {
@@ -2519,14 +2519,14 @@ const Home = () => {
             <div className="absolute bottom-10 left-0 right-0 text-center text-ivory-50">
               <p className="font-display text-2xl mb-1">
                 {t(
-                  `data.${galleryImages[activeGalleryIndex].dest}`,
-                  galleryImages[activeGalleryIndex].dest,
+                  galleryImages[activeGalleryIndex].label,
+                  galleryImages[activeGalleryIndex].label,
                 )}
               </p>
               <p className="text-gold-500 tracking-widest text-xs uppercase">
                 {t(
-                  `data.${galleryImages[activeGalleryIndex].tag}`,
-                  galleryImages[activeGalleryIndex].tag,
+                  'mediaGallery.subheading',
+                  'Visual Journey',
                 )}
               </p>
             </div>

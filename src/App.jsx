@@ -73,19 +73,9 @@ const About = lazy(() => import("./pages/About"));
 const Blogs = lazy(() => import("./pages/Blogs"));
 const Services = lazy(() => import("./pages/Services"));
 const Contact = lazy(() => import("./pages/Contact"));
-const Egypt = lazy(() => import("./pages/destinations/Egipto"));
-const Turkey = lazy(() => import("./pages/destinations/Turquia"));
-const Jordan = lazy(() => import("./pages/destinations/Jordania"));
-const Morocco = lazy(() => import("./pages/destinations/Marruecos"));
-const Greece = lazy(() => import("./pages/destinations/Grecia"));
-const Dubai = lazy(() => import("./pages/destinations/Dubai"));
-const Tunisia = lazy(() => import("./pages/destinations/Tunez"));
-const HolyLand = lazy(() => import("./pages/destinations/TierraSanta"));
-const Brazil = lazy(() => import("./pages/destinations/Brazil"));
-const Italy = lazy(() => import("./pages/destinations/Italy"));
-const Spain = lazy(() => import("./pages/destinations/Spain"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Destinations = lazy(() => import("./pages/destinations/Destinations"));
+const LandingPageDetails = lazy(() => import("./pages/destinations/LandingPageDetails"));
 const TourDetails = lazy(() => import("./pages/tours/TourDetails"));
 const BlogDetails = lazy(() => import("./pages/blogs/BlogDetails"));
 const ServiceDetails = lazy(() => import("./pages/services/ServiceDetails"));
@@ -99,15 +89,6 @@ const BookingSuccess = lazy(() => import("./pages/BookingSuccess"));
 const BookingCancel = lazy(() => import("./pages/BookingCancel"));
 const HotelDetails = lazy(() => import("./pages/hotels/HotelDetails"));
 const RoomDetails = lazy(() => import("./pages/hotels/RoomDetails"));
-const MultiCountryTours = lazy(() => import("./pages/programs/MultiCountryTours"));
-const MultiCountryTourDetails = lazy(() => import("./pages/programs/MultiCountryTourDetails"));
-const ReligiousTours = lazy(() => import("./pages/programs/ReligiousTours"));
-const TurkeyProgramDetails = lazy(() => import("./pages/programs/TurkeyProgramDetails"));
-const JordanProgramDetails = lazy(() => import("./pages/programs/JordanProgramDetails"));
-const DubaiProgramDetails = lazy(() => import("./pages/programs/DubaiProgramDetails"));
-const MoroccoProgramDetails = lazy(() => import("./pages/programs/MoroccoProgramDetails"));
-const Honeymooners = lazy(() => import("./pages/Honeymooners"));
-const HoneymoonersDetails = lazy(() => import("./pages/HoneymoonersDetails"));
 const MediaGallery = lazy(() => import("./pages/MediaGallery"));
 const Login = lazy(() => import("./pages/auth/Login"));
 const Register = lazy(() => import("./pages/auth/Register"));
@@ -290,106 +271,18 @@ function App() {
                     }
                   />
                   <Route
-                    path="religious"
+                    path=":slug"
                     element={
                       <PageTransition>
-                        <ReligiousTours />
+                        <LandingPageDetails />
                       </PageTransition>
                     }
                   />
                   <Route
-                    path="turkey/:programId"
+                    path=":category/:programSlug"
                     element={
                       <PageTransition>
-                        <TurkeyProgramDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="jordan/:programId"
-                    element={
-                      <PageTransition>
-                        <JordanProgramDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="dubai/:programId"
-                    element={
-                      <PageTransition>
-                        <DubaiProgramDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="morocco/:programId"
-                    element={
-                      <PageTransition>
-                        <MoroccoProgramDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="multi-country"
-                    element={
-                      <PageTransition>
-                        <MultiCountryTours />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="multi-country/:slug"
-                    element={
-                      <PageTransition>
-                        <MultiCountryTourDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="honeymooners"
-                    element={
-                      <PageTransition>
-                        <Honeymooners />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="honeymooners/:id"
-                    element={
-                      <PageTransition>
-                        <HoneymoonersDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path=":service"
-                    element={
-                      <PageTransition>
-                        <Services />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="hotels/:slug"
-                    element={
-                      <PageTransition>
-                        <HotelDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="hotels/:hotelSlug/:roomSlug"
-                    element={
-                      <PageTransition>
-                        <RoomDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path=":category/:slug"
-                    element={
-                      <PageTransition>
-                        <ServiceDetails />
+                        <LandingPageDetails />
                       </PageTransition>
                     }
                   />
@@ -404,90 +297,10 @@ function App() {
                     }
                   />
                   <Route
-                    path="egypt"
+                    path=":slug"
                     element={
                       <PageTransition>
-                        <Egypt />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="turkey"
-                    element={
-                      <PageTransition>
-                        <Turkey />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="jordan"
-                    element={
-                      <PageTransition>
-                        <Jordan />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="morocco"
-                    element={
-                      <PageTransition>
-                        <Morocco />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="greece"
-                    element={
-                      <PageTransition>
-                        <Greece />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="dubai"
-                    element={
-                      <PageTransition>
-                        <Dubai />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="tunisia"
-                    element={
-                      <PageTransition>
-                        <Tunisia />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="holyland"
-                    element={
-                      <PageTransition>
-                        <HolyLand />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="brazil"
-                    element={
-                      <PageTransition>
-                        <Brazil />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="italy"
-                    element={
-                      <PageTransition>
-                        <Italy />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="spain"
-                    element={
-                      <PageTransition>
-                        <Spain />
+                        <LandingPageDetails destinationOnly />
                       </PageTransition>
                     }
                   />

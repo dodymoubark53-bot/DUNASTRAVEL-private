@@ -2,15 +2,15 @@ import { useEffect, useState } from 'react';
 import api from '../utils/api';
 
 function normalizeAssets(response) {
-  const assets = Array.isArray(response) ? response : Array.isArray(response?.data) ? response.data : null;
-  if (!assets) throw new Error('Invalid media response');
+  if (!Array.isArray(response)) throw new Error('Invalid media collection');
+  const assets = response;
   return {
     galleryImages: assets
       .filter((asset) => String(asset?.mimeType || '').startsWith('image/'))
-      .map((asset) => ({ ...asset, url: asset.secureUrl })),
+      .map((asset) => ({ ...asset, url: asset.secureUrl, label: asset.altText || 'Dunas Travel' })),
     videos: assets
       .filter((asset) => String(asset?.mimeType || '').startsWith('video/'))
-      .map((asset) => ({ ...asset, url: asset.secureUrl })),
+      .map((asset) => ({ ...asset, url: asset.secureUrl, label: asset.altText || 'Dunas Travel' })),
   };
 }
 

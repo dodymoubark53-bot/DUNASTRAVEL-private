@@ -4,9 +4,9 @@
  * Handles automatically:
  *  1. CSRF token: fetches from /api/auth/csrf once, caches it in memory,
  *     and sends it as x-csrf-token header on every mutating request (POST/PUT/PATCH/DELETE).
- *  2. Response unwrapping: the backend wraps all responses in
- *     { data: { success, statusCode, data: <actual> } }. This client
- *     transparently unwraps it so callers receive the actual payload.
+ *  2. Response unwrapping: the backend wraps all non-health responses in
+ *     { success: true, statusCode, data, meta?, timestamp }. This client
+ *     accepts exactly that one envelope and never guesses legacy shapes.
  *  3. Error normalisation: throws an Error with the backend's message string.
  *  4. Cookie-based auth: always sends credentials: 'include' so the
  *     HttpOnly access_token cookie is sent automatically.
@@ -72,13 +72,8 @@ async function fetchCsrfToken() {
     .then(async (res) => {
       if (!res.ok) throw new Error('Failed to fetch CSRF token');
       const body = await res.json();
-      // Backend returns { data: { csrfToken: "..." } } or { csrfToken: "..." }
-      const token =
-        body?.data?.csrfToken ||
-        body?.data?.token ||
-        body?.csrfToken ||
-        body?.token ||
-        null;
+      const csrfPayload = unwrap(body);
+      const token = csrfPayload?.csrfToken ?? null;
       if (token && typeof token === 'string' && token.length >= 16) {
         _csrfToken = token;
       } else {
@@ -122,21 +117,24 @@ export function getOrCreateGuestToken() {
 
 // ── Response Unwrapper ────────────────────────────────────────────────────────
 /**
- * Unwraps the backend's TransformInterceptor envelope.
- * Backend format:  { data: { success, statusCode, data: <payload>, timestamp } }
- * Returns: <payload>
+ * Unwraps exactly one canonical backend envelope.  An HTTP success carrying a
+ * failed business result is rejected rather than being shown as success.
  */
-function unwrap(body) {
-  // Handle double-wrapped: { data: { success, data: <payload> } }
-  if (body && typeof body === 'object') {
-    if ('data' in body) {
-      const inner = body.data;
-      if (inner && 'data' in inner) return inner.data;
-      if (inner && 'success' in inner) return inner; // return inner if no nested data
-      return inner;
-    }
+export function unwrap(body) {
+  if (!body || typeof body !== 'object' || body.success !== true || !Object.prototype.hasOwnProperty.call(body, 'data')) {
+    const error = new Error('Invalid API success envelope');
+    error.code = 'INVALID_SUCCESS_ENVELOPE';
+    throw error;
   }
-  return body;
+  if (body.data && typeof body.data === 'object' && body.data.success === false) {
+    const error = new Error(body.data.message || 'The operation was not completed');
+    error.code = body.data.code || 'BUSINESS_OPERATION_FAILED';
+    throw error;
+  }
+  if (body.meta !== undefined) {
+    return { data: body.data, meta: body.meta };
+  }
+  return body.data;
 }
 
 // ── Auth Refresh & Event Management ─────────────────────────────────────────
@@ -320,12 +318,14 @@ export async function apiRequest(path, options = {}, { raw = false, _retry = fal
       clearCsrfToken();
     }
     // Extract error message from backend's error envelope
-    const rawMsg = body?.data?.message || body?.message;
+    const rawMsg = body?.message;
     const message = Array.isArray(rawMsg)
       ? rawMsg.join(' • ')
       : (rawMsg || `Request failed with status ${res.status}`);
     const error = new Error(message);
     error.status = res.status;
+    error.code = typeof body?.code === 'string' ? body.code : `HTTP_${res.status}`;
+    error.errors = body?.errors;
     error.body = body;
     throw error;
   }

@@ -83,8 +83,8 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
       const tourBookings = (await getUserBookings()) || [];
       let transportBookings = [];
       try {
-        const transRes = await api.get('/transportation/bookings/my');
-        const transList = Array.isArray(transRes) ? transRes : (transRes?.data || []);
+        const transList = await api.get('/transportation/bookings/my');
+        if (!Array.isArray(transList)) throw new Error('Invalid transportation-booking collection');
         transportBookings = transList.map(tb => ({
           ...tb,
           isTransport: true,

@@ -25,7 +25,7 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
     const mockTours = [
       { id: 't-1', slug: 'grand-pyramids', title: 'Grand Pyramids', category: 'classic', basePriceUsd: 1500 },
     ];
-    vi.spyOn(api, 'get').mockResolvedValue(mockTours);
+    vi.spyOn(api, 'get').mockResolvedValue({ data: mockTours, meta: { total: 1, page: 1, limit: 5, totalPages: 1 } });
 
     const { result } = renderHook(() => useTours({ destination: 'egypt', category: 'classic', limit: 5 }));
 
@@ -44,7 +44,17 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
   });
 
   it('useTour passes active lang parameter to GET /api/tours/:slug', async () => {
-    const mockTour = { id: 'tour-greece', slug: 'greece-odyssey', title: 'Greece Odyssey', basePriceUsd: 1200, itinerary: [{ day: 1, title: 'Arrival' }] };
+    const mockTour = {
+      id: 'tour-greece',
+      slug: 'greece-odyssey',
+      title: 'Greece Odyssey',
+      basePriceUsd: '1200.00',
+      currency: 'USD',
+      images: [],
+      itinerary: [],
+      includedServices: [],
+      excludedServices: [],
+    };
     vi.spyOn(api, 'get').mockResolvedValue(mockTour);
 
     const { result } = renderHook(() => useTour('greece-odyssey'));

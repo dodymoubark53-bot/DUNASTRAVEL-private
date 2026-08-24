@@ -23,11 +23,12 @@ export default function CustomerNotificationBell() {
     }
     try {
       setLoading(true);
-      const res = await api.get('/in-app-notifications?limit=8');
-      const data = res.data?.data || res.data || {};
-      const items = Array.isArray(data.items) ? data.items : Array.isArray(data) ? data : [];
-      setNotifications(items);
-      setUnreadCount(typeof data.unreadCount === 'number' ? data.unreadCount : 0);
+      const data = await api.get('/in-app-notifications?limit=8');
+      if (!data || !Array.isArray(data.items) || typeof data.unreadCount !== 'number') {
+        throw new Error('Invalid notification collection contract');
+      }
+      setNotifications(data.items);
+      setUnreadCount(data.unreadCount);
     } catch (err) {
       console.warn('Customer notification fetch failed', err);
     } finally {
