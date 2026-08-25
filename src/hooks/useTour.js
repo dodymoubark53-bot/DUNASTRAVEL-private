@@ -57,7 +57,12 @@ function getFallbackTour(slug, lang) {
   const price = Number(match.price || match.basePriceUsd || 0);
   const images = Array.isArray(match.images) && match.images.length > 0 ? match.images : (match.heroImage ? [match.heroImage] : []);
 
-  const rawItinerary = Array.isArray(match.itinerary) ? match.itinerary : (match.itinerary?.[lang] || match.itinerary?.en || []);
+  const rawItinerary = Array.isArray(match.days)
+    ? match.days
+    : Array.isArray(match.itinerary)
+      ? match.itinerary
+      : (match.itinerary?.[lang] || match.itinerary?.en || []);
+
   const itinerary = rawItinerary.map((item, index) => ({
     id: `day-${index + 1}`,
     day: item.day || index + 1,
@@ -70,7 +75,7 @@ function getFallbackTour(slug, lang) {
     ...match,
     id: match.id || match.slug,
     slug: match.slug,
-    title: resolveText(match.title),
+    title: resolveText(match.title || match.name),
     overview: resolveText(match.overview),
     duration: resolveText(match.duration),
     country: match.country || match.destination || 'Morocco',
@@ -79,9 +84,12 @@ function getFallbackTour(slug, lang) {
     heroImage: images[0] || '',
     price,
     basePriceUsd: price,
-    included: resolveList(match.included),
-    excluded: resolveList(match.excluded),
+    included: resolveList(match.included || match.includes),
+    excluded: resolveList(match.excluded || match.excludes),
     highlights: resolveList(match.highlights),
+    minPax: resolveText(match.minPax),
+    code: resolveText(match.code),
+    pricing: match.pricing || null,
     itinerary,
     currency: 'USD',
   };
