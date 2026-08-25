@@ -44,12 +44,22 @@ function normalizeTour(data) {
 }
 
 import { tours as staticTours } from '../data/tours.js';
+import multiCountryTours from '../data/multiCountryTours.js';
+
+const allStaticTours = [...staticTours, ...multiCountryTours];
 
 function getFallbackTour(slug, lang) {
-  const normSlug = (slug === 'classic-program' || slug === 'classic') ? 'complete-egypt-8d' : slug;
-  const match = staticTours.find(
-    (t) => t.slug === normSlug || t.id === normSlug || String(t.code?.en || t.code?.ar || t.id).toLowerCase() === String(normSlug).toLowerCase(),
-  );
+  if (!slug) return null;
+  const lowerSlug = String(slug).toLowerCase();
+  const normSlug = (lowerSlug.includes('classic') || lowerSlug === 'classic-program') ? 'complete-egypt-8d' : slug;
+  
+  const match = allStaticTours.find(
+    (t) => t.slug === normSlug || t.id === normSlug
+      || t.slug === slug || t.id === slug
+      || String(t.code?.en || t.code?.ar || t.id).toLowerCase() === String(normSlug).toLowerCase()
+      || String(t.code?.en || t.code?.ar || t.id).toLowerCase() === String(slug).toLowerCase(),
+  ) || allStaticTours.find((t) => t.destination === 'egypt');
+
   if (!match) return null;
 
   const resolveText = (val) => (typeof val === 'object' && val !== null ? (val[lang] || val.en || Object.values(val)[0]) : (val || ''));
@@ -75,12 +85,12 @@ function getFallbackTour(slug, lang) {
   return {
     ...match,
     id: match.id || match.slug,
-    slug: match.slug,
+    slug: match.slug || slug,
     title: resolveText(match.title || match.name),
     overview: resolveText(match.overview),
     duration: resolveText(match.duration),
-    country: match.country || match.destination || 'Morocco',
-    destination: String(match.destination || match.country || '').toLowerCase(),
+    country: match.country || match.destination || 'Egypt',
+    destination: String(match.destination || match.country || 'egypt').toLowerCase(),
     images,
     heroImage: images[0] || '',
     price,
@@ -114,12 +124,16 @@ export function useTour(slug) {
         const result = normalizeTour(
           await api.get(`/tours/${encodeURIComponent(slug)}?lang=${encodeURIComponent(lang)}`),
         );
-        if (isMounted) setTour(result);
+        if (isMounted) {
+          setTour(result);
+          setError(null);
+        }
       } catch (requestError) {
         if (isMounted) {
           const fallback = getFallbackTour(slug, lang);
           if (fallback) {
             setTour(fallback);
+            setError(null);
           } else {
             setError(requestError);
             setTour(null);
