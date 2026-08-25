@@ -535,7 +535,7 @@ export default function DubaiProgramDetails() {
 
           {/* Right Column: Advanced Booking Form Sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-28">
+            <div className="sticky top-28 self-start z-30">
               <AdvancedBooking tourTitle={title} />
             </div>
           </div>

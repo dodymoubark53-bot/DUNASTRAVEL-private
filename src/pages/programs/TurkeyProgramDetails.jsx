@@ -399,7 +399,7 @@ export default function TurkeyProgramDetails() {
 
           {/* Sidebar Booking Column (1 Col) */}
           <div className="lg:col-span-1">
-            <div>
+            <div className="sticky top-28 self-start z-30">
               <TurkeySidebarBooking
                 tourTitle={title}
                 transportChoice={selectedTransport}

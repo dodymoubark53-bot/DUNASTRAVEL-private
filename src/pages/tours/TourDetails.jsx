@@ -9,6 +9,7 @@ import {
 import TourCard from '../../components/tour/TourCard';
 import { fadeInUp } from '../../animations/variants';
 import BookingForm from '../../components/booking/BookingForm';
+import AdvancedBooking from '../../components/booking/AdvancedBooking';
 import { useCurrency } from '../../context/CurrencyContext';
 
 import { useTour } from '../../hooks/useTour';
@@ -503,6 +504,13 @@ const TourDetails = () => {
               </motion.div>
             )}
 
+          </div>
+
+          {/* Sticky Sidebar Booking Form Column */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-28 self-start z-30">
+              <AdvancedBooking tourTitle={title} />
+            </div>
           </div>
         </div>
       </section>

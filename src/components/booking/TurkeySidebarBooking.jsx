@@ -250,7 +250,7 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
   return (
     <div
       ref={langRef}
-      className="bg-obsidian-900 text-ivory-50 rounded-2xl shadow-card border border-[rgba(201,162,39,0.15)] hover:shadow-[0_0_40px_rgba(201,162,39,0.15)] hover:border-[rgba(201,162,39,0.35)] hover:scale-[1.01] transition-all duration-300"
+      className="bg-obsidian-900 text-ivory-50 rounded-2xl shadow-card border border-[rgba(201,162,39,0.15)] hover:shadow-[0_0_40px_rgba(201,162,39,0.15)] hover:border-[rgba(201,162,39,0.35)] hover:scale-[1.01] transition-all duration-300 sticky top-28 self-start z-30"
     >
       {submitStatus === 'success' && submittedData ? (
         <div className="flex flex-col items-center text-center py-12 px-6">
