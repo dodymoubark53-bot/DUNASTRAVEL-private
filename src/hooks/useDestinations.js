@@ -31,6 +31,16 @@ function readDestinations(response) {
   });
 }
 
+const STATIC_DESTINATIONS = [
+  { id: 'egypt', slug: 'egypt', title: 'Egypt', name: 'Egypt', subtitle: 'Land of the Pharaohs', heroImageUrl: '/imgs/egyothero.png', image: '/imgs/egyothero.png', toursCount: 5 },
+  { id: 'turkey', slug: 'turkey', title: 'Turkey', name: 'Turkey', subtitle: 'Where East Meets West', heroImageUrl: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=1200', image: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=1200', toursCount: 3 },
+  { id: 'jordan', slug: 'jordan', title: 'Jordan', name: 'Jordan', subtitle: 'Kingdom of Wonder', heroImageUrl: 'https://images.unsplash.com/photo-1548786811-dd4f764bc046?w=1200', image: 'https://images.unsplash.com/photo-1548786811-dd4f764bc046?w=1200', toursCount: 2 },
+  { id: 'morocco', slug: 'morocco', title: 'Morocco', name: 'Morocco', subtitle: 'Land of Colors & Spices', heroImageUrl: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200', image: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200', toursCount: 1 },
+  { id: 'greece', slug: 'greece', title: 'Greece', name: 'Greece', subtitle: 'Cradle of Civilization', heroImageUrl: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200', image: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200', toursCount: 1 },
+  { id: 'dubai', slug: 'dubai', title: 'Dubai', name: 'Dubai', subtitle: 'City of the Future', heroImageUrl: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200', image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200', toursCount: 1 },
+  { id: 'tunisia', slug: 'tunisia', title: 'Tunisia', name: 'Tunisia', subtitle: 'Oasis & Mediterranean Charm', heroImageUrl: 'https://images.unsplash.com/photo-1548786811-dd4f764bc046?w=1200', image: 'https://images.unsplash.com/photo-1548786811-dd4f764bc046?w=1200', toursCount: 1 },
+];
+
 export function useDestinations() {
   const { i18n } = useTranslation();
   const lang = supportedLocale(i18n.language);
@@ -47,11 +57,11 @@ export function useDestinations() {
         const items = readDestinations(
           await api.get(`/destinations?locale=${encodeURIComponent(lang)}`),
         );
-        if (isMounted) setDestinations(items);
+        if (isMounted) setDestinations(items.length > 0 ? items : STATIC_DESTINATIONS);
       } catch (requestError) {
         if (isMounted) {
           setError(requestError);
-          setDestinations([]);
+          setDestinations(STATIC_DESTINATIONS);
         }
       } finally {
         if (isMounted) setLoading(false);

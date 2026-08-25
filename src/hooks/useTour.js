@@ -43,6 +43,50 @@ function normalizeTour(data) {
   };
 }
 
+import { tours as staticTours } from '../data/tours.js';
+
+function getFallbackTour(slug, lang) {
+  const match = staticTours.find(
+    (t) => t.slug === slug || t.id === slug || String(t.code?.en || t.code?.ar || t.id).toLowerCase() === String(slug).toLowerCase(),
+  );
+  if (!match) return null;
+
+  const resolveText = (val) => (typeof val === 'object' && val !== null ? (val[lang] || val.en || Object.values(val)[0]) : (val || ''));
+  const resolveList = (val) => (Array.isArray(val) ? val : (val && typeof val === 'object' ? (val[lang] || val.en || []) : []));
+
+  const price = Number(match.price || match.basePriceUsd || 0);
+  const images = Array.isArray(match.images) && match.images.length > 0 ? match.images : (match.heroImage ? [match.heroImage] : []);
+
+  const rawItinerary = Array.isArray(match.itinerary) ? match.itinerary : (match.itinerary?.[lang] || match.itinerary?.en || []);
+  const itinerary = rawItinerary.map((item, index) => ({
+    id: `day-${index + 1}`,
+    day: item.day || index + 1,
+    title: resolveText(item.title) || `Day ${index + 1}`,
+    description: resolveText(item.description),
+    meals: resolveText(item.meals),
+  }));
+
+  return {
+    ...match,
+    id: match.id || match.slug,
+    slug: match.slug,
+    title: resolveText(match.title),
+    overview: resolveText(match.overview),
+    duration: resolveText(match.duration),
+    country: match.country || match.destination || 'Morocco',
+    destination: String(match.destination || match.country || '').toLowerCase(),
+    images,
+    heroImage: images[0] || '',
+    price,
+    basePriceUsd: price,
+    included: resolveList(match.included),
+    excluded: resolveList(match.excluded),
+    highlights: resolveList(match.highlights),
+    itinerary,
+    currency: 'USD',
+  };
+}
+
 export function useTour(slug) {
   const { i18n } = useTranslation();
   const lang = supportedLocale(i18n.language);
@@ -64,8 +108,13 @@ export function useTour(slug) {
         if (isMounted) setTour(result);
       } catch (requestError) {
         if (isMounted) {
-          setError(requestError);
-          setTour(null);
+          const fallback = getFallbackTour(slug, lang);
+          if (fallback) {
+            setTour(fallback);
+          } else {
+            setError(requestError);
+            setTour(null);
+          }
         }
       } finally {
         if (isMounted) setLoading(false);

@@ -605,9 +605,8 @@ const baseTours = [
 ];
 
 import { tunisiaTours } from './tunisiaTours.js';
-import { egyptTours } from './egyptTours.js';
 import { moroccoTours } from './moroccoTours.js';
 
-export const tours = [...baseTours, ...tunisiaTours, ...egyptTours, ...moroccoTours];
+export const tours = [...baseTours, ...tunisiaTours, ...moroccoTours];
 export const allTours = tours;
 export default tours;

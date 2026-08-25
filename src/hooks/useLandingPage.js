@@ -19,6 +19,59 @@ function normalizeLandingPage(value) {
   };
 }
 
+import { tours as staticTours } from '../data/tours.js';
+
+function getFallbackLandingPage(slug, locale) {
+  const normSlug = String(slug).toLowerCase();
+  const matchedTours = staticTours
+    .filter((t) => String(t.destination || t.country || t.category || '').toLowerCase() === normSlug)
+    .map((t) => {
+      const title = typeof t.title === 'object' ? (t.title[locale] || t.title.en || Object.values(t.title)[0]) : (t.title || '');
+      const price = Number(t.price || t.basePriceUsd || 0);
+      const images = Array.isArray(t.images) && t.images.length > 0 ? t.images : (t.heroImage ? [t.heroImage] : []);
+      return {
+        ...t,
+        id: t.id || t.slug,
+        slug: t.slug,
+        title,
+        basePriceUsd: String(price),
+        currency: 'USD',
+        country: t.country || t.destination || 'Morocco',
+        images,
+      };
+    });
+
+  if (normSlug === 'morocco') {
+    return {
+      id: 'morocco',
+      slug: 'morocco',
+      type: 'DESTINATION',
+      title: locale === 'ar' ? 'المغرب' : locale === 'es' ? 'Marruecos' : locale === 'pt' ? 'Marrocos' : locale === 'it' ? 'Marocco' : 'Morocco',
+      subtitle: locale === 'ar' ? 'أرض الألوان والتوابل' : locale === 'es' ? 'Tierra de Colores y Especias' : 'Land of Colors & Spices',
+      brief: locale === 'ar' ? 'من مدن فاس الإمبراطورية إلى أسواق مراكش العريقة.' : 'From the medinas of Fez to the vibrant souks of Marrakech.',
+      description: locale === 'ar' ? 'استكشف ثقافة المغرب الغنية والهندسة المعمارية والرحلات عبر المدن الإمبراطورية.' : 'Explore rich Moroccan culture, imperial cities, and authentic experiences.',
+      heroImageUrl: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200',
+      tours: matchedTours,
+    };
+  }
+
+  if (matchedTours.length > 0) {
+    return {
+      id: normSlug,
+      slug: normSlug,
+      type: 'DESTINATION',
+      title: normSlug.toUpperCase(),
+      subtitle: 'Curated Experiences',
+      brief: 'Explore our handpicked luxury tours.',
+      description: 'Discover unforgettable journeys.',
+      heroImageUrl: matchedTours[0].images?.[0] || '',
+      tours: matchedTours,
+    };
+  }
+
+  return null;
+}
+
 export function useLandingPage(slug, { destinationOnly = false } = {}) {
   const { i18n } = useTranslation();
   const locale = supportedLocale(i18n.language);
@@ -41,8 +94,13 @@ export function useLandingPage(slug, { destinationOnly = false } = {}) {
         if (active) setLandingPage(page);
       } catch (reason) {
         if (active) {
-          setLandingPage(null);
-          setError(reason);
+          const fallback = getFallbackLandingPage(slug, locale);
+          if (fallback) {
+            setLandingPage(fallback);
+          } else {
+            setLandingPage(null);
+            setError(reason);
+          }
         }
       } finally {
         if (active) setLoading(false);
