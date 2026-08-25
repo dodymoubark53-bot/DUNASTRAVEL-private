@@ -46,8 +46,9 @@ function normalizeTour(data) {
 import { tours as staticTours } from '../data/tours.js';
 
 function getFallbackTour(slug, lang) {
+  const normSlug = (slug === 'classic-program' || slug === 'classic') ? 'complete-egypt-8d' : slug;
   const match = staticTours.find(
-    (t) => t.slug === slug || t.id === slug || String(t.code?.en || t.code?.ar || t.id).toLowerCase() === String(slug).toLowerCase(),
+    (t) => t.slug === normSlug || t.id === normSlug || String(t.code?.en || t.code?.ar || t.id).toLowerCase() === String(normSlug).toLowerCase(),
   );
   if (!match) return null;
 
