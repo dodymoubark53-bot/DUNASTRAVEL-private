@@ -19,6 +19,7 @@ import ErrorState from '../../components/ui/ErrorState';
 import { resolveTourTitle, resolveTourDuration, resolveTourOverview, resolveLocalizedText } from '../../utils/titleHelper';
 
 import SEOHead from '../../components/seo/SEOHead';
+import ReviewsMap from '../../components/tour/ReviewsMap';
 
 const TourDetails = () => {
   const { t, i18n } = useTranslation();
@@ -114,7 +115,7 @@ const TourDetails = () => {
   };
 
   return (
-    <div className="w-full bg-obsidian-50 dark:bg-[#0f0f1a] min-h-screen text-left rtl:text-right">
+    <div className="w-full bg-obsidian-50 dark:bg-[#0f0f1a] min-h-screen text-start">
       <SEOHead
         title={title}
         description={overview}
@@ -172,7 +173,7 @@ const TourDetails = () => {
           </div>
         )}
         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
-        <div className="absolute bottom-6 right-6 bg-obsidian-900/80 backdrop-blur-md px-4 py-2 rounded-full text-ivory-50 text-caption border border-gold-500/20">
+        <div className="absolute bottom-6 right-6 rtl:right-auto rtl:left-6 bg-obsidian-900/80 backdrop-blur-md px-4 py-2 rounded-full text-ivory-50 text-caption border border-gold-500/20">
           {t('tour.clickGallery', 'Click to open gallery')}
         </div>
       </section>
@@ -408,7 +409,7 @@ const TourDetails = () => {
               viewport={{ once: true }}
               className="mt-8 max-w-4xl mx-auto"
             >
-              <div className={`grid grid-cols-1 md:grid-cols-${tour.excursions && tour.excursions.length > 0 ? '3' : '2'} gap-8`}>
+              <div className={`grid grid-cols-1 ${tour.excursions && tour.excursions.length > 0 ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-8`}>
                 <div>
                   <h3 className="text-display-md text-2xl mb-6 text-obsidian-900 dark:text-ivory-50" style={{ fontFamily: "'Playfair Display', serif" }}>
                     {tour.included && tour.included.length > 0 ? (tour.inclusionsTitle ? resolveLocalizedText(tour.inclusionsTitle, t, lang) : t('tourDetail.included', 'What is Included')) : ''}
