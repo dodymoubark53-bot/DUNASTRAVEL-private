@@ -50,7 +50,7 @@ function getStaticLandingPage(slug, locale) {
     subtitle: normSlug === 'egypt' ? (locale === 'ar' ? 'أرض الفراعنة والجمال الخالد' : 'Land of the Pharaohs') : '',
     brief: normSlug === 'egypt' ? (locale === 'ar' ? 'استكشف عراقة الآثار والأهرامات والعجائب.' : 'Explore ancient monuments and wonders.') : '',
     description: '',
-    heroImageUrl: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?q=80&w=1200',
+    heroImageUrl: normSlug === 'egypt' ? '/imgs/egyothero.png' : 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?q=80&w=1200',
     tours,
   };
 }
