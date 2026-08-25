@@ -14,8 +14,8 @@ import { useCurrency } from '../../context/CurrencyContext';
 import { useTour } from '../../hooks/useTour';
 import { useTours } from '../../hooks/useTours';
 import { trackEvent } from '../../utils/analytics';
-import ReviewsMap from '../../components/tour/ReviewsMap';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
+import ErrorState from '../../components/ui/ErrorState';
 import { resolveTourTitle, resolveTourDuration, resolveTourOverview, resolveLocalizedText } from '../../utils/titleHelper';
 
 import SEOHead from '../../components/seo/SEOHead';
@@ -80,7 +80,8 @@ const TourDetails = () => {
   const title = resolveTourTitle(tour, t, lang);
   const overview = resolveTourOverview(tour, t, lang);
   const duration = resolveTourDuration(tour, t, lang);
-  const heroImg = tour.images[0] || null;
+  const tourImages = Array.isArray(tour?.images) ? tour.images : [];
+  const heroImg = tourImages[0] || tour?.heroImage || null;
 
   const tourSchema = {
     '@context': 'https://schema.org',
