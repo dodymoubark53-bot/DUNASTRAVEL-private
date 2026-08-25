@@ -91,7 +91,17 @@ export function useLandingPage(slug, { destinationOnly = false } = {}) {
         const page = normalizeLandingPage(
           await api.get(`${endpoint}/${encodeURIComponent(slug)}?locale=${encodeURIComponent(locale)}`),
         );
-        if (active) setLandingPage(page);
+        if (active) {
+          const fallback = getFallbackLandingPage(slug, locale);
+          if ((!page.tours || page.tours.length === 0) && fallback?.tours?.length > 0) {
+            setLandingPage({
+              ...page,
+              tours: fallback.tours,
+            });
+          } else {
+            setLandingPage(page);
+          }
+        }
       } catch (reason) {
         if (active) {
           const fallback = getFallbackLandingPage(slug, locale);
