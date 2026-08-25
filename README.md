@@ -1,6 +1,6 @@
 # 🐪 Dunas Travel (dunas-travel2026.com)
 
-[![React 19](https://img.shields.io/badge/React-19.2-blue?logo=react&logoColor=white)](https://react.dev)
+[![React .  19](https://img.shields.io/badge/React-19.2-blue?logo=react&logoColor=white)](https://react.dev)
 [![Vite 8](https://img.shields.io/badge/Vite-8.0-9a3412?logo=vite&logoColor=white)](https://vite.dev)
 [![Tailwind CSS 3](https://img.shields.io/badge/Tailwind_CSS-3.4-38bdf8?logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 [![Express 5](https://img.shields.io/badge/Express-5.2-lightgrey?logo=express&logoColor=white)](https://expressjs.com)
