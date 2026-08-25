@@ -17,7 +17,14 @@ function asyncCssPlugin() {
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const upstreamApi = env.VITE_API_URL || 'https://dunastravel-backend-seven.vercel.app/api';
+  // Keep local development fully integrated with the local Nest API. An
+  // explicit VITE_API_URL still wins (useful for staging/remote testing),
+  // while production builds retain the deployed API as their default.
+  const upstreamApi = env.VITE_API_URL || (
+    mode === 'development'
+      ? 'http://localhost:5000/api'
+      : 'https://dunastravel-backend-seven.vercel.app/api'
+  );
   const apiOrigin = new URL(upstreamApi).origin;
 
   return {
