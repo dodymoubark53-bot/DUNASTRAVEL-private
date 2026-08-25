@@ -89,6 +89,7 @@ const ReligiousTours = lazy(() => import("./pages/programs/ReligiousTours"));
 const MultiCountryTours = lazy(() => import("./pages/programs/MultiCountryTours"));
 const MultiCountryTourDetails = lazy(() => import("./pages/programs/MultiCountryTourDetails"));
 const ExtensionTours = lazy(() => import("./pages/programs/ExtensionTours"));
+const ExtensionDetails = lazy(() => import("./pages/programs/ExtensionDetails"));
 const ClassicProgramDetails = lazy(() => import("./pages/programs/ClassicProgramDetails"));
 const TourDetails = lazy(() => import("./pages/tours/TourDetails"));
 const BlogDetails = lazy(() => import("./pages/blogs/BlogDetails"));
@@ -438,6 +439,7 @@ function App() {
                   <Route path="multi-country" element={<PageTransition><MultiCountryTours /></PageTransition>} />
                   <Route path="multi-country/:slug" element={<PageTransition><MultiCountryTourDetails /></PageTransition>} />
                   <Route path="extension" element={<PageTransition><ExtensionTours /></PageTransition>} />
+                  <Route path="extension/:id" element={<PageTransition><ExtensionDetails /></PageTransition>} />
                   <Route path="classic/*" element={<PageTransition><ClassicProgramDetails /></PageTransition>} />
                   <Route path="classic" element={<PageTransition><ClassicProgramDetails /></PageTransition>} />
                   <Route path=":slug" element={<PageTransition><TourDetails /></PageTransition>} />

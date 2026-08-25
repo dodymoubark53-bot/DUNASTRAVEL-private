@@ -5643,5 +5643,33 @@
     "ctaTitle": "Pronto para Celebrar o Seu Amor?",
     "ctaDesc": "Deixe nossos especialistas criarem a escapadinha romântica perfeita sob medida para você.",
     "ctaBtn": "Começar a Planejar sua Lua de Mel"
+  },
+  "extensions": {
+    "title": "Extensões no Egito | Dunas Travel",
+    "subtitle": "Extensões no Egito",
+    "heading": "Estenda a sua Experiência no Egito",
+    "heroDesc": "Enriqueça as suas férias com noites adicionais no Mar Vermelho ou um safari no Deserto Ocidental.",
+    "desc": "Estenda as suas férias no Egito com resorts em Hurghada, Sharm El Sheikh ou aventuras no Oásis de Siwa.",
+    "sectionTitle": "Pacotes de Extensão Disponíveis",
+    "sectionDesc": "Selecione uma extensão para combinar com o seu itinerário no Egito.",
+    "viewDetails": "Ver Detalhes",
+    "startingFrom": "A partir de",
+    "addOnAvailable": "Extensão Disponível",
+    "perPerson": "por pessoa",
+    "hurghadaTitle": "Extensão Mar Vermelho em Hurghada",
+    "hurghadaDesc": "Estenda as suas férias 3 noites num resort Tudo Incluído na costa de Hurghada. Snorkeling e relaxamento.",
+    "hurghadaOverview": "Desfrute de 3 noites num resort 5 estrelas Tudo Incluído em Hurghada. Explore recifes de corais e relaxe junto ao mar.",
+    "sharmTitle": "Extensão VIP em Sharm El Sheikh",
+    "sharmDesc": "Desconecte no Parque Nacional Ras Mohammed, resort spa de luxo e safari de quadriciclo no deserto.",
+    "sharmOverview": "Desfrute do máximo luxo em Sharm El Sheikh. Visite Ras Mohammed, desfrute do spa e de um safari ao pôr do sol.",
+    "siwaTitle": "Extensão Oásis de Siwa e Deserto Ocidental",
+    "siwaDesc": "Descubra a Fonte de Cleópatra, a Fortaleza de Shali, piscinas de sal turquesa e o Grande Mar de Areia.",
+    "siwaOverview": "Viaje até ao Oásis de Siwa no Deserto Ocidental. Flutue em lagos de sal e explore a antiga Fortaleza de Shali.",
+    "itinerary": "Itinerário",
+    "overviewTitle": "Visão Geral",
+    "includesTitle": "Inclui",
+    "ctaTitle": "Quer Personalizar a sua Extensão?",
+    "ctaDesc": "Os nossos especialistas podem adaptar a duração, categoria de hotel e passeios privados.",
+    "ctaBtn": "Personalizar Extensão"
   }
 }
