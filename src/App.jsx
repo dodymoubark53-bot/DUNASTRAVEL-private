@@ -83,6 +83,12 @@ const Dubai = lazy(() => import("./pages/destinations/Dubai"));
 const DubaiProgramDetails = lazy(() => import("./pages/programs/DubaiProgramDetails"));
 const Turquia = lazy(() => import("./pages/destinations/Turquia"));
 const TurkeyProgramDetails = lazy(() => import("./pages/programs/TurkeyProgramDetails"));
+const Honeymooners = lazy(() => import("./pages/programs/Honeymooners"));
+const HoneymoonersDetails = lazy(() => import("./pages/programs/HoneymoonersDetails"));
+const ReligiousTours = lazy(() => import("./pages/programs/ReligiousTours"));
+const MultiCountryTours = lazy(() => import("./pages/programs/MultiCountryTours"));
+const MultiCountryTourDetails = lazy(() => import("./pages/programs/MultiCountryTourDetails"));
+const ExtensionTours = lazy(() => import("./pages/programs/ExtensionTours"));
 const TourDetails = lazy(() => import("./pages/tours/TourDetails"));
 const BlogDetails = lazy(() => import("./pages/blogs/BlogDetails"));
 const ServiceDetails = lazy(() => import("./pages/services/ServiceDetails"));
@@ -424,6 +430,17 @@ function App() {
                     }
                   />
                 </Route>
+                <Route path="programs">
+                  <Route path="honeymooners" element={<PageTransition><Honeymooners /></PageTransition>} />
+                  <Route path="honeymooners/:id" element={<PageTransition><HoneymoonersDetails /></PageTransition>} />
+                  <Route path="religious" element={<PageTransition><ReligiousTours /></PageTransition>} />
+                  <Route path="multi-country" element={<PageTransition><MultiCountryTours /></PageTransition>} />
+                  <Route path="multi-country/:slug" element={<PageTransition><MultiCountryTourDetails /></PageTransition>} />
+                  <Route path="extension" element={<PageTransition><ExtensionTours /></PageTransition>} />
+                  <Route path="classic/*" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path=":slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                </Route>
+                <Route path="services/religious/*" element={<PageTransition><ReligiousTours /></PageTransition>} />
                 <Route path="tours">
                   <Route
                     index
