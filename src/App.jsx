@@ -44,8 +44,30 @@ class ErrorBoundary extends React.Component {
           <p style={{ color: '#aaa', margin: 0, fontSize: '0.95rem' }}>
             An unexpected error occurred. Please refresh the page.
           </p>
+          {this.state.error && (
+            <pre style={{
+              color: '#ef4444',
+              background: '#111827',
+              padding: '1rem',
+              borderRadius: '0.5rem',
+              maxWidth: '90vw',
+              maxHeight: '300px',
+              overflow: 'auto',
+              textAlign: 'left',
+              fontSize: '0.8rem',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word'
+            }}>
+              {this.state.error.toString()}
+              {'\n'}
+              {this.state.error.stack}
+            </pre>
+          )}
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => {
+              this.setState({ hasError: false, error: null });
+              window.location.reload();
+            }}
             style={{
               marginTop: '0.5rem',
               padding: '0.6rem 1.8rem',
@@ -244,10 +266,18 @@ function App() {
                     }
                   />
                   <Route
-                    path=":service"
+                    path="religious"
                     element={
                       <PageTransition>
-                        <Services />
+                        <ReligiousTours />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="religious/:slug"
+                    element={
+                      <PageTransition>
+                        <ServiceDetails />
                       </PageTransition>
                     }
                   />
@@ -275,6 +305,14 @@ function App() {
                       </PageTransition>
                     }
                   />
+                  <Route
+                    path=":service"
+                    element={
+                      <PageTransition>
+                        <Services />
+                      </PageTransition>
+                    }
+                  />
                 </Route>
                 <Route path="programs">
                   <Route
@@ -282,6 +320,22 @@ function App() {
                     element={
                       <PageTransition>
                         <Services />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="religious"
+                    element={
+                      <PageTransition>
+                        <ReligiousTours />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="religious/:slug"
+                    element={
+                      <PageTransition>
+                        <ServiceDetails />
                       </PageTransition>
                     }
                   />
@@ -444,7 +498,6 @@ function App() {
                   <Route path="classic" element={<PageTransition><ClassicProgramDetails /></PageTransition>} />
                   <Route path=":slug" element={<PageTransition><TourDetails /></PageTransition>} />
                 </Route>
-                <Route path="services/religious/*" element={<PageTransition><ReligiousTours /></PageTransition>} />
                 <Route path="tours">
                   <Route
                     index

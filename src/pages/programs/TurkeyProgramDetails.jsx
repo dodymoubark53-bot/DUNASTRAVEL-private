@@ -20,6 +20,7 @@ import RouteMap from '../../components/tour/RouteMap';
 import ReviewsMap from '../../components/tour/ReviewsMap';
 import TourCard from '../../components/tour/TourCard';
 import TurkeySidebarBooking from '../../components/booking/TurkeySidebarBooking';
+import SuggestedTours from '../../components/tour/SuggestedTours';
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -539,6 +540,9 @@ export default function TurkeyProgramDetails() {
           .related-carousel-item { width: 350px; }
         }
       `}</style>
+
+      {/* Suggested Tours Strip */}
+      <SuggestedTours currentDestination="turkey" currentSlug={programId} />
     </div>
   );
 }

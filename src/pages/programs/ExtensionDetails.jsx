@@ -3,136 +3,39 @@ import { Helmet } from 'react-helmet-async';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { FaCheck, FaCalendarAlt, FaChevronRight, FaSun } from 'react-icons/fa';
+import { FaCheck, FaTimes, FaChevronRight, FaSun } from 'react-icons/fa';
 import AdvancedBooking from '../../components/booking/AdvancedBooking';
 import RouteMap from '../../components/tour/RouteMap';
+import SuggestedTours from '../../components/tour/SuggestedTours';
 import { fadeInUp } from '../../animations/variants';
+import { services } from '../../data/services';
 
-const EXTENSIONS_DATA = {
-  'extension-hurghada': {
-    id: 'extension-hurghada',
-    titleKey: 'extensions.hurghadaTitle',
-    titleDefault: 'Hurghada Red Sea Extension',
-    overviewKey: 'extensions.hurghadaOverview',
-    overviewDefault: 'Transform your historical trip into a complete beach getaway. Enjoy 3 nights at a 5-star All-Inclusive resort in Hurghada. Explore vibrant coral reefs, crystal waters, or simply unwind by the sea.',
-    duration: '4 Days / 3 Nights',
-    destinations: 'Hurghada Resort',
-    img: 'https://res.cloudinary.com/degbrq3ck/image/upload/v1783030445/Gemini_Generated_Image_kenvzkkenvzkkenv_h9kz07.png',
-    price: 490,
-    itinerary: [
-      {
-        day: 1,
-        titleDefault: 'Arrival in Hurghada & Resort Check-in',
-        descDefault: 'Transfer from Cairo or Nile Cruise to your 5-star beachfront resort in Hurghada. Check-in, enjoy all-inclusive amenities, and spend a relaxing evening by the Red Sea beach.'
-      },
-      {
-        day: 2,
-        titleDefault: 'Red Sea Coral Reef Snorkeling & Boat Cruise',
-        descDefault: 'Embark on a private or regular yacht trip to Giftun Island. Swim and snorkel in crystal-clear waters among colorful coral reefs and exotic marine life.'
-      },
-      {
-        day: 3,
-        titleDefault: 'Day at Leisure & Beachfront Spa Relaxation',
-        descDefault: 'Enjoy a full free day at leisure. Relax by the infinity pool, pamper yourself at the resort spa, or join an optional sunset desert quad bike safari.'
-      },
-      {
-        day: 4,
-        titleDefault: 'Hurghada Airport Transfer & Departure',
-        descDefault: 'Breakfast at the resort. At the scheduled time, private transfer to Hurghada Airport for your domestic flight to Cairo or international connection.'
-      }
-    ]
-  },
-  'extension-sharm': {
-    id: 'extension-sharm',
-    titleKey: 'extensions.sharmTitle',
-    titleDefault: 'Sharm El Sheikh VIP Resort Extension',
-    overviewKey: 'extensions.sharmOverview',
-    overviewDefault: 'Indulge in maximum luxury in Sharm El Sheikh. Visit the world-famous Ras Mohammed marine park, enjoy luxury spa treatments, and experience a romantic desert sunset quad safari.',
-    duration: '4 Days / 3 Nights',
-    destinations: 'Sharm El Sheikh',
-    img: 'https://images.unsplash.com/photo-1544971587-b842c27f8c14?q=80&w=1200',
-    price: 550,
-    itinerary: [
-      {
-        day: 1,
-        titleDefault: 'Arrival in Sharm El Sheikh VIP Resort',
-        descDefault: 'Transfer to your luxury 5-star spa resort in Sharm El Sheikh. Afternoon at leisure enjoying private beach access and evening dining.'
-      },
-      {
-        day: 2,
-        titleDefault: 'Ras Mohammed Marine Reserve Yacht Cruise',
-        descDefault: 'Full-day luxury yacht excursion to Ras Mohammed National Park and White Island. World-class diving and snorkeling in pristine coral gardens.'
-      },
-      {
-        day: 3,
-        titleDefault: 'Luxury Spa Morning & Desert Quad Sunset Safari',
-        descDefault: 'Morning spa treatment and relaxation at the resort. In the late afternoon, ride quad bikes into the Sinai desert for sunset tea at a Bedouin camp.'
-      },
-      {
-        day: 4,
-        titleDefault: 'Departure from Sharm El Sheikh',
-        descDefault: 'Breakfast at resort. Transfer to Sharm El Sheikh International Airport for your return flight.'
-      }
-    ]
-  },
-  'extension-siwa': {
-    id: 'extension-siwa',
-    titleKey: 'extensions.siwaTitle',
-    titleDefault: 'Siwa Oasis & Western Desert Safari Extension',
-    overviewKey: 'extensions.siwaOverview',
-    overviewDefault: 'Step into an ancient mystical world. Journey into the Western Desert to Siwa Oasis. Float in turquoise salt lakes, explore the ancient Shali Fortress, and watch desert sunsets over the Great Sand Sea.',
-    duration: '4 Days / 3 Nights',
-    destinations: 'Siwa Oasis • Salt Lakes • Great Sand Sea',
-    img: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=1200',
-    price: 680,
-    itinerary: [
-      {
-        day: 1,
-        titleDefault: 'Journey from Cairo to Siwa Oasis',
-        descDefault: 'Early morning private 4x4 drive from Cairo through Marsa Matrouh to Siwa Oasis. Check-in to an authentic eco-lodge and evening walk through palm groves.'
-      },
-      {
-        day: 2,
-        titleDefault: 'Turquoise Salt Lakes, Cleopatra Springs & Shali Fortress',
-        descDefault: 'Float effortlessly in Siwa’s famous turquoise salt pools. Visit Cleopatra’s Bath, the Temple of the Oracle of Amun, and the historic mud-brick Shali Fortress.'
-      },
-      {
-        day: 3,
-        titleDefault: 'Great Sand Sea 4x4 Safari & Hot Springs Sunset',
-        descDefault: 'Thrilling 4x4 dune bashing safari in the Great Sand Sea. Visit natural hot springs and sandboard down giant dunes, ending with a campfire Bedouin dinner.'
-      },
-      {
-        day: 4,
-        titleDefault: 'Return Drive to Cairo / Airport Transfer',
-        descDefault: 'Breakfast at eco-lodge. Scenic return drive to Cairo or transfer to airport for final departure.'
-      }
-    ]
-  }
+const ALIAS_MAP = {
+  'extension-hurghada': 'hurghada-4d3n',
+  'extension-sharm': 'sharm-4d3n',
+  'extension-siwa': 'siwa-oasis-alexandria'
 };
-
-const INCLUDES_LIST = [
-  { key: 'extensions.inc1', default: '3 Nights luxury resort/hotel accommodation' },
-  { key: 'extensions.inc2', default: 'All-Inclusive or Breakfast board as specified' },
-  { key: 'extensions.inc3', default: 'Private airport/resort transfers' },
-  { key: 'extensions.inc4', default: 'Guided excursions & local tours' },
-  { key: 'extensions.inc5', default: '24-hour customer support' }
-];
 
 export default function ExtensionDetails() {
   const { t } = useTranslation();
   const { id } = useParams();
 
-  const tour = EXTENSIONS_DATA[id] || EXTENSIONS_DATA['extension-hurghada'];
-  const title = t(tour.titleKey, tour.titleDefault);
+  const targetSlug = ALIAS_MAP[id] || id;
+
+  // Find tour from services data or default to hurghada-4d3n
+  const tourData = services.find((s) => s.slug === targetSlug) || services.find((s) => s.slug === 'hurghada-4d3n');
+
+  const title = t(tourData.title, tourData.title);
+  const duration = t(`${tourData.slug === 'siwa-oasis-alexandria' ? 'tour_siwa_duration' : tourData.slug === 'sharm-4d3n' ? 'trip.sharm.duration' : 'trip.hurghada.duration'}`, '04 Days / 03 Nights');
+  const destination = t(tourData.location, tourData.location);
+  const overviewText = tourData.overview && tourData.overview[0] ? t(tourData.overview[0], tourData.overview[0]) : '';
+  const mainImage = tourData.images && tourData.images[0] ? tourData.images[0] : 'https://1.bp.blogspot.com/-HqmKDzZ73hY/XgSOtrhSAOI/AAAAAAAARdc/cxtywSwZxLIaZPfw98FzQHYtiPblmzg2gCLcBGAsYHQ/w1200-h630-p-k-no-nu/%D8%A3%D9%81%D8%B6%D9%84-%D8%A7%D9%84%D8%A3%D9%86%D8%B4%D8%B7%D8%A9-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D9%8A%D8%A9-%D9%81%D9%89-%D8%A7%D9%84%D8%BA%D8%B1%D8%AF%D9%82%D8%A9-825x510.jpg';
 
   return (
-    <div className="w-full bg-obsidian-50 min-h-screen">
+    <div className="w-full bg-obsidian-50 dark:bg-obsidian-950 min-h-screen text-obsidian-900 dark:text-ivory-50">
       <Helmet>
         <title>{`${title} | Dunas Travel`}</title>
-        <meta
-          name="description"
-          content={t(tour.overviewKey, tour.overviewDefault)}
-        />
+        <meta name="description" content={overviewText} />
       </Helmet>
 
       {/* Header Banner */}
@@ -168,7 +71,7 @@ export default function ExtensionDetails() {
             transition={{ delay: 0.1 }}
             className="text-body-lg text-gold-400 font-medium"
           >
-            {tour.duration}
+            {duration}
           </motion.p>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -176,7 +79,7 @@ export default function ExtensionDetails() {
             transition={{ delay: 0.15 }}
             className="text-body-md text-ivory-300 mt-2"
           >
-            {tour.destinations}
+            {destination}
           </motion.p>
         </div>
       </section>
@@ -187,7 +90,7 @@ export default function ExtensionDetails() {
           initial={{ opacity: 0.8 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          src={tour.img}
+          src={mainImage}
           alt={title}
           className="w-full h-full object-cover"
           loading="eager"
@@ -208,83 +111,138 @@ export default function ExtensionDetails() {
               >
                 {t('extensions.overviewTitle', 'Overview')}
               </h2>
-              <p className="text-body-lg text-obsidian-500 dark:text-gray-300 leading-relaxed">
-                {t(tour.overviewKey, tour.overviewDefault)}
-              </p>
+              {tourData.overview && tourData.overview.map((paragraphKey, idx) => (
+                <p key={idx} className="text-body-lg text-obsidian-500 dark:text-gray-300 leading-relaxed mb-4">
+                  {t(paragraphKey, paragraphKey)}
+                </p>
+              ))}
             </motion.div>
 
             {/* Itinerary */}
-            <motion.div variants={fadeInUp}>
-              <h3
-                className="text-display-md text-obsidian-900 dark:text-white mb-8 text-center font-serif"
-                style={{ fontFamily: "'Playfair Display', serif" }}
-              >
-                {t('extensions.itinerary', 'Itinerary')}
-              </h3>
+            {tourData.itinerary && tourData.itinerary.length > 0 && (
+              <motion.div variants={fadeInUp} className="mb-12">
+                <h3
+                  className="text-display-md text-obsidian-900 dark:text-white mb-8 font-serif"
+                  style={{ fontFamily: "'Playfair Display', serif" }}
+                >
+                  {t('extensions.itinerary', 'Itinerary')}
+                </h3>
 
-              <div className="relative">
-                <div className="absolute left-[1.1rem] top-0 bottom-0 w-1 bg-gold-400" />
-                <div className="space-y-8">
-                  {tour.itinerary.map((day) => (
-                    <motion.div
-                      key={day.day}
-                      variants={fadeInUp}
-                      className="relative pl-10 md:pl-12"
-                    >
-                      <div className="absolute left-[0.1rem] top-1 w-8 h-8 rounded-full bg-gold-500 text-white flex items-center justify-center text-sm font-bold shadow-md z-10">
-                        {day.day}
-                      </div>
-                      <div className="bg-ivory-50 dark:bg-[#1a1a30] rounded-2xl p-6 shadow-sm border border-gold-100 dark:border-gold-900/50 hover:shadow-md transition-shadow">
-                        <div className="flex items-center gap-3 mb-3">
-                          <h4
-                            className="text-display-md text-obsidian-900 dark:text-white text-lg font-serif font-bold"
-                            style={{ fontFamily: "'Playfair Display', serif" }}
-                          >
-                            {day.titleDefault}
-                          </h4>
-                        </div>
-                        <p className="text-body-md text-obsidian-500 dark:text-gray-300 leading-relaxed">
-                          {day.descDefault}
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))}
+                <div className="relative">
+                  <div className="absolute left-[1.1rem] top-0 bottom-0 w-1 bg-gold-400" />
+                  <div className="space-y-8">
+                    {tourData.itinerary.map((dayItem) => {
+                      const dayTitle = t(dayItem.title, dayItem.title);
+                      const dayBody = dayItem.body ? t(dayItem.body, dayItem.body) : dayItem.morning ? t(dayItem.morning, dayItem.morning) : '';
+                      const optTitle = dayItem.afternoon ? t(dayItem.afternoon, dayItem.afternoon) : '';
+                      const optDesc = dayItem.evening ? t(dayItem.evening, dayItem.evening) : '';
+
+                      return (
+                        <motion.div
+                          key={dayItem.day}
+                          variants={fadeInUp}
+                          className="relative pl-10 md:pl-12"
+                        >
+                          <div className="absolute left-[0.1rem] top-1 w-8 h-8 rounded-full bg-gold-500 text-white flex items-center justify-center text-sm font-bold shadow-md z-10">
+                            {dayItem.day}
+                          </div>
+                          <div className="bg-ivory-50 dark:bg-[#1a1a30] rounded-2xl p-6 shadow-sm border border-gold-100 dark:border-gold-900/50 hover:shadow-md transition-shadow">
+                            <h4
+                              className="text-display-md text-obsidian-900 dark:text-white text-lg font-serif font-bold mb-3"
+                              style={{ fontFamily: "'Playfair Display', serif" }}
+                            >
+                              {dayTitle}
+                            </h4>
+                            <p className="text-body-md text-obsidian-500 dark:text-gray-300 leading-relaxed mb-3">
+                              {dayBody}
+                            </p>
+                            {optTitle && (
+                              <div className="mt-4 p-4 rounded-xl bg-gold-500/10 border border-gold-500/20">
+                                <span className="text-xs uppercase font-bold text-gold-600 dark:text-gold-400 block mb-1">
+                                  {optTitle}
+                                </span>
+                                {optDesc && (
+                                  <p className="text-sm text-obsidian-600 dark:text-gray-300">
+                                    {optDesc}
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            )}
 
             {/* Route Map */}
-            <RouteMap itinerary={tour.itinerary} />
+            {tourData.itinerary && tourData.itinerary.length > 0 && (
+              <RouteMap itinerary={tourData.itinerary} />
+            )}
           </div>
 
           {/* Sidebar Booking Form */}
           <motion.div variants={fadeInUp} className="lg:col-span-1">
             <div className="sticky top-28">
-              <AdvancedBooking tourTitle={title} />
+              <AdvancedBooking tourTitle={title} basePricePerPerson={tourData.price} />
             </div>
           </motion.div>
         </div>
 
-        {/* Includes Section */}
+        {/* Includes & Excludes Section */}
         <motion.div variants={fadeInUp} className="mt-16 max-w-4xl mx-auto">
-          <h3
-            className="text-display-md text-obsidian-900 dark:text-black mb-6 font-serif"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {t('extensions.includesTitle', 'Includes')}
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {INCLUDES_LIST.map((item, idx) => (
-              <div
-                key={idx}
-                className="flex items-center gap-3 bg-ivory-50 dark:bg-[#1a1a30] rounded-xl p-4 shadow-sm border border-gold-500/10"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Includes */}
+            <div>
+              <h3
+                className="text-display-md text-obsidian-900 dark:text-white mb-6 font-serif flex items-center gap-2"
+                style={{ fontFamily: "'Playfair Display', serif" }}
               >
-                <FaCheck className="text-gold-500 shrink-0" size={18} />
-                <span className="text-body-md text-obsidian-700 dark:text-black font-medium">
-                  {t(item.key, item.default)}
-                </span>
+                <FaCheck className="text-emerald-500" />
+                {t('extensions.includesTitle', 'Includes')}
+              </h3>
+              <div className="space-y-3">
+                {tourData.included && tourData.included.map((incKey, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-start gap-3 bg-ivory-50 dark:bg-[#1a1a30] rounded-xl p-4 shadow-sm border border-gold-500/10"
+                  >
+                    <FaCheck className="text-gold-500 shrink-0 mt-1" size={16} />
+                    <span className="text-body-md text-obsidian-700 dark:text-gray-200 font-medium">
+                      {t(incKey, incKey)}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+
+            {/* Excludes */}
+            {tourData.excluded && tourData.excluded.length > 0 && (
+              <div>
+                <h3
+                  className="text-display-md text-obsidian-900 dark:text-white mb-6 font-serif flex items-center gap-2"
+                  style={{ fontFamily: "'Playfair Display', serif" }}
+                >
+                  <FaTimes className="text-rose-500" />
+                  {t('tourDetails.excludes', 'Excludes')}
+                </h3>
+                <div className="space-y-3">
+                  {tourData.excluded.map((excKey, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-start gap-3 bg-ivory-50 dark:bg-[#1a1a30] rounded-xl p-4 shadow-sm border border-rose-500/10"
+                    >
+                      <FaTimes className="text-rose-400 shrink-0 mt-1" size={16} />
+                      <span className="text-body-md text-obsidian-700 dark:text-gray-200 font-medium">
+                        {t(excKey, excKey)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </motion.div>
 
@@ -313,6 +271,9 @@ export default function ExtensionDetails() {
           </div>
         </motion.div>
       </section>
+
+      {/* Suggested Tours Section */}
+      <SuggestedTours currentDestination={tourData.location || 'egypt'} currentSlug={targetSlug} />
     </div>
   );
 }

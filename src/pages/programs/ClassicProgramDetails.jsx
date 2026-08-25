@@ -10,6 +10,7 @@ import TourCard from '../../components/tour/TourCard';
 import AdvancedBooking from '../../components/booking/AdvancedBooking';
 import RouteMap from '../../components/tour/RouteMap';
 import ReviewsMap from '../../components/tour/ReviewsMap';
+import SuggestedTours from '../../components/tour/SuggestedTours';
 import tours from '../../data/tours';
 
 const fadeInUp = {
@@ -501,6 +502,9 @@ export default function ClassicProgramDetails() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Suggested Tours Strip */}
+      <SuggestedTours currentDestination="egypt" currentSlug="classic-program" />
     </div>
   );
 }

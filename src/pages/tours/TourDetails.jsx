@@ -21,6 +21,7 @@ import { resolveTourTitle, resolveTourDuration, resolveTourOverview, resolveLoca
 
 import SEOHead from '../../components/seo/SEOHead';
 import ReviewsMap from '../../components/tour/ReviewsMap';
+import SuggestedTours from '../../components/tour/SuggestedTours';
 
 const TourDetails = () => {
   const { t, i18n } = useTranslation();
@@ -573,6 +574,8 @@ const TourDetails = () => {
         )}
       </AnimatePresence>
 
+      {/* Suggested Tours Strip */}
+      <SuggestedTours currentDestination={tour?.destination || 'egypt'} currentSlug={slug} />
     </div>
   );
 };

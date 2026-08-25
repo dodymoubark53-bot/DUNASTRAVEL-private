@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaCheckCircle, FaTimes, FaStar, FaMapMarkerAlt, FaTimesCircle, 
-  FaBed, FaClock, FaTag, FaChevronRight
+  FaBed, FaClock, FaTag, FaChevronRight, FaHotel, FaMoneyBillWave
 } from 'react-icons/fa';
 import Button from '../../components/ui/Button';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
@@ -18,13 +18,17 @@ import AdvancedBooking from '../../components/booking/AdvancedBooking';
 import { useCurrency } from '../../context/CurrencyContext';
 import RouteMap from '../../components/tour/RouteMap';
 import ReviewsMap from '../../components/tour/ReviewsMap';
+import SuggestedTours from '../../components/tour/SuggestedTours';
+import { services as staticServices } from '../../data/services';
 
 const ServiceDetails = () => {
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
   const { category: urlCategory, slug } = useParams();
-  const { services, loading, error } = useServices(urlCategory);
-  const service = services.find((s) => (urlCategory ? s.category === urlCategory : true) && s.slug === slug);
+  const { services: apiServices, loading, error } = useServices(urlCategory);
+  
+  const allServices = [...(apiServices || []), ...staticServices];
+  const service = allServices.find((s) => s.slug === slug) || allServices.find((s) => (urlCategory ? s.category === urlCategory : true) && s.slug === slug);
   const category = service ? service.category : urlCategory;
   const [activeImage, setActiveImage] = useState(null);
   const [activeForm, setActiveForm] = useState(null);
@@ -58,19 +62,11 @@ const ServiceDetails = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  if (loading) return <SkeletonLoader count={4} />;
-  if (error) return <ErrorState message={error.message || 'Failed to load service details'} />;
+  if (!service && loading) return <SkeletonLoader count={4} />;
+  if (!service && error) return <ErrorState message={error.message || 'Failed to load service details'} />;
   if (!service) return <NotFound />;
 
-  if (!service) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-obsidian-50">
-        <h1 className="text-display-lg text-obsidian-900">{t('programs.notFound', 'Program not found')}</h1>
-      </div>
-    );
-  }
-
-  const relatedServices = services.filter((s) => s.category === category && s.id !== service.id).slice(0, 3);
+  const relatedServices = allServices.filter((s) => s.category === category && s.id !== service.id).slice(0, 3);
   const hasItinerary = !!service.itinerary;
 
   return (
@@ -166,8 +162,8 @@ const ServiceDetails = () => {
               <div className="lg:col-span-2">
                 {/* Overview */}
                 <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                  <h2 className="text-display-md text-obsidian-900 mb-6 font-display animate-none" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.overview', 'Overview')}</h2>
-                  <div className="prose prose-lg prose-p:text-obsidian-500 prose-p:font-body prose-p:mb-6 text-left">
+                  <h2 className="text-display-md text-obsidian-900 mb-6 font-display animate-none text-start" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.overview', 'Overview')}</h2>
+                  <div className="prose prose-lg prose-p:text-obsidian-500 prose-p:font-body prose-p:mb-6 text-start">
                     {service.overview.map((para, idx) => (
                       <p key={idx}>{translateData(para, para)}</p>
                     ))}
@@ -175,7 +171,7 @@ const ServiceDetails = () => {
                 </motion.div>
 
                 {/* Key Highlights */}
-                <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-left">
+                <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-start">
                   <h2 className="text-display-md text-obsidian-900 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.highlights', 'Key Highlights')}</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {service.highlights.map((highlight, idx) => (
@@ -189,7 +185,7 @@ const ServiceDetails = () => {
 
                 {/* Accommodations Table */}
                 {service.accommodations && (
-                  <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-left">
+                  <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-start">
                     <div className="mb-6">
                       <span className="text-caption text-gold-500 uppercase tracking-widest font-semibold block mb-2">
                         {t('tour.accommodation', 'ALOJAMIENTO')}
@@ -200,8 +196,8 @@ const ServiceDetails = () => {
                     </div>
                     <div className="bg-white rounded-2xl shadow-card overflow-hidden border border-gold-500/10">
                       <div className="grid grid-cols-3 bg-obsidian-900 text-ivory-50 text-xs md:text-sm font-semibold uppercase tracking-wider">
-                        <div className="p-4 border-r border-ivory-50/10">{t('tour.destination', 'Destino')}</div>
-                        <div className="p-4 border-r border-ivory-50/10 text-center">{t('tour.nights', 'Noches')}</div>
+                        <div className="p-4 border-r rtl:border-r-0 rtl:border-l border-ivory-50/10 text-start">{t('tour.destination', 'Destino')}</div>
+                        <div className="p-4 border-r rtl:border-r-0 rtl:border-l border-ivory-50/10 text-center">{t('tour.nights', 'Noches')}</div>
                         <div className="p-4 text-center">{t('tour.regime', 'Régimen')}</div>
                       </div>
                       {service.accommodations.map((row, idx) => (
@@ -209,11 +205,11 @@ const ServiceDetails = () => {
                           key={idx}
                           className={`grid grid-cols-3 border-b border-gold-500/10 last:border-0 ${idx % 2 === 0 ? 'bg-white' : 'bg-obsidian-50/50'}`}
                         >
-                          <div className="p-4 border-r border-gold-500/10 font-semibold text-obsidian-900 flex items-center gap-2 text-sm md:text-base">
+                          <div className="p-4 border-r rtl:border-r-0 rtl:border-l border-gold-500/10 font-semibold text-obsidian-900 flex items-center gap-2 text-sm md:text-base text-start">
                             <FaMapMarkerAlt className="text-gold-500 flex-shrink-0" />
                             {translateData(row.destination, row.destination)}
                           </div>
-                          <div className="p-4 border-r border-gold-500/10 text-center font-bold text-gold-700 text-base md:text-lg">
+                          <div className="p-4 border-r rtl:border-r-0 rtl:border-l border-gold-500/10 text-center font-bold text-gold-700 text-base md:text-lg">
                             {row.nights}
                           </div>
                           <div className="p-4 text-center text-obsidian-700 flex items-center justify-center gap-2 text-sm md:text-base">
@@ -229,7 +225,7 @@ const ServiceDetails = () => {
                 {/* Itinerary Section */}
                 {service.itinerary && (
                   <>
-                    <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-16">
+                    <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-16 text-start">
                     <div className="mb-10">
                       <span className="text-caption text-gold-500 uppercase tracking-widest font-semibold block mb-2">
                         {t('tour.stepByStep', 'SUA JORNADA PASSO A PASSO')}
@@ -242,15 +238,15 @@ const ServiceDetails = () => {
                     </div>
 
                     <div className="relative max-w-4xl mx-auto">
-                      <div className="absolute left-[1.1rem] top-0 bottom-0 w-1 bg-gold-400"></div>
+                      <div className="absolute left-[1.1rem] rtl:left-auto rtl:right-[1.1rem] top-0 bottom-0 w-1 bg-gold-400"></div>
                       <div className="space-y-6">
                         {service.itinerary.map((day) => (
-                          <div key={day.day} className="relative pl-10 md:pl-12">
-                            <div className="absolute left-[0.1rem] top-1 w-8 h-8 rounded-full bg-gold-500 text-white flex items-center justify-center text-sm font-bold shadow-md z-10">
+                          <div key={day.day} className="relative pl-10 md:pl-12 rtl:pl-0 rtl:pr-10 rtl:md:pr-12">
+                            <div className="absolute left-[0.1rem] rtl:left-auto rtl:right-[0.1rem] top-1 w-8 h-8 rounded-full bg-gold-500 text-white flex items-center justify-center text-sm font-bold shadow-md z-10">
                               {day.day}
                             </div>
 
-                            <div className="bg-ivory-50 rounded-2xl p-6 shadow-sm border border-gold-100 hover:shadow-md transition-shadow">
+                            <div className="bg-ivory-50 rounded-2xl p-6 shadow-sm border border-gold-100 hover:shadow-md transition-shadow text-start">
                               <div className="flex items-center gap-3 mb-3">
                                 <span className="font-semibold text-obsidian-900">{t('tour.day', 'Day')} {day.day}</span>
                                 {day.title && (
@@ -282,82 +278,218 @@ const ServiceDetails = () => {
                 </>
                 )}
 
-                {/* Included / Excluded summary */}
+                {/* Included / Excluded / Hotels / Pricing summary */}
                 {service.slug === 'egypt-jordan-combined-14d' ? (
-                  <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-16 bg-ivory-50 dark:bg-[#1a1a30] p-8 rounded-2xl shadow-sm border border-obsidian-900/5 dark:border-gray-700 text-left space-y-12">
-                    
-                    {/* Included Section */}
-                    <div>
-                      <h2 className="text-display-md text-obsidian-900 dark:text-ivory-50 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
-                        {translateData('tour_jordan_includes_title', 'Package Includes')}
-                      </h2>
-                      <ul className="space-y-3 mb-8">
-                        {['tour_jordan_includes_1', 'tour_jordan_includes_2', 'tour_jordan_includes_3', 'tour_jordan_includes_4', 'tour_jordan_includes_5', 'tour_jordan_includes_6'].map((key, idx) => (
-                          <li key={idx} className="flex items-start gap-3 text-obsidian-600 dark:text-ivory-300">
-                            <FaCheckCircle className="text-sage-500 dark:text-green-400 mt-1 flex-shrink-0" />
-                            <span>{translateData(key, key)}</span>
-                          </li>
-                        ))}
-                      </ul>
+                  <motion.div
+                    variants={fadeInUp}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    className="mt-16 space-y-8"
+                  >
+                    {/* 1. Includes & Visits Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      {/* Includes Card */}
+                      <div className="bg-white rounded-3xl p-6 md:p-8 shadow-card border border-gold-500/20 hover:border-gold-500/40 transition-all duration-300 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-gold-500/10 to-transparent rounded-bl-full pointer-events-none" />
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-xl font-bold shrink-0">
+                            <FaCheckCircle />
+                          </div>
+                          <div>
+                            <span className="text-caption text-gold-600 uppercase tracking-widest font-semibold block">
+                              {translateData('tour_jordan_includes_badge', 'المزايا المشمولة')}
+                            </span>
+                            <h2 className="text-display-sm text-obsidian-900 font-display text-2xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
+                              {translateData('tour_jordan_includes_title', 'الباقة تشمل')}
+                            </h2>
+                          </div>
+                        </div>
 
-                      <h3 className="text-body-lg font-semibold text-sage-700 dark:text-green-400 mb-4 flex items-center gap-2 font-display">
-                        {translateData('tour_jordan_visited_title', 'Included Visits')}
-                      </h3>
-                      <ul className="space-y-3">
-                        {['tour_jordan_visited_1', 'tour_jordan_visited_2', 'tour_jordan_visited_3'].map((key, idx) => (
-                          <li key={idx} className="flex items-start gap-3 text-obsidian-600 dark:text-ivory-300">
-                            <FaMapMarkerAlt className="text-gold-500 mt-1 flex-shrink-0" />
-                            <span>{translateData(key, key)}</span>
-                          </li>
-                        ))}
-                      </ul>
+                        <ul className="space-y-3.5">
+                          {[
+                            'tour_jordan_includes_1',
+                            'tour_jordan_includes_2',
+                            'tour_jordan_includes_3',
+                            'tour_jordan_includes_4',
+                            'tour_jordan_includes_5',
+                            'tour_jordan_includes_6'
+                          ].map((key, idx) => (
+                            <li key={idx} className="flex items-start gap-3 p-3 rounded-xl bg-obsidian-50/70 hover:bg-emerald-50/50 transition-colors border border-gold-500/10">
+                              <span className="w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-600 flex items-center justify-center text-xs shrink-0 mt-0.5 font-bold">
+                                ✓
+                              </span>
+                              <span className="text-body-sm text-obsidian-800 leading-relaxed font-medium">
+                                {translateData(key, key)}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Included Visits Card */}
+                      <div className="bg-white rounded-3xl p-6 md:p-8 shadow-card border border-gold-500/20 hover:border-gold-500/40 transition-all duration-300 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-gold-500/10 to-transparent rounded-bl-full pointer-events-none" />
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-12 h-12 rounded-2xl bg-gold-500/10 text-gold-600 flex items-center justify-center text-xl font-bold shrink-0">
+                            <FaMapMarkerAlt />
+                          </div>
+                          <div>
+                            <span className="text-caption text-gold-600 uppercase tracking-widest font-semibold block">
+                              {translateData('tour_jordan_visited_badge', 'مسار المزارات')}
+                            </span>
+                            <h2 className="text-display-sm text-obsidian-900 font-display text-2xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
+                              {translateData('tour_jordan_visited_title', 'الزيارات المشمولة')}
+                            </h2>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          {[
+                            { key: 'tour_jordan_visited_1', city: 'القاهرة' },
+                            { key: 'tour_jordan_visited_2', city: 'الدلتا والقناة' },
+                            { key: 'tour_jordan_visited_3', city: 'المنيا وصعيد مصر' }
+                          ].map((item, idx) => (
+                            <div key={idx} className="p-4 rounded-2xl bg-gradient-to-r from-obsidian-50 via-white to-gold-50/20 border border-gold-500/15 hover:border-gold-500/30 transition-all shadow-sm">
+                              <div className="flex items-center gap-2 mb-1 text-gold-600 font-semibold text-xs uppercase tracking-wider">
+                                <FaMapMarkerAlt className="text-gold-500" />
+                                <span>{item.city}</span>
+                              </div>
+                              <p className="text-body-sm text-obsidian-800 font-medium leading-relaxed">
+                                {translateData(item.key, item.key)}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Excluded Section */}
-                    <div>
-                      <h2 className="text-display-md text-obsidian-900 dark:text-ivory-50 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
-                        {translateData('tour_jordan_excludes_title', 'Package Does Not Include')}
-                      </h2>
-                      <ul className="space-y-3">
-                        {['tour_jordan_excludes_1', 'tour_jordan_excludes_2'].map((key, idx) => (
-                          <li key={idx} className="flex items-start gap-3 text-obsidian-600 dark:text-ivory-300">
-                            <FaTimesCircle className="text-red-500 dark:text-red-300 mt-1 flex-shrink-0" />
-                            <span>{translateData(key, key)}</span>
-                          </li>
-                        ))}
-                      </ul>
+                    {/* 2. Exclusions & Hotels Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      {/* Exclusions Card */}
+                      <div className="bg-white rounded-3xl p-6 md:p-8 shadow-card border border-rose-500/20 hover:border-rose-500/40 transition-all duration-300 relative overflow-hidden">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center text-xl font-bold shrink-0">
+                            <FaTimesCircle />
+                          </div>
+                          <div>
+                            <span className="text-caption text-rose-500 uppercase tracking-widest font-semibold block">
+                              {translateData('tour_jordan_excludes_badge', 'ملاحظات هامة')}
+                            </span>
+                            <h2 className="text-display-sm text-obsidian-900 font-display text-2xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
+                              {translateData('tour_jordan_excludes_title', 'الباقة لا تشمل')}
+                            </h2>
+                          </div>
+                        </div>
+
+                        <ul className="space-y-3.5">
+                          {['tour_jordan_excludes_1', 'tour_jordan_excludes_2'].map((key, idx) => (
+                            <li key={idx} className="flex items-start gap-3 p-4 rounded-2xl bg-rose-50/60 border border-rose-100 text-obsidian-800">
+                              <span className="w-5 h-5 rounded-full bg-rose-500/15 text-rose-500 flex items-center justify-center text-xs shrink-0 mt-0.5 font-bold">
+                                ✕
+                              </span>
+                              <span className="text-body-sm leading-relaxed font-medium">
+                                {translateData(key, key)}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Hotels Card */}
+                      <div className="bg-white rounded-3xl p-6 md:p-8 shadow-card border border-gold-500/20 hover:border-gold-500/40 transition-all duration-300 relative overflow-hidden">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-12 h-12 rounded-2xl bg-gold-500/10 text-gold-600 flex items-center justify-center text-xl font-bold shrink-0">
+                            <FaHotel />
+                          </div>
+                          <div>
+                            <span className="text-caption text-gold-600 uppercase tracking-widest font-semibold block">
+                              {translateData('tour_jordan_hotels_badge', 'أماكن الإقامة')}
+                            </span>
+                            <h2 className="text-display-sm text-obsidian-900 font-display text-2xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
+                              {translateData('tour_jordan_hotels_title', 'الفنادق المتوقعة')}
+                            </h2>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3.5">
+                          {[
+                            { key: 'tour_jordan_hotel_1', city: 'القاهرة', stars: 5 },
+                            { key: 'tour_jordan_hotel_2', city: 'المنيا', stars: 4 }
+                          ].map((item, idx) => (
+                            <div key={idx} className="p-4 rounded-2xl bg-gradient-to-r from-obsidian-900 via-obsidian-950 to-obsidian-900 text-ivory-50 flex items-center justify-between gap-4 shadow-md border border-gold-500/25">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-gold-500/20 text-gold-400 flex items-center justify-center shrink-0">
+                                  <FaBed className="text-lg" />
+                                </div>
+                                <div>
+                                  <span className="text-[11px] uppercase tracking-wider text-gold-400 font-semibold block">
+                                    {item.city}
+                                  </span>
+                                  <span className="text-body-sm font-semibold text-ivory-100">
+                                    {translateData(item.key, item.key)}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex text-gold-400 text-xs gap-0.5 shrink-0">
+                                {[...Array(item.stars)].map((_, i) => (
+                                  <FaStar key={i} />
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Accommodations Section */}
-                    <div>
-                      <h2 className="text-display-md text-obsidian-900 dark:text-ivory-50 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
-                        {translateData('tour_jordan_hotels_title', 'Previewed Hotels')}
-                      </h2>
-                      <ul className="space-y-3">
-                        {['tour_jordan_hotel_1', 'tour_jordan_hotel_2'].map((key, idx) => (
-                          <li key={idx} className="flex items-start gap-3 text-obsidian-600 dark:text-ivory-300">
-                            <FaBed className="text-gold-500 mt-1 flex-shrink-0" />
-                            <span>{translateData(key, key)}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    {/* 3. Pricing Banner / Premium Luxury Gold Box */}
+                    <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-gradient-to-r dark:from-obsidian-950 dark:via-obsidian-900 dark:to-obsidian-950 text-obsidian-900 dark:text-ivory-50 p-6 md:p-10 shadow-card border border-gold-500/30">
+                      <div className="absolute top-0 right-0 -mt-8 -mr-8 w-48 h-48 bg-gold-500/10 rounded-full blur-3xl pointer-events-none" />
+                      <div className="absolute bottom-0 left-0 -mb-8 -ml-8 w-48 h-48 bg-gold-500/10 rounded-full blur-3xl pointer-events-none" />
+                      
+                      <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <div>
+                          <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold-500/15 text-gold-800 dark:bg-gold-500/20 dark:text-gold-400 text-xs font-semibold uppercase tracking-widest border border-gold-500/30 mb-3">
+                            <FaMoneyBillWave />
+                            {translateData('tour_jordan_price_badge', 'أسعار الباقة')}
+                          </span>
+                          <h2 className="text-display-md text-3xl md:text-4xl text-obsidian-900 dark:text-ivory-50 font-display font-bold mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                            {translateData('tour_jordan_price_title', 'القيمة (السعر)')}
+                          </h2>
+                          <p className="text-body-sm text-obsidian-800 dark:text-ivory-300 font-medium">
+                            {translateData('tour_jordan_price_subtitle', 'أسعار تنافسية شاملة للإقامة والزيارات وتسهيلات الرحلة')}
+                          </p>
+                        </div>
 
-                    {/* Price Section */}
-                    <div>
-                      <h2 className="text-display-md text-obsidian-900 dark:text-ivory-50 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
-                        {translateData('tour_jordan_price_title', 'The Value (Price)')}
-                      </h2>
-                      <ul className="space-y-3">
-                        {['tour_jordan_price_double', 'tour_jordan_price_single'].map((key, idx) => (
-                          <li key={idx} className="flex items-start gap-3 text-obsidian-600 dark:text-ivory-300">
-                            <FaTag className="text-gold-500 mt-1 flex-shrink-0" />
-                            <span>{translateData(key, key)}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                          {/* Double / Triple Price Card */}
+                          <div className="flex-1 md:flex-initial bg-obsidian-50/80 dark:bg-white/10 backdrop-blur-md border border-gold-500/40 rounded-2xl p-5 text-center min-w-[210px] shadow-sm">
+                            <span className="text-xs uppercase tracking-wider text-obsidian-800 dark:text-ivory-300 font-semibold block mb-1">
+                              غرفة مزدوجة / ثلاثية
+                            </span>
+                            <div className="text-3xl font-extrabold text-obsidian-900 dark:text-gold-400 font-display">
+                              $944 <span className="text-xs text-obsidian-700 dark:text-ivory-300 font-normal">/ للشخص</span>
+                            </div>
+                            <span className="text-[11px] text-emerald-700 dark:text-emerald-400 block mt-1 font-bold">
+                              ✓ شاملة الفنادق والزيارات
+                            </span>
+                          </div>
 
+                          {/* Single Supplement Card */}
+                          <div className="flex-1 md:flex-initial bg-obsidian-50/80 dark:bg-white/5 backdrop-blur-md border border-obsidian-200 dark:border-white/15 rounded-2xl p-5 text-center min-w-[210px] shadow-sm">
+                            <span className="text-xs uppercase tracking-wider text-obsidian-800 dark:text-ivory-300 font-semibold block mb-1">
+                              غرفة مفردة (سنجل)
+                            </span>
+                            <div className="text-3xl font-extrabold text-obsidian-900 dark:text-ivory-100 font-display">
+                              +$340 <span className="text-xs text-obsidian-700 dark:text-ivory-300 font-normal">/ إضافي</span>
+                            </div>
+                            <span className="text-[11px] text-obsidian-700 dark:text-ivory-400 block mt-1 font-medium">
+                              إقامة خاصة طوال الرحلة
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </motion.div>
                 ) : service.slug === 'siwa-oasis-alexandria' ? (
                   <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-16 bg-ivory-50 dark:bg-[#1a1a30] p-8 rounded-2xl shadow-sm border border-obsidian-900/5 dark:border-gray-700 text-left">
@@ -465,7 +597,7 @@ const ServiceDetails = () => {
               {/* Overview */}
               <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                 <h2 className="text-display-md text-obsidian-900 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.overview', 'Overview')}</h2>
-                <div className="prose prose-lg prose-p:text-obsidian-500 prose-p:font-body prose-p:mb-6 text-left">
+                <div className="prose prose-lg prose-p:text-obsidian-500 prose-p:font-body prose-p:mb-6 text-start">
                   {service.overview.map((para, idx) => (
                     <p key={idx}>{translateData(para, para)}</p>
                   ))}
@@ -473,7 +605,7 @@ const ServiceDetails = () => {
               </motion.div>
 
               {/* Highlights */}
-              <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-left">
+              <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-start">
                 <h2 className="text-display-md text-obsidian-900 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.highlights', 'Key Highlights')}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {service.highlights.map((highlight, idx) => (
@@ -486,7 +618,7 @@ const ServiceDetails = () => {
               </motion.div>
 
               {/* Inclusions / Exclusions */}
-              <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 bg-ivory-50 dark:bg-[#1a1a30] p-8 rounded-2xl shadow-sm border border-obsidian-900/5 dark:border-gray-700 text-left">
+              <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 bg-ivory-50 dark:bg-[#1a1a30] p-8 rounded-2xl shadow-sm border border-obsidian-900/5 dark:border-gray-700 text-start">
                 <h2 className="text-display-md text-obsidian-900 dark:text-ivory-50 mb-8 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.incExc', "What's Included & Excluded")}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
@@ -515,7 +647,7 @@ const ServiceDetails = () => {
               </motion.div>
 
               {/* Photo Gallery */}
-              <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-left">
+              <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-start">
                 <h2 className="text-display-md text-obsidian-900 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.gallery', 'Gallery')}</h2>
                 <div className="grid grid-cols-3 gap-4">
                   {service.images.map((img, idx) => (
@@ -568,11 +700,11 @@ const ServiceDetails = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {relatedServices.map((relService) => (
                 <div key={relService.id} className="bg-obsidian-50 rounded-2xl overflow-hidden group h-full flex flex-col shadow-sm border border-obsidian-900/5 hover:shadow-card transition-all">
-                  <div className="relative h-60 overflow-hidden text-left">
-                    <div className="absolute top-4 left-4 z-10 bg-gold-500 text-obsidian-900 text-caption uppercase px-3 py-1 rounded-full">{translateData(relService.location, relService.location)}</div>
+                  <div className="relative h-60 overflow-hidden text-start">
+                    <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4 z-10 bg-gold-500 text-obsidian-900 text-caption uppercase px-3 py-1 rounded-full">{translateData(relService.location, relService.location)}</div>
                     <img src={relService.images[0]} alt={translateData(relService.title, relService.title)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
                   </div>
-                  <div className="p-8 flex flex-col flex-grow text-left">
+                  <div className="p-8 flex flex-col flex-grow text-start">
                     <h3 className="text-display-md text-obsidian-900 mb-3 text-xl line-clamp-1">{translateData(relService.title, relService.title)}</h3>
                     <p className="text-body-sm text-obsidian-500 line-clamp-2 mb-6">{translateData(relService.shortDesc, relService.shortDesc)}</p>
                     <div className="flex justify-between items-center mt-auto pt-4 border-t border-obsidian-900/10">
@@ -625,6 +757,9 @@ const ServiceDetails = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Suggested Tours Strip */}
+      <SuggestedTours currentDestination={service?.location || 'egypt'} currentSlug={slug} />
     </div>
   );
 };

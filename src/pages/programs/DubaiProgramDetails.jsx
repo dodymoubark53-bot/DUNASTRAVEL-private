@@ -22,6 +22,7 @@ import RouteMap from '../../components/tour/RouteMap';
 import ReviewsMap from '../../components/tour/ReviewsMap';
 import TourCard from '../../components/tour/TourCard';
 import AdvancedBooking from '../../components/booking/AdvancedBooking';
+import SuggestedTours from '../../components/tour/SuggestedTours';
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -629,6 +630,9 @@ export default function DubaiProgramDetails() {
           }
         }
       `}</style>
+
+      {/* Suggested Tours Strip */}
+      <SuggestedTours currentDestination="dubai" currentSlug={programId} />
     </div>
   );
 }

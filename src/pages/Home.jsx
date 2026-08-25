@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { FaStar, FaTimes, FaChevronLeft, FaChevronRight, FaVolumeMute, FaVolumeUp, FaMapMarkerAlt, FaEnvelope, FaPhoneAlt, FaHeadset, FaWhatsapp, FaArrowRight, FaCalendarAlt, FaSuitcase, FaUsers, FaMapMarkedAlt, FaGlobe } from "react-icons/fa";
+import { FaStar, FaTimes, FaChevronLeft, FaChevronRight, FaVolumeMute, FaVolumeUp, FaMapMarkerAlt, FaEnvelope, FaPhoneAlt, FaHeadset, FaWhatsapp, FaArrowRight, FaCalendarAlt, FaSuitcase, FaUsers, FaMapMarkedAlt, FaGlobe, FaClock } from "react-icons/fa";
 import Button from "../components/ui/Button";
 import TourCard from "../components/tour/TourCard";
 import { useTours } from "../hooks/useTours";
@@ -12,6 +12,12 @@ import { useDestinations } from "../hooks/useDestinations";
 import { useCmsBlock } from "../hooks/useCmsBlock";
 import useScrollAnimations from "../hooks/useScrollAnimations";
 import { useCurrency } from "../context/CurrencyContext";
+import {
+  resolveTourTitle,
+  resolveTourOverview,
+  resolveTourDuration,
+  resolveLocalizedText
+} from "../utils/titleHelper";
 
 
 const _destinationsData = [
@@ -68,38 +74,93 @@ const _destinationsData = [
 const _packagesData = [
   {
     id: "classic-program",
-    name: "Classic Program",
-    desc: "Timeless Wonders",
-    image: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=600&q=40&fm=webp",
-    link: "/programs/classic/classic-program"
+    nameKey: "egyptPackages.classic.name",
+    nameDefault: "Classic Egypt Program",
+    descKey: "egyptPackages.classic.desc",
+    descDefault: "Timeless wonders of Cairo, Pyramids & Luxury Nile Cruise",
+    badgeKey: "egyptPackages.classic.badge",
+    badgeDefault: "Top Best Seller",
+    durationKey: "egyptPackages.classic.duration",
+    durationDefault: "8 Days / 7 Nights",
+    tag1Key: "egyptPackages.classic.tag1",
+    tag2Key: "egyptPackages.classic.tag2",
+    tag3Key: "egyptPackages.classic.tag3",
+    price: 1290,
+    image: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783029636/Classic_Program_gfal0s.jpg",
+    link: "/programs/classic/classic-program",
+    featured: true,
   },
   {
     id: "honeymooners",
-    name: "Honeymooners Package",
-    desc: "Romantic Escapes",
-    image: "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=600&q=40&fm=webp",
-    link: "/programs/honeymooners"
+    nameKey: "egyptPackages.honeymooners.name",
+    nameDefault: "Honeymoon & Romantic Luxury",
+    descKey: "egyptPackages.honeymooners.desc",
+    descDefault: "Enchanting Red Sea escapes & private Nile sunset cruises",
+    badgeKey: "egyptPackages.honeymooners.badge",
+    badgeDefault: "Pure Romance",
+    durationKey: "egyptPackages.honeymooners.duration",
+    durationDefault: "10 Days / 9 Nights",
+    tag1Key: "egyptPackages.honeymooners.tag1",
+    tag2Key: "egyptPackages.honeymooners.tag2",
+    tag3Key: "egyptPackages.honeymooners.tag3",
+    price: 1650,
+    image: "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=800&q=80",
+    link: "/programs/honeymooners",
+    featured: false,
   },
   {
     id: "religious",
-    name: "Religious Programs",
-    desc: "Spiritual Journeys",
-    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=40&fm=webp",
-    link: "/programs/religious"
+    nameKey: "egyptPackages.religious.name",
+    nameDefault: "Holy Family & Sacred Journeys",
+    descKey: "egyptPackages.religious.desc",
+    descDefault: "Spiritual path along Coptic monasteries & ancient holy shrines",
+    badgeKey: "egyptPackages.religious.badge",
+    badgeDefault: "Spiritual Heritage",
+    durationKey: "egyptPackages.religious.duration",
+    durationDefault: "9 Days / 8 Nights",
+    tag1Key: "egyptPackages.religious.tag1",
+    tag2Key: "egyptPackages.religious.tag2",
+    tag3Key: "egyptPackages.religious.tag3",
+    price: 1390,
+    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=800&q=80",
+    link: "/programs/religious",
+    featured: false,
   },
   {
     id: "multi-country",
-    name: "Multi-Country Tours",
-    desc: "Beyond Borders",
-    image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=40&fm=webp",
-    link: "/programs/multi-country"
+    nameKey: "egyptPackages.multiCountry.name",
+    nameDefault: "Egypt Multi-Country Combined",
+    descKey: "egyptPackages.multiCountry.desc",
+    descDefault: "Beyond borders: Egypt + Jordan, Turkey, Dubai or Jerusalem",
+    badgeKey: "egyptPackages.multiCountry.badge",
+    badgeDefault: "Grand Odyssey",
+    durationKey: "egyptPackages.multiCountry.duration",
+    durationDefault: "12-16 Days",
+    tag1Key: "egyptPackages.multiCountry.tag1",
+    tag2Key: "egyptPackages.multiCountry.tag2",
+    tag3Key: "egyptPackages.multiCountry.tag3",
+    price: 2450,
+    image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80",
+    link: "/programs/multi-country",
+    featured: false,
   },
   {
     id: "extension",
-    name: "Egypt Extensions",
-    desc: "Expand Your Adventure",
-    image: "https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&w=600&q=40&fm=webp",
-    link: "/programs/extension"
+    nameKey: "egyptPackages.extension.name",
+    nameDefault: "Egypt Extensions & Escapes",
+    descKey: "egyptPackages.extension.desc",
+    descDefault: "Red Sea resorts in Hurghada, Sharm El Sheikh & Siwa Desert Oasis",
+    badgeKey: "egyptPackages.extension.badge",
+    badgeDefault: "Add-On Escapes ($0)",
+    durationKey: "egyptPackages.extension.duration",
+    durationDefault: "4 Days / 3 Nights",
+    tag1Key: "egyptPackages.extension.tag1",
+    tag2Key: "egyptPackages.extension.tag2",
+    tag3Key: "egyptPackages.extension.tag3",
+    price: 0,
+    image: "https://res.cloudinary.com/degbrq3ck/image/upload/w_800,h_600,c_fill,q_auto,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.jpg",
+    link: "/programs/extension",
+    featured: false,
   }
 ];
 
@@ -225,8 +286,10 @@ const Home = () => {
   const [isAllToursPopupOpen, setIsAllToursPopupOpen] = useState(false);
   const [activeVideo, setActiveVideo] = useState(null);
   const { galleryImages = [], videos = [] } = useMedia();
-  const { tours: allLiveTours } = useTours({ limit: 100 });
-  const { destinations: liveDestinations } = useDestinations();
+  const { tours: allLiveToursRaw } = useTours({ limit: 100 });
+  const allLiveTours = useMemo(() => Array.isArray(allLiveToursRaw) ? allLiveToursRaw : [], [allLiveToursRaw]);
+  const { destinations: liveDestinationsRaw } = useDestinations();
+  const liveDestinations = useMemo(() => Array.isArray(liveDestinationsRaw) ? liveDestinationsRaw : [], [liveDestinationsRaw]);
   const { block: holidayPackages } = useCmsBlock('holiday_packages');
   const liveDestinationCards = useMemo(() => liveDestinations.map((destination) => ({
     id: destination.slug,
@@ -238,56 +301,73 @@ const Home = () => {
     link: `/destinations/${destination.slug}`,
   })), [liveDestinations]);
   const livePackageCards = useMemo(() => {
-    if (!Array.isArray(holidayPackages)) return [];
-    return holidayPackages
-      .filter((item) => item?.id && item?.title && item?.image && Number.isFinite(Number(item?.price)))
-      .map((item) => {
-        const type = String(item.type || '').toLowerCase();
-        const categoryId = type.includes('honeymoon')
-          ? 'honeymooners'
-          : type.includes('combo')
-            ? 'multi-country'
-            : type.includes('classic')
-              ? 'classic-program'
-              : item.slug;
-        return {
-          id: categoryId,
-          recordId: item.id,
-          name: item.title,
-          desc: item.description || item.duration || '',
-          image: item.image,
-          price: Number(item.price),
-          link: '/tours',
-        };
-      });
-  }, [holidayPackages]);
+    if (Array.isArray(holidayPackages) && holidayPackages.length >= 5) {
+      return holidayPackages
+        .filter((item) => item?.id && item?.title && item?.image && Number.isFinite(Number(item?.price)))
+        .map((item) => {
+          const type = String(item.type || '').toLowerCase();
+          const categoryId = type.includes('honeymoon')
+            ? 'honeymooners'
+            : type.includes('combo')
+              ? 'multi-country'
+              : type.includes('classic')
+                ? 'classic-program'
+                : item.slug;
+          return {
+            id: categoryId,
+            recordId: item.id,
+            name: item.title,
+            desc: item.description || item.duration || '',
+            image: item.image,
+            price: Number(item.price),
+            link: '/tours',
+          };
+        });
+    }
+
+    return _packagesData.map((pkg) => ({
+      ...pkg,
+      recordId: pkg.id,
+      name: t(pkg.nameKey, pkg.nameDefault),
+      desc: t(pkg.descKey, pkg.descDefault),
+      badge: t(pkg.badgeKey, pkg.badgeDefault),
+      duration: t(pkg.durationKey, pkg.durationDefault),
+      tag1: pkg.tag1Key ? t(pkg.tag1Key, '') : '',
+      tag2: pkg.tag2Key ? t(pkg.tag2Key, '') : '',
+      tag3: pkg.tag3Key ? t(pkg.tag3Key, '') : '',
+    }));
+  }, [holidayPackages, t]);
   const toursForDestination = (destination) =>
-    allLiveTours.filter((tour) => tour.destination === destination);
+    (allLiveTours || []).filter((tour) => tour && tour.destination === destination);
   const formattedTurkeyTours = toursForDestination('turkey');
   const formattedJordanTours = toursForDestination('jordan');
   const formattedDubaiTours = toursForDestination('dubai');
   const formattedMoroccoTours = toursForDestination('morocco');
 
   const allToursForMarquee = useMemo(() => {
-    return allLiveTours.map((tour) => ({
+    if (!Array.isArray(allLiveTours)) return [];
+    return allLiveTours.filter(Boolean).map((tour) => ({
       ...tour,
-      description: tour.overview || tour.description,
-      link: `/tours/${tour.slug}`,
+      description: tour.overview || tour.description || '',
+      images: Array.isArray(tour.images) && tour.images.length > 0 ? tour.images : [tour.heroImage || tour.image || '/imgs/egyothero.png'],
+      link: `/tours/${tour.slug || tour.id}`,
     }));
   }, [allLiveTours]);
 
   const packagesToursMap = useMemo(() => {
     const matches = (tour, values) => {
-      const searchable = `${tour.slug} ${tour.category} ${tour.title}`.toLowerCase();
+      if (!tour) return false;
+      const searchable = `${tour.slug || ''} ${tour.category || ''} ${tour.title || ''}`.toLowerCase();
       return values.some((value) => searchable.includes(value));
     };
-    const withLinkBase = (items) => items.map((tour) => ({ ...tour, linkBase: '/tours' }));
+    const withLinkBase = (items) => (items || []).map((tour) => ({ ...tour, linkBase: '/tours' }));
+    const safeTours = Array.isArray(allLiveTours) ? allLiveTours : [];
     return {
-      'classic-program': withLinkBase(allLiveTours.filter((tour) => matches(tour, ['classic', 'classico', 'clásico']))),
-      honeymooners: withLinkBase(allLiveTours.filter((tour) => matches(tour, ['honeymoon', 'luna de miel', 'شهر العسل']))),
-      religious: withLinkBase(allLiveTours.filter((tour) => matches(tour, ['religious', 'holy family', 'العائلة المقدسة']))),
-      'multi-country': withLinkBase(allLiveTours.filter((tour) => matches(tour, ['multi-country', 'combined', 'and-']))),
-      extension: withLinkBase(allLiveTours.filter((tour) => matches(tour, ['extension', 'escape']))),
+      'classic-program': withLinkBase(safeTours.filter((tour) => matches(tour, ['classic', 'classico', 'clásico']))),
+      honeymooners: withLinkBase(safeTours.filter((tour) => matches(tour, ['honeymoon', 'luna de miel', 'شهر العسل']))),
+      religious: withLinkBase(safeTours.filter((tour) => matches(tour, ['religious', 'holy family', 'العائلة المقدسة']))),
+      'multi-country': withLinkBase(safeTours.filter((tour) => matches(tour, ['multi-country', 'combined', 'and-']))),
+      extension: withLinkBase(safeTours.filter((tour) => matches(tour, ['extension', 'escape']))),
     };
   }, [allLiveTours]);
 
@@ -295,14 +375,87 @@ const Home = () => {
     const combined = [];
     const seen = new Set();
 
-    Object.values(packagesToursMap).flat().forEach(t => {
-      const link = `${t.linkBase}/${t.slug}`;
+    // 1. Add tours from packagesToursMap
+    Object.values(packagesToursMap || {}).flat().filter(Boolean).forEach(t => {
+      const link = t.link || `${t.linkBase || '/tours'}/${t.slug || t.id}`;
       if (!seen.has(link)) {
         seen.add(link);
         combined.push({
           ...t,
-          link
+          link,
+          images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || t.image || '/imgs/egyothero.png'],
         });
+      }
+    });
+
+    // 2. Fallback/Explicit Package Trips
+    const explicitPackageItems = [
+      {
+        id: "hurghada-4d3n",
+        slug: "hurghada-4d3n",
+        title: "trip.hurghada.title",
+        duration: "trip.hurghada.duration",
+        destination: "egypt",
+        price: 0,
+        rating: 4.9,
+        reviewCount: 42,
+        images: ["https://1.bp.blogspot.com/-HqmKDzZ73hY/XgSOtrhSAOI/AAAAAAAARdc/cxtywSwZxLIaZPfw98FzQHYtiPblmzg2gCLcBGAsYHQ/w1200-h630-p-k-no-nu/%D8%A3%D9%81%D8%B6%D9%84-%D8%A7%D9%84%D8%A3%D9%86%D8%B4%D8%B7%D8%A9-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D9%8A%D8%A9-%D9%81%D9%89-%D8%A7%D9%84%D8%BA%D8%B1%D8%AF%D9%82%D8%A9-825x510.jpg"],
+        link: "/programs/extension/hurghada-4d3n"
+      },
+      {
+        id: "sharm-4d3n",
+        slug: "sharm-4d3n",
+        title: "trip.sharm.title",
+        duration: "trip.sharm.duration",
+        destination: "egypt",
+        price: 0,
+        rating: 4.9,
+        reviewCount: 38,
+        images: ["https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80"],
+        link: "/programs/extension/sharm-4d3n"
+      },
+      {
+        id: "siwa-oasis-alexandria",
+        slug: "siwa-oasis-alexandria",
+        title: "tour_siwa_title",
+        duration: "tour_siwa_duration",
+        destination: "egypt",
+        price: 0,
+        rating: 5.0,
+        reviewCount: 29,
+        images: ["https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80"],
+        link: "/programs/extension/siwa-oasis-alexandria"
+      },
+      {
+        id: "classic-program-tour",
+        slug: "classic-program",
+        title: "egyptPackages.classic.name",
+        duration: "egyptPackages.classic.duration",
+        destination: "egypt",
+        price: 1290,
+        rating: 4.95,
+        reviewCount: 156,
+        images: ["https://res.cloudinary.com/degbrq3ck/image/upload/v1783029636/Classic_Program_gfal0s.jpg"],
+        link: "/programs/classic/classic-program"
+      },
+      {
+        id: "honeymooners-tour",
+        slug: "honeymooners",
+        title: "egyptPackages.honeymooners.name",
+        duration: "egyptPackages.honeymooners.duration",
+        destination: "egypt",
+        price: 1650,
+        rating: 5.0,
+        reviewCount: 84,
+        images: ["https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=800&q=80"],
+        link: "/programs/honeymooners"
+      }
+    ];
+
+    explicitPackageItems.forEach(item => {
+      if (!seen.has(item.link)) {
+        seen.add(item.link);
+        combined.push(item);
       }
     });
 
@@ -879,21 +1032,19 @@ const Home = () => {
         </div>
       </section>
 
-      {/* All Tours Marquee */}
-      <section className="py-12 bg-ivory-100 overflow-hidden relative">
+      {/* Package Trips Marquee Section */}
+      <section className="py-12 bg-ivory-100 dark:bg-obsidian-950 overflow-hidden relative">
         <div className="container mx-auto px-6">
-          <div className="text-center mb-12">
-            <span className="text-gold-600 uppercase tracking-widest text-caption block mb-4">
-              {t("home.handpicked", "HANDPICKED FOR YOU")}
+          <div className="text-center mb-12 max-w-3xl mx-auto">
+            <span className="text-gold-600 dark:text-gold-400 uppercase tracking-widest text-caption block mb-3 font-semibold">
+              {t("home.packageTripsBadge", "Meticulously crafted experiences meeting the highest luxury standards")}
             </span>
-            <h2 className="text-display-lg text-obsidian-900">
-              {t("home.lovedJourneys", "Our Most Loved Journeys")}
+            <h2 className="text-display-lg text-obsidian-900 dark:text-ivory-50 font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>
+              {t("home.packageTripsTitle", "Trips From Our Packages")}
             </h2>
-            <div className="w-24 h-1 bg-gold-500 mx-auto mt-6"></div>
+            <div className="w-24 h-1 bg-gold-500 mx-auto mt-6 rounded-full"></div>
           </div>
         </div>
-
-        {/* Navigation Buttons - removed, CSS animation handles auto-scroll */}
 
           <div className="overflow-hidden w-full">
             <div
@@ -907,65 +1058,74 @@ const Home = () => {
               onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
             >
             {(() => {
-              const sliced = allToursForMarquee.slice(0, 8);
+              const packageTrips = packagesToursForMarquee.length > 0 ? packagesToursForMarquee : allToursForMarquee;
+              const sliced = packageTrips.slice(0, 10);
               return [
                 ...sliced.map(t => ({ ...t, isDuplicate: false })),
                 ...sliced.map(t => ({ ...t, isDuplicate: true }))
-              ].map((tData, idx) => (
-                <Link
-                  key={`${tData.id}-${idx}`}
-                  to={tData.link}
-                  tabIndex={tData.isDuplicate ? -1 : undefined}
-                  aria-hidden={tData.isDuplicate ? "true" : undefined}
-                  className="min-w-[320px] md:min-w-[400px] shrink-0 group relative rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] transition-all duration-500 h-[450px] block focus:outline-none focus:ring-2 focus:ring-gold-500"
-                >
-                  <img
-                    src={getOptimizedImageUrl(tData.images[0], 400, 450)}
-                    alt={tData.title}
-                    width="400"
-                    height="450"
-                    className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/90 via-obsidian-900/20 to-transparent"></div>
+              ].map((tData, idx) => {
+                const lang = i18n.language || 'en';
+                const resolvedTitle = resolveTourTitle(tData, t, lang);
+                const resolvedDuration = resolveTourDuration(tData, t, lang);
+                const rawDest = tData.destination === 'holy-land' ? 'holyland' : (tData.destination || 'egypt');
+                const resolvedDest = resolveLocalizedText(tData.destination, t, lang) || t(`nav.${rawDest}`, rawDest);
 
-                <div className="absolute top-4 left-4 bg-gold-500/90 backdrop-blur-sm text-obsidian-900 text-caption font-bold px-3 py-1 rounded shadow-md uppercase">
-                  {t(`nav.${tData.destination === 'holy-land' ? 'holyland' : tData.destination}`, tData.destination)}
-                </div>
+                return (
+                  <Link
+                    key={`${tData.id}-${idx}`}
+                    to={tData.link}
+                    tabIndex={tData.isDuplicate ? -1 : undefined}
+                    aria-hidden={tData.isDuplicate ? "true" : undefined}
+                    className="min-w-[320px] md:min-w-[400px] shrink-0 group relative rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] transition-all duration-500 h-[450px] block focus:outline-none focus:ring-2 focus:ring-gold-500"
+                  >
+                    <img
+                      src={getOptimizedImageUrl(Array.isArray(tData.images) && tData.images[0] ? tData.images[0] : (tData.image || '/imgs/egyothero.png'), 400, 450)}
+                      alt={resolvedTitle}
+                      width="400"
+                      height="450"
+                      className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/90 via-obsidian-900/20 to-transparent"></div>
 
-                <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full">
-                  <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                    <h3 className="text-display-md text-ivory-50 mb-2 leading-tight">
-                      {t(`data.${tData.title}`, tData.title)}
-                    </h3>
-
-                    <div className="flex items-center justify-between text-caption text-ivory-300 mb-4">
-                      <span>{t(`data.${tData.duration}`, tData.duration)}</span>
-                      <span className="text-gold-500 font-semibold">
-                        {formatPrice(tData.price)}
-                      </span>
+                    <div className="absolute top-4 left-4 bg-gold-500/90 backdrop-blur-sm text-obsidian-900 text-caption font-bold px-3 py-1 rounded shadow-md uppercase">
+                      {resolvedDest}
                     </div>
 
-                    {Number.isFinite(Number(tData.rating)) && Number.isFinite(Number(tData.reviewCount)) ? (
-                      <div className="flex items-center gap-1 text-gold-500 mb-4">
-                        <FaStar size={14} />
-                        <span className="text-ivory-50 ml-1 text-sm font-semibold">
-                          {Number(tData.rating).toFixed(1)} <span className="text-ivory-300 font-normal">({tData.reviewCount})</span>
-                        </span>
+                    <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full">
+                      <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                        <h3 className="text-display-md text-ivory-50 mb-2 leading-tight">
+                          {resolvedTitle}
+                        </h3>
+
+                        <div className="flex items-center justify-between text-caption text-ivory-300 mb-4">
+                          <span>{resolvedDuration}</span>
+                          <span className="text-gold-500 font-semibold">
+                            {tData.price > 0 ? formatPrice(tData.price) : "$0"}
+                          </span>
+                        </div>
+
+                        {Number.isFinite(Number(tData.rating)) && Number.isFinite(Number(tData.reviewCount)) ? (
+                          <div className="flex items-center gap-1 text-gold-500 mb-4">
+                            <FaStar size={14} />
+                            <span className="text-ivory-50 ml-1 text-sm font-semibold">
+                              {Number(tData.rating).toFixed(1)} <span className="text-ivory-300 font-normal">({tData.reviewCount})</span>
+                            </span>
+                          </div>
+                        ) : null}
+
+                        <div className="block opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                          <Button variant="outline-gold" tabIndex={-1} className="w-full py-2">
+                            {t("home.viewTour", "View Tour")}
+                          </Button>
+                        </div>
                       </div>
-                    ) : null}
-
-                    <div className="block opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      <Button variant="outline-gold" tabIndex={-1} className="w-full py-2">
-                        {t("home.viewTour", "View Tour")}
-                      </Button>
                     </div>
-                  </div>
-                </div>
-              </Link>
-            ));
-          })()}
+                  </Link>
+                );
+              });
+            })()}
           </div>
         </div>
 
@@ -980,68 +1140,135 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Packages Section */}
-      <section className="py-10" style={{ background: "linear-gradient(135deg, rgb(4, 20, 70) 0%, rgb(6, 29, 93) 40%, rgb(10, 40, 120) 100%)" }}>
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-8">
-            <span className="text-gold-500 uppercase tracking-widest text-caption block mb-4">
-              {t("home.ourPackages", "Discover Our Packages")}
-            </span>
-            <h2 className="text-display-lg text-ivory-50">
+      {/* Packages Section — 5 Egypt Packages Ultra Luxury Bento Grid */}
+      <section className="py-20 relative overflow-hidden" style={{ background: "linear-gradient(135deg, #050a18 0%, #0a132e 50%, #070d20 100%)" }}>
+        {/* Decorative ambient glowing circles */}
+        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="container mx-auto px-6 relative z-10">
+          {/* Header */}
+          <div className="text-center mb-16 max-w-3xl mx-auto">
+            <motion.span 
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-400 text-caption font-semibold uppercase tracking-widest mb-4 shadow-glass"
+            >
+              <span>✨</span> {t("home.ourPackages", "Discover Egypt Packages")}
+            </motion.span>
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-3xl md:text-5xl lg:text-6xl text-white font-serif tracking-tight mb-4"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
               {t("home.packagesTitle", "Curated Programs & Experiences")}
-            </h2>
-            <div className="w-24 h-1 bg-gold-500 mx-auto mt-6"></div>
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="text-body-md text-ivory-200/80 max-w-2xl mx-auto"
+            >
+              {t("home.packagesSubtitle", "Selection of premium itineraries designed to experience the magic of Egypt & the Middle East")}
+            </motion.p>
+            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto mt-6 rounded-full"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
-            {livePackageCards.map((pkg) => {
+          {/* 5-Card Bento Layout Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+            {livePackageCards.map((pkg, idx) => {
               const isActive = activePackage === pkg.id;
+              const isHero = pkg.featured || idx === 0;
+
               return (
                 <motion.div
-                  key={pkg.recordId}
+                  key={pkg.recordId || pkg.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: idx * 0.1 }}
+                  className={`group relative rounded-3xl overflow-hidden cursor-pointer flex flex-col justify-between border transition-all duration-500 backdrop-blur-xl ${
+                    isHero 
+                      ? "lg:col-span-2 min-h-[380px] sm:min-h-[420px] bg-gradient-to-br from-[#121c3b]/90 via-[#0d152d]/90 to-[#070c1b]/90 border-gold-500/40 hover:border-gold-400 shadow-[0_12px_40px_rgba(245,166,35,0.2)] hover:shadow-[0_16px_50px_rgba(245,166,35,0.35)]" 
+                      : "min-h-[360px] bg-gradient-to-br from-[#121c3b]/80 via-[#0a1127]/80 to-[#060a17]/80 border-white/10 hover:border-gold-500/50 hover:shadow-[0_12px_36px_rgba(245,166,35,0.25)] hover:-translate-y-2"
+                  }`}
                   onClick={() => handlePackageClick(pkg.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      handlePackageClick(pkg.id);
-                    }
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  aria-pressed={isActive}
-                  aria-label={`View ${pkg.name}`}
-                  whileHover={{
-                    y: -6,
-                    boxShadow: "0 0 32px rgba(245,166,35,0.22)",
-                    transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
-                  }}
-                  className={`relative h-[300px] rounded-2xl overflow-hidden cursor-pointer group transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-gold-500 block ${isActive ? "ring-2 ring-gold-500 shadow-[0_0_20px_rgba(245,166,35,0.4)] scale-[1.02]" : "hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(245,166,35,0.2)]"}`}
                 >
-                  <img
-                    src={pkg.image}
-                    alt={pkg.name}
-                    className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <div className={`absolute inset-0 transition-colors duration-500 ${isActive ? "bg-obsidian-900/40" : "bg-obsidian-900/60 group-hover:bg-obsidian-900/40"}`}></div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
-                    <h3 className="text-display-lg text-ivory-50 mb-2">
-                      {t(`packages.${pkg.id}.name`, pkg.name)}
+                  {/* Background Image with High Clarity & Gradient Overlay */}
+                  <div className="absolute inset-0 z-0 overflow-hidden">
+                    <img
+                      src={pkg.image}
+                      alt={pkg.name}
+                      className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-700 ease-out opacity-85 group-hover:opacity-100"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#060a17]/95 via-[#060a17]/40 to-transparent"></div>
+                  </div>
+
+                  {/* Top Floating Badges */}
+                  <div className="relative z-10 p-6 sm:p-8 flex items-center justify-between gap-4">
+                    {pkg.badge && (
+                      <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gold-500 text-obsidian-950 font-bold text-caption uppercase tracking-wider shadow-lg backdrop-blur-md">
+                        <span>★</span> {pkg.badge}
+                      </span>
+                    )}
+                    {pkg.duration && (
+                      <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/60 text-white font-medium text-caption border border-white/30 backdrop-blur-md shadow-md">
+                        <FaClock className="text-gold-400 text-xs" /> {pkg.duration}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Content Container */}
+                  <div className="relative z-10 p-6 sm:p-8 mt-auto flex flex-col justify-end">
+                    {/* Tags Pills */}
+                    {(pkg.tag1 || pkg.tag2 || pkg.tag3) && (
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {[pkg.tag1, pkg.tag2, pkg.tag3].filter(Boolean).map((tText, tIdx) => (
+                          <span 
+                            key={tIdx} 
+                            className="text-[11px] font-semibold text-white bg-black/50 backdrop-blur-md border border-white/30 px-2.5 py-1 rounded-full shadow-sm"
+                          >
+                            {tText}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <h3 
+                      className={`${isHero ? "text-2xl sm:text-4xl" : "text-xl sm:text-2xl"} text-white font-serif font-bold mb-2 group-hover:text-gold-300 transition-colors duration-300`}
+                      style={{ fontFamily: "'Playfair Display', serif" }}
+                    >
+                      {pkg.name}
                     </h3>
-                    <p className="text-body-lg text-gold-500 font-medium mb-4 leading-relaxed">
+
+                    <p className="text-body-sm text-white/90 line-clamp-2 mb-6 max-w-xl">
                       {pkg.desc}
                     </p>
-                    <span className="text-sm font-semibold text-ivory-50">{formatPrice(pkg.price)}</span>
-                    <span className="text-caption text-ivory-300 uppercase tracking-wider bg-obsidian-900/50 backdrop-blur-sm px-4 py-2 rounded-full border border-ivory-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      {t("home.explorePackage", "Explore Package")}
-                    </span>
+
+                    {/* Footer Actions */}
+                    <div className="flex items-center justify-end pt-4 border-t border-white/20 group-hover:border-gold-500/40 transition-colors">
+                      <Link 
+                        to={pkg.link} 
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-600 text-obsidian-900 font-bold px-6 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 text-xs border border-gold-400"
+                      >
+                        {t("home.explorePackage", "Explore Program")}
+                        <span className="rtl-flip">→</span>
+                      </Link>
+                    </div>
                   </div>
                 </motion.div>
               );
             })}
           </div>
 
+          {/* Interactive Nested Tours Accordion */}
           <AnimatePresence>
             {activePackage && (
               <motion.div
@@ -1049,31 +1276,36 @@ const Home = () => {
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.5, ease: "easeInOut" }}
-                className="overflow-hidden"
+                className="overflow-hidden mt-12 bg-white/5 backdrop-blur-2xl rounded-3xl p-8 border border-gold-500/20 shadow-2xl"
               >
-                <div className="pt-12">
-                  <h3 className="text-display-md text-ivory-50 mb-8 text-center capitalize">
-                    {livePackageCards.find(p => p.id === activePackage)?.name}{" "}
-                    {t("nav.tours", "Tours")}
+                <div className="flex items-center justify-between mb-8 pb-4 border-b border-gold-500/20">
+                  <h3 className="text-2xl md:text-3xl text-white font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    {livePackageCards.find(p => p.id === activePackage)?.name} — {t("nav.tours", "Tours")}
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {activePackageTours.slice(0, 6).map((tour) => (
-                      <TourCard
-                        key={tour.id}
-                        tour={tour}
-                        linkBase={tour.linkBase || "/tours"}
-                      />
-                    ))}
-                  </div>
-                  {activePackageTours.length > 6 && (
-                    <div className="flex justify-center mt-8">
-                      <Link to={livePackageCards.find(p => p.id === activePackage)?.link || "/tours"}>
-                        <Button variant="outline-gold">
-                          {t("home.viewAllTours", "View All Tours")}
-                        </Button>
-                      </Link>
-                    </div>
-                  )}
+                  <button 
+                    onClick={() => setActivePackage(null)}
+                    className="w-9 h-9 rounded-full bg-white/10 hover:bg-gold-500 hover:text-obsidian-900 text-white flex items-center justify-center transition-all"
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {activePackageTours.slice(0, 6).map((tour) => (
+                    <TourCard
+                      key={tour.id}
+                      tour={tour}
+                      linkBase={tour.linkBase || "/tours"}
+                    />
+                  ))}
+                </div>
+
+                <div className="flex justify-center mt-10">
+                  <Link to={livePackageCards.find(p => p.id === activePackage)?.link || "/tours"}>
+                    <Button variant="gold-glow" className="px-8 py-3 font-bold">
+                      {t("home.explorePackage", "Explore Full Program")} →
+                    </Button>
+                  </Link>
                 </div>
               </motion.div>
             )}

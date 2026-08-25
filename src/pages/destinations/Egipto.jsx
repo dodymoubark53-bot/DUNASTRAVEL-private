@@ -1,6 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import Button from '../../components/ui/Button';
@@ -26,6 +26,7 @@ const itemVariants = {
 
 export default function Egipto() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const egyptTours = tours.filter((tour) => tour && tour.destination === 'egypt');
 
   return (
@@ -189,7 +190,7 @@ export default function Egipto() {
               <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 mt-auto">
                 <div />
                 <Link to="/programs/classic/classic-program">
-                  <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
+                  <Button as="span" variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
                     {t('tourCard.viewDetails', 'View Details')}{' '}
                     <span className="rtl-flip">→</span>
                   </Button>
@@ -232,7 +233,7 @@ export default function Egipto() {
               <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 mt-auto">
                 <div />
                 <Link to="/programs/honeymooners">
-                  <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
+                  <Button as="span" variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
                     {t('tourCard.viewDetails', 'View Details')}{' '}
                     <span className="rtl-flip">→</span>
                   </Button>
@@ -242,47 +243,48 @@ export default function Egipto() {
           </motion.div>
 
           {/* Card 3: Religious Programs */}
-          <motion.div
-            variants={itemVariants}
-            className="bg-white rounded-xl overflow-hidden flex flex-col h-full group shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] hover:border-gold-500 hover:-translate-y-2 transition-all duration-300 ease-out z-10 hover:z-20 relative"
+          <Link
+            to="/services/religious/egypt-jordan-combined-14d"
+            className="block h-full group"
           >
-            <Link to="/programs/religious" className="block relative h-[240px] overflow-hidden">
-              <img
-                src="https://www.saintjeromechurch.org/wp-content/uploads/2025/03/14714-what-is-ccd-in-catholic-church-religious-education-programs-explained.png"
-                alt="Religious Programs"
-                className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700"
-                loading="lazy"
-              />
-            </Link>
-            <div className="p-6 flex flex-col flex-grow">
-              <span className="text-caption text-gold-600 uppercase tracking-widest font-semibold mb-1">
-                {t('nav.religious', 'Religious Programs')}
-              </span>
-              <Link to="/programs/religious">
+            <motion.div
+              variants={itemVariants}
+              className="bg-white rounded-xl overflow-hidden flex flex-col h-full shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 group-hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] group-hover:border-gold-500 group-hover:-translate-y-2 transition-all duration-300 ease-out z-10 group-hover:z-20 relative cursor-pointer"
+            >
+              <div className="block relative h-[240px] overflow-hidden">
+                <img
+                  src="https://sft-nationaltours.com/wp-content/uploads/2024/11/holy-family-egypt_tg_1397-870x555.jpg"
+                  alt="Religious Programs"
+                  className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700"
+                  loading="lazy"
+                />
+              </div>
+              <div className="p-6 flex flex-col flex-grow">
+                <span className="text-caption text-gold-600 uppercase tracking-widest font-semibold mb-1">
+                  {t('nav.religious', 'Religious Programs')}
+                </span>
                 <h3
                   className="text-display-md text-obsidian-900 dark:text-black mt-1 mb-3 group-hover:text-gold-700 transition-colors line-clamp-2"
                   style={{ fontFamily: "'Playfair Display', serif" }}
                 >
                   {t('nav.religious', 'Religious Programs')}
                 </h3>
-              </Link>
-              <p className="text-body-sm text-obsidian-500 dark:text-black line-clamp-3 mb-4 flex-grow">
-                {t(
-                  'dest.egypt.religiousDesc',
-                  'A spiritual journey through Egypt tracing ancient Coptic monasteries and sacred sites.'
-                )}
-              </p>
-              <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 mt-auto">
-                <div />
-                <Link to="/programs/religious">
-                  <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
+                <p className="text-body-sm text-obsidian-500 dark:text-black line-clamp-3 mb-4 flex-grow">
+                  {t(
+                    'dest.egypt.religiousDesc',
+                    'A spiritual journey through Egypt tracing ancient Coptic monasteries and sacred sites.'
+                  )}
+                </p>
+                <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 mt-auto">
+                  <div />
+                  <Button as="span" variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
                     {t('tourCard.viewDetails', 'View Details')}{' '}
                     <span className="rtl-flip">→</span>
                   </Button>
-                </Link>
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </Link>
 
           {/* Card 4: Multi-Country Tours */}
           <motion.div
@@ -318,7 +320,7 @@ export default function Egipto() {
               <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 mt-auto">
                 <div />
                 <Link to="/programs/multi-country">
-                  <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
+                  <Button as="span" variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
                     {t('tourCard.viewDetails', 'View Details')}{' '}
                     <span className="rtl-flip">→</span>
                   </Button>
@@ -335,10 +337,13 @@ export default function Egipto() {
             <Link to="/programs/extension" className="block relative h-[240px] overflow-hidden">
               <img
                 src="https://res.cloudinary.com/degbrq3ck/image/upload/v1783030445/Gemini_Generated_Image_kenvzkkenvzkkenv_h9kz07.png"
-                alt="Extension"
+                alt="Egypt Extensions"
                 className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700"
                 loading="lazy"
               />
+              <div className="absolute top-3 right-3 bg-gold-500 text-obsidian-900 font-bold text-xs uppercase px-3 py-1 rounded-full shadow-md">
+                3 {t('extensions.tripsAvailable', 'Trips Available')}
+              </div>
             </Link>
             <div className="p-6 flex flex-col flex-grow">
               <span className="text-caption text-gold-600 uppercase tracking-widest font-semibold mb-1">
@@ -358,8 +363,27 @@ export default function Egipto() {
                   'Extend your Egypt journey with added destinations like Hurghada, Sharm El Sheikh, or Siwa Oasis.'
                 )}
               </p>
+              
+              {/* Trip Tags Preview */}
+              <div className="flex flex-wrap gap-1.5 mb-4">
+                <Link to="/programs/extension/hurghada-4d3n" className="text-[11px] bg-gold-50 dark:bg-gold-900/20 text-gold-700 dark:text-gold-400 px-2.5 py-1 rounded-md font-medium border border-gold-200/50 hover:bg-gold-500 hover:text-obsidian-900 transition-colors">
+                  {t('trip.hurghada.title', 'Hurghada')} ($0)
+                </Link>
+                <Link to="/programs/extension/sharm-4d3n" className="text-[11px] bg-gold-50 dark:bg-gold-900/20 text-gold-700 dark:text-gold-400 px-2.5 py-1 rounded-md font-medium border border-gold-200/50 hover:bg-gold-500 hover:text-obsidian-900 transition-colors">
+                  {t('trip.sharm.title', 'Sharm El Sheikh')} ($0)
+                </Link>
+                <Link to="/programs/extension/siwa-oasis-alexandria" className="text-[11px] bg-gold-50 dark:bg-gold-900/20 text-gold-700 dark:text-gold-400 px-2.5 py-1 rounded-md font-medium border border-gold-200/50 hover:bg-gold-500 hover:text-obsidian-900 transition-colors">
+                  {t('tour_siwa_title', 'Siwa & Alexandria')} ($0)
+                </Link>
+              </div>
+
               <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 mt-auto">
-                <div />
+                <div>
+                  <span className="text-[11px] text-obsidian-400 block uppercase">
+                    {t('extensions.startingFrom', 'Starting From')}
+                  </span>
+                  <span className="text-xl font-bold text-gold-600">$0</span>
+                </div>
                 <Link to="/programs/extension">
                   <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
                     {t('tourCard.viewDetails', 'View Details')}{' '}
