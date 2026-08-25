@@ -5383,7 +5383,7 @@
   "auth.newPasswordPlaceholder": "أدخل كلمة المرور الجديدة (8 أحرف على الأقل)",
   "auth.updatePasswordBtn": "تأكيد كلمة المرور الجديدة",
   "auth.resetPasswordSuccess": "تم تحديث كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول.",
-  "tour.code": "رمز البرنامج",
+  "tour.code": "كود الرحلة",
   "tour.pricingTiers": "خيارات الأسعار والإقامة الفاخرة",
   "tour.pricePerPerson": "السعر للشخص الواحد",
   "tour.optionalExcursions": "الرحلات والأنشطة الاختيارية الإضافية",
@@ -5544,5 +5544,6 @@
   "Lo Mejor de Grecia – 09 Días": "الأفضل في اليونان – 09 أيام",
   "gre001.overview": "انغمس في روعة اليونان القديمة وسحر البحر إيجة في هذا المسار الرائع الممتد لتسعة أيام. من الأكروبوليس في أثينا إلى غروب الشمس الساحر في سانتوريني وميكونوس، مروراً بطبيعة ومأكولات جزيرة كريت الخلابة وتاريخها المينوي العريق، تدمج هذه الرحلة بين الثقافة الكلاسيكية وروعة البحر الأبيض المتوسط.",
   "data.gre001.overview": "انغمس في روعة اليونان القديمة وسحر البحر إيجة في هذا المسار الرائع الممتد لتسعة أيام. من الأكروبوليس في أثينا إلى غروب الشمس الساحر في سانتوريني وميكونوس، مروراً بطبيعة ومأكولات جزيرة كريت الخلابة وتاريخها المينوي العريق، تدمج هذه الرحلة بين الثقافة الكلاسيكية وروعة البحر الأبيض المتوسط.",
-  "Sumérgete en el esplendor de la Antigua Grecia y el encanto del mar Egeo en este espectacular itinerario de nueve días. Desde la grandiosa Acrópolis de Atenas hasta los vibrantes atardeceres en Santorini y Mykonos, cada escala revela un pedazo de paraíso y cultura. Coronando la travesía con la auténtica gastronomía e historia minoica en Creta, este viaje combina cultura clásica y pura esencia mediterránea.": "انغمس في روعة اليونان القديمة وسحر البحر إيجة في هذا المسار الرائع الممتد لتسعة أيام. من الأكروبوليس في أثينا إلى غروب الشمس الساحر في سانتوريني وميكونوس، مروراً بطبيعة ومأكولات جزيرة كريت الخلابة وتاريخها المينوي العريق، تدمج هذه الرحلة بين الثقافة الكلاسيكية وروعة البحر الأبيض المتوسط."
+  "Sumérgete en el esplendor de la Antigua Grecia y el encanto del mar Egeo en este espectacular itinerario de nueve días. Desde la grandiosa Acrópolis de Atenas hasta los vibrantes atardeceres en Santorini y Mykonos, cada escala revela un pedazo de paraíso y cultura. Coronando la travesía con la auténtica gastronomía e historia minoica en Creta, este viaje combina cultura clásica y pura esencia mediterránea.": "انغمس في روعة اليونان القديمة وسحر البحر إيجة في هذا المسار الرائع الممتد لتسعة أيام. من الأكروبوليس في أثينا إلى غروب الشمس الساحر في سانتوريني وميكونوس، مروراً بطبيعة ومأكولات جزيرة كريت الخلابة وتاريخها المينوي العريق، تدمج هذه الرحلة بين الثقافة الكلاسيكية وروعة البحر الأبيض المتوسط.",
+  "tourDetail.code": "كود الرحلة"
 }
