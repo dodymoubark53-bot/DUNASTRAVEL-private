@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
+import { supportedLocale } from '../utils/locale';
 
 /**
  * Hook to fetch FAQs from GET /api/faqs
@@ -8,7 +9,7 @@ import api from '../utils/api';
  */
 export function useFaqs(category = null) {
   const { i18n } = useTranslation();
-  const lang = i18n.language || 'en';
+  const lang = supportedLocale(i18n.language);
 
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(true);

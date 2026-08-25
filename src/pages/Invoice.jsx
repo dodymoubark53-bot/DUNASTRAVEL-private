@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaFileInvoiceDollar, FaSearch, FaTimes, FaPrint } from 'react-icons/fa';
 import api from '../utils/api';
+import { normalizeInvoiceResponse } from '../utils/invoice';
 
 const Invoice = () => {
   const { t, i18n } = useTranslation();
@@ -22,7 +23,7 @@ const Invoice = () => {
     setBooking(null);
     try {
       const data = await api.get(`/invoices/${invoiceNum.trim()}`);
-      setBooking(data);
+      setBooking(normalizeInvoiceResponse(data));
       setSearchParams({ inv: invoiceNum.trim() });
     } catch (err) {
       if (err.status === 404) {

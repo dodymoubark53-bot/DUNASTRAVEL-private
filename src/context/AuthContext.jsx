@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect, useCallback } from 'react';
-import api, { clearCsrfToken } from '../utils/api';
+import api, { clearCsrfToken, readCollection } from '../utils/api';
 
 const missingAuthProvider = async () => {
   throw new Error('AuthProvider is required for authenticated operations');
@@ -111,7 +111,15 @@ export const AuthProvider = ({ children }) => {
    * Body: { name, phone, address, preferredLanguage }
    */
   const updateProfile = async (profileData) => {
-    const data = await api.patch('/auth/profile', profileData);
+    const payload = Object.fromEntries(
+      Object.entries({
+        name: profileData?.name,
+        phone: profileData?.phone,
+        preferredCurrency: profileData?.preferredCurrency,
+        preferredLanguage: profileData?.preferredLanguage,
+      }).filter(([, value]) => value !== undefined),
+    );
+    const data = await api.patch('/auth/profile', payload);
     const updatedUser = data;
     setUser((prev) => ({ ...prev, ...updatedUser }));
     return updatedUser;
@@ -126,13 +134,11 @@ export const AuthProvider = ({ children }) => {
     if (typeof oldPasswordOrObj === 'object' && oldPasswordOrObj !== null) {
       payload = {
         oldPassword: oldPasswordOrObj.oldPassword || oldPasswordOrObj.currentPassword,
-        currentPassword: oldPasswordOrObj.currentPassword || oldPasswordOrObj.oldPassword,
         newPassword: oldPasswordOrObj.newPassword,
       };
     } else {
       payload = {
         oldPassword: oldPasswordOrObj,
-        currentPassword: oldPasswordOrObj,
         newPassword: newPasswordParam,
       };
     }
@@ -233,7 +239,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const getUserBookings = async () => {
-    return api.get('/bookings/me');
+    return readCollection(await api.get('/bookings/me'), 'user bookings');
   };
 
   return (

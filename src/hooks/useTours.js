@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
+import { supportedLocale } from '../utils/locale';
 
 const toursCache = new Map();
 const pendingRequests = new Map();
@@ -16,10 +17,17 @@ const ALLOWED_FILTERS = new Set([
 ]);
 
 function readTours(response) {
-  if (!response || !Array.isArray(response.data) || !response.meta) {
+  const items = Array.isArray(response)
+    ? response
+    : Array.isArray(response?.items)
+      ? response.items
+      : Array.isArray(response?.data)
+        ? response.data
+        : null;
+  if (!items) {
     throw new Error('Invalid canonical tours response');
   }
-  return response.data;
+  return items;
 }
 
 function mapTour(tour) {
@@ -50,7 +58,7 @@ function mapTour(tour) {
 
 export function useTours(filters = {}) {
   const { i18n } = useTranslation();
-  const lang = i18n.language || 'en';
+  const lang = supportedLocale(i18n.language);
   const filterKey = JSON.stringify(filters);
   const cacheKey = `${lang}:${filterKey}`;
   const [tours, setTours] = useState([]);

@@ -10,6 +10,9 @@ const inputClass = "w-full p-3 rounded-xl outline-none transition-all text-[14px
 const labelClass = "block text-caption text-gold-500 font-medium mb-1 text-[12px] uppercase tracking-[1px]";
 const counterBtnClass = "w-8 h-8 rounded-full bg-[rgba(255,252,247,0.06)] text-gold-500 flex items-center justify-center hover:bg-gold-500 hover:text-obsidian-900 transition-all duration-200 border border-[rgba(201,162,39,0.15)] hover:border-gold-500";
 const tabClass = (active) => `flex-1 py-3 text-[13px] font-semibold uppercase tracking-[2px] transition-all duration-200 ${active ? 'text-gold-500 border-b-2 border-gold-500 bg-[rgba(201,162,39,0.06)]' : 'text-ivory-400 hover:text-ivory-300 border-b-2 border-transparent'}`;
+const omitEmptyFields = (payload) => Object.fromEntries(
+  Object.entries(payload).filter(([, value]) => value !== undefined && value !== null && value !== ''),
+);
 
 const languages = [
   { value: 'es', flag: '🇪🇸', labelKey: 'languages.spanish', fallback: 'Spanish' },
@@ -149,16 +152,16 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
     const fetchPrice = async () => {
       try {
         // Pricing calculation must NEVER rely on client-side math; always call POST /api/bookings/calculate
-        const data = await api.post('/bookings/calculate', {
+        const data = await api.post('/bookings/calculate', omitEmptyFields({
           tourId: bookingTourKey,
           availabilityId: selectedAvailability?.id,
           date: b.arrivalDate,
           adults: b.adults,
           children: b.children,
           infants: b.infants,
-          promoCode,
+          promoCode: promoCode.trim(),
           language: b.language,
-        });
+        }));
         setPricePreview(data);
         if (promoCode && data?.promoMessage) {
           setPromoMessage(data.promoMessage);
@@ -176,9 +179,9 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
   }, [bookingTourKey, selectedAvailability?.id, b.arrivalDate, b.adults, b.children, b.infants, b.language, promoCode, tab]);
 
   const handleValidatePromoCode = async () => {
-    if (!promoCode) return;
+    if (!promoCode.trim()) return;
     try {
-      const res = await api.post('/promotions/validate', { code: promoCode, promoCode, tourId: bookingTourKey });
+      const res = await api.post('/promotions/validate', { promoCode: promoCode.trim() });
       if (res) {
         setPromoMessage(res.message || t('booking.promoValid', 'Promotion code valid!'));
       }
@@ -203,7 +206,7 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
     }
     setStatus('submitting');
     try {
-      const payload = {
+      const payload = omitEmptyFields({
         type: 'booking',
         tourId: bookingTourKey,
         availabilityId: selectedAvailability.id,
@@ -217,14 +220,9 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
         activityType: b.activityType,
         adults: b.adults,
         children: b.children,
-        singleRooms: b.singleRooms || 0,
         infants: b.infants,
-        passengers: passengerNames,
         passengerNames: Object.fromEntries(Object.entries(passengerNames)),
-        specialRequests: b.notes,
         notes: b.notes,
-        contactEmail: b.email,
-        contactPhone: b.phone,
         fullName: b.fullName,
         email: b.email,
         phone: b.phone,
@@ -234,10 +232,10 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
         address: b.address,
         city: b.city,
         country: b.country,
-        promoCode,
+        promoCode: promoCode.trim(),
         analyticsSessionId: typeof window !== 'undefined' ? localStorage.getItem('dunas_analytics_sid') : undefined,
         originInterfaceSlug: typeof window !== 'undefined' ? sessionStorage.getItem('dunas_origin_interface') : undefined,
-      };
+      });
 
       // api.post fetches CSRF token and sends it automatically
       const data = await api.post('/bookings', payload);
@@ -291,19 +289,18 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
     setError('');
     setStatus('submitting');
     try {
-      const payload = {
-        destination: tourTitle || tourId,
-        duration: 'custom',
-        tourTitle,
-        contactName: inq.name,
+      const payload = omitEmptyFields({
         fullName: inq.name,
         email: inq.email,
         phone: inq.phone,
-        paxs: 1,
+        preferredLanguage: ['en', 'ar', 'es', 'pt', 'it', 'fr', 'de'].includes(inq.language?.toLowerCase())
+          ? inq.language.toLowerCase()
+          : 'en',
+        destinations: [tourTitle || tourId || 'Custom Experience'],
+        adults: 1,
+        children: 0,
         notes: inq.message,
-        message: inq.message,
-        preferredLanguage: inq.language || 'en',
-      };
+      });
       const data = await api.post('/inquiries', payload);
       setBookingResult({ ...data, type: 'inquiry' });
       setStatus('success');

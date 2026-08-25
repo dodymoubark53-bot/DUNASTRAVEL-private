@@ -2,22 +2,10 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
 
-function readCmsCatalog(response, label) {
-  const content = Array.isArray(response)
-    ? response
-    : Array.isArray(response?.content)
-      ? response.content
-      : Array.isArray(response?.data?.content)
-        ? response.data.content
-        : null;
-  if (!content) throw new Error(`Invalid ${label} catalog response`);
-  return content;
-}
-
 function readItems(response, label) {
   if (Array.isArray(response)) return response;
-  if (Array.isArray(response?.data)) return response.data;
   if (Array.isArray(response?.items)) return response.items;
+  if (Array.isArray(response?.data)) return response.data;
   throw new Error(`Invalid ${label} response`);
 }
 
@@ -45,7 +33,7 @@ function transformHotelToService(hotel) {
     ...hotel,
     category: 'hotels',
     title: hotel.name,
-    location: `${hotel.city} · ${hotel.destinationSlug}`,
+    location: `${hotel.city} - ${hotel.destinationSlug}`,
     images: hotel.heroImageUrl ? [hotel.heroImageUrl] : [],
     image: hotel.heroImageUrl || null,
     rating,
@@ -58,31 +46,28 @@ function transformHotelToService(hotel) {
   };
 }
 
-function transformTransportToService(vehicle) {
-  if (!vehicle?.id || !vehicle?.name || !vehicle?.category) {
-    throw new Error('Invalid transportation catalog item');
+function transformTransportToService(service) {
+  if (!service?.id || !service?.name || !service?.serviceType) {
+    throw new Error('Invalid transportation service');
   }
-  const seats = requireFiniteNumber(vehicle.seats, 'seats', vehicle.id, { positive: true });
-  const doors = requireFiniteNumber(vehicle.doors, 'doors', vehicle.id);
-  const rating = requireFiniteNumber(vehicle.rating, 'rating', vehicle.id);
-  const pricePerDay = requireFiniteNumber(vehicle.pricePerDay, 'pricePerDay', vehicle.id);
-  const features = Array.isArray(vehicle.features) ? vehicle.features : [];
+  const pricePerTrip = requireFiniteNumber(
+    service.basePriceUsd,
+    'basePriceUsd',
+    service.id,
+    { positive: true },
+  );
   return {
-    ...vehicle,
-    slug: vehicle.id,
-    title: vehicle.name,
-    location: `${seats} Seats · ${vehicle.category.toUpperCase()}`,
-    images: vehicle.image ? [vehicle.image] : [],
-    image: vehicle.image || null,
-    rating,
-    seats,
-    doors,
-    transmission: vehicle.transmission || '',
-    price: pricePerDay,
-    pricePerDay,
-    shortDesc: features.join(' · '),
-    features,
-    isActive: vehicle.isActive !== false,
+    ...service,
+    category: 'transportation',
+    slug: service.id,
+    title: service.name,
+    location: String(service.serviceType).replaceAll('_', ' '),
+    images: [],
+    image: null,
+    price: pricePerTrip,
+    pricePerTrip,
+    shortDesc: '',
+    isActive: service.isActive === true,
   };
 }
 
@@ -122,25 +107,36 @@ export function useServices(category = null) {
         setError(null);
         let items;
         if (category === 'hotels') {
-          items = readItems(await api.get(`/hotels?locale=${lang}`), 'hotels').map(transformHotelToService);
+          try {
+            items = readItems(await api.get(`/hotels?locale=${lang}`), 'hotels')
+              .map(transformHotelToService);
+          } catch (requestError) {
+            // Hotels were added after the first public deployment. Keep the
+            // page usable against that older API while the catalog is absent.
+            if (requestError?.status !== 404) throw requestError;
+            items = [];
+          }
         } else if (category === 'transportation') {
-          items = readCmsCatalog(await api.get(`/cms/transportation_fleet?lang=${lang}`), 'transportation')
-            .filter((vehicle) => vehicle?.isActive !== false)
+          items = readItems(await api.get('/transportation/services'), 'transportation')
             .map(transformTransportToService);
         } else if (category) {
           const params = new URLSearchParams({ lang, category, limit: '100' });
           items = readItems(await api.get(`/tours?${params.toString()}`), 'tour services')
             .map((tour) => transformTourToService(tour, category));
         } else {
-          const [hotelsResponse, fleetResponse] = await Promise.all([
+          // These are independent catalogs. A missing optional hotels route
+          // must not hide the transportation catalog that is available.
+          const [hotelsResult, transportResult] = await Promise.allSettled([
             api.get(`/hotels?locale=${lang}`),
-            api.get(`/cms/transportation_fleet?lang=${lang}`),
+            api.get('/transportation/services'),
           ]);
-          const hotels = readItems(hotelsResponse, 'hotels').map(transformHotelToService);
-          const fleet = readCmsCatalog(fleetResponse, 'transportation')
-            .filter((vehicle) => vehicle?.isActive !== false)
+          const hotels = hotelsResult.status === 'fulfilled'
+            ? readItems(hotelsResult.value, 'hotels').map(transformHotelToService)
+            : [];
+          if (transportResult.status === 'rejected') throw transportResult.reason;
+          const transportation = readItems(transportResult.value, 'transportation')
             .map(transformTransportToService);
-          items = [...hotels, ...fleet];
+          items = [...hotels, ...transportation];
         }
         if (isMounted) setServices(items);
       } catch (requestError) {

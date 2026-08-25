@@ -51,7 +51,7 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
   const [changingPwd, setChangingPwd] = useState(false);
 
   // Password complexity calculations
-  const hasLength = pwdForm.newPassword.length >= 8;
+  const hasLength = pwdForm.newPassword.length >= 12;
   const hasUpper = /[A-Z]/.test(pwdForm.newPassword);
   const hasLower = /[a-z]/.test(pwdForm.newPassword);
   const hasDigit = /\d/.test(pwdForm.newPassword);
@@ -126,7 +126,7 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
     if (!isPasswordValid) {
       return setPwdMsg({ 
         type: 'error', 
-        text: t('auth.passwordComplexityError', 'Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, and a number') 
+        text: t('auth.passwordComplexityError', 'Password must contain at least 12 characters, including an uppercase letter, a lowercase letter, and a number')
       });
     }
     if (pwdForm.newPassword !== pwdForm.confirmPassword) {
@@ -151,7 +151,7 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
     
     setCancellingCode(refCode);
     try {
-      await api.post(`/bookings/${refCode}/cancel`, {});
+      await api.post(`/bookings/${encodeURIComponent(refCode)}/cancel`, {});
       const updated = await getUserBookings();
       setBookings(updated);
     } catch (err) {
@@ -415,9 +415,9 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
                       <label className={labelClass}><FaGlobeAmericas className="inline mr-1" size={11} />{t('booking.country', 'Country of Residence')}</label>
                       <input
                         type="text"
+                        disabled
                         value={profileForm.country}
-                        onChange={(e) => setProfileForm({ ...profileForm, country: e.target.value })}
-                        className={inputClass}
+                        className={`${inputClass} opacity-60 cursor-not-allowed`}
                       />
                     </div>
                   </div>
@@ -499,7 +499,7 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
                         <div className="grid grid-cols-2 gap-1 text-[11px] pt-1">
                           <div className={`flex items-center gap-1.5 ${hasLength ? 'text-emerald-400' : 'text-ivory-400'}`}>
                             {hasLength ? <FaCheck size={9} /> : <FaTimes size={9} />}
-                            <span>{t('auth.reqLength', '8+ characters')}</span>
+                            <span>{t('auth.reqLength', '12+ characters')}</span>
                           </div>
                           <div className={`flex items-center gap-1.5 ${hasUpper ? 'text-emerald-400' : 'text-ivory-400'}`}>
                             {hasUpper ? <FaCheck size={9} /> : <FaTimes size={9} />}

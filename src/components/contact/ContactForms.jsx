@@ -137,7 +137,10 @@ const ContactForms = () => {
         phone: b2cForm.phone.trim() || undefined,
         subject: `B2C Inquiry: ${b2cForm.destination.toUpperCase()} (${b2cForm.duration} days)`,
         message: b2cMessage,
-        locale: ['en', 'es', 'fr', 'de', 'ar', 'pt'].includes(i18n?.language) ? i18n.language : 'en',
+        locale: (() => {
+          const locale = String(i18n?.language || 'en').toLowerCase().split('-')[0];
+          return ['en', 'es', 'fr', 'de', 'ar', 'pt', 'it'].includes(locale) ? locale : 'en';
+        })(),
       });
       setB2cSubmitted(true);
     } catch (err) {
@@ -254,7 +257,10 @@ const ContactForms = () => {
         phone: b2bForm.agentPhone.trim() || undefined,
         subject: `B2B Partnership: ${b2bForm.agencyName}`,
         message: b2bMessage,
-        locale: ['en', 'es', 'fr', 'de', 'ar', 'pt'].includes(i18n?.language) ? i18n.language : 'en',
+        locale: (() => {
+          const locale = String(i18n?.language || 'en').toLowerCase().split('-')[0];
+          return ['en', 'es', 'fr', 'de', 'ar', 'pt', 'it'].includes(locale) ? locale : 'en';
+        })(),
       });
 
       try {
@@ -264,10 +270,11 @@ const ContactForms = () => {
           phone: b2bForm.agentPhone.trim() || undefined,
           taxId: b2bForm.iataNumber.trim(),
           address: b2bForm.address.trim() || undefined,
-          website: b2bForm.website.trim() && b2bForm.website.startsWith('http') ? b2bForm.website.trim() : undefined,
+          website: b2bForm.website.trim() && b2bForm.website.startsWith('https://') ? b2bForm.website.trim() : undefined,
         });
-      } catch {
-        // Ignore duplicate agency error
+      } catch (agencyError) {
+        // A duplicate agency is idempotent; surface validation/server errors.
+        if (agencyError?.status !== 409) throw agencyError;
       }
 
       setB2bSubmitted(true);

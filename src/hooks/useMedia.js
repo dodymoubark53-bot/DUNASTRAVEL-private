@@ -34,7 +34,9 @@ export function useMedia(tourId = null) {
         }
       } catch (requestError) {
         if (isMounted) {
-          setError(requestError);
+          // Media is an optional catalog on older deployments. Treat a
+          // missing route as an empty gallery instead of breaking the page.
+          setError(requestError?.status === 404 ? null : requestError);
           setGalleryImages([]);
           setVideos([]);
         }

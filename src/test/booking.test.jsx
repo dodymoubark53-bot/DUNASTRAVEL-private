@@ -65,11 +65,14 @@ describe('Prompt 04: Booking Engine & Customer Inquiries Integration', () => {
     });
 
     expect(api.post).toHaveBeenCalledWith('/inquiries', expect.objectContaining({
-      tourTitle: 'Pyramids & Nile Luxury Cruise',
       fullName: 'Alice Smith',
       email: 'alice@luxury.com',
       phone: '+1234567890',
-      message: 'Interested in March 2027 trip.',
+      preferredLanguage: 'en',
+      destinations: ['Pyramids & Nile Luxury Cruise'],
+      adults: 1,
+      children: 0,
+      notes: 'Interested in March 2027 trip.',
     }));
   }, 20000);
 

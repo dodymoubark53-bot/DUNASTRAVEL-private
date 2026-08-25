@@ -34,7 +34,7 @@ export default function ReviewsMap({ tourId }) {
   const [submitError, setSubmitError] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({ bookingId: '', rating: 5, comment: '' });
+  const [form, setForm] = useState({ rating: 5, comment: '' });
 
   useEffect(() => {
     if (!tourId) return undefined;
@@ -77,10 +77,8 @@ export default function ReviewsMap({ tourId }) {
         rating: Number(form.rating),
         comment: form.comment,
       };
-      if (form.bookingId) payload.bookingId = form.bookingId;
-
       await api.post(`/tours/${encodeURIComponent(tourId)}/reviews`, payload);
-      setForm({ bookingId: '', rating: 5, comment: '' });
+      setForm({ rating: 5, comment: '' });
       setSubmitted(true);
     } catch (error) {
       setSubmitError(error?.message || t('reviews.submitError', 'Your review could not be submitted.'));
@@ -118,8 +116,6 @@ export default function ReviewsMap({ tourId }) {
           <h3 className="mb-6 text-center text-2xl font-medium">{t('tour.leaveReview', 'Write a Review')}</h3>
           {submitted && <div role="status" className="mb-6 flex gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm"><FaCheckCircle />{t('reviews.reviewSuccess', 'Review submitted successfully!')}</div>}
           {submitError && <div role="alert" className="mb-6 rounded-xl border border-red-300/40 bg-red-500/20 px-4 py-3 text-sm">{submitError}</div>}
-          <label htmlFor="review-booking-id" className="mb-1.5 block text-xs font-bold uppercase tracking-wider">{t('reviews.bookingId', 'Completed booking ID')} *</label>
-          <input id="review-booking-id" required value={form.bookingId} onChange={(event) => setForm((current) => ({ ...current, bookingId: event.target.value }))} className="mb-5 w-full rounded-xl border border-white/20 bg-white/10 p-3" />
           <p className="mb-1.5 text-xs font-bold uppercase tracking-wider">{t('reviews.rating', 'Rating')}</p>
           <div className="mb-5"><Stars rating={form.rating} onRate={(rating) => setForm((current) => ({ ...current, rating }))} /></div>
           <label htmlFor="review-body-text" className="mb-1.5 block text-xs font-bold uppercase tracking-wider">{t('reviews.reviewText', 'Your Review')} *</label>

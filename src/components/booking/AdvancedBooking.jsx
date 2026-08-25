@@ -117,7 +117,13 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
       }
       try {
         // api.post handles CSRF automatically
-        const data = await api.post('/bookings/calculate', { tourId, adults, children });
+        const data = await api.post('/bookings/calculate', {
+          tourId,
+          date: departureDate || todayStr,
+          adults,
+          children,
+          infants,
+        });
         if (data?.totalAmountUsd) {
           setCalculatedTotal(parseFloat(data.totalAmountUsd));
         }
@@ -126,7 +132,7 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
       }
     };
     fetchPrice();
-  }, [adults, children, infants, tourId, basePricePerPerson]);
+  }, [adults, children, infants, tourId, basePricePerPerson, departureDate, todayStr]);
 
   const getPassengerNames = () => {
     const names = {};
@@ -146,7 +152,7 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
     }
     setStatus('submitting');
     try {
-      const payload = {
+      const payload = Object.fromEntries(Object.entries({
         type: activeTab === 'booking' ? 'booking' : 'inquiry',
         tourTitle,
         tourId,
@@ -161,13 +167,13 @@ const AdvancedBooking = ({ onClose, tourTitle, basePricePerPerson, initialTab = 
         email,
         phone,
         inquiryMessage: activeTab === 'inquiry' ? message : '',
-        invoiceType,
+        invoiceType: invoiceType.toUpperCase(),
         companyName,
         taxId,
         address,
         city,
         country
-      };
+      }).filter(([, value]) => value !== undefined && value !== null && value !== ''));
       // api.post fetches CSRF token and sends it automatically
       const data = await api.post('/bookings', payload);
 

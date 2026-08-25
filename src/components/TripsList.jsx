@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import api from '../utils/api';
+import api, { readCollection } from '../utils/api';
 
 const TripsList = () => {
   const [trips, setTrips] = useState([]);
@@ -10,8 +10,7 @@ const TripsList = () => {
     const fetchTrips = async () => {
       try {
         // api.get unwraps the envelope; paginated response has .items
-        const data = await api.get('/tours');
-        const items = data?.items || (Array.isArray(data) ? data : []);
+        const items = readCollection(await api.get('/tours'), 'tours');
         // Map backend field names to what the component expects
         setTrips(
           items.map((t) => ({

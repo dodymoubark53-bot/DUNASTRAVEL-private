@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
+import { supportedLocale } from '../utils/locale';
 
 function readDestinations(response) {
-  if (!response || !Array.isArray(response.data) || !response.meta) {
+  const items = Array.isArray(response)
+    ? response
+    : Array.isArray(response?.items)
+      ? response.items
+      : Array.isArray(response?.data)
+        ? response.data
+        : null;
+  if (!items) {
     throw new Error('Invalid canonical destinations response');
   }
-  const items = response.data;
   return items.map((item) => {
     if (!item?.id || !item.slug || typeof item.title !== 'string') {
       throw new Error('Invalid destination catalog item');
@@ -26,7 +33,7 @@ function readDestinations(response) {
 
 export function useDestinations() {
   const { i18n } = useTranslation();
-  const lang = i18n.language || 'en';
+  const lang = supportedLocale(i18n.language);
   const [destinations, setDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

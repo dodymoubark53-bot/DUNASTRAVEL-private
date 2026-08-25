@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
+import { supportedLocale } from '../utils/locale';
 
 export function useCmsBlock(key) {
   const { i18n } = useTranslation();
-  const lang = i18n.language || 'en';
+  const lang = supportedLocale(i18n.language);
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);

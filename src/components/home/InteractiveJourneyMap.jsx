@@ -37,7 +37,7 @@ const getCurvePoints = (from, to, numPoints = 50) => {
   for (let i = 0; i <= numPoints; i++) {
     const t = i / numPoints;
     const lat = (1 - t) * (1 - t) * lat1 + 2 * (1 - t) * t * cLat + t * t * lat2;
-    const lng = (1 - t) * (1 - t) * lng1 + 2 * (1 - t) * t * cLng + t * t * lat2;
+    const lng = (1 - t) * (1 - t) * lng1 + 2 * (1 - t) * t * cLng + t * t * lng2;
     points.push([lat, lng]);
   }
   return points;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
+import { supportedLocale } from '../utils/locale';
 
 function normalizeLandingPage(value) {
   if (!value || !value.id || !value.slug || !value.title || !value.type || !Array.isArray(value.tours)) {
@@ -20,7 +21,7 @@ function normalizeLandingPage(value) {
 
 export function useLandingPage(slug, { destinationOnly = false } = {}) {
   const { i18n } = useTranslation();
-  const locale = i18n.language || 'en';
+  const locale = supportedLocale(i18n.language);
   const [landingPage, setLandingPage] = useState(null);
   const [loading, setLoading] = useState(Boolean(slug));
   const [error, setError] = useState(null);

@@ -1,12 +1,13 @@
 /**
  * analytics.js — First-party Visitor Event Tracking Client
- * Sends privacy-aware visitor events to POST /api/v1/analytics/events
+ * Sends privacy-aware visitor events to POST /api/analytics/events
  */
 
 const rawApiUrl = import.meta.env.DEV
   ? '/api'
   : import.meta.env.VITE_API_URL || 'https://dunastravel-backend-seven.vercel.app/api';
-const BASE_URL = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
+const normalizedApiUrl = String(rawApiUrl).replace(/\/+$/, '');
+const BASE_URL = normalizedApiUrl.endsWith('/api') ? normalizedApiUrl : `${normalizedApiUrl}/api`;
 
 function getSessionId() {
   if (typeof window === 'undefined') return null;
@@ -34,8 +35,11 @@ export async function trackEvent(eventName, payload = {}) {
   try {
     const sessionId = getSessionId();
     const deviceCategory = getDeviceCategory();
-    const locale = (typeof window !== 'undefined' && localStorage.getItem('i18nextLng')) || 'en';
-    const referrer = typeof document !== 'undefined' ? document.referrer : '';
+    const rawLocale = (typeof window !== 'undefined' && localStorage.getItem('i18nextLng')) || 'en';
+    const locale = ['en', 'ar', 'es', 'pt', 'it'].includes(rawLocale.split('-')[0].toLowerCase())
+      ? rawLocale.split('-')[0].toLowerCase()
+      : 'en';
+    const rawReferrer = typeof document !== 'undefined' ? document.referrer : '';
     const eventId = payload.eventId || generateEventId();
 
     const body = {
@@ -44,7 +48,7 @@ export async function trackEvent(eventName, payload = {}) {
       sessionId,
       deviceCategory,
       locale,
-      referrer,
+      ...(rawReferrer ? { referrer: rawReferrer } : {}),
       pathname: typeof window !== 'undefined' ? window.location.pathname : undefined,
       interfaceSlug: payload.interfaceSlug,
       tourSlug: payload.tourSlug,

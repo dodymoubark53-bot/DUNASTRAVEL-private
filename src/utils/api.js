@@ -17,7 +17,8 @@ const rawApiUrl = import.meta.env.DEV
   ? '/api'
   : import.meta.env.VITE_API_URL ||
     'https://dunastravel-backend-seven.vercel.app/api';
-const BASE_URL = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
+const normalizedApiUrl = String(rawApiUrl).replace(/\/+$/, '');
+const BASE_URL = normalizedApiUrl.endsWith('/api') ? normalizedApiUrl : `${normalizedApiUrl}/api`;
 
 // ── CSRF Token Cache ──────────────────────────────────────────────────────────
 let _csrfToken = null;
@@ -138,6 +139,19 @@ export function unwrap(body) {
   return body.data;
 }
 
+/**
+ * Reads a collection from either the current canonical pagination envelope
+ * ({ data: [], meta }) or the legacy paginated payload ({ items: [] }).
+ * The backend remains the source of pagination truth; this helper only
+ * normalizes the transport shape at the UI boundary.
+ */
+export function readCollection(response, label = 'collection') {
+  if (Array.isArray(response)) return response;
+  if (Array.isArray(response?.items)) return response.items;
+  if (Array.isArray(response?.data)) return response.data;
+  throw new Error(`Invalid ${label} response`);
+}
+
 // ── Auth Refresh & Event Management ─────────────────────────────────────────
 let _isRefreshing = false;
 let _refreshSubscribers = [];
@@ -199,11 +213,17 @@ export async function apiRequest(path, options = {}, { raw = false, _retry = fal
   // Build headers
   const guestToken = getOrCreateGuestToken();
   const requestId = options.headers?.['x-request-id'] || createClientRequestId('req');
+  // The currently deployed API does not advertise X-Request-Id in its CORS
+  // preflight response. Keep the header for local development and explicit
+  // callers, but omit it from ordinary production browser requests so older
+  // deployments remain compatible. The backend generates its own correlation
+  // ID when the header is absent.
+  const shouldSendRequestId = Boolean(import.meta.env?.DEV || options.headers?.['x-request-id']);
 
   const headers = {
     'Content-Type': 'application/json',
-    'x-request-id': requestId,
     ...(guestToken ? { 'x-guest-token': guestToken } : {}),
+    ...(shouldSendRequestId ? { 'x-request-id': requestId } : {}),
     ...options.headers,
   };
 

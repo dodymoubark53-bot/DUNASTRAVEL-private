@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { FaTimes, FaFileInvoiceDollar, FaPrint } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import api from '../../utils/api';
+import { normalizeInvoiceResponse } from '../../utils/invoice';
 
 const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoiceNumber, onClose }) => {
   const { t, i18n } = useTranslation();
@@ -42,7 +43,9 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  const booking = invoiceData ? { ...initialBooking, ...invoiceData } : initialBooking;
+  const booking = invoiceData
+    ? normalizeInvoiceResponse({ ...initialBooking, ...invoiceData })
+    : normalizeInvoiceResponse(initialBooking);
 
   const rawDate = booking.createdAt || booking.date || booking.issueDate;
   const d = rawDate ? new Date(rawDate) : new Date();
@@ -51,10 +54,17 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
 
   const passengerList = [];
   if (booking.passengerNames || booking.passengers) {
-    const names = typeof booking.passengerNames === 'object' ? booking.passengerNames : (Array.isArray(booking.passengers) ? booking.passengers : {});
-    Object.entries(names).forEach(([, name]) => {
-      if (name) passengerList.push(name);
-    });
+    const names = typeof booking.passengerNames === 'object' ? booking.passengerNames : booking.passengers;
+    if (Array.isArray(names)) {
+      names.forEach((passenger) => {
+        const name = typeof passenger === 'string' ? passenger : passenger?.fullName;
+        if (name) passengerList.push(name);
+      });
+    } else {
+      Object.entries(names || {}).forEach(([, name]) => {
+        if (name) passengerList.push(name);
+      });
+    }
   }
 
   const handlePrint = () => window.print();

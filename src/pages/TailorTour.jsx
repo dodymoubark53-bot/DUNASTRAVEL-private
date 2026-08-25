@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
+import { supportedLocale } from '../utils/locale';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlane, FaWhatsapp, FaPhone, FaFacebookF, FaInstagram } from 'react-icons/fa';
 import Button from '../components/ui/Button';
@@ -159,7 +160,12 @@ const TailorTour = () => {
         fullName,
         email,
         phone,
-        preferredLanguage: ['en', 'es', 'fr', 'de', 'it', 'ar', 'pt'].includes(i18n.language?.toLowerCase()) ? i18n.language.toLowerCase() : 'en',
+        preferredLanguage: (() => {
+          const language = String(i18n.language || 'en').toLowerCase().split('-')[0];
+          return ['en', 'es', 'fr', 'de', 'it', 'ar', 'pt'].includes(language)
+            ? language
+            : supportedLocale(language);
+        })(),
         destinations: selectedDestinations.length > 0 ? selectedDestinations : ['Custom Experience'],
         startDate: travelDate || undefined,
         adults: adults || 1,

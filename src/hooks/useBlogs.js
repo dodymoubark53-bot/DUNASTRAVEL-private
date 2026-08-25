@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
+import { supportedLocale } from '../utils/locale';
 
 /**
  * Hook to fetch blog posts from GET /api/blogs with resilient fallback
@@ -8,7 +9,7 @@ import api from '../utils/api';
  */
 export function useBlogs(filters = {}) {
   const { i18n } = useTranslation();
-  const lang = i18n.language || 'en';
+  const lang = supportedLocale(i18n.language);
 
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,11 +32,16 @@ export function useBlogs(filters = {}) {
         });
 
         const res = await api.get(`/blogs?${params.toString()}`);
-        let items = null;
-        if (Array.isArray(res)) items = res;
-        else if (res && Array.isArray(res.data)) items = res.data;
-        else if (res && Array.isArray(res.items)) items = res.items;
-        if (!items) throw new Error('Invalid blogs response');
+        const items = Array.isArray(res)
+          ? res
+          : Array.isArray(res?.items)
+            ? res.items
+            : Array.isArray(res?.data)
+              ? res.data
+              : null;
+        if (!items) {
+          throw new Error('Invalid canonical blogs response');
+        }
 
         if (isMounted) {
           setBlogs(items);

@@ -108,7 +108,7 @@ const Contact = () => {
                   phone: phone || undefined,
                   subject: 'Contact Form Submission',
                   message: message.length >= 10 ? message : `${message} (Inquiry)`,
-                  locale: i18n.language || 'en',
+                  locale: String(i18n.language || 'en').toLowerCase().split('-')[0],
                 };
                 await api.post('/contact', payload);
                 alert(t('contact.success', 'Your message has been sent successfully.'));

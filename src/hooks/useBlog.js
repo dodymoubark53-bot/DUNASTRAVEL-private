@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
+import { supportedLocale } from '../utils/locale';
 
 /**
  * Hook to fetch a single blog post by slug from GET /api/blogs/:slug with resilient fallback
@@ -8,7 +9,7 @@ import api from '../utils/api';
  */
 export function useBlog(slug) {
   const { i18n } = useTranslation();
-  const lang = i18n.language || 'en';
+  const lang = supportedLocale(i18n.language);
 
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);

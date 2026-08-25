@@ -24,7 +24,7 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
     const mockTours = [
       { id: 't-1', slug: 'grand-pyramids', title: 'Grand Pyramids', category: 'classic', basePriceUsd: 1500 },
     ];
-    vi.spyOn(api, 'get').mockResolvedValue({ data: mockTours, meta: { total: 1, page: 1, limit: 5, totalPages: 1 } });
+    vi.spyOn(api, 'get').mockResolvedValue({ items: mockTours, total: 1, page: 1, limit: 5, totalPages: 1 });
 
     const { result } = renderHook(() => useTours({ destination: 'egypt', category: 'classic', limit: 5 }));
 
@@ -86,7 +86,7 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
     vi.spyOn(api, 'get').mockResolvedValue({ data: mockReviews, ratingSummary: { averageRating: 5, totalReviews: 1 } });
     vi.spyOn(api, 'post').mockResolvedValue({ success: true });
 
-    const tourId = '11111111-1111-4111-8111-111111111111';
+    const tourId = 'grand-pyramids';
     render(<ReviewsMap tourId={tourId} />);
 
     await waitFor(() => {
@@ -95,24 +95,19 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
 
     expect(api.get).toHaveBeenCalledWith(`/tours/${tourId}/reviews`);
 
-    // Submit review form
-    const bookingInput = screen.getByLabelText(/Completed booking ID/i);
     const reviewInput = screen.getByLabelText(/Your Review/i);
-    fireEvent.change(bookingInput, { target: { value: '22222222-2222-4222-8222-222222222222' } });
     fireEvent.change(reviewInput, { target: { value: 'Unforgettable tour!' } });
 
     await waitFor(() => {
-      expect(bookingInput.value).toBe('22222222-2222-4222-8222-222222222222');
       expect(reviewInput.value).toBe('Unforgettable tour!');
     });
 
-    const formElement = bookingInput.closest('form');
+    const formElement = reviewInput.closest('form');
     fireEvent.submit(formElement);
 
     // The API is authoritative: no pending review is inserted into the list.
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith(`/tours/${tourId}/reviews`, {
-        bookingId: '22222222-2222-4222-8222-222222222222',
         rating: 5,
         comment: 'Unforgettable tour!',
       });

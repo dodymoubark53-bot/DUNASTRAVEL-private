@@ -552,7 +552,9 @@ const ServiceDetails = () => {
       )}
 
       {/* Testimonials Section */}
-      <ReviewsMap tourId={slug} />
+      {service?.id && !['hotels', 'transportation'].includes(service.category) && (
+        <ReviewsMap tourId={service.slug} />
+      )}
 
       {/* Related Services */}
       {relatedServices.length > 0 && (

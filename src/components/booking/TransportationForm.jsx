@@ -5,12 +5,14 @@ import { useTranslation } from 'react-i18next';
 import Button from '../ui/Button';
 import { fadeInUp } from '../../animations/variants';
 import { useServices } from '../../hooks/useServices';
+import { useAuth } from '../../context/AuthContext';
 import InvoiceModal from './InvoiceModal';
 import api from '../../utils/api';
 
 const TransportationForm = ({ preSelectedVehicleId = '' }) => {
   const { t } = useTranslation();
   const { services: transportation } = useServices('transportation');
+  const { user } = useAuth();
   const [status, setStatus] = useState('idle');
   const [bookingResult, setBookingResult] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
@@ -45,42 +47,23 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
     e.preventDefault();
     if (formData.tripDate && formData.tripDate < todayStr) return;
     setError('');
+    if (!user) {
+      setError(t('auth.loginRequired', 'Please sign in before requesting transportation.'));
+      return;
+    }
     setStatus('submitting');
     try {
       const passengerCount = (parseInt(formData.adults) || 1) + (parseInt(formData.children) || 0);
       const transportPayload = {
-        serviceId: formData.vehicleId || 'std-trans',
-        pickupDate: new Date(formData.tripDate).toISOString(),
+        serviceId: formData.vehicleId,
+        pickupDate: formData.tripDate,
         pickupTime: formData.pickupTime || '09:00',
         pickupLocation: formData.pickupLocation,
         dropoffLocation: formData.dropoffLocation,
         passengerCount,
       };
 
-      const genericPayload = {
-        type: 'transport',
-        tourTitle: `Transport: ${formData.pickupLocation} → ${formData.dropoffLocation}`,
-        vehicleId: formData.vehicleId,
-        tripDate: formData.tripDate,
-        pickupTime: formData.pickupTime,
-        adults: parseInt(formData.adults) || 1,
-        children: parseInt(formData.children) || 0,
-        pickupLocation: formData.pickupLocation,
-        dropoffLocation: formData.dropoffLocation,
-        fullName: formData.fullName,
-        phone: formData.phone,
-        email: formData.email,
-        specialRequest: formData.specialRequest,
-        totalAmount: 0,
-        currency: 'USD'
-      };
-
-      let data;
-      try {
-        data = await api.post('/transportation/bookings', transportPayload);
-      } catch {
-        data = await api.post('/bookings', genericPayload);
-      }
+      const data = await api.post('/transportation/bookings', transportPayload);
 
       setBookingResult(data);
       setStatus('success');

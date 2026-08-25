@@ -9,7 +9,6 @@ import { useServices } from '../hooks/useServices';
 import SkeletonLoader from '../components/ui/SkeletonLoader';
 import ErrorState from '../components/ui/ErrorState';
 import { useCurrency } from '../context/CurrencyContext';
-import ReviewsMap from '../components/tour/ReviewsMap';
 import { resolveLocalizedText } from '../utils/titleHelper';
 
 const Services = () => {
@@ -297,8 +296,6 @@ const Services = () => {
         )}
       </section>
 
-      {/* Testimonials Section */}
-      <ReviewsMap tourId={service || 'services-global'} />
     </div>
   );
 };
