@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  FaClock, FaTag, FaUsers, FaChevronRight, FaCheck, FaTimes, FaMapMarkerAlt, FaBed, FaCheckCircle
+  FaClock, FaTag, FaUsers, FaChevronRight, FaCheck, FaTimes, FaCheckCircle
 } from 'react-icons/fa';
 import TourCard from '../../components/tour/TourCard';
 import AdvancedBooking from '../../components/booking/AdvancedBooking';
@@ -17,144 +17,87 @@ const fadeInUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
 };
 
-const CLASSIC_PROGRAM_DATA = {
-  id: 'classic-program',
-  slug: 'classic-program',
-  title: 'Classic Egypt Tour: Cairo & 5-Star Nile Cruise',
-  titleAr: 'البرنامج الكلاسيكي: القاهرة وكروز النيل 5 نجوم',
-  subtitle: '8 Days / 7 Nights • Cairo, Pyramids, GEM, Luxor, Edfu, Kom Ombo & Aswan',
-  subtitleAr: '8 أيام / 7 ليالي • القاهرة، الأهرامات، المتحف الكورني، الأقصر، إدفو، كوم أمبو وأسوان',
-  overview: 'Experience the timeless beauty of Egypt with our signature classic itinerary. Explore the Pyramids of Giza, the Grand Egyptian Museum, and sail along the Nile on a luxury 5-star cruise visiting Luxor, Karnak, Edfu, Kom Ombo, Philae Temple, and Abu Simbel.',
-  overviewAr: 'استمتع بسحر مصر الخالد مع برنامجنا الكلاسيكي المميز. اكتشف أهرامات الجيزة والمتحف المصري الكبير، وقم بالإبحار في نهر النيل على متن كروز فاخر 5 نجوم ممرًا بالأقصر، الكرنك، إدفو، كوم أمبو، معبد فيلة وأبو سمبل.',
-  duration: '8 Days / 7 Nights',
-  durationAr: '8 أيام / 7 ليالي',
-  type: 'Classic / Cruise & City',
-  groupSize: '2-16 Pax',
-  price: 0,
-  images: [
-    'https://res.cloudinary.com/degbrq3ck/image/upload/v1783029636/Classic_Program_gfal0s.jpg',
-    'https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1572252821143-035a024856f2?auto=format&fit=crop&w=1200&q=80'
-  ],
-  highlights: [
-    'Pyramids of Giza, Sphinx, Memphis & Sakkara',
-    'Grand Egyptian Museum (GEM) & Alabaster Mosque',
-    '5-Star Nile Cruise from Luxor to Aswan (4 Nights)',
-    'Valley of the Kings, Hatshepsut Temple & Colossi of Memnon',
-    'Edfu Temple of Horus & Kom Ombo Temple of Sobek',
-    'Philae Temple of Isis, High Dam & Abu Simbel Temples'
-  ],
-  highlightsAr: [
-    'أهرامات الجيزة، أبو الهول، ممفيس وسقارة',
-    'المتحف المصري الكبير ومسجد الفيروز والقلعة',
-    'كروز فاخر 5 نجوم في النيل من الأقصر إلى أسوان (4 ليالي)',
-    'وادي الملوك، معبد حتشبسوت وتمثالا ممنون',
-    'معبد حورس بإدفو ومعبد سوبيك بكوم أمبو',
-    'معبد فيلة، السد العالي ومعابد أبو سمبل'
-  ],
-  included: [
-    'VIP Airport Assistance & Transfers throughout',
-    'Entry Visa to Egypt included',
-    'Domestic Flights (Cairo-Luxor & Aswan-Cairo)',
-    '3 Nights in 5-Star Cairo Hotel with Daily Breakfast',
-    '4 Nights on 5-Star Luxury Nile Cruise with Full Board',
-    'All Sightseeing Tours with Certified English/Arabic Speaking Guide',
-    'Entrance Fees to all listed archaeological sites'
-  ],
-  includedAr: [
-    'استقبال ومساعدة VIP والتنقلات طوال الرحلة',
-    'تأشيرة الدخول لمصر شاملة',
-    'الطيران الداخلي (القاهرة-الأقصر وأسوان-القاهرة)',
-    'إقامة 3 ليالي في فندق 5 نجوم بالقاهرة مع الإفطار',
-    'إقامة 4 ليالي على متن كروز فاخر 5 نجوم بالنيل مع إقامة كاملة',
-    'جميع الجولات السياحية مع مرشد سياحي مرخص',
-    'رسوم الدخول لجميع المواقع الأثرية المذكورة'
-  ],
-  excluded: [
-    'International Airfare',
-    'Beverages during meals & cruise',
-    'Tipping & Gratuities',
-    'Optional Excursions'
-  ],
-  excludedAr: [
-    'الطيران الدولي',
-    'المشروبات أثناء الوجبات والكروز',
-    'الإكراميات',
-    'الجولات الاختيارية'
-  ],
-  itinerary: [
+const CLASSIC_IMAGES = [
+  'https://res.cloudinary.com/degbrq3ck/image/upload/v1783029636/Classic_Program_gfal0s.jpg',
+  'https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1572252821143-035a024856f2?auto=format&fit=crop&w=1200&q=80'
+];
+
+export default function ClassicProgramDetails() {
+  const { t } = useTranslation();
+
+  const title = t('data.completoEgypt.title', 'Egito Completo');
+  const overview = t('data.completoEgypt.overview', 'Uma viagem completa de 8 dias pelos maiores tesouros do Egito.');
+  const duration = t('data.completoEgypt.duration', '8 Dias / 7 Noites');
+  const tourType = t('data.completoEgypt.type', 'Tour Completo pelo Egito');
+
+  const highlights = useMemo(() => [
+    t('data.completoEgypt.highlight.1', 'Pirâmides de Gizé e Esfinge com visita ao interior da pirâmide'),
+    t('data.completoEgypt.highlight.2', 'Cairo antigo, Khan El Khalili e Café dos Espelhos'),
+    t('data.completoEgypt.highlight.3', 'Cidadela de Saladino, Mesquita de Alabastro e Museu Egípcio'),
+    t('data.completoEgypt.highlight.4', 'Templo de Luxor, Templo de Karnak e Vale dos Reis'),
+    t('data.completoEgypt.highlight.5', 'Templo de Edfu e Templo de Kom Ombo'),
+    t('data.completoEgypt.highlight.6', 'Templos de Abu Simbel, Represa de Assuã e Templo de Filae')
+  ], [t]);
+
+  const included = useMemo(() => [
+    t('data.completoEgypt.incl.1', 'Todos os transfers, desde a chegada até a saída'),
+    t('data.completoEgypt.incl.2', 'Visto e assistência desde o primeiro momento'),
+    t('data.completoEgypt.incl.3', 'Guia em seu idioma para todas as visitas'),
+    t('data.completoEgypt.incl.4', '3 ou 4 noites de hotel no Cairo'),
+    t('data.completoEgypt.incl.5', '3 ou 4 noites de cruzeiro pelo Nilo'),
+    t('data.completoEgypt.incl.6', 'Pensão completa desde o jantar do dia de chegada ao café da manhã do dia de saída'),
+    t('data.completoEgypt.incl.7', 'Voos domésticos entre Cairo-Luxor e Assuã-Cairo'),
+    t('data.completoEgypt.incl.8', 'Taxas portuárias e gorjetas')
+  ], [t]);
+
+  const excluded = useMemo(() => [
+    t('data.completoEgypt.excl.1', 'Bebidas')
+  ], [t]);
+
+  const itinerary = useMemo(() => [
     {
       day: 1,
-      title: 'Arrival in Cairo - Welcome to Egypt',
-      titleAr: 'الوصول إلى القاهرة - الترحيب في مصر',
-      description: 'Arrival at Cairo International Airport. Our VIP representative will greet you before passport control, assist with visa issuance and luggage, and transfer you to your 5-star hotel in Cairo.',
-      descriptionAr: 'الوصول إلى مطار القاهرة الدولي. مندوبنا سيكون في استقبالكم قبل مراقبة الجوازات للمساعدة في التأشيرة والأمتعة والانتقال بالفندق.'
+      title: t('data.completoEgypt.day1.title', 'Chegada ao Cairo'),
+      description: t('data.completoEgypt.day1.desc')
     },
     {
       day: 2,
-      title: 'Giza Pyramids, Sphinx, Memphis & Sakkara',
-      titleAr: 'أهرامات الجيزة، أبو الهول، ممفيس وسقارة',
-      description: 'Breakfast at hotel. Marvel at the Great Pyramids of Cheops, Chephren, and Mykerinos. Visit the Sphinx, Papyrus Institute, Memphis (the ancient capital), and Sakkara Step Pyramid.',
-      descriptionAr: 'الإفطار بالفندق. زيارة أهرامات الجيزة الخالدة، تمثال أبو الهول، معهد البردي، مدينة ممفيس القديمة وهرم سقارة المدرج.'
+      title: t('data.completoEgypt.day2.title', 'Pirâmides, Esfinge e Mêmfis'),
+      description: t('data.completoEgypt.day2.desc')
     },
     {
       day: 3,
-      title: 'Grand Egyptian Museum, Citadel & Khan El Khalili',
-      titleAr: 'المتحف المصري الكبير، القلعة وخان الخليلي',
-      description: 'Discover the Grand Egyptian Museum (GEM), the Citadel of Saladin, the Mohamed Ali Alabaster Mosque, the Coptic Cairo Quarter, and stroll through Khan El Khalili Bazaar.',
-      descriptionAr: 'جولة إلى المتحف المصري الكبير، قلعة صلاح الدين، مسجد محمد علي باشا، القاهرة القبطية والتسوق في خان الخليلي.'
+      title: t('data.completoEgypt.day3.title', 'Tour pelo Cairo'),
+      description: t('data.completoEgypt.day3.desc')
     },
     {
       day: 4,
-      title: 'Fly to Luxor - Embarkation on 5-Star Nile Cruise & East Bank',
-      titleAr: 'الطيران إلى الأقصر - الصعود على الكروز والبر الشرقي',
-      description: 'Flight from Cairo to Luxor. Transfer to your 5-Star Luxury Nile Cruise ship. After lunch on board, explore Karnak Temple Complex and Luxor Temple.',
-      descriptionAr: 'السفر طيراناً إلى الأقصر والتسكين على متن كروز النيل 5 نجوم. بعد الغداء زيارة مجمع معابد الكرنك ومعبد الأقصر.'
+      title: t('data.completoEgypt.day4.title', 'Voo para Luxor e Cruzeiro no Nilo'),
+      description: t('data.completoEgypt.day4.desc')
     },
     {
       day: 5,
-      title: 'Luxor West Bank: Valley of the Kings & Sail to Edfu',
-      titleAr: 'البر الغربي بالأقصر: وادي الملوك والإبحار لإدفو',
-      description: 'Visit the Valley of the Kings, Mortuary Temple of Queen Hatshepsut, and the Colossi of Memnon. Return to ship, lunch on board, and sail towards Edfu through Esna Lock.',
-      descriptionAr: 'زيارة وادي الملوك، معبد الملكة حتشبسوت وتمثالا ممنون. العودة للكروز للغداء والإبحار باتجاه إدفو عبر هويس إسنا.'
+      title: t('data.completoEgypt.day5.title', 'Karnak e Vale dos Reis'),
+      description: t('data.completoEgypt.day5.desc')
     },
     {
       day: 6,
-      title: 'Edfu & Kom Ombo Temples - Sail to Aswan',
-      titleAr: 'معبدا إدفو وكوم أمبو - الإبحار إلى أسوان',
-      description: 'Visit Edfu Temple dedicated to Horus by horse carriage. Sail to Kom Ombo and visit the twin temple of Sobek & Haroeris. Continue sailing to Aswan.',
-      descriptionAr: 'زيارة معبد حورس بإدفو بالحطور، ثم الإبحار إلى كوم أمبو لزيارة معبد سوبيك وهارويريس المزدوج ومواصلة الإبحار لأسوان.'
+      title: t('data.completoEgypt.day6.title', 'Edfu e Kom Ombo'),
+      description: t('data.completoEgypt.day6.desc')
     },
     {
       day: 7,
-      title: 'Abu Simbel Excursion, Philae Temple & Felucca Ride',
-      titleAr: 'رحلة أبو سمبل، معبد فيلة وجولة بالفلوكة',
-      description: 'Overland excursion to the iconic Temples of Abu Simbel. Return to Aswan to visit the Philae Temple of Isis and the Aswan High Dam. Enjoy a sunset felucca sailboat ride on the Nile.',
-      descriptionAr: 'رحلة إلى معابدا أبو سمبل العظيمة. العودة لأسوان لزيارة معبد فيلة والسد العالي، والاستمتاع بجولة الفلوكة في النيل عند الغروب.'
+      title: t('data.completoEgypt.day7.title', 'Abu Simbel e Assuã'),
+      description: t('data.completoEgypt.day7.desc')
     },
     {
       day: 8,
-      title: 'Disembarkation, Flight to Cairo & International Departure',
-      titleAr: 'مغادرة الكروز، الطيران للقاهرة والمغادرة الدولية',
-      description: 'Breakfast on cruise, transfer to Aswan Airport for flight back to Cairo, and connection for your final international departure flight.',
-      descriptionAr: 'الإفطار وتنسيق المغادرة إلى مطار أسوان للطيران للقاهرة والمغادرة للوطن.'
+      title: t('data.completoEgypt.day8.title', 'Partida do Cairo'),
+      description: t('data.completoEgypt.day8.desc')
     }
-  ]
-};
-
-export default function ClassicProgramDetails() {
-  const { t, i18n } = useTranslation();
-  const lang = i18n.language || 'en';
-  const isAr = lang === 'ar';
-
-  const title = isAr ? CLASSIC_PROGRAM_DATA.titleAr : CLASSIC_PROGRAM_DATA.title;
-  const subtitle = isAr ? CLASSIC_PROGRAM_DATA.subtitleAr : CLASSIC_PROGRAM_DATA.subtitle;
-  const overview = isAr ? CLASSIC_PROGRAM_DATA.overviewAr : CLASSIC_PROGRAM_DATA.overview;
-  const duration = isAr ? CLASSIC_PROGRAM_DATA.durationAr : CLASSIC_PROGRAM_DATA.duration;
-  const highlights = isAr ? CLASSIC_PROGRAM_DATA.highlightsAr : CLASSIC_PROGRAM_DATA.highlights;
-  const included = isAr ? CLASSIC_PROGRAM_DATA.includedAr : CLASSIC_PROGRAM_DATA.included;
-  const excluded = isAr ? CLASSIC_PROGRAM_DATA.excludedAr : CLASSIC_PROGRAM_DATA.excluded;
+  ], [t]);
 
   const shuffledTours = useMemo(() => [...tours].sort(() => Math.random() - 0.5), []);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -219,7 +162,7 @@ export default function ClassicProgramDetails() {
             transition={{ delay: 0.1 }}
             className="text-body-lg text-gold-400 font-medium tracking-wide"
           >
-            {subtitle}
+            {duration}
           </motion.p>
         </div>
       </section>
@@ -230,7 +173,7 @@ export default function ClassicProgramDetails() {
         onClick={() => setIsLightboxOpen(true)}
       >
         <motion.img
-          src={CLASSIC_PROGRAM_DATA.images[0]}
+          src={CLASSIC_IMAGES[0]}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
           loading="eager"
@@ -253,12 +196,12 @@ export default function ClassicProgramDetails() {
             <div className="p-6 flex flex-col items-center justify-center text-center gap-2">
               <FaTag className="text-gold-500 text-2xl mb-1" />
               <span className="text-caption text-obsidian-500 uppercase text-xs">{t('tour.tourType', 'Tour Type')}</span>
-              <span className="text-body-md font-semibold text-obsidian-900">{CLASSIC_PROGRAM_DATA.type}</span>
+              <span className="text-body-md font-semibold text-obsidian-900">{tourType}</span>
             </div>
             <div className="p-6 flex flex-col items-center justify-center text-center gap-2">
               <FaUsers className="text-gold-500 text-2xl mb-1" />
               <span className="text-caption text-obsidian-500 uppercase text-xs">{t('tour.groupSize', 'Group Size')}</span>
-              <span className="text-body-md font-semibold text-obsidian-900">{CLASSIC_PROGRAM_DATA.groupSize}</span>
+              <span className="text-body-md font-semibold text-obsidian-900">2-16 Pax</span>
             </div>
           </div>
         </div>
@@ -307,7 +250,7 @@ export default function ClassicProgramDetails() {
               <div className="relative max-w-full">
                 <div className="absolute left-[1.1rem] rtl:left-auto rtl:right-[1.1rem] top-0 bottom-0 w-1 bg-gold-400" />
                 <div className="space-y-6">
-                  {CLASSIC_PROGRAM_DATA.itinerary.map((day) => (
+                  {itinerary.map((day) => (
                     <div key={day.day} className="relative pl-10 rtl:pl-0 rtl:pr-10 md:pl-12 md:rtl:pr-12">
                       <div className="absolute left-[0.1rem] rtl:left-auto rtl:right-[0.1rem] top-1 w-8 h-8 rounded-full bg-gold-500 text-white flex items-center justify-center text-sm font-bold shadow-md z-10">
                         {day.day}
@@ -319,12 +262,12 @@ export default function ClassicProgramDetails() {
                             {t('tour.day', 'Day')} {day.day}
                           </span>
                           <span className="text-body-sm text-obsidian-600 font-medium">
-                            {isAr ? day.titleAr : day.title}
+                            {day.title}
                           </span>
                         </div>
 
                         <p className="text-body-sm text-obsidian-600 leading-relaxed">
-                          {isAr ? day.descriptionAr : day.description}
+                          {day.description}
                         </p>
                       </div>
                     </div>
@@ -367,7 +310,7 @@ export default function ClassicProgramDetails() {
             </motion.div>
 
             {/* Route Map */}
-            <RouteMap itinerary={CLASSIC_PROGRAM_DATA.itinerary} />
+            <RouteMap itinerary={itinerary} />
           </div>
 
           {/* Sticky Sidebar Booking Column */}
@@ -380,7 +323,7 @@ export default function ClassicProgramDetails() {
       </section>
 
       {/* Reviews Map */}
-      <ReviewsMap tourId="classic-program" />
+      <ReviewsMap tourId="complete-egypt-8d" />
 
       {/* Related Tours Carousel */}
       <section className="container mx-auto px-6 py-24">
@@ -433,7 +376,7 @@ export default function ClassicProgramDetails() {
               ✕
             </button>
             <img
-              src={CLASSIC_PROGRAM_DATA.images[0]}
+              src={CLASSIC_IMAGES[0]}
               alt={title}
               className="max-w-[90vw] max-h-[90vh] object-contain"
               onClick={(e) => e.stopPropagation()}
