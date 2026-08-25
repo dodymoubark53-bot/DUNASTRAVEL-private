@@ -16,8 +16,7 @@ import { useTours } from '../../hooks/useTours';
 import { trackEvent } from '../../utils/analytics';
 import ReviewsMap from '../../components/tour/ReviewsMap';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
-import ErrorState from '../../components/ui/ErrorState';
-import { resolveLocalizedText } from '../../utils/titleHelper';
+import { resolveTourTitle, resolveTourDuration, resolveTourOverview, resolveLocalizedText } from '../../utils/titleHelper';
 
 import SEOHead from '../../components/seo/SEOHead';
 
@@ -78,9 +77,9 @@ const TourDetails = () => {
     );
   }
 
-  const title = tour.title;
-  const overview = tour.overview;
-  const duration = tour.duration;
+  const title = resolveTourTitle(tour, t, lang);
+  const overview = resolveTourOverview(tour, t, lang);
+  const duration = resolveTourDuration(tour, t, lang);
   const heroImg = tour.images[0] || null;
 
   const tourSchema = {
