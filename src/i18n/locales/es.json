@@ -5548,5 +5548,52 @@
   "tunisia_tour_title": "Circuito Túnez Verde Premium - 8 Días / 7 Noches",
   "Circuito Túnez - 8 Días / 7 Noches": "Circuito Túnez Verde Premium - 8 Días / 7 Noches",
   "برنامج تونس الخضراء المتميز": "Circuito Túnez Verde Premium - 8 Días / 7 Noches",
-  "tunisia_tour_overview": "Embárquese en un viaje extraordinario de 8 días que combina a la perfección la grandeza romana antigua, el rico legado islámico y la belleza sobrecogedora del desierto del Sahara. Este programa seleccionado le llevará desde la vibrante capital de Túnez hasta las vastas dunas doradas del sur, ofreciendo una experiencia prémium diseñada para todo tipo de grupos."
+  "tunisia_tour_overview": "Embárquese en un viaje extraordinario de 8 días que combina a la perfección la grandeza romana antigua, el rico legado islámico y la belleza sobrecogedora del desierto del Sahara. Este programa seleccionado le llevará desde la vibrante capital de Túnez hasta las vastas dunas doradas del sur, ofreciendo una experiencia prémium diseñada para todo tipo de grupos.",
+  "dest": {
+    "jordan": {
+      "seoTitle": "Viajes de Lujo en Jordania | Dunas Travel",
+      "seoDesc": "Explore itinerarios exclusivos en Jordania. Visite Petra, Wadi Rum, Mar Muerto, Amán y Aqaba.",
+      "title": "Jordania",
+      "subtitle": "El reino rosa",
+      "desc": "Desde la ciudad rosa de Petra hasta el desierto místico de Wadi Rum y las aguas curativas del Mar Muerto, Jordania es una tierra de maravillas atemporales.",
+      "brief": "Jordania es un tesoro de historia antigua y belleza natural. Nuestros programas le llevan desde las bulliciosas calles de Amán hasta los silenciosos desiertos de Wadi Rum, las magníficas ruinas de Petra y las reconstituyentes costas del Mar Muerto y el Mar Rojo.",
+      "ourPrograms": "Nuestros Programas",
+      "hotelsTitle": "Alojamiento",
+      "hotelsDesc": "Según disponibilidad, alojamiento en uno de los siguientes hoteles en cada destino.",
+      "hotelCities": {
+        "amman": "Amán",
+        "petra": "Petra",
+        "wadiRum": "Wadi Rum",
+        "aqaba": "Aqaba",
+        "deadSea": "Mar Muerto"
+      },
+      "hotelListAmman": "Hotel Mana / Landmark / Amman Sham Classic o similar",
+      "hotelListPetra": "Petra Moon / Petra Castle / Petra Palace o similar",
+      "hotelListWadiRum": "Campamento Desert Wadi Rum / Al Hybat Camp / Oasis Saturn Camp o similar",
+      "hotelListAqaba": "Aqaba Gulf / Mena City Center / Golden Beach Hotel o similar",
+      "hotelListDeadSea": "Dead Sea Spa Hotel / Ramada Resort Dead Sea o similar",
+      "includesList": [
+        "Asistencia en el aeropuerto de Amán por nuestro representante con visado gratuito de grupo.",
+        "Traslados en vehículos modernos con aire acondicionado según el número de pasajeros.",
+        "Guía de habla hispana durante todo el recorrido para grupos de 6 o más personas.",
+        "Entradas a todos los lugares turísticos indicados en el itinerario.",
+        "Excursión en 4x4 de 2 horas por el desierto de Wadi Rum.",
+        "Alojamiento en hoteles seleccionados en régimen de media pensión (desayuno y cena)."
+      ],
+      "excludesList": [
+        "Vuelos internacionales y domésticos.",
+        "Bebidas durante las comidas y propinas obligatorias para guía y chófer.",
+        "Gastos personales, seguros de viaje o cualquier servicio no especificado."
+      ],
+      "childrenTitle": "Política de Niños",
+      "children_0to2": "Niños de 0 a 2 años: Gratis.",
+      "children_3to10": "Niños de 3 a 10 años: 50% de descuento compartiendo habitación con adultos.",
+      "children_11plus": "Niños a partir de 11 años: Pagan tarifa completa de adulto.",
+      "cancellationTitle": "Política de Cancelación",
+      "cancellationHighSeason": "Temporada Alta: Cancelación requerida con 30 días de antelación para evitar gastos.",
+      "cancellationLowSeason": "Temporada Baja: Cancelación requerida con 15 días de antelación.",
+      "visaTitle": "Política de Visado y Notas",
+      "mandatoryFees": "* Tasas administrativas y visado gratuito de grupo sujeto a recepción de pasaportes 7 días antes."
+    }
+  }
 }

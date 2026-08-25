@@ -76,6 +76,8 @@ const Contact = lazy(() => import("./pages/Contact"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Destinations = lazy(() => import("./pages/destinations/Destinations"));
 const LandingPageDetails = lazy(() => import("./pages/destinations/LandingPageDetails"));
+const Jordania = lazy(() => import("./pages/destinations/Jordania"));
+const JordanProgramDetails = lazy(() => import("./pages/programs/JordanProgramDetails"));
 const TourDetails = lazy(() => import("./pages/tours/TourDetails"));
 const BlogDetails = lazy(() => import("./pages/blogs/BlogDetails"));
 const ServiceDetails = lazy(() => import("./pages/services/ServiceDetails"));
@@ -271,6 +273,14 @@ function App() {
                     }
                   />
                   <Route
+                    path="jordan/:programId"
+                    element={
+                      <PageTransition>
+                        <JordanProgramDetails />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
                     path=":slug"
                     element={
                       <PageTransition>
@@ -293,6 +303,22 @@ function App() {
                     element={
                       <PageTransition>
                         <Destinations />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="jordan"
+                    element={
+                      <PageTransition>
+                        <Jordania />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="jordan/:programId"
+                    element={
+                      <PageTransition>
+                        <JordanProgramDetails />
                       </PageTransition>
                     }
                   />

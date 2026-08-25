@@ -5548,5 +5548,53 @@
   "tunisia_tour_title": "Premium Green Tunisia Tour - 8 Days / 7 Nights",
   "Circuito Túnez - 8 Días / 7 Noches": "Premium Green Tunisia Tour - 8 Days / 7 Nights",
   "برنامج تونس الخضراء المتميز": "Premium Green Tunisia Tour - 8 Days / 7 Nights",
-  "tunisia_tour_overview": "Embark on an extraordinary 8-day journey combining ancient Roman splendor, rich Islamic heritage, and the breathtaking beauty of the Sahara Desert. This curated program takes you from the vibrant capital of Tunis to the vast golden dunes of the south, offering a premium experience designed for all travel groups."
+  "tunisia_tour_overview": "Embark on an extraordinary 8-day journey combining ancient Roman splendor, rich Islamic heritage, and the breathtaking beauty of the Sahara Desert. This curated program takes you from the vibrant capital of Tunis to the vast golden dunes of the south, offering a premium experience designed for all travel groups.",
+  "dest": {
+    "jordan": {
+      "seoTitle": "Luxury Jordan Tours & Vacations | Dunas Travel",
+      "seoDesc": "Explore luxury journeys in Jordan. Visit Petra, Wadi Rum, Dead Sea, Amman and Aqaba with premium services.",
+      "title": "Jordan",
+      "subtitle": "The rose-red kingdom",
+      "desc": "From the rose-red city of Petra to the otherworldly desert of Wadi Rum and the healing waters of the Dead Sea, Jordan is a land of timeless wonders.",
+      "brief": "Jordan is a treasure trove of ancient history and natural beauty. Our programs take you from the bustling streets of Amman to the silent deserts of Wadi Rum, the magnificent ruins of Petra, and the rejuvenating shores of the Dead Sea and Red Sea.",
+      "ourPrograms": "Our Programs",
+      "hotelsTitle": "Accommodation",
+      "hotelsDesc": "Based on availability, accommodation in one of the following hotels in each destination.",
+      "hotelCities": {
+        "amman": "Amman",
+        "petra": "Petra",
+        "wadiRum": "Wadi Rum",
+        "aqaba": "Aqaba",
+        "deadSea": "Dead Sea"
+      },
+      "hotelListAmman": "Mana Hotel / Landmark / Amman Sham Classic or similar",
+      "hotelListPetra": "Petra Moon / Petra Castle / Petra Palace or similar",
+      "hotelListWadiRum": "Wadi Rum Desert Camp / Al Hybat Camp / Oasis Saturn Camp or similar",
+      "hotelListAqaba": "Aqaba Gulf / Mena City Center / Golden Beach Hotel or similar",
+      "hotelListDeadSea": "Dead Sea Spa Hotel / Ramada Resort Dead Sea or similar",
+      "includesList": [
+        "Assistance at Amman airport by our representative including group free visa support.",
+        "Transfers by modern A/C vehicles according to group size.",
+        "English/Spanish speaking guide throughout the tour for groups of 6+ passengers.",
+        "Entrance fees to all sites specified in the itinerary.",
+        "2-hour 4x4 Jeep tour in Wadi Rum desert.",
+        "Hotel accommodation on half-board basis (breakfast & dinner)."
+      ],
+      "excludesList": [
+        "International and domestic flight tickets.",
+        "Drinks during meals and mandatory tips for guide and driver.",
+        "Any extra visits or personal expenses not mentioned as included.",
+        "Travel insurance."
+      ],
+      "childrenTitle": "Children Policy",
+      "children_0to2": "Children 0 to 2 years: Free of charge.",
+      "children_3to10": "Children 3 to 10 years: 50% discount when sharing parents' room.",
+      "children_11plus": "Children 11 years and above: Charged full adult rate.",
+      "cancellationTitle": "Cancellation Policy",
+      "cancellationHighSeason": "High Season: Cancellation must be made at least 30 days prior to arrival to avoid penalty fees.",
+      "cancellationLowSeason": "Low Season: Cancellation must be made at least 15 days prior to arrival.",
+      "visaTitle": "Visa Policy & Notes",
+      "mandatoryFees": "* Administrative fees and group free visa require passport details at least 7 days prior to arrival."
+    }
+  }
 }
