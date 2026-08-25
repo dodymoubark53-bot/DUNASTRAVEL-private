@@ -178,36 +178,36 @@ const CLASSIC_PROGRAM_LANGS = {
     duration: '8 Dias',
     type: 'Clássico',
     groupSize: '2-16',
-    overview: 'Uma viagem inesquecível pelas maravilhas milenares do Egito. Do mistério das Pirâmides de Gizé à magia do Nilo, e dos túmulos dos faraós à atmosfera vibrante do Cairo histórico — este itinerário clássico foi desenhado para quem deseja descobrir o Egito de forma completa, confortável e autêntica.',
+    overview: 'Uma viagem inesquecível pelas maravilhas milenares do Egito. Do mistério das Pirâmides de Gizé à magia do Nilo, das tumbas dos Faraós à atmosfera vibrante do Cairo histórico — este programa clássico é pensado para quem quer viver o Egito de forma completa, confortável e autêntica.',
     highlights: [
-      'Visita às famosas Pirâmides de Gizé e à Grande Esfinge',
-      'Cruzeiro pelo Nilo em pensão completa de Assuã a Luxor',
-      'Templos de Filae, Kom Ombo, Edfu, Karnak e Luxor',
-      'Excursão opcional aos templos de Abu Simbel',
-      'O Cairo histórico: Cidadela, Mesquita de Alabastro, Khan El Khalili, Bairro Copta e Museu Egípcio'
+      'Visita às icónicas Pirâmides de Gizé e à Esfinge',
+      'Cruzeiro no Nilo com pensão completa de Assuã a Luxor',
+      'Templos de Philae, Kom Ombo, Edfu, Karnak e Luxor',
+      'Excursão opcional a Abu Simbel',
+      'Exploração do Cairo histórico: a Cidadela, a Mesquita de Alabastro, Khan el Khalili, o Bairro Copta e o Museu Egípcio'
     ],
     included: [
-      'Todos os traslados e transportes indicados do início ao fim.',
-      'Assistência personalizada nos aeroportos.',
-      'Guia turístico em seu idioma durante as visitas.',
-      'Visitas, ingressos para monumentos e transporte conforme itinerário.',
-      '04 noites no Cairo com hospedagem e café da manhã + 03 noites de Cruzeiro pelo Nilo em pensão completa.'
+      'Todos os transportes do início ao fim.',
+      'Assistência nos aeroportos.',
+      'Guia oficial durante as visitas.',
+      'Visitas, bilhetes e transferências de acordo com o itinerário.',
+      '04 noites no Cairo com alojamento e pequeno-almoço mais 03 noites de cruzeiro no Nilo com pensão completa.'
     ],
     excluded: [
-      'Gorjetas gerais de viagem €45 por pessoa (gorjetas do guia não incluídas).',
-      'Bebidas, refeições não mencionadas e despesas pessoais.',
+      'Gorjetas gerais de viagem 45€ por adulto ou menor (gorjetas do guia não incluídas).',
+      'Refeições, bebidas ou qualquer outra despesa não mencionada como incluída.',
       'Voos domésticos e internacionais.',
-      'Visto de entrada €25 por pessoa.'
+      'Visto 25€ por adulto/menor.'
     ],
     itinerary: [
-      { day: 1, title: 'Cidade de Origem – Cairo', description: 'Chegada ao Aeroporto do Cairo, assistência com visto e imigração, seguida de traslado confortável para o seu hotel.' },
-      { day: 2, title: 'Cairo – Pirâmides de Gizé', description: 'Café da manhã e saída para as Pirâmides de Quéops, Quéfren e Miquerinos, ponto panorâmico e Esfinge. Visita opcional a Mênfis e Saqqara.' },
-      { day: 3, title: 'Cairo / Assuã – Cruzeiro pelo Nilo', description: 'Traslado ao aeroporto para voo até Assuã. Embarque no cruzeiro em pensão completa e visita ao Templo de Filae.' },
-      { day: 4, title: 'Cruzeiro pelo Nilo – Kom Ombo e Edfu', description: 'Café da manhã e excursão opcional a Abu Simbel. Navegação para Kom Ombo com visita ao templo e continuação até Edfu para jantar a bordo.' },
-      { day: 5, title: 'Cruzeiro pelo Nilo – Edfu e Luxor', description: 'Visita ao Templo de Hórus em Edfu. Navegação até Luxor e visita aos Templos de Karnak e Luxor. Noite a bordo em Luxor.' },
-      { day: 6, title: 'Luxor – Cairo', description: 'Café da manhã e traslado ao aeroporto para o voo doméstico de volta ao Cairo. Recepção e traslado ao hotel.' },
-      { day: 7, title: 'Cairo – Tour pela Cidade', description: 'Café da manhã e dia livre. Tour opcional pelo Cairo histórico: Cidadela, Mesquita de Alabastro, Bairro Copta, Museu Egípcio e Mercado Khan El Khalili com jantar.' },
-      { day: 8, title: 'Cairo – Cidade de Origem', description: 'Após o café da manhã, check-out do hotel e traslado ao Aeroporto Internacional do Cairo para voo de retorno.' }
+      { day: 1, title: 'Dia 1: Cidade de Origem – Cairo', description: 'No primeiro dia, estaremos à sua espera no aeroporto do Cairo para lhe dar o seu visto, ajudá-lo com os controlos de imigração e levá-lo ao seu hotel.' },
+      { day: 2, title: 'Dia 2: Cairo', description: 'Após o pequeno-almoço no hotel, partida para visitar as pirâmides de Gizé: Quéops, Quéfren e Miquerinos. De seguida, paragem no miradouro panorâmico das pirâmides para fotografias maravilhosas e depois visita à Esfinge, cabeça do Faraó e corpo do Leão, guardiã das Pirâmides. Visita opcional a Mênfis e Sacará, as ruínas do Cairo original.' },
+      { day: 3, title: 'Dia 3: Cairo / Assuã', description: 'Depois de comer dirigir-nos-emos ao aeroporto para apanhar um voo para Assuã, iremos buscá-lo ao aeroporto de Assuã. Depois levá-lo-emos ao navio de cruzeiro, onde o espera alojamento e refeições completas. Visitaremos o Templo de Philae: o começo perfeito!' },
+      { day: 4, title: 'Dia 4: Cruzeiro no Nilo (pensão completa)', description: 'Após o pequeno-almoço, visita opcional aos templos de Abu Simbel, muito apreciada e recomendada. Depois, de volta ao barco, comeremos e começaremos a navegar ao longo do Nilo, chegando a Kom Ombo. Depois de visitar o templo, continuaremos a navegar em direção a Edfu, onde ancoramos para jantar e pernoitar.' },
+      { day: 5, title: 'Dia 5: Cruzeiro no Nilo (pensão completa)', description: 'Depois de comer, visitaremos o Templo de Edfu, dedicado ao deus Horus. O cruzeiro prosseguirá depois em direção a Luxor. Chegados à majestosa cidade de Luxor visitaremos dois dos mais espetaculares templos do país, os templos de Luxor e Karnak. Estes templos eram separados na Antiguidade pela Avenida das Esfinges com 3 quilómetros de comprimento. Comeremos e passaremos a noite ancorados em Luxor.' },
+      { day: 6, title: 'Dia 6: Luxor – Cairo', description: 'Pequeno-almoço no hotel. À hora acordada, transferência para o aeroporto de Hurghada para apanhar o voo doméstico para o Cairo. Assistência da nossa parte e transferência para o hotel.' },
+      { day: 7, title: 'Dia 7: Cairo', description: 'Pequeno-almoço e dia livre. Está prevista uma excursão opcional programada aos lugares mais emblemáticos do centro da cidade. Veremos a Cidadela, visitaremos a Mesquita de Alabastro, exploraremos o Khan el Khalili, atravessaremos o bairro copta, almoçaremos e admiraremos as obras-primas do Museu Egípcio. Depois à noite jantaremos num restaurante local.' },
+      { day: 8, title: 'Dia 8: Cairo – Cidade de Origem', description: 'Após o pequeno-almoço faremos o check out dos quartos, levá-lo-emos ao aeroporto e daremos assistência para apanhar o voo internacional.' }
     ]
   }
 };
