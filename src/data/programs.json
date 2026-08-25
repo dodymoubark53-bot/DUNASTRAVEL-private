@@ -828,7 +828,25 @@
           "description": "gre001.day9.desc",
           "meals": "Desayuno"
         }
-      ]
+      ],
+      "code": {
+        "ar": "gr-es-001",
+        "en": "gr-es-001",
+        "es": "gr-es-001",
+        "it": "gr-es-001",
+        "pt": "gr-es-001"
+      },
+      "country": "Greece",
+      "category": "Greece",
+      "minPax": {
+        "ar": "فردان",
+        "en": "2 Pax",
+        "es": "2 Pax",
+        "it": "2 Pax",
+        "pt": "2 Pax"
+      },
+      "basePriceUsd": 1490,
+      "isFeatured": true
     },
     {
       "id": "eg-completo-001",
