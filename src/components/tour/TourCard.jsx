@@ -29,7 +29,8 @@ const TourCard = ({
   const title = resolveTourTitle(tour, t, lang);
   const overview = resolveTourOverview(tour, t, lang);
   const duration = resolveTourDuration(tour, t, lang);
-  const durationLabel = duration.split('/')[0].trim();
+  const durationStr = typeof duration === 'string' ? duration : String(duration || '');
+  const durationLabel = durationStr.includes('/') ? durationStr.split('/')[0].trim() : durationStr;
 
   const parsedPrice = Number(tour.price ?? tour.basePriceUsd ?? tour.raw?.price);
   const tourPrice = Number.isFinite(parsedPrice) ? parsedPrice : null;
