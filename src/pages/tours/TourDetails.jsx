@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FaChevronRight, FaClock, FaTag,
-  FaCheck, FaTimes, FaMapMarkerAlt, FaBed, FaCheckCircle, FaUsers, FaHashtag
+  FaCheck, FaTimes, FaMapMarkerAlt, FaBed, FaCheckCircle, FaUsers
 } from 'react-icons/fa';
 import TourCard from '../../components/tour/TourCard';
 import { fadeInUp } from '../../animations/variants';
@@ -180,7 +180,7 @@ const TourDetails = () => {
       {/* 3. Quick Info Bar */}
       <div className="container mx-auto px-6 -mt-12 relative z-20">
         <div className="bg-ivory-50 dark:bg-[#1a1a30] rounded-2xl shadow-card overflow-hidden border border-obsidian-200 dark:border-gray-700">
-          <div className="grid grid-cols-2 md:grid-cols-4 divide-x rtl:divide-x-reverse divide-gray-100 dark:divide-gray-800 bg-obsidian-50 dark:bg-[#1a1a30]">
+          <div className="grid grid-cols-1 md:grid-cols-3 divide-x rtl:divide-x-reverse divide-gray-100 dark:divide-gray-800 bg-obsidian-50 dark:bg-[#1a1a30]">
             <div className="p-6 flex flex-col items-center justify-center text-center gap-2">
               <FaClock className="text-gold-500 text-2xl mb-1" />
               <span className="text-caption text-obsidian-500 dark:text-ivory-400 uppercase">{t('tour.duration', 'Duration')}</span>
@@ -195,11 +195,6 @@ const TourDetails = () => {
               <FaUsers className="text-gold-500 text-2xl mb-1" />
               <span className="text-caption text-obsidian-500 dark:text-ivory-400 uppercase">{t('tour.minPax', 'Min Pax')}</span>
               <span className="text-body-md font-semibold text-obsidian-900 dark:text-ivory-50">{resolveLocalizedText(tour.minPax, t, lang) || '2 Pax'}</span>
-            </div>
-            <div className="p-6 flex flex-col items-center justify-center text-center gap-2">
-              <FaHashtag className="text-gold-500 text-2xl mb-1" />
-              <span className="text-caption text-obsidian-500 dark:text-ivory-400 uppercase">{t('tour.code', 'Code')}</span>
-              <span className="text-body-md font-semibold text-obsidian-900 dark:text-ivory-50">{tour.code || tour.id || 'MRC-01'}</span>
             </div>
           </div>
         </div>
