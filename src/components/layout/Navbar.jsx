@@ -108,9 +108,6 @@ const Navbar = () => {
         { name: t('nav.dubai'), path: '/destinations/dubai' },
         { name: t('nav.tunisia'), path: '/destinations/tunisia' },
         { name: t('nav.holyland'), path: '/destinations/holyland' },
-        { name: t('nav.brazil', { defaultValue: 'Brazil' }), path: '/destinations/brazil' },
-        { name: t('nav.italy', { defaultValue: 'Italy' }), path: '/destinations/italy' },
-        { name: t('nav.spain', { defaultValue: 'Spain' }), path: '/destinations/spain' },
       ]
     },
     { name: t('nav.about'), path: '/about' },

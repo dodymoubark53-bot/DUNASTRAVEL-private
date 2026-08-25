@@ -205,7 +205,7 @@ export default function Egipto() {
           >
             <Link to="/programs/honeymooners" className="block relative h-[240px] overflow-hidden">
               <img
-                src="https://thfvnext.bing.com/th/id/R.ddcd0b2a355a2267797bf6cd444de51d?rik=Lv4r4rM4ltmLhg&pid=ImgRaw&r=0"
+                src="https://hl-tourism.com/media/typecms/Honeymoon_Planning_Guide_2025_Complete_Resource.webp"
                 alt="Honeymooners"
                 className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700"
                 loading="lazy"
