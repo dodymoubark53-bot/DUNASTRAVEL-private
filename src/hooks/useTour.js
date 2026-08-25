@@ -49,16 +49,15 @@ import multiCountryTours from '../data/multiCountryTours.js';
 const allStaticTours = [...staticTours, ...multiCountryTours];
 
 function getFallbackTour(slug, lang) {
-  if (!slug) return null;
-  const lowerSlug = String(slug).toLowerCase();
-  const normSlug = (lowerSlug.includes('classic') || lowerSlug === 'classic-program') ? 'complete-egypt-8d' : slug;
+  const lowerSlug = slug ? String(slug).toLowerCase() : 'complete-egypt-8d';
+  const normSlug = (lowerSlug.includes('classic') || lowerSlug === 'classic-program' || !slug) ? 'complete-egypt-8d' : slug;
   
   const match = allStaticTours.find(
     (t) => t.slug === normSlug || t.id === normSlug
       || t.slug === slug || t.id === slug
       || String(t.code?.en || t.code?.ar || t.id).toLowerCase() === String(normSlug).toLowerCase()
       || String(t.code?.en || t.code?.ar || t.id).toLowerCase() === String(slug).toLowerCase(),
-  ) || allStaticTours.find((t) => t.destination === 'egypt');
+  ) || allStaticTours.find((t) => t.destination === 'egypt') || allStaticTours[0];
 
   if (!match) return null;
 
@@ -109,18 +108,22 @@ function getFallbackTour(slug, lang) {
 export function useTour(slug) {
   const { i18n } = useTranslation();
   const lang = supportedLocale(i18n.language);
-  const [tour, setTour] = useState(null);
-  const [loading, setLoading] = useState(Boolean(slug));
+  const [tour, setTour] = useState(() => getFallbackTour(slug, lang));
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
+    const initialFallback = getFallbackTour(slug, lang);
+    if (initialFallback && isMounted) {
+      setTour(initialFallback);
+      setError(null);
+    }
+
     if (!slug) return undefined;
 
     const fetchTour = async () => {
       try {
-        setLoading(true);
-        setError(null);
         const result = normalizeTour(
           await api.get(`/tours/${encodeURIComponent(slug)}?lang=${encodeURIComponent(lang)}`),
         );
@@ -136,7 +139,6 @@ export function useTour(slug) {
             setError(null);
           } else {
             setError(requestError);
-            setTour(null);
           }
         }
       } finally {
