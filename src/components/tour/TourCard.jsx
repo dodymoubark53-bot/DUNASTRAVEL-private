@@ -37,6 +37,9 @@ const TourCard = ({
     ? tour.images[0]
     : (tour.heroImage || null);
 
+  const codeText = resolveLocalizedText(tour.code, t, lang);
+  const minPaxText = resolveLocalizedText(tour.minPax, t, lang);
+
   const detailUrl = `${linkBase}/${tour.slug || tour.id}`;
   const fav = isFavorite(tour.id || tour.slug);
 
@@ -74,7 +77,7 @@ const TourCard = ({
           {fav ? <FaHeart className="text-red-500" size={15} /> : <FaRegHeart size={15} />}
         </button>
         <div className="absolute top-4 left-4 z-10 bg-obsidian-900/80 backdrop-blur-md text-gold-500 text-caption px-4 py-1.5 rounded-full border border-gold-500/30 shadow-glass">
-          {tour.minPax ? `${tour.minPax} · ` : ''}{durationLabel}
+          {minPaxText ? `${minPaxText} · ` : ''}{durationLabel}
         </div>
 
         {tour.badge && (
@@ -92,7 +95,7 @@ const TourCard = ({
         {tourImage ? (
           <img
             src={tourImage}
-            alt={`${title} — ${tour.destination || ''}`}
+            alt={`${title} — ${resolveLocalizedText(tour.destination, t, lang) || ''}`}
             className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700"
             loading="lazy"
           />
@@ -105,7 +108,7 @@ const TourCard = ({
         {/* Hover Detail Card Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/95 via-obsidian-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-400 flex flex-col justify-end p-5 translate-y-4 group-hover:translate-y-0">
           <span className="text-gold-400 text-caption uppercase tracking-widest font-semibold mb-1">
-            {tour.code || resolveLocalizedText(tour.subtitle || tour.destination, t, lang)}
+            {codeText || resolveLocalizedText(tour.subtitle || tour.destination, t, lang)}
           </span>
           <h4 className="text-white text-display-sm font-semibold mb-2 line-clamp-2" style={{ fontFamily: "'Playfair Display', serif" }}>
             {title}
@@ -131,7 +134,7 @@ const TourCard = ({
       {/* Content */}
       <div className="p-6 flex flex-col flex-grow">
         <span className="text-caption text-gold-600 dark:text-gold-400 uppercase tracking-widest mb-1 block">
-          {tour.code || resolveLocalizedText(tour.subtitle || tour.destination, t, lang)}
+          {codeText || resolveLocalizedText(tour.subtitle || tour.destination, t, lang)}
         </span>
 
         {tour.transportOptions && (
