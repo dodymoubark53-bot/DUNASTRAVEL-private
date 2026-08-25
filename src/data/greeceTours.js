@@ -31,11 +31,12 @@ export const greeceTours = [
   },
   "title": {
     "ar": "الأفضل في اليونان – 09 أيام",
-    "en": "Lo Mejor de Grecia – 09 Days",
+    "en": "Best of Greece – 09 Days",
     "es": "Lo Mejor de Grecia – 09 Días",
-    "it": "Lo Mejor de Grecia – 09 Giorni",
-    "pt": "Lo Mejor de Grecia – 09 Dias"
+    "it": "Il Meglio della Grecia – 09 Giorni",
+    "pt": "O Melhor da Grécia – 09 Dias"
   },
+  "titleKey": "data.gre001.title",
   "subtitle": "Athens · Mykonos · Santorini · Crete",
   "overview": {
     "ar": "انغمس في روعة اليونان القديمة وسحر البحر إيجة في هذا المسار الرائع الممتد لتسعة أيام. من الأكروبوليس في أثينا إلى غروب الشمس الساحر في سانتوريني وميكونوس، مروراً بطبيعة ومأكولات جزيرة كريت الخلابة.",
