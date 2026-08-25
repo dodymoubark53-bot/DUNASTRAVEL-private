@@ -41,7 +41,7 @@ const CLASSIC_PROGRAM_LANGS = {
     included: [
       'جميع وسائل النقل من البداية إلى النهاية.',
       'المساعدة في المطارات.',
-      'مرشد سياحي يتحدث الإيطالية/العربية خلال الزيارات.',
+      'مرشد سياحي يتحدث لغتك خلال الزيارات.',
       'الزيارات والتذاكر والنقل حسب البرنامج.',
       '04 ليالٍ في القاهرة مع الإقامة والإفطار بالإضافة إلى 03 ليالٍ رحلة نيلية بإقامة كاملة.'
     ],
@@ -52,14 +52,14 @@ const CLASSIC_PROGRAM_LANGS = {
       'التأشيرة 25 يورو للبالغ/القاصر.'
     ],
     itinerary: [
-      { day: 1, title: 'مدينة المنشأ – القاهرة', description: 'في اليوم الأول، سننتظرك في مطار القاهرة لمنحك تأشيرتك ومساعدتك في إجراءات الهجرة وإيصالك إلى فندقك.' },
-      { day: 2, title: 'القاهرة', description: 'بعد الإفطار في الفندق والمغادرة لزيارة أهرامات الجيزة: خوفو وخفرع ومنقرع. ثم التوقف عند النقطة البانورامية للأهرامات لالتقاط صور رائعة، ثم زيارة أبو الهول، رأس الفرعون وجسم الأسد، حارس الأهرامات. زيارة اختيارية لمنف وسقارة، أطلال القاهرة الأصلية.' },
-      { day: 3, title: 'القاهرة / أسوان', description: 'بعد تناول الطعام سنتوجه إلى المطار للقيام برحلة جوية إلى أسوان، وسنستقبلك في مطار أسوان. ثم سنأخذك إلى السفينة السياحية حيث تنتظرك الإقامة الكاملة مع الوجبات. سنزور معبد فيلة: البداية المثالية!' },
-      { day: 4, title: 'رحلة نيلية (إقامة كاملة)', description: 'بعد الإفطار، زيارة اختيارية لمعابد أبو سمبل والتي تحظى بتقدير كبير ويُنصح بها بشدة. ثم نعود إلى السفينة ونتناول الطعام ونبدأ الإبحار على طول النيل وصولاً إلى كوم أمبو. بعد زيارة المعبد، نواصل الإبحار نحو إدفو حيث نرسو لتناول العشاء والمبيت.' },
-      { day: 5, title: 'رحلة نيلية (إقامة كاملة)', description: 'بعد تناول الطعام، نزور معبد إدفو المكرس للإله حورس. تواصل الرحلة النيلية إبحارها نحو الأقصر. عند وصولنا إلى مدينة الأقصر المهيبة نزور اثنين من أكثر المعابد إثارة للإعجاب في البلاد، معبدا الأقصر والكرنك. كانت هذه المعابد مفصولة في العصور القديمة بطريق الكباش الذي يمتد لـ 3 كيلومترات. نتناول الطعام ونقضي الليلة راسين في الأقصر.' },
-      { day: 6, title: 'الأقصر – القاهرة', description: 'الإفطار في الفندق. في الوقت المتفق عليه التوجه إلى المطار للقيام بالرحلة الداخلية إلى القاهرة. مساعدتنا ونقلك إلى الفندق.' },
-      { day: 7, title: 'القاهرة', description: 'الإفطار ويوم حر. من المقرر جولة اختيارية إلى أبرز المعالم في وسط المدينة. سنرى القلعة، نزور مسجد الألباستر، نستكشف خان الخليلي، نعبر الحي القبطي، نتناول الغداء ونُعجب بروائع المتحف المصري. ثم في المساء نتعشى في مطعم محلي.' },
-      { day: 8, title: 'القاهرة – مدينة المنشأ', description: 'بعد الإفطار نسجل المغادرة من الغرف، ثم نأخذك إلى المطار ونساعدك في أخذ رحلتك الجوية الدولية.' }
+      { day: 1, title: 'اليوم 1: مدينة المنشأ – القاهرة', description: 'في اليوم الأول، سننتظرك في مطار القاهرة لمنحك تأشيرتك ومساعدتك في إجراءات الهجرة وإيصالك إلى فندقك.' },
+      { day: 2, title: 'اليوم 2: القاهرة', description: 'بعد الإفطار في الفندق والمغادرة لزيارة أهرامات الجيزة: خوفو وخفرع ومنقرع. ثم التوقف عند النقطة البانورامية للأهرامات لالتقاط صور رائعة، ثم زيارة أبو الهول، رأس الفرعون وجسم الأسد، حارس الأهرامات. زيارة اختيارية لمنف وسقارة، أطلال القاهرة الأصلية.' },
+      { day: 3, title: 'اليوم 3: القاهرة / أسوان', description: 'بعد تناول الطعام سنتوجه إلى المطار للقيام برحلة جوية إلى أسوان، وسنستقبلك في مطار أسوان. ثم سنأخذك إلى السفينة السياحية حيث تنتظرك الإقامة الكاملة مع الوجبات. سنزور معبد فيلة: البداية المثالية!' },
+      { day: 4, title: 'اليوم 4: رحلة نيلية (إقامة كاملة)', description: 'بعد الإفطار، زيارة اختيارية لمعابد أبو سمبل والتي تحظى بتقدير كبير ويُنصح بها بشدة. ثم نعود إلى السفينة ونتناول الطعام ونبدأ الإبحار على طول النيل وصولاً إلى كوم أمبو. بعد زيارة المعبد، نواصل الإبحار نحو إدفو حيث نرسو لتناول العشاء والمبيت.' },
+      { day: 5, title: 'اليوم 5: رحلة نيلية (إقامة كاملة)', description: 'بعد تناول الطعام، نزور معبد إدفو المكرس للإله حورس. تواصل الرحلة النيلية إبحارها نحو الأقصر. عند وصولنا إلى مدينة الأقصر المهيبة نزور اثنين من أكثر المعابد إثارة للإعجاب في البلاد، معبدا الأقصر والكرنك. كانت هذه المعابد مفصولة في العصور القديمة بطريق الكباش الذي يمتد لـ 3 كيلومترات. نتناول الطعام ونقضي الليلة راسين في الأقصر.' },
+      { day: 6, title: 'اليوم 6: الأقصر – القاهرة', description: 'الإفطار في الفندق. في الوقت المتفق عليه التوجه إلى المطار للقيام بالرحلة الداخلية إلى القاهرة. مساعدتنا ونقلك إلى الفندق.' },
+      { day: 7, title: 'اليوم 7: القاهرة', description: 'الإفطار ويوم حر. من المقرر جولة اختيارية إلى أبرز المعالم في وسط المدينة. سنرى القلعة، نزور مسجد الألباستر، نستكشف خان الخليلي، نعبر الحي القبطي، نتناول الغداء ونُعجب بروائع المتحف المصري. ثم في المساء نتعشى في مطعم محلي.' },
+      { day: 8, title: 'اليوم 8: القاهرة – مدينة المنشأ', description: 'بعد الإفطار نسجل المغادرة من الغرف، ثم نأخذك إلى المطار ونساعدك في أخذ رحلتك الجوية الدولية.' }
     ]
   },
   en: {
@@ -89,14 +89,14 @@ const CLASSIC_PROGRAM_LANGS = {
       'Visa €25 per adult/minor.'
     ],
     itinerary: [
-      { day: 1, title: 'City of Origin – Cairo', description: 'On the first day, we will be waiting for you at Cairo airport to give you your visa, help you with immigration checks and take you to your hotel.' },
-      { day: 2, title: 'Cairo', description: 'After breakfast at the hotel, departure to visit the Pyramids of Giza: Cheops, Chephren and Mycerinus. Then, stop at the panoramic viewpoint of the pyramids for beautiful photos and then visit the Sphinx, head of the Pharaoh and body of the Lion, guardian of the Pyramids. Optional visit to Memphis and Saqqara, the ruins of the original Cairo.' },
-      { day: 3, title: 'Cairo / Aswan', description: 'After eating we will head to the airport to take a flight to Aswan, we will pick you up at Aswan airport. Then we will take you to the cruise ship, where full board accommodation awaits you. We will visit the Temple of Philae: the perfect beginning!' },
-      { day: 4, title: 'Nile Cruise (full board)', description: 'After breakfast, optional visit to the temples of Abu Simbel, which is very much appreciated and recommended. Then, back on the boat, we will eat and begin to sail along the Nile, arriving at Kom Ombo. Then, after visiting the temple, we will continue sailing towards Edfu, where we will anchor for dinner and overnight stay.' },
-      { day: 5, title: 'Nile Cruise (full board)', description: 'After eating, we will visit the Temple of Edfu, dedicated to the god Horus. The cruise will then continue towards Luxor. Upon arriving in the majestic city of Luxor we will visit two of the most spectacular temples in the country, the temples of Luxor and Karnak. These temples were separated in antiquity by the Avenue of the Sphinxes, 3 kilometres long. We will eat and spend the night anchored in Luxor.' },
-      { day: 6, title: 'Luxor – Cairo', description: 'Breakfast at the hotel. At the agreed time, transfer to Hurghada airport to take the domestic flight to Cairo. Our assistance and transfer to hotel.' },
-      { day: 7, title: 'Cairo', description: 'Breakfast and free day. An optional scheduled excursion is planned to the most emblematic places in the city centre. We will see the Citadel, visit the Alabaster Mosque, explore Khan el Khalili, cross the Coptic Quarter, have lunch and admire the masterpieces of the Egyptian Museum. Then in the evening we will have dinner at a local restaurant.' },
-      { day: 8, title: 'Cairo – City of Origin', description: 'After breakfast we will check out of the rooms, take you to the airport and assist you in taking your international flight.' }
+      { day: 1, title: 'Day 1: City of Origin – Cairo', description: 'On the first day, we will be waiting for you at Cairo airport to give you your visa, help you with immigration checks and take you to your hotel.' },
+      { day: 2, title: 'Day 2: Cairo', description: 'After breakfast at the hotel, departure to visit the Pyramids of Giza: Cheops, Chephren and Mycerinus. Then, stop at the panoramic viewpoint of the pyramids for beautiful photos and then visit the Sphinx, head of the Pharaoh and body of the Lion, guardian of the Pyramids. Optional visit to Memphis and Saqqara, the ruins of the original Cairo.' },
+      { day: 3, title: 'Day 3: Cairo / Aswan', description: 'After eating we will head to the airport to take a flight to Aswan, we will pick you up at Aswan airport. Then we will take you to the cruise ship, where full board accommodation awaits you. We will visit the Temple of Philae: the perfect beginning!' },
+      { day: 4, title: 'Day 4: Nile Cruise (full board)', description: 'After breakfast, optional visit to the temples of Abu Simbel, which is very much appreciated and recommended. Then, back on the boat, we will eat and begin to sail along the Nile, arriving at Kom Ombo. Then, after visiting the temple, we will continue sailing towards Edfu, where we will anchor for dinner and overnight stay.' },
+      { day: 5, title: 'Day 5: Nile Cruise (full board)', description: 'After eating, we will visit the Temple of Edfu, dedicated to the god Horus. The cruise will then continue towards Luxor. Upon arriving in the majestic city of Luxor we will visit two of the most spectacular temples in the country, the temples of Luxor and Karnak. These temples were separated in antiquity by the Avenue of the Sphinxes, 3 kilometres long. We will eat and spend the night anchored in Luxor.' },
+      { day: 6, title: 'Day 6: Luxor – Cairo', description: 'Breakfast at the hotel. At the agreed time, transfer to Hurghada airport to take the domestic flight to Cairo. Our assistance and transfer to hotel.' },
+      { day: 7, title: 'Day 7: Cairo', description: 'Breakfast and free day. An optional scheduled excursion is planned to the most emblematic places in the city centre. We will see the Citadel, visit the Alabaster Mosque, explore Khan el Khalili, cross the Coptic Quarter, have lunch and admire the masterpieces of the Egyptian Museum. Then in the evening we will have dinner at a local restaurant.' },
+      { day: 8, title: 'Day 8: Cairo – City of Origin', description: 'After breakfast we will check out of the rooms, take you to the airport and assist you in taking your international flight.' }
     ]
   },
   es: {
@@ -132,7 +132,7 @@ const CLASSIC_PROGRAM_LANGS = {
       { day: 4, title: 'Día 4: Crucero por el Nilo (pensión completa)', description: 'Después del desayuno, visita opcional a los templos de Abu Simbel, muy apreciada y recomendada. Luego, de vuelta al barco, comeremos y comenzaremos a navegar a lo largo del Nilo, llegando a Kom Ombo. Después de visitar el templo, continuaremos navegando hacia Edfu, donde anclaremos para cenar y pernoctar.' },
       { day: 5, title: 'Día 5: Crucero por el Nilo (pensión completa)', description: 'Después de comer, visitaremos el Templo de Edfu, dedicado al dios Horus. El crucero proseguirá luego hacia Luxor. Al llegar a la majestuosa ciudad de Luxor visitaremos dos de los más espectaculares templos del país, los templos de Luxor y Karnak. Estos templos estaban separados en la antigüedad por la Avenida de las Esfinges de 3 kilómetros de longitud. Comeremos y pasaremos la noche anclados en Luxor.' },
       { day: 6, title: 'Día 6: Luxor – El Cairo', description: 'Desayuno en el hotel. A la hora acordada traslado al aeropuerto de Hurghada para tomar el vuelo doméstico a El Cairo. Asistencia por nuestra parte y traslado al hotel.' },
-      { day: 7, title: 'Día 7: El Cairo', description: 'Desayuno y día libre. Está prevista una excursión opcional programada a los lugares más emblemáticos del centro de la ciudad. Veremos la Ciudadela, visitaremos la Mezquita de Alabastro, exploraremos el Khan el Khalili, atravesaremos el barrio copto, almorzaremos y admiraremos las obras maestras del Museo Egipcio. Luego por la noche cenaremos en un restaurante local.' },
+      { day: 7, title: 'Día 7: El Cairo', description: 'Desayuno y día libre. Está prevista una excursión opcional programada a los lugares más emblemáticos del centro de la ciudad. Veremos la Ciudadela, visiteremos la Mezquita de Alabastro, exploraremos el Khan el Khalili, atravesaremos el barrio copto, almorzaremos y admiraremos las obras maestras del Museo Egipcio. Luego por la noche cenaremos en un restaurante local.' },
       { day: 8, title: 'Día 8: El Cairo – Ciudad de Origen', description: 'Después del desayuno haremos el check out de las habitaciones, te llevaremos al aeropuerto y te daremos asistencia para tomar tu vuelo internacional.' }
     ]
   },
@@ -141,36 +141,36 @@ const CLASSIC_PROGRAM_LANGS = {
     duration: '8 Giorni',
     type: 'Classico',
     groupSize: '2-16',
-    overview: 'Un viaggio indimenticabile attraverso le meraviglie dell’antico Egitto. Dal mistero delle Piramidi di Giza alla magia del Nilo, dalle tombe dei faraoni all’atmosfera vibrante del Cairo storico — questo programma classico è progettato per offrire un’esperienza completa, confortevole e autentica.',
+    overview: "Un viaggio indimenticabile attraverso le meraviglie millenarie dell'Egitto. Dal mistero delle Piramidi di Giza alla magia del Nilo, dalle tombe dei Faraoni all'atmosfera vivace del Cairo storico — questo programma classico è pensato per chi vuole vivere l'Egitto in modo completo, confortevole e autentico.",
     highlights: [
-      'Visita alle celebri Piramidi di Giza e alla Grande Sfinge',
-      'Crociera sul Nilo in pensione completa da Aswan a Luxor',
+      'Visita delle iconiche Piramidi di Giza e della Sfinge',
+      'Crociera sul Nilo con pensione completa da Aswan a Luxor',
       'Templi di Philae, Kom Ombo, Edfu, Karnak e Luxor',
-      'Escursione opzionale agli iconici Templi di Abu Simbel',
-      'Il Cairo storico: Cittadella, Moschea di Alabastro, Khan El Khalili, Quartiere Copto e Museo Egizio'
+      'Escursione facoltativa ad Abu Simbel',
+      'Esplorazione del Cairo storico: Cittadella, Moschea di Alabastro, Khan el Khalili, quartiere copto e Museo Egizio'
     ],
     included: [
-      'Tutti i trasferimenti e trasporti terrestri dall’inizio alla fine.',
-      'Assistenza in aeroporto all’arrivo e alla partenza.',
-      'Guida turistica parlante italiano durante le visite.',
-      'Visite guidate, biglietti d’ingresso e trasporti come da programma.',
-      '04 notti al Cairo con pernottamento e colazione + 03 notti di Crociera sul Nilo in pensione completa.'
+      'Tutti i trasporti dall\'inizio alla fine.',
+      'Assistenza negli aeroporti.',
+      'Guida parlante italiano durante le visite.',
+      'Visite, biglietti e trasferimenti secondo l\'itinerario.',
+      '04 notti al Cairo in pernottamento e colazione più 03 notti di crociera sul Nilo in pensione completa.'
     ],
     excluded: [
-      'Mance generali di viaggio 45 € a persona (mance per la guida escluse).',
-      'Bevande ai pasti, spese personali e quanto non espresso negli inclusi.',
-      'Voli interni e internazionali.',
-      'Visto d’ingresso 25 € a persona.'
+      'Mance generali di viaggio 45€ per adulto o minore (mance della guida non comprese).',
+      'Pasti, bevande o qualsiasi altra spesa non menzionata come inclusa.',
+      'Voli nazionali e internazionali.',
+      'Visto 25€ per adulto/minore.'
     ],
     itinerary: [
-      { day: 1, title: 'Città di Origine – Il Cairo', description: 'All’arrivo all’aeroporto del Cairo, il nostro personale vi assisterà per il visto e le procedure di immigrazione, accompagnandovi all’hotel.' },
-      { day: 2, title: 'Il Cairo – Piramidi di Giza', description: 'Prima colazione e partenza per la piana di Giza per ammirare le Piramidi di Cheope, Chefren e Micerino, la Sfinge e il belvedere panoramico. Visita opzionale a Menfi e Saqqara.' },
-      { day: 3, title: 'Il Cairo / Aswan – Crociera sul Nilo', description: 'Trasferimento in aeroporto per il volo verso Aswan. All’arrivo imbarco sulla motonave da crociera in pensione completa e visita al magnifico Tempio di Philae.' },
-      { day: 4, title: 'Crociera sul Nilo – Kom Ombo ed Edfu', description: 'Colazione e possibilità di escursione opzionale ad Abu Simbel. Navigazione verso Kom Ombo e visita al tempio. Proseguimento per Edfu con cena e pernottamento a bordo.' },
-      { day: 5, title: 'Crociera sul Nilo – Edfu e Luxor', description: 'Visita al Tempio di Horus a Edfu. Navigazione verso Luxor e visita ai maestosi Templi di Karnak e Luxor. Cena e pernottamento a bordo a Luxor.' },
-      { day: 6, title: 'Luxor – Il Cairo', description: 'Colazione a bordo e trasferimento in aeroporto per il volo interno per Il Cairo. Accoglienza e trasferimento in hotel.' },
-      { day: 7, title: 'Il Cairo – Tour della Città', description: 'Colazione e giornata libera. Tour opzionale del Cairo: Cittadella, Moschea di Alabastro, Quartiere Copto, Museo Egizio e bazar di Khan El Khalili con cena tipica.' },
-      { day: 8, title: 'Il Cairo – Città di Origine', description: 'Dopo la colazione, check-out dall’hotel e trasferimento all’aeroporto del Cairo per il volo internazionale di rientro.' }
+      { day: 1, title: 'Giorno 1: Città d\'Origine – Cairo', description: 'Il primo giorno, ti aspetteremo all\'aeroporto di Cairo per darti il tuo visto, aiutarti con i controlli sull\'immigrazione e portarti al tuo hotel.' },
+      { day: 2, title: 'Giorno 2: Cairo', description: 'Dopo la colazione in hotel, partenza per la visita delle piramidi di Giza: Cheope, Chefren e Mequerinos. Quindi, sosta al punto panoramico delle piramidi per bellissime foto e poi visita la Sfinge, testa del Faraone e corpo del Leone, guardiano delle Piramidi. Visita facoltativa a Memphis e Sakkara, le rovine del Cairo originale.' },
+      { day: 3, title: 'Giorno 3: Cairo / Aswan', description: 'Dopo aver mangiato ci dirigeremo all\'aeroporto per prendere un volo per Aswan, vi verremo a prendere all\'aeroporto di Aswan. Poi vi porteremo alla nave da crociera, dove ti aspettano vitto e alloggio completi. Visiteremo il Tempio di Philae: l\'inizio perfetto!' },
+      { day: 4, title: 'Giorno 4: Crociera sul Nilo (pensione completa)', description: 'Dopo la colazione, visita facoltativa ai templi di Abu Simbel, che viene molto apprezzata e raccomandata. Poi, risaliti sulla barca, mangeremo e inizieremo a navigare lungo il Nilo, arrivando a Kom Ombo. Quindi, dopo aver visitato il tempio, continueremo a navigare verso Edfu, dove ancoreremo per cenare e pernottare.' },
+      { day: 5, title: 'Giorno 5: Crociera sul Nilo (pensione completa)', description: 'Dopo aver mangiato, visiteremo il Tempio di Edfu, dedicato al dio Horus. La crociera proseguirà poi verso Luxor. Giunti nella maestosa città di Luxor visiteremo due tra i più spettacolari templi del paese, i templi di Luxor e Karnak. Questi templi erano separati nell\'antichità dal Viale delle Sfingi lungo 3 chilometri. Mangeremo e passeremo la notte all\'ancora a Luxor.' },
+      { day: 6, title: 'Giorno 6: Luxor – Cairo', description: 'Colazione in albergo. All\'orario concordato trasferimento all\'aeroporto di Hurghada per prendere il volo interno per Il Cairo. Assistenza da parte nostra e trasferimento in hotel.' },
+      { day: 7, title: 'Giorno 7: Cairo', description: 'Colazione e giornata libera. È prevista un\'escursione programmata facoltativa ai luoghi più emblematici del centro della città. Vedremo la Cittadella, visiteremo la Moschea di Alabastro, esploreremo il Khan el Khalili, attraverseremo il quartiere copto, pranzeremo e ammireremo i capolavori del Museo Egizio. Poi la sera ceneremo in un ristorante locale.' },
+      { day: 8, title: 'Giorno 8: Cairo – Città d\'Origine', description: 'Dopo la colazione faremo il check out delle camere, vi porteremo all\'aeroporto e vi daremo assistenza per prendere il volo internazionale.' }
     ]
   },
   pt: {
@@ -379,9 +379,6 @@ export default function ClassicProgramDetails() {
                       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gold-100 hover:shadow-md transition-shadow">
                         <div className="flex items-center gap-3 mb-3">
                           <span className="font-semibold text-obsidian-900">
-                            {t('tour.day', 'Day')} {day.day}
-                          </span>
-                          <span className="text-body-sm text-obsidian-600 font-medium">
                             {day.title}
                           </span>
                         </div>
