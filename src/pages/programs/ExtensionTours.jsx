@@ -111,8 +111,8 @@ export default function ExtensionTours() {
           </div>
 
           {/* Sidebar Booking Form */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-28 self-start z-30">
+          <div className="lg:col-span-1 sticky top-24 self-start z-40">
+            <div>
               <AdvancedBooking tourTitle="Egypt Extension Package" />
             </div>
           </div>

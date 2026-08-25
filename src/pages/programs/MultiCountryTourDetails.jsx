@@ -145,7 +145,7 @@ export default function MultiCountryTourDetails() {
 
       {/* Content & Sidebar Grid */}
       <section className="container mx-auto px-6 pt-16">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
           {/* Main Column */}
           <div className="lg:col-span-2">
             {/* Overview */}
@@ -237,8 +237,8 @@ export default function MultiCountryTourDetails() {
           </div>
 
           {/* Sticky Sidebar Booking Column */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-28 self-start z-30">
+          <div className="lg:col-span-1 sticky top-24 self-start z-40">
+            <div>
               <AdvancedBooking tourTitle={title} />
             </div>
           </div>

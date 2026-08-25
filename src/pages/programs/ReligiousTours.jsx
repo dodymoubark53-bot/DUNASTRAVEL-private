@@ -68,7 +68,7 @@ export default function ReligiousTours() {
 
       {/* Program Details & Booking */}
       <section className="container mx-auto px-6 pt-16">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-12">
             <div>
@@ -125,8 +125,8 @@ export default function ReligiousTours() {
           </div>
 
           {/* Right Column Booking Form */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-28 self-start z-30">
+          <div className="lg:col-span-1 sticky top-24 self-start z-40">
+            <div>
               <AdvancedBooking tourTitle={RELIGIOUS_PROGRAM.title} />
             </div>
           </div>
