@@ -24,80 +24,200 @@ const CLASSIC_IMAGES = [
   'https://images.unsplash.com/photo-1572252821143-035a024856f2?auto=format&fit=crop&w=1200&q=80'
 ];
 
+const CLASSIC_PROGRAM_LANGS = {
+  ar: {
+    title: 'برنامج مصر الكلاسيكي',
+    duration: '8 أيام',
+    type: 'الكلاسيكية',
+    groupSize: '2-16',
+    overview: 'رحلة لا تُنسى عبر عجائب مصر العريقة. من غموض أهرامات الجيزة إلى سحر النيل، ومن مقابر الفراعنة إلى أجواء القاهرة التاريخية النابضة بالحياة — هذا البرنامج الكلاسيكي مصمم لمن يريد اكتشاف مصر بشكل كامل ومريح وأصيل.',
+    highlights: [
+      'زيارة الأهرامات الشهيرة في الجيزة وأبو الهول',
+      'رحلة نيلية بإقامة كاملة من أسوان إلى الأقصر',
+      'معابد فيلة وكوم أمبو وإدفو والكرنك والأقصر',
+      'جولة اختيارية إلى أبو سمبل',
+      'استكشاف القاهرة التاريخية: القلعة، مسجد الألباستر، خان الخليلي، الحي القبطي، والمتحف المصري'
+    ],
+    included: [
+      'جميع وسائل النقل من البداية إلى النهاية.',
+      'المساعدة في المطارات.',
+      'مرشد سياحي يتحدث الإيطالية/العربية خلال الزيارات.',
+      'الزيارات والتذاكر والنقل حسب البرنامج.',
+      '04 ليالٍ في القاهرة مع الإقامة والإفطار بالإضافة إلى 03 ليالٍ رحلة نيلية بإقامة كاملة.'
+    ],
+    excluded: [
+      'إكراميات السفر العامة 45 يورو للبالغ أو القاصر (إكراميات المرشد غير مشمولة).',
+      'الوجبات والمشروبات أو أي مصاريف أخرى غير مذكورة ضمن المشمولات.',
+      'الرحلات الجوية الداخلية والدولية.',
+      'التأشيرة 25 يورو للبالغ/القاصر.'
+    ],
+    itinerary: [
+      { day: 1, title: 'مدينة المنشأ – القاهرة', description: 'في اليوم الأول، سننتظرك في مطار القاهرة لمنحك تأشيرتك ومساعدتك في إجراءات الهجرة وإيصالك إلى فندقك.' },
+      { day: 2, title: 'القاهرة', description: 'بعد الإفطار في الفندق والمغادرة لزيارة أهرامات الجيزة: خوفو وخفرع ومنقرع. ثم التوقف عند النقطة البانورامية للأهرامات لالتقاط صور رائعة، ثم زيارة أبو الهول، رأس الفرعون وجسم الأسد، حارس الأهرامات. زيارة اختيارية لمنف وسقارة، أطلال القاهرة الأصلية.' },
+      { day: 3, title: 'القاهرة / أسوان', description: 'بعد تناول الطعام سنتوجه إلى المطار للقيام برحلة جوية إلى أسوان، وسنستقبلك في مطار أسوان. ثم سنأخذك إلى السفينة السياحية حيث تنتظرك الإقامة الكاملة مع الوجبات. سنزور معبد فيلة: البداية المثالية!' },
+      { day: 4, title: 'رحلة نيلية (إقامة كاملة)', description: 'بعد الإفطار، زيارة اختيارية لمعابد أبو سمبل والتي تحظى بتقدير كبير ويُنصح بها بشدة. ثم نعود إلى السفينة ونتناول الطعام ونبدأ الإبحار على طول النيل وصولاً إلى كوم أمبو. بعد زيارة المعبد، نواصل الإبحار نحو إدفو حيث نرسو لتناول العشاء والمبيت.' },
+      { day: 5, title: 'رحلة نيلية (إقامة كاملة)', description: 'بعد تناول الطعام، نزور معبد إدفو المكرس للإله حورس. تواصل الرحلة النيلية إبحارها نحو الأقصر. عند وصولنا إلى مدينة الأقصر المهيبة نزور اثنين من أكثر المعابد إثارة للإعجاب في البلاد، معبدا الأقصر والكرنك. كانت هذه المعابد مفصولة في العصور القديمة بطريق الكباش الذي يمتد لـ 3 كيلومترات. نتناول الطعام ونقضي الليلة راسين في الأقصر.' },
+      { day: 6, title: 'الأقصر – القاهرة', description: 'الإفطار في الفندق. في الوقت المتفق عليه التوجه إلى المطار للقيام بالرحلة الداخلية إلى القاهرة. مساعدتنا ونقلك إلى الفندق.' },
+      { day: 7, title: 'القاهرة', description: 'الإفطار ويوم حر. من المقرر جولة اختيارية إلى أبرز المعالم في وسط المدينة. سنرى القلعة، نزور مسجد الألباستر، نستكشف خان الخليلي، نعبر الحي القبطي، نتناول الغداء ونُعجب بروائع المتحف المصري. ثم في المساء نتعشى في مطعم محلي.' },
+      { day: 8, title: 'القاهرة – مدينة المنشأ', description: 'بعد الإفطار نسجل المغادرة من الغرف، ثم نأخذك إلى المطار ونساعدك في أخذ رحلتك الجوية الدولية.' }
+    ]
+  },
+  en: {
+    title: 'Classic Egypt Program',
+    duration: '8 Days',
+    type: 'Classic',
+    groupSize: '2-16',
+    overview: 'An unforgettable journey through the ancient wonders of Egypt. From the mystery of the Giza Pyramids to the magic of the Nile, and from pharaonic tombs to the vibrant historic streets of Cairo — this classic itinerary is crafted for those seeking a complete, comfortable, and authentic Egyptian experience.',
+    highlights: [
+      'Visit the iconic Pyramids of Giza and the Great Sphinx',
+      'Full-board luxury Nile Cruise from Aswan to Luxor',
+      'Explore Philae, Kom Ombo, Edfu, Karnak, and Luxor Temples',
+      'Optional excursion to the legendary Abu Simbel Temples',
+      'Discover Historic Cairo: The Citadel, Alabaster Mosque, Khan El Khalili, Coptic Quarter, and Egyptian Museum'
+    ],
+    included: [
+      'All ground transportation throughout the program.',
+      'Airport assistance upon arrival and departure.',
+      'Professional tour guide during visits.',
+      'All guided visits, entrance tickets, and scheduled transfers.',
+      '04 nights accommodation in Cairo with breakfast plus 03 nights Nile Cruise with full board.'
+    ],
+    excluded: [
+      'General travel gratuities €45 per adult/minor (guide tips excluded).',
+      'Personal expenses, extra beverages, and unmentioned meals.',
+      'Domestic and international flights.',
+      'Entry visa €25 per adult/minor.'
+    ],
+    itinerary: [
+      { day: 1, title: 'Origin City – Cairo', description: 'On day one, our representative will greet you at Cairo Airport, assist with your visa and passport control procedures, and transfer you comfortably to your hotel.' },
+      { day: 2, title: 'Cairo Pyramids Tour', description: 'Enjoy breakfast before departing for the Giza Plateau to visit the Great Pyramids: Cheops, Chephren, and Mykerinos. Stop at the panoramic viewpoint for iconic photos, then visit the Great Sphinx. Optional visit to Memphis and Sakkara.' },
+      { day: 3, title: 'Cairo / Aswan – Nile Cruise', description: 'After breakfast, transfer to the airport for your flight to Aswan. Upon arrival, transfer to your luxury cruise ship for check-in and full board. Visit the majestic Philae Temple.' },
+      { day: 4, title: 'Nile Cruise – Kom Ombo & Edfu', description: 'Optional morning excursion to Abu Simbel. Return to the ship for lunch as we sail towards Kom Ombo to visit the Temple of Sobek and Haroeris. Continue sailing to Edfu for dinner and overnight.' },
+      { day: 5, title: 'Nile Cruise – Edfu & Luxor Temples', description: 'Visit Edfu Temple dedicated to Horus. Continue sailing towards Luxor to explore the magnificent Karnak and Luxor Temples, once linked by the 3 km Avenue of Sphinxes. Dinner and overnight in Luxor.' },
+      { day: 6, title: 'Luxor – Cairo', description: 'Breakfast on board. Transfer to the airport at the designated time for your domestic flight back to Cairo. Assistance and hotel transfer upon arrival.' },
+      { day: 7, title: 'Cairo City Tour', description: 'Breakfast and free day. Optional city tour visiting the Citadel of Saladin, Alabaster Mosque, Khan El Khalili Bazaar, Coptic Cairo, lunch, and the Egyptian Museum. Dinner at a local restaurant.' },
+      { day: 8, title: 'Cairo – Origin City', description: 'After breakfast, check out from your hotel and transfer to Cairo International Airport for your international departure flight.' }
+    ]
+  },
+  es: {
+    title: 'Programa Egipto Clásico',
+    duration: '8 Días',
+    type: 'Clásico',
+    groupSize: '2-16',
+    overview: 'Un viaje inolvidable a través de las maravillas milenarias de Egipto. Desde el misterio de las Pirámides de Guiza hasta la magia del Nilo, y desde las tumbas de los faraones hasta la vibrante atmósfera del Cairo histórico: este programa clásico está diseñado para quienes desean descubrir Egipto de forma completa, cómoda y auténtica.',
+    highlights: [
+      'Visita a las famosas Pirámides de Guiza y la Gran Esfinge',
+      'Crucero por el Nilo en pensión completa de Asuán a Luxor',
+      'Templos de Philae, Kom Ombo, Edfu, Karnak y Luxor',
+      'Excursión opcional a los templos de Abu Simbel',
+      'El Cairo histórico: Ciudadela, Mezquita de Alabastro, Khan El Khalili, Barrio Copto y Museo Egipcio'
+    ],
+    included: [
+      'Todos los traslados y transportes indicados de principio a fin.',
+      'Asistencia personalizada en aeropuertos.',
+      'Guía turístico oficial durante las visitas.',
+      'Visitas, entradas a monumentos y transporte según el itinerario.',
+      '04 noches en El Cairo con alojamiento y desayuno + 03 noches de Crucero por el Nilo en pensión completa.'
+    ],
+    excluded: [
+      'Propinas generales de viaje 45 € por persona (propinas del guía no incluidas).',
+      'Bebidas, comidas no mencionadas y gastos personales.',
+      'Vuelos domésticos e internacionales.',
+      'Visado de entrada 25 € por persona.'
+    ],
+    itinerary: [
+      { day: 1, title: 'Ciudad de Origen – El Cairo', description: 'A la llegada al aeropuerto de El Cairo, nuestro personal le asistirá con el visado y trámites de migración, acompañándole en el traslado a su hotel.' },
+      { day: 2, title: 'El Cairo – Pirámides de Guiza', description: 'Desayuno y salida hacia la meseta de Guiza para admirar las Pirámides de Keops, Kefrén y Micerinos. Parada panorámica para fotos y visita a la Gran Esfinge. Visita opcional a Menfis y Saqqara.' },
+      { day: 3, title: 'El Cairo / Asuán – Crucero por el Nilo', description: 'Traslado al aeropuerto para volar a Asuán. Llegada y embarque en la nave de crucero en régimen de pensión completa. Visita al hermoso Templo de Philae.' },
+      { day: 4, title: 'Crucero por el Nilo – Kom Ombo y Edfu', description: 'Desayuno y posibilidad de excursión opcional a Abu Simbel. Navegación hacia Kom Ombo para visitar su templo gemelo. Continuación a Edfu para cena y noche a bordo.' },
+      { day: 5, title: 'Crucero por el Nilo – Edfu y Luxor', description: 'Visita al Templo de Horus en Edfu. Navegación hacia Luxor y visita a los deslumbrantes Templos de Karnak y Luxor, unidos antiguamente por la Avenida de las Esfinges. Noche en Luxor.' },
+      { day: 6, title: 'Luxor – El Cairo', description: 'Desayuno y traslado al aeropuerto a la hora acordada para tomar el vuelo interno hacia El Cairo. Recepción y traslado al hotel.' },
+      { day: 7, title: 'El Cairo – Día Completo', description: 'Desayuno y día libre. Posibilidad de recorrido opcional por El Cairo histórico: Ciudadela de Saladino, Mezquita de Alabastro, Barrio Copto, Museo Egipcio y mercado Khan El Khalili con cena incluida.' },
+      { day: 8, title: 'El Cairo – Ciudad de Origen', description: 'Desayuno, check-out del hotel y traslado al Aeropuerto Internacional de El Cairo para tomar su vuelo de regreso.' }
+    ]
+  },
+  it: {
+    title: 'Egitto Classico',
+    duration: '8 Giorni',
+    type: 'Classico',
+    groupSize: '2-16',
+    overview: 'Un viaggio indimenticabile attraverso le meraviglie dell’antico Egitto. Dal mistero delle Piramidi di Giza alla magia del Nilo, dalle tombe dei faraoni all’atmosfera vibrante del Cairo storico — questo programma classico è progettato per offrire un’esperienza completa, confortevole e autentica.',
+    highlights: [
+      'Visita alle celebri Piramidi di Giza e alla Grande Sfinge',
+      'Crociera sul Nilo in pensione completa da Aswan a Luxor',
+      'Templi di Philae, Kom Ombo, Edfu, Karnak e Luxor',
+      'Escursione opzionale agli iconici Templi di Abu Simbel',
+      'Il Cairo storico: Cittadella, Moschea di Alabastro, Khan El Khalili, Quartiere Copto e Museo Egizio'
+    ],
+    included: [
+      'Tutti i trasferimenti e trasporti terrestri dall’inizio alla fine.',
+      'Assistenza in aeroporto all’arrivo e alla partenza.',
+      'Guida turistica parlante italiano durante le visite.',
+      'Visite guidate, biglietti d’ingresso e trasporti come da programma.',
+      '04 notti al Cairo con pernottamento e colazione + 03 notti di Crociera sul Nilo in pensione completa.'
+    ],
+    excluded: [
+      'Mance generali di viaggio 45 € a persona (mance per la guida escluse).',
+      'Bevande ai pasti, spese personali e quanto non espresso negli inclusi.',
+      'Voli interni e internazionali.',
+      'Visto d’ingresso 25 € a persona.'
+    ],
+    itinerary: [
+      { day: 1, title: 'Città di Origine – Il Cairo', description: 'All’arrivo all’aeroporto del Cairo, il nostro personale vi assisterà per il visto e le procedure di immigrazione, accompagnandovi all’hotel.' },
+      { day: 2, title: 'Il Cairo – Piramidi di Giza', description: 'Prima colazione e partenza per la piana di Giza per ammirare le Piramidi di Cheope, Chefren e Micerino, la Sfinge e il belvedere panoramico. Visita opzionale a Menfi e Saqqara.' },
+      { day: 3, title: 'Il Cairo / Aswan – Crociera sul Nilo', description: 'Trasferimento in aeroporto per il volo verso Aswan. All’arrivo imbarco sulla motonave da crociera in pensione completa e visita al magnifico Tempio di Philae.' },
+      { day: 4, title: 'Crociera sul Nilo – Kom Ombo ed Edfu', description: 'Colazione e possibilità di escursione opzionale ad Abu Simbel. Navigazione verso Kom Ombo e visita al tempio. Proseguimento per Edfu con cena e pernottamento a bordo.' },
+      { day: 5, title: 'Crociera sul Nilo – Edfu e Luxor', description: 'Visita al Tempio di Horus a Edfu. Navigazione verso Luxor e visita ai maestosi Templi di Karnak e Luxor. Cena e pernottamento a bordo a Luxor.' },
+      { day: 6, title: 'Luxor – Il Cairo', description: 'Colazione a bordo e trasferimento in aeroporto per il volo interno per Il Cairo. Accoglienza e trasferimento in hotel.' },
+      { day: 7, title: 'Il Cairo – Tour della Città', description: 'Colazione e giornata libera. Tour opzionale del Cairo: Cittadella, Moschea di Alabastro, Quartiere Copto, Museo Egizio e bazar di Khan El Khalili con cena tipica.' },
+      { day: 8, title: 'Il Cairo – Città di Origine', description: 'Dopo la colazione, check-out dall’hotel e trasferimento all’aeroporto del Cairo per il volo internazionale di rientro.' }
+    ]
+  },
+  pt: {
+    title: 'Programa Egito Clássico',
+    duration: '8 Dias',
+    type: 'Clássico',
+    groupSize: '2-16',
+    overview: 'Uma viagem inesquecível pelas maravilhas milenares do Egito. Do mistério das Pirâmides de Gizé à magia do Nilo, e dos túmulos dos faraós à atmosfera vibrante do Cairo histórico — este itinerário clássico foi desenhado para quem deseja descobrir o Egito de forma completa, confortável e autêntica.',
+    highlights: [
+      'Visita às famosas Pirâmides de Gizé e à Grande Esfinge',
+      'Cruzeiro pelo Nilo em pensão completa de Assuã a Luxor',
+      'Templos de Filae, Kom Ombo, Edfu, Karnak e Luxor',
+      'Excursão opcional aos templos de Abu Simbel',
+      'O Cairo histórico: Cidadela, Mesquita de Alabastro, Khan El Khalili, Bairro Copta e Museu Egípcio'
+    ],
+    included: [
+      'Todos os traslados e transportes indicados do início ao fim.',
+      'Assistência personalizada nos aeroportos.',
+      'Guia turístico em seu idioma durante as visitas.',
+      'Visitas, ingressos para monumentos e transporte conforme itinerário.',
+      '04 noites no Cairo com hospedagem e café da manhã + 03 noites de Cruzeiro pelo Nilo em pensão completa.'
+    ],
+    excluded: [
+      'Gorjetas gerais de viagem €45 por pessoa (gorjetas do guia não incluídas).',
+      'Bebidas, refeições não mencionadas e despesas pessoais.',
+      'Voos domésticos e internacionais.',
+      'Visto de entrada €25 por pessoa.'
+    ],
+    itinerary: [
+      { day: 1, title: 'Cidade de Origem – Cairo', description: 'Chegada ao Aeroporto do Cairo, assistência com visto e imigração, seguida de traslado confortável para o seu hotel.' },
+      { day: 2, title: 'Cairo – Pirâmides de Gizé', description: 'Café da manhã e saída para as Pirâmides de Quéops, Quéfren e Miquerinos, ponto panorâmico e Esfinge. Visita opcional a Mênfis e Saqqara.' },
+      { day: 3, title: 'Cairo / Assuã – Cruzeiro pelo Nilo', description: 'Traslado ao aeroporto para voo até Assuã. Embarque no cruzeiro em pensão completa e visita ao Templo de Filae.' },
+      { day: 4, title: 'Cruzeiro pelo Nilo – Kom Ombo e Edfu', description: 'Café da manhã e excursão opcional a Abu Simbel. Navegação para Kom Ombo com visita ao templo e continuação até Edfu para jantar a bordo.' },
+      { day: 5, title: 'Cruzeiro pelo Nilo – Edfu e Luxor', description: 'Visita ao Templo de Hórus em Edfu. Navegação até Luxor e visita aos Templos de Karnak e Luxor. Noite a bordo em Luxor.' },
+      { day: 6, title: 'Luxor – Cairo', description: 'Café da manhã e traslado ao aeroporto para o voo doméstico de volta ao Cairo. Recepção e traslado ao hotel.' },
+      { day: 7, title: 'Cairo – Tour pela Cidade', description: 'Café da manhã e dia livre. Tour opcional pelo Cairo histórico: Cidadela, Mesquita de Alabastro, Bairro Copta, Museu Egípcio e Mercado Khan El Khalili com jantar.' },
+      { day: 8, title: 'Cairo – Cidade de Origem', description: 'Após o café da manhã, check-out do hotel e traslado ao Aeroporto Internacional do Cairo para voo de retorno.' }
+    ]
+  }
+};
+
 export default function ClassicProgramDetails() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.language || 'en').substring(0, 2);
+  const currentLangData = CLASSIC_PROGRAM_LANGS[lang] || CLASSIC_PROGRAM_LANGS.en;
 
-  const title = t('data.completoEgypt.title', 'Egito Completo');
-  const overview = t('data.completoEgypt.overview', 'Uma viagem completa de 8 dias pelos maiores tesouros do Egito.');
-  const duration = t('data.completoEgypt.duration', '8 Dias / 7 Noites');
-  const tourType = t('data.completoEgypt.type', 'Tour Completo pelo Egito');
-
-  const highlights = useMemo(() => [
-    t('data.completoEgypt.highlight.1', 'Pirâmides de Gizé e Esfinge com visita ao interior da pirâmide'),
-    t('data.completoEgypt.highlight.2', 'Cairo antigo, Khan El Khalili e Café dos Espelhos'),
-    t('data.completoEgypt.highlight.3', 'Cidadela de Saladino, Mesquita de Alabastro e Museu Egípcio'),
-    t('data.completoEgypt.highlight.4', 'Templo de Luxor, Templo de Karnak e Vale dos Reis'),
-    t('data.completoEgypt.highlight.5', 'Templo de Edfu e Templo de Kom Ombo'),
-    t('data.completoEgypt.highlight.6', 'Templos de Abu Simbel, Represa de Assuã e Templo de Filae')
-  ], [t]);
-
-  const included = useMemo(() => [
-    t('data.completoEgypt.incl.1', 'Todos os transfers, desde a chegada até a saída'),
-    t('data.completoEgypt.incl.2', 'Visto e assistência desde o primeiro momento'),
-    t('data.completoEgypt.incl.3', 'Guia em seu idioma para todas as visitas'),
-    t('data.completoEgypt.incl.4', '3 ou 4 noites de hotel no Cairo'),
-    t('data.completoEgypt.incl.5', '3 ou 4 noites de cruzeiro pelo Nilo'),
-    t('data.completoEgypt.incl.6', 'Pensão completa desde o jantar do dia de chegada ao café da manhã do dia de saída'),
-    t('data.completoEgypt.incl.7', 'Voos domésticos entre Cairo-Luxor e Assuã-Cairo'),
-    t('data.completoEgypt.incl.8', 'Taxas portuárias e gorjetas')
-  ], [t]);
-
-  const excluded = useMemo(() => [
-    t('data.completoEgypt.excl.1', 'Bebidas')
-  ], [t]);
-
-  const itinerary = useMemo(() => [
-    {
-      day: 1,
-      title: t('data.completoEgypt.day1.title', 'Chegada ao Cairo'),
-      description: t('data.completoEgypt.day1.desc')
-    },
-    {
-      day: 2,
-      title: t('data.completoEgypt.day2.title', 'Pirâmides, Esfinge e Mêmfis'),
-      description: t('data.completoEgypt.day2.desc')
-    },
-    {
-      day: 3,
-      title: t('data.completoEgypt.day3.title', 'Tour pelo Cairo'),
-      description: t('data.completoEgypt.day3.desc')
-    },
-    {
-      day: 4,
-      title: t('data.completoEgypt.day4.title', 'Voo para Luxor e Cruzeiro no Nilo'),
-      description: t('data.completoEgypt.day4.desc')
-    },
-    {
-      day: 5,
-      title: t('data.completoEgypt.day5.title', 'Karnak e Vale dos Reis'),
-      description: t('data.completoEgypt.day5.desc')
-    },
-    {
-      day: 6,
-      title: t('data.completoEgypt.day6.title', 'Edfu e Kom Ombo'),
-      description: t('data.completoEgypt.day6.desc')
-    },
-    {
-      day: 7,
-      title: t('data.completoEgypt.day7.title', 'Abu Simbel e Assuã'),
-      description: t('data.completoEgypt.day7.desc')
-    },
-    {
-      day: 8,
-      title: t('data.completoEgypt.day8.title', 'Partida do Cairo'),
-      description: t('data.completoEgypt.day8.desc')
-    }
-  ], [t]);
+  const { title, duration, type: tourType, groupSize, overview, highlights, included, excluded, itinerary } = currentLangData;
 
   const shuffledTours = useMemo(() => [...tours].sort(() => Math.random() - 0.5), []);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -201,7 +321,7 @@ export default function ClassicProgramDetails() {
             <div className="p-6 flex flex-col items-center justify-center text-center gap-2">
               <FaUsers className="text-gold-500 text-2xl mb-1" />
               <span className="text-caption text-obsidian-500 uppercase text-xs">{t('tour.groupSize', 'Group Size')}</span>
-              <span className="text-body-md font-semibold text-obsidian-900">2-16 Pax</span>
+              <span className="text-body-md font-semibold text-obsidian-900">{groupSize}</span>
             </div>
           </div>
         </div>
@@ -323,7 +443,7 @@ export default function ClassicProgramDetails() {
       </section>
 
       {/* Reviews Map */}
-      <ReviewsMap tourId="complete-egypt-8d" />
+      <ReviewsMap tourId="classic-program" />
 
       {/* Related Tours Carousel */}
       <section className="container mx-auto px-6 py-24">
