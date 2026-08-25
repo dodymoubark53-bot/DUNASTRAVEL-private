@@ -93,6 +93,35 @@ export function useLandingPage(slug, { destinationOnly = false } = {}) {
           };
         }
 
+        // Also fetch any newly created published tours matching this destination from API
+        try {
+          const liveToursRes = await api.get(`/tours?destination=${encodeURIComponent(slug)}&lang=${encodeURIComponent(locale)}&limit=100`);
+          const liveTours = Array.isArray(liveToursRes?.data) ? liveToursRes.data : (Array.isArray(liveToursRes) ? liveToursRes : []);
+          if (liveTours.length > 0) {
+            const currentSlugs = new Set((page.tours || []).map(t => t.slug.toLowerCase()));
+            const newDynamicTours = liveTours
+              .filter(t => t?.slug && !currentSlugs.has(t.slug.toLowerCase()))
+              .map(t => ({
+                id: t.id,
+                slug: t.slug,
+                title: typeof t.title === 'object' ? (t.title[locale] || t.title.ar || t.title.en || t.slug) : String(t.title || t.slug),
+                basePriceUsd: String(t.basePriceUsd || t.price || 450),
+                currency: t.currency || 'USD',
+                images: t.images || (t.heroImage ? [t.heroImage] : []),
+                country: t.country || slug,
+                customBadge: t.badge || null,
+              }));
+            if (newDynamicTours.length > 0) {
+              page = {
+                ...page,
+                tours: [...(page.tours || []), ...newDynamicTours],
+              };
+            }
+          }
+        } catch {
+          // ignore if tours endpoint error
+        }
+
         if (active) setLandingPage(page);
       } catch (reason) {
         if (active) {
