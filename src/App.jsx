@@ -76,6 +76,7 @@ const Contact = lazy(() => import("./pages/Contact"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Destinations = lazy(() => import("./pages/destinations/Destinations"));
 const LandingPageDetails = lazy(() => import("./pages/destinations/LandingPageDetails"));
+const Egipto = lazy(() => import("./pages/destinations/Egipto"));
 const Jordania = lazy(() => import("./pages/destinations/Jordania"));
 const JordanProgramDetails = lazy(() => import("./pages/programs/JordanProgramDetails"));
 const Dubai = lazy(() => import("./pages/destinations/Dubai"));
@@ -331,6 +332,22 @@ function App() {
                     element={
                       <PageTransition>
                         <Destinations />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="egypt"
+                    element={
+                      <PageTransition>
+                        <Egipto />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="egito"
+                    element={
+                      <PageTransition>
+                        <Egipto />
                       </PageTransition>
                     }
                   />

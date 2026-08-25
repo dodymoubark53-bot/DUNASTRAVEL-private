@@ -51,7 +51,7 @@ function getFallbackLandingPage(slug, locale) {
       brief: locale === 'ar' ? 'حضارة عريقة وتاريخ مجيد.' : 'Ancient civilisation and historic heritage.',
       description: locale === 'ar' ? 'استكشف الوجهات والمعالم التاريخية في مصر.' : 'Explore historical landmarks and destinations in Egypt.',
       heroImageUrl: '/imgs/egyothero.png',
-      tours: [],
+      tours: matchedTours,
     };
   }
 
