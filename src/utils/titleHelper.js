@@ -92,7 +92,7 @@ const staticTourTitles = {
  */
 export function resolveLocalizedText(val, t = (k) => k, lang = 'en') {
   if (!val) return '';
-  
+
   // If it's already an object { en: '...', ar: '...' }
   if (typeof val === 'object' && val !== null) {
     return val[lang] || val.en || val.ar || val.es || Object.values(val)[0] || '';
@@ -108,28 +108,26 @@ export function resolveLocalizedText(val, t = (k) => k, lang = 'en') {
     return entry[lang] || entry.en || cleanVal;
   }
 
-  // If starts with "data.", strip it and try translation
-  if (cleanVal.startsWith('data.')) {
-    const stripped = cleanVal.replace(/^data\./, '');
-    if (typeof t === 'function') {
-      const translated = t(stripped);
-      if (translated && translated !== stripped) return translated;
-      const translatedDirect = t(cleanVal);
-      if (translatedDirect && translatedDirect !== cleanVal) return translatedDirect;
+  if (typeof t === 'function') {
+    // 1. Try exact key lookup
+    const direct = t(cleanVal);
+    if (direct && direct !== cleanVal) return direct;
+
+    // 2. Try with "data." prefix
+    if (!cleanVal.startsWith('data.')) {
+      const dataPrefixed = t(`data.${cleanVal}`);
+      if (dataPrefixed && dataPrefixed !== `data.${cleanVal}`) return dataPrefixed;
     }
-    return stripped;
+
+    // 3. Try with "data." stripped
+    if (cleanVal.startsWith('data.')) {
+      const stripped = cleanVal.replace(/^data\./, '');
+      const translatedStripped = t(stripped);
+      if (translatedStripped && translatedStripped !== stripped) return translatedStripped;
+    }
   }
 
-  // If it is an i18n key (contains '.' or '_')
-  if (typeof t === 'function' && (cleanVal.includes('.') || cleanVal.includes('_'))) {
-    const translated = t(cleanVal);
-    if (translated && translated !== cleanVal) {
-      return translated;
-    }
-  }
-
-  // Return the direct string value
-  return cleanVal;
+  return cleanVal.startsWith('data.') ? cleanVal.replace(/^data\./, '') : cleanVal;
 }
 
 /**
