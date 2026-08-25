@@ -72,11 +72,18 @@ const staticTourTitles = {
     it: 'Gioielli d\'Egitto e Giordania 11 Giorni',
   },
   'tunisia_tour_title': {
-    en: 'Tunisia 8 Days Desert & Mediterranean Coast',
-    es: 'Túnez 8 Días Desierto y Costa Mediterránea',
-    ar: 'تونس 8 أيام الصحراء والساحل المتوسطي',
-    pt: 'Tunísia 8 Dias Deserto e Costa Mediterrânea',
-    it: 'Tunisia 8 Giorni Deserto e Costa Mediterranea',
+    ar: 'برنامج تونس الخضراء المتميز',
+    es: 'Circuito Túnez Verde Premium - 8 Días / 7 Noches',
+    en: 'Premium Green Tunisia Tour - 8 Days / 7 Nights',
+    it: 'Tour Tunisia Verde Premium - 8 Giorni / 7 Notti',
+    pt: 'Circuito Tunísia Verde Premium - 8 Dias / 7 Noites',
+  },
+  'Circuito Túnez - 8 Días / 7 Noches': {
+    ar: 'برنامج تونس الخضراء المتميز',
+    es: 'Circuito Túnez Verde Premium - 8 Días / 7 Noches',
+    en: 'Premium Green Tunisia Tour - 8 Days / 7 Nights',
+    it: 'Tour Tunisia Verde Premium - 8 Giorni / 7 Notti',
+    pt: 'Circuito Tunísia Verde Premium - 8 Dias / 7 Noites',
   },
   'completoEgypt.title': {
     en: 'Complete Egypt Grand Tour 8 Days',
