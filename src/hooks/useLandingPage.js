@@ -41,6 +41,20 @@ function getFallbackLandingPage(slug, locale) {
       };
     });
 
+  if (normSlug === 'egypt') {
+    return {
+      id: 'egypt',
+      slug: 'egypt',
+      type: 'DESTINATION',
+      title: locale === 'ar' ? 'مصر' : locale === 'es' ? 'Egipto' : locale === 'pt' ? 'Egito' : locale === 'it' ? 'Egitto' : 'Egypt',
+      subtitle: locale === 'ar' ? 'أرض الفراعنة والتاريخ' : locale === 'es' ? 'Tierra de los Faraones' : 'Land of the Pharaohs',
+      brief: locale === 'ar' ? 'حضارة عريقة وتاريخ مجيد.' : 'Ancient civilisation and historic heritage.',
+      description: locale === 'ar' ? 'استكشف الوجهات والمعالم التاريخية في مصر.' : 'Explore historical landmarks and destinations in Egypt.',
+      heroImageUrl: '/imgs/egyothero.png',
+      tours: [],
+    };
+  }
+
   if (normSlug === 'morocco') {
     return {
       id: 'morocco',
