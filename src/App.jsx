@@ -80,6 +80,8 @@ const Jordania = lazy(() => import("./pages/destinations/Jordania"));
 const JordanProgramDetails = lazy(() => import("./pages/programs/JordanProgramDetails"));
 const Dubai = lazy(() => import("./pages/destinations/Dubai"));
 const DubaiProgramDetails = lazy(() => import("./pages/programs/DubaiProgramDetails"));
+const Turquia = lazy(() => import("./pages/destinations/Turquia"));
+const TurkeyProgramDetails = lazy(() => import("./pages/programs/TurkeyProgramDetails"));
 const TourDetails = lazy(() => import("./pages/tours/TourDetails"));
 const BlogDetails = lazy(() => import("./pages/blogs/BlogDetails"));
 const ServiceDetails = lazy(() => import("./pages/services/ServiceDetails"));
@@ -291,6 +293,22 @@ function App() {
                     }
                   />
                   <Route
+                    path="turkey/:programId"
+                    element={
+                      <PageTransition>
+                        <TurkeyProgramDetails />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="turquia/:programId"
+                    element={
+                      <PageTransition>
+                        <TurkeyProgramDetails />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
                     path=":slug"
                     element={
                       <PageTransition>
@@ -345,6 +363,38 @@ function App() {
                     element={
                       <PageTransition>
                         <DubaiProgramDetails />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="turkey"
+                    element={
+                      <PageTransition>
+                        <Turquia />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="turquia"
+                    element={
+                      <PageTransition>
+                        <Turquia />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="turkey/:programId"
+                    element={
+                      <PageTransition>
+                        <TurkeyProgramDetails />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="turquia/:programId"
+                    element={
+                      <PageTransition>
+                        <TurkeyProgramDetails />
                       </PageTransition>
                     }
                   />
