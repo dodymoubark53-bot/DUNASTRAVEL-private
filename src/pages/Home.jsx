@@ -21,6 +21,7 @@ import {
 import { turkeyTours } from "../data/turkeyTours.js";
 import { jordanTours } from "../data/jordanTours.js";
 import { dubaiTours } from "../data/dubaiTours.js";
+import { transportation as transportationData } from "../data/transportation.js";
 
 
 const _destinationsData = [
@@ -730,7 +731,12 @@ const Home = () => {
   useScrollAnimations();
   const isRtl = i18n.dir() === 'rtl';
 
-  const filteredVehicles = [];
+  const filteredVehicles = useMemo(() => {
+    return (transportationData || []).filter((v) => {
+      if (vehicleFilter === "all") return true;
+      return v.category === vehicleFilter;
+    });
+  }, [vehicleFilter]);
 
   // Shared galleryImages and videos retrieved from useMedia hook
 

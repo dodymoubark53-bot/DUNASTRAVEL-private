@@ -8,10 +8,12 @@ import { useServices } from '../../hooks/useServices';
 import { useAuth } from '../../context/AuthContext';
 import InvoiceModal from './InvoiceModal';
 import api from '../../utils/api';
+import { transportation as staticTransportation } from '../../data/transportation';
 
 const TransportationForm = ({ preSelectedVehicleId = '' }) => {
   const { t } = useTranslation();
-  const { services: transportation } = useServices('transportation');
+  const { services: apiTransportation } = useServices('transportation');
+  const transportationList = apiTransportation && apiTransportation.length > 0 ? apiTransportation : staticTransportation;
   const { user } = useAuth();
   const [status, setStatus] = useState('idle');
   const [bookingResult, setBookingResult] = useState(null);
@@ -120,9 +122,9 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
             onSubmit={handleSubmit}
             className="flex flex-col gap-5"
           >
-            <div className="mb-2">
-              <h3 className="text-display-md text-obsidian-900 mb-2 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('booking.bookYourTransfer', 'Book Your Transfer')}</h3>
-              <p className="text-caption text-obsidian-500">{t('booking.transferDesc', 'Reserve your premium vehicle and professional driver.')}</p>
+            <div className="mb-2 text-center md:text-left">
+              <h3 className="text-display-md text-ivory-50 mb-2 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('booking.bookYourTransfer', 'Book Your Transfer')}</h3>
+              <p className="text-caption text-ivory-300">{t('booking.transferDesc', 'Reserve your premium vehicle and professional driver.')}</p>
             </div>
 
             {error && (
@@ -141,10 +143,10 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
                 value={formData.vehicleId}
                 onChange={handleChange}
                 required
-                className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors bg-white md:col-span-2 text-[16px]"
+                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 md:col-span-2 text-[16px] font-medium"
               >
                 <option value="" disabled>{t('booking.selectVehicle', 'Select Vehicle')}</option>
-                {transportation.map(v => (
+                {transportationList.map(v => (
                   <option key={v.id} value={v.id}>{t(`data.${v.name}`, v.name)}</option>
                 ))}
               </select>
@@ -158,7 +160,7 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
                 min={todayStr}
                 onChange={handleChange}
                 required
-                className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors text-[16px]"
+                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 text-[16px]"
               />
               <label htmlFor="pickup-time" className="sr-only">{t('booking.pickupTime', 'Pick Up Time')}</label>
               <input
@@ -168,12 +170,12 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
                 value={formData.pickupTime}
                 onChange={handleChange}
                 required
-                className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors text-[16px]"
+                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 text-[16px]"
               />
 
               <div className="flex gap-4">
                 <div className="w-1/2">
-                  <label htmlFor="adults-count" className="block text-caption text-obsidian-500 mb-1">{t('booking.adults', 'Adults')}</label>
+                  <label htmlFor="adults-count" className="block text-caption text-gold-400 font-semibold mb-1 uppercase tracking-wider">{t('booking.adults', 'Adults')}</label>
                   <input
                     id="adults-count"
                     type="number"
@@ -182,11 +184,11 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
                     value={formData.adults}
                     onChange={handleChange}
                     required
-                    className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors text-[16px]"
+                    className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 text-[16px]"
                   />
                 </div>
                 <div className="w-1/2">
-                  <label htmlFor="children-count" className="block text-caption text-obsidian-500 mb-1">{t('booking.children', 'Children')}</label>
+                  <label htmlFor="children-count" className="block text-caption text-gold-400 font-semibold mb-1 uppercase tracking-wider">{t('booking.children', 'Children')}</label>
                   <input
                     id="children-count"
                     type="number"
@@ -195,7 +197,7 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
                     value={formData.children}
                     onChange={handleChange}
                     required
-                    className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors text-[16px]"
+                    className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 text-[16px]"
                   />
                 </div>
               </div>
@@ -209,7 +211,7 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
                 value={formData.pickupLocation}
                 onChange={handleChange}
                 required
-                className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors text-[16px]"
+                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 text-[16px]"
               />
               <label htmlFor="dropoff-location" className="sr-only">{t('booking.dropoffLocation', 'Drop Off Location')}</label>
               <input
@@ -220,7 +222,7 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
                 value={formData.dropoffLocation}
                 onChange={handleChange}
                 required
-                className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors md:col-span-2 text-[16px]"
+                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 md:col-span-2 text-[16px]"
               />
 
               <label htmlFor="full-name" className="sr-only">{t('booking.fullName', 'Full Name')}</label>
@@ -232,7 +234,7 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
                 value={formData.fullName}
                 onChange={handleChange}
                 required
-                className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors text-[16px]"
+                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 text-[16px]"
               />
               <label htmlFor="phone-number" className="sr-only">{t('booking.phone', 'Phone Number')}</label>
               <input
@@ -243,7 +245,7 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
                 value={formData.phone}
                 onChange={handleChange}
                 required
-                className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors text-[16px]"
+                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 text-[16px]"
               />
               <label htmlFor="email-address" className="sr-only">{t('booking.email', 'Email Address')}</label>
               <input
@@ -254,7 +256,7 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors md:col-span-2 text-[16px]"
+                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 md:col-span-2 text-[16px]"
               />
             </div>
 
@@ -266,15 +268,15 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
               value={formData.specialRequest}
               onChange={handleChange}
               rows="3"
-              className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors resize-none text-[16px]"
+              className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors resize-none bg-white text-obsidian-900 text-[16px]"
             ></textarea>
 
             <div className="flex justify-end mt-4">
               <Button
                 type="submit"
                 disabled={status === 'submitting'}
-                className="w-full py-4 text-lg rounded-full text-white hover:scale-105 transition-transform"
-                style={{ background: 'linear-gradient(135deg, rgb(4, 20, 70) 0%, rgb(6, 29, 93) 40%, rgb(10, 40, 120) 100%)', boxShadow: '0 0 20px rgba(10,25,105, 0.6)', border: '1px solid rgba(255,255,255,0.1)' }}
+                variant="gold-glow"
+                className="w-full py-4 text-lg font-bold rounded-full uppercase tracking-wider text-obsidian-900 shadow-[0_0_25px_rgba(201,162,39,0.4)] hover:scale-[1.02] transition-all cursor-pointer"
               >
                 {status === 'submitting' ? t('common.processing', 'Processing...') : t('transportation.reserveNow', 'Reserve Now')}
               </Button>

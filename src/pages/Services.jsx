@@ -11,6 +11,8 @@ import ErrorState from '../components/ui/ErrorState';
 import { useCurrency } from '../context/CurrencyContext';
 import { resolveLocalizedText } from '../utils/titleHelper';
 
+import { transportation as staticTransportation } from '../data/transportation';
+
 const Services = () => {
   const { t, i18n } = useTranslation();
   const lang = i18n.language || 'en';
@@ -29,7 +31,8 @@ const Services = () => {
   ];
 
   const filteredServices = service ? allServicesData.filter(s => s.category === service) : allServicesData;
-  const transportation = allServicesData.filter(s => s.category === 'transportation');
+  const apiTrans = allServicesData.filter(s => s.category === 'transportation');
+  const transportation = apiTrans.length > 0 ? apiTrans : staticTransportation;
 
   if (loading) return <SkeletonLoader count={6} />;
   if (error) return <ErrorState message={error.message || 'Failed to load services'} />;
@@ -196,7 +199,7 @@ const Services = () => {
                 <Link
                   key={item.id}
                   to={['hurghada-4d3n', 'sharm-4d3n', 'siwa-oasis-alexandria'].includes(item.slug) ? `/trips/${item.slug}` : `${prefix}/${item.category}/${item.slug}`}
-                  className="group block h-full flex flex-col cursor-pointer no-underline"
+                  className="group h-full flex flex-col cursor-pointer no-underline"
                 >
                   <motion.div
                     variants={fadeInUp}
