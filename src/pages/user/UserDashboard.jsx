@@ -311,6 +311,10 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
                             <span className="block text-[11px] text-ivory-400 uppercase">{t('booking.totalPrice', 'Total Price')}</span>
                             <span className="font-semibold text-gold-400">${b.totalAmountUsd || b.price || '0.00'}</span>
                           </div>
+                          <div>
+                            <span className="block text-[11px] text-ivory-400 uppercase">{t('booking.paymentStatus', 'Payment')}</span>
+                            <span className="font-semibold text-ivory-100">{b.paymentStatus || t('booking.awaitingPayment', 'Awaiting payment')}</span>
+                          </div>
                           <div className="flex items-end gap-2">
                             <button
                               type="button"

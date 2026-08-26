@@ -28,7 +28,13 @@ function transformHotelToService(hotel) {
   const rating = hotel.rating === null || hotel.rating === undefined
     ? null
     : requireFiniteNumber(hotel.rating, 'rating', hotel.id);
-  const amenities = Array.isArray(hotel.amenities) ? hotel.amenities : [];
+  const amenities = Array.isArray(hotel.amenities)
+    ? hotel.amenities
+    : hotel.amenities && typeof hotel.amenities === 'object'
+      ? Object.entries(hotel.amenities)
+          .filter(([, enabled]) => enabled === true)
+          .map(([name]) => name.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()))
+      : [];
   return {
     ...hotel,
     category: 'hotels',
@@ -66,6 +72,8 @@ function transformTransportToService(service) {
     image: null,
     price: pricePerTrip,
     pricePerTrip,
+    pricePerDay: pricePerTrip,
+    features: [],
     shortDesc: '',
     isActive: service.isActive === true,
   };
@@ -107,15 +115,8 @@ export function useServices(category = null) {
         setError(null);
         let items;
         if (category === 'hotels') {
-          try {
-            items = readItems(await api.get(`/hotels?locale=${lang}`), 'hotels')
-              .map(transformHotelToService);
-          } catch (requestError) {
-            // Hotels were added after the first public deployment. Keep the
-            // page usable against that older API while the catalog is absent.
-            if (requestError?.status !== 404) throw requestError;
-            items = [];
-          }
+          items = readItems(await api.get(`/hotels?locale=${lang}`), 'hotels')
+            .map(transformHotelToService);
         } else if (category === 'transportation') {
           items = readItems(await api.get('/transportation/services'), 'transportation')
             .map(transformTransportToService);
