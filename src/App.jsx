@@ -577,7 +577,7 @@ function App() {
                 <Route
                   path="payment/return"
                   element={
-                    <Suspense fallback={<PageLoader />}>
+                    <Suspense fallback={<FallbackLoader />}>
                       <BookingSuccess />
                     </Suspense>
                   }
@@ -593,7 +593,7 @@ function App() {
                 <Route
                   path="payment/cancel"
                   element={
-                    <Suspense fallback={<PageLoader />}>
+                    <Suspense fallback={<FallbackLoader />}>
                       <BookingCancel />
                     </Suspense>
                   }
