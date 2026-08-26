@@ -52,8 +52,8 @@ const Contact = () => {
                       <a href="tel:+20233746654" className="hover:text-gold-500 transition-colors flex items-center gap-2">
                         <FaPhone className="text-gold-500 text-sm" /> 02 33746654
                       </a>
-                      <a href="tel:+201149401111" className="hover:text-gold-500 transition-colors flex items-center gap-2">
-                        <FaWhatsapp className="text-gold-500 text-sm" /> +20 114 940 1111
+                      <a href="https://wa.me/20114940111" target="_blank" rel="noopener noreferrer" className="hover:text-gold-500 transition-colors flex items-center gap-2">
+                        <FaWhatsapp className="text-gold-500 text-sm" /> +20 114 940 111
                       </a>
                     </div>
                   </div>
@@ -73,18 +73,29 @@ const Contact = () => {
               </div>
             </div>
 
-            {/* Real Google Map */}
-            <div className="w-full h-[300px] lg:h-[450px] rounded-[16px] overflow-hidden border border-[rgba(201,162,39,0.2)] shadow-[0_0_32px_rgba(201,162,39,0.1)]">
+            {/* Real Google Map clickable link */}
+            <a
+              href="https://maps.app.goo.gl/oA84mQGwUsHWo4kt8"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full h-[300px] lg:h-[450px] rounded-[16px] overflow-hidden border border-[rgba(201,162,39,0.2)] shadow-[0_0_32px_rgba(201,162,39,0.1)] relative group cursor-pointer"
+              title={t('contact.openMaps', 'Open in Google Maps')}
+            >
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3453!2d31.2180!3d30.0090!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDA1JzMyLjQiTiAzMcKwMTMnMDQuOCJF!5e0!3m2!1sen!2seg!4v1234567890"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3454.026723223011!2d31.2052!3d30.0076!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDAwJzI3LjQiTiAzMcKwMTInMTg3LjJF!5e0!3m2!1sen!2seg!4v1680000000000"
                 width="100%"
                 height="100%"
-                style={{ border: 0 }}
+                style={{ border: 0, pointerEvents: 'none' }}
                 allowFullScreen=""
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               ></iframe>
-            </div>
+              <div className="absolute inset-0 bg-obsidian-950/20 group-hover:bg-transparent transition-all duration-300 flex items-center justify-center">
+                <span className="bg-obsidian-900/85 backdrop-blur-md text-gold-400 font-bold px-5 py-2.5 rounded-full border border-gold-500/40 text-xs shadow-xl group-hover:scale-105 transition-all">
+                  📍 {t('contact.openGoogleMaps', 'تواصل معنا - فتح الموقع على خرائط جوجل')}
+                </span>
+              </div>
+            </a>
           </div>
 
           {/* Form */}

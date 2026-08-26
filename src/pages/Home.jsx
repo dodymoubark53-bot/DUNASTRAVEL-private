@@ -18,6 +18,9 @@ import {
   resolveTourDuration,
   resolveLocalizedText
 } from "../utils/titleHelper";
+import { turkeyTours } from "../data/turkeyTours.js";
+import { jordanTours } from "../data/jordanTours.js";
+import { dubaiTours } from "../data/dubaiTours.js";
 
 
 const _destinationsData = [
@@ -25,49 +28,49 @@ const _destinationsData = [
     id: "egypt",
     nameKey: "nav.egypt",
     descKey: "home.destEgyptDesc",
-    image: "https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=600&q=40&fm=webp",
+    image: "/imgs/egyothero.png",
   },
   {
     id: "turkey",
     nameKey: "nav.turkey",
     descKey: "home.destTurkeyDesc",
-    image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=600&q=40&fm=webp",
-  },
-  {
-    id: "dubai",
-    nameKey: "nav.dubai",
-    descKey: "home.destDubaiDesc",
-    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=600&q=40&fm=webp",
+    image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1920&q=80",
   },
   {
     id: "jordan",
     nameKey: "nav.jordan",
     descKey: "home.destJordanDesc",
-    image: "https://images.unsplash.com/photo-1579606032821-4e6161c81bd3?auto=format&fit=crop&w=600&q=40&fm=webp",
+    image: "https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg",
+  },
+  {
+    id: "dubai",
+    nameKey: "nav.dubai",
+    descKey: "home.destDubaiDesc",
+    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80",
   },
   {
     id: "morocco",
     nameKey: "nav.morocco",
     descKey: "home.destMoroccoDesc",
-    image: "https://images.unsplash.com/photo-1539020140153-e479b8c22e70?auto=format&fit=crop&w=600&q=40&fm=webp",
+    image: "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200",
   },
   {
     id: "greece",
     nameKey: "nav.greece",
     descKey: "home.destGreeceDesc",
-    image: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=600&q=40&fm=webp",
+    image: "https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200",
   },
   {
     id: "tunisia",
     nameKey: "nav.tunisia",
     descKey: "home.destTunisiaDesc",
-    image: "https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=600&q=40&fm=webp",
+    image: "https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=1200&q=80",
   },
   {
     id: "holy-land",
     nameKey: "nav.holyland",
     descKey: "home.destHolyLandDesc",
-    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=40&fm=webp",
+    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=1920&q=80",
   },
 ];
 
@@ -173,7 +176,7 @@ const _newDestinationsList = [
     tagEn: "PHARAOHS & IMMORTAL TEMPLES",
     descAr: "رحلة عبر خمسة آلاف عام من السحر والغموض، من عظمة الجيزة إلى هدوء أسوان.",
     descEn: "A journey through five millennia of magic, from the majesty of Giza to the serenity of Aswan.",
-    image: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=800&q=80",
+    image: "/imgs/egyothero.png",
     link: "/destinations/egypt"
   },
   {
@@ -184,7 +187,7 @@ const _newDestinationsList = [
     tagEn: "CAPPADOCIA BALLOONS & OTTOMAN LEGACY",
     descAr: "جسور الحضارة التاريخية، وشواطئ الريفييرا التركية، ومناطيد كبادوكيا الحالمة.",
     descEn: "Bridges of history, the sun-kissed Turkish Riviera, and the dreamlike balloon-filled skies of Cappadocia.",
-    image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1920&q=80",
     link: "/destinations/turkey"
   },
   {
@@ -195,7 +198,7 @@ const _newDestinationsList = [
     tagEn: "PETRA WONDERS & BEDOUIN STARS",
     descAr: "من روعة البتراء المنحوتة في الصخر إلى هدوء وادي رم الساحر وسحر البحر الميت.",
     descEn: "From the pink-hued stone carvings of Petra to the starry silence of Wadi Rum.",
-    image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=800&q=80",
+    image: "https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg",
     link: "/destinations/jordan"
   },
   {
@@ -206,7 +209,7 @@ const _newDestinationsList = [
     tagEn: "MEDINAS & ATLAS MOUNTAIN PALACES",
     descAr: "دروب فاس العتيقة، وقصور مراكش الفاخرة، وحكايات الصحراء تحت النجوم.",
     descEn: "The ancient winding streets of Fez, red palaces of Marrakech, and tales of the Sahara.",
-    image: "https://images.unsplash.com/photo-1539020140153-e479b8c22e70?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200",
     link: "/destinations/morocco"
   },
   {
@@ -217,7 +220,7 @@ const _newDestinationsList = [
     tagEn: "SANTORINI DOMES & GREEK MYTHS",
     descAr: "قباب زرقاء ممتدة مع الأفق، ومياه فيروزية تحكي قصص الفلاسفة والآلهة.",
     descEn: "Blue domes meeting the infinite horizon, and turquoise waters whispering ancient myths.",
-    image: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200",
     link: "/destinations/greece"
   },
   {
@@ -228,7 +231,7 @@ const _newDestinationsList = [
     tagEn: "SKY-HIGH LUXURY & SAND DUNES",
     descAr: "ناطحات سحاب تعانق السماء، وتجارب تسوق فاخرة، وصحراء ذهبية لا تنام.",
     descEn: "Futuristic skylines, ultra-luxury retreats, and golden desert dunes that never sleep.",
-    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80",
     link: "/destinations/dubai"
   },
   {
@@ -239,19 +242,19 @@ const _newDestinationsList = [
     tagEn: "CARTHAGE RUINS & MEDITERRANEAN BREEZE",
     descAr: "نسيم البحر الأبيض المتوسط يداعب جدران الضيعات البيضاء والزرقاء وأطلال قرطاج.",
     descEn: "Mediterranean breezes caressing whitewashed walls and the ancient columns of Carthage.",
-    image: "https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=1200&q=80",
     link: "/destinations/tunisia"
   },
   {
-    id: "holyland",
+    id: "holy-land",
     nameAr: "الأراضي المقدسة",
     nameEn: "Holy Land",
     tagAr: "مهد الأديان وعبق التاريخ",
     tagEn: "FAITH, HISTORY & SACRED PATHWAYS",
     descAr: "معالم روحية وتاريخية خالدة تروي قصص الأنبياء والحضارات المتعاقبة.",
     descEn: "Sacred spires and ancient pathways whispering stories of faith and human history.",
-    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=800&q=80",
-    link: "/destinations/holyland"
+    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=1920&q=80",
+    link: "/destinations/holy-land"
   }
 ];
 
@@ -291,15 +294,52 @@ const Home = () => {
   const { destinations: liveDestinationsRaw } = useDestinations();
   const liveDestinations = useMemo(() => Array.isArray(liveDestinationsRaw) ? liveDestinationsRaw : [], [liveDestinationsRaw]);
   const { block: holidayPackages } = useCmsBlock('holiday_packages');
-  const liveDestinationCards = useMemo(() => liveDestinations.map((destination) => ({
-    id: destination.slug,
-    name: destination.title,
-    description: destination.description || destination.subtitle || '',
-    subtitle: destination.subtitle || '',
-    image: destination.heroImageUrl,
-    toursCount: destination.toursCount,
-    link: `/destinations/${destination.slug}`,
-  })), [liveDestinations]);
+
+  const DEST_HERO_MAP = {
+    egypt: '/imgs/egyothero.png',
+    turkey: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1920&q=80',
+    jordan: 'https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg',
+    dubai: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80',
+    morocco: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200',
+    greece: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200',
+    tunisia: 'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=1200&q=80',
+    'holy-land': 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=1920&q=80',
+    holyland: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=1920&q=80',
+  };
+
+  const DEST_TOUR_COUNTS = {
+    egypt: 9,
+    turkey: 15,
+    jordan: 7,
+    dubai: 9,
+    morocco: 1,
+    greece: 1,
+    tunisia: 1,
+    'holy-land': 0,
+    holyland: 0,
+  };
+
+  const liveDestinationCards = useMemo(() => liveDestinations.map((destination) => {
+    const slug = destination.slug || destination.id;
+    const heroImg = DEST_HERO_MAP[slug] || destination.heroImageUrl || destination.image;
+    const dynamicCount = (allLiveTours || []).filter(t => t && (t.destination === slug || (slug.includes('holy') && (t.destination === 'holy-land' || t.destination === 'holyland')))).length;
+    const exactCount = DEST_TOUR_COUNTS[slug] !== undefined ? DEST_TOUR_COUNTS[slug] : destination.toursCount;
+    const toursCount = exactCount !== undefined ? exactCount : dynamicCount;
+    const navKey = slug === 'holy-land' ? 'holyland' : slug;
+
+    const name = t(`nav.${navKey}`, destination.title || destination.name);
+    const subtitle = t(`dest.${navKey}.subtitle`, destination.subtitle || destination.description || '');
+
+    return {
+      id: slug,
+      name,
+      description: subtitle,
+      subtitle,
+      image: heroImg,
+      toursCount: toursCount,
+      link: `/destinations/${slug}`,
+    };
+  }), [liveDestinations, allLiveTours, t]);
   const livePackageCards = useMemo(() => {
     if (Array.isArray(holidayPackages) && holidayPackages.length >= 5) {
       return holidayPackages
@@ -337,12 +377,47 @@ const Home = () => {
       tag3: pkg.tag3Key ? t(pkg.tag3Key, '') : '',
     }));
   }, [holidayPackages, t]);
-  const toursForDestination = (destination) =>
-    (allLiveTours || []).filter((tour) => tour && tour.destination === destination);
-  const formattedTurkeyTours = toursForDestination('turkey');
-  const formattedJordanTours = toursForDestination('jordan');
-  const formattedDubaiTours = toursForDestination('dubai');
-  const formattedMoroccoTours = toursForDestination('morocco');
+  const formattedTurkeyTours = useMemo(() => {
+    return (turkeyTours || []).map((t) => ({
+      id: t.id,
+      slug: t.slug || t.id,
+      title: resolveLocalizedText(t.name || t.title, t, i18n.language),
+      overview: resolveLocalizedText(t.overview, t, i18n.language),
+      duration: resolveLocalizedText(t.duration, t, i18n.language),
+      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=800&q=80'],
+      destination: 'turkey',
+      price: t.price || 0,
+      link: `/programs/turkey/${t.slug || t.id}`,
+    }));
+  }, [i18n.language]);
+
+  const formattedJordanTours = useMemo(() => {
+    return (jordanTours || []).map((t) => ({
+      id: t.id,
+      slug: t.slug || t.id,
+      title: resolveLocalizedText(t.name || t.title, t, i18n.language),
+      overview: resolveLocalizedText(t.overview, t, i18n.language),
+      duration: resolveLocalizedText(t.duration, t, i18n.language),
+      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || 'https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg'],
+      destination: 'jordan',
+      price: t.price || 0,
+      link: `/programs/jordan/${t.slug || t.id}`,
+    }));
+  }, [i18n.language]);
+
+  const formattedDubaiTours = useMemo(() => {
+    return (dubaiTours || []).map((t) => ({
+      id: t.id,
+      slug: t.slug || t.id,
+      title: resolveLocalizedText(t.name || t.title, t, i18n.language),
+      overview: resolveLocalizedText(t.overview, t, i18n.language),
+      duration: resolveLocalizedText(t.duration, t, i18n.language),
+      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80'],
+      destination: 'dubai',
+      price: t.price || 0,
+      link: `/programs/dubai/${t.slug || t.id}`,
+    }));
+  }, [i18n.language]);
 
   const allToursForMarquee = useMemo(() => {
     if (!Array.isArray(allLiveTours)) return [];
@@ -372,83 +447,77 @@ const Home = () => {
   }, [allLiveTours]);
 
   const packagesToursForMarquee = useMemo(() => {
+    const lang = i18n.language || 'en';
+    const isAr = lang.startsWith('ar');
+
+    const safeTours = Array.isArray(allLiveTours) ? allLiveTours : [];
     const combined = [];
     const seen = new Set();
 
-    // 1. Add tours from packagesToursMap
-    Object.values(packagesToursMap || {}).flat().filter(Boolean).forEach(t => {
-      const link = t.link || `${t.linkBase || '/tours'}/${t.slug || t.id}`;
-      if (!seen.has(link)) {
-        seen.add(link);
-        combined.push({
-          ...t,
-          link,
-          images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || t.image || '/imgs/egyothero.png'],
-        });
-      }
+    // 1. Gather all actual tours from packagesToursMap
+    Object.entries(packagesToursMap || {}).forEach(([pkgKey, tourList]) => {
+      (tourList || []).forEach((tour) => {
+        if (!tour) return;
+        const link = `/tours/${tour.slug || tour.id}`;
+        if (!seen.has(link)) {
+          seen.add(link);
+          const title = resolveTourTitle(tour, t, lang);
+          const duration = resolveTourDuration(tour, t, lang);
+          const images = Array.isArray(tour.images) && tour.images.length > 0
+            ? tour.images
+            : [tour.heroImage || tour.image || '/imgs/egyothero.png'];
+
+          const badge = pkgKey === 'classic-program'
+            ? (isAr ? 'برنامج كلاسيكي' : 'Classic Program')
+            : pkgKey === 'honeymooners'
+            ? (isAr ? 'شهر العسل' : 'Honeymoon')
+            : pkgKey === 'religious'
+            ? (isAr ? 'رحلة دينية' : 'Religious')
+            : pkgKey === 'multi-country'
+            ? (isAr ? 'رحلة متعددة الدول' : 'Multi-Country')
+            : (isAr ? 'تمديد وساحل' : 'Extension');
+
+          combined.push({
+            ...tour,
+            id: tour.id || tour.slug,
+            title,
+            duration,
+            badge,
+            images,
+            link,
+          });
+        }
+      });
     });
 
-    // 2. Fallback/Explicit Package Trips
+    // 2. Fallback/Explicit Package Trips (Hurghada, Sharm, Siwa, etc.)
     const explicitPackageItems = [
       {
         id: "hurghada-4d3n",
         slug: "hurghada-4d3n",
-        title: "trip.hurghada.title",
-        duration: "trip.hurghada.duration",
-        destination: "egypt",
-        price: 0,
-        rating: 4.9,
-        reviewCount: 42,
+        title: isAr ? "استجمام الغردقة والبحر الأحمر" : "Hurghada Red Sea Escape",
+        duration: isAr ? "4 أيام / 3 ليالي" : "4 Days / 3 Nights",
+        badge: isAr ? "تمديد وساحل" : "Extension",
         images: ["https://1.bp.blogspot.com/-HqmKDzZ73hY/XgSOtrhSAOI/AAAAAAAARdc/cxtywSwZxLIaZPfw98FzQHYtiPblmzg2gCLcBGAsYHQ/w1200-h630-p-k-no-nu/%D8%A3%D9%81%D8%B6%D9%84-%D8%A7%D9%84%D8%A3%D9%86%D8%B4%D8%B7%D8%A9-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D9%8A%D8%A9-%D9%81%D9%89-%D8%A7%D9%84%D8%BA%D8%B1%D8%AF%D9%82%D8%A9-825x510.jpg"],
         link: "/programs/extension/hurghada-4d3n"
       },
       {
         id: "sharm-4d3n",
         slug: "sharm-4d3n",
-        title: "trip.sharm.title",
-        duration: "trip.sharm.duration",
-        destination: "egypt",
-        price: 0,
-        rating: 4.9,
-        reviewCount: 38,
+        title: isAr ? "شرم الشيخ ومنتجات البحر الأحمر" : "Sharm El Sheikh Paradise",
+        duration: isAr ? "4 أيام / 3 ليالي" : "4 Days / 3 Nights",
+        badge: isAr ? "تمديد وساحل" : "Extension",
         images: ["https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80"],
         link: "/programs/extension/sharm-4d3n"
       },
       {
         id: "siwa-oasis-alexandria",
         slug: "siwa-oasis-alexandria",
-        title: "tour_siwa_title",
-        duration: "tour_siwa_duration",
-        destination: "egypt",
-        price: 0,
-        rating: 5.0,
-        reviewCount: 29,
+        title: isAr ? "سحر واحة سيوة والإسكندرية" : "Siwa Oasis & Alexandria Adventure",
+        duration: isAr ? "5 أيام / 4 ليالي" : "5 Days / 4 Nights",
+        badge: isAr ? "سياحة بيئية" : "Eco Tour",
         images: ["https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80"],
         link: "/programs/extension/siwa-oasis-alexandria"
-      },
-      {
-        id: "classic-program-tour",
-        slug: "classic-program",
-        title: "egyptPackages.classic.name",
-        duration: "egyptPackages.classic.duration",
-        destination: "egypt",
-        price: 1290,
-        rating: 4.95,
-        reviewCount: 156,
-        images: ["https://res.cloudinary.com/degbrq3ck/image/upload/v1783029636/Classic_Program_gfal0s.jpg"],
-        link: "/programs/classic/classic-program"
-      },
-      {
-        id: "honeymooners-tour",
-        slug: "honeymooners",
-        title: "egyptPackages.honeymooners.name",
-        duration: "egyptPackages.honeymooners.duration",
-        destination: "egypt",
-        price: 1650,
-        rating: 5.0,
-        reviewCount: 84,
-        images: ["https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=800&q=80"],
-        link: "/programs/honeymooners"
       }
     ];
 
@@ -460,7 +529,90 @@ const Home = () => {
     });
 
     return combined;
-  }, [packagesToursMap]);
+  }, [packagesToursMap, allLiveTours, i18n.language, t]);
+
+  const destinationToursForMarquee = useMemo(() => {
+    const lang = i18n.language || 'en';
+
+    const egyptTours = (allLiveTours || [])
+      .filter((t) => t && (t.destination === 'egypt' || String(t.country || '').toLowerCase() === 'egypt'))
+      .slice(0, 3)
+      .map((t) => ({
+        ...t,
+        id: t.id || t.slug,
+        title: resolveTourTitle(t, t, lang),
+        duration: resolveTourDuration(t, t, lang),
+        destination: 'egypt',
+        images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || t.image || '/imgs/egyothero.png'],
+        link: `/tours/${t.slug || t.id}`,
+      }));
+
+    const turkeyFormatted = (turkeyTours || []).slice(0, 3).map((t) => ({
+      id: t.id,
+      slug: t.slug || t.id,
+      title: resolveLocalizedText(t.name || t.title, t, lang),
+      duration: resolveLocalizedText(t.duration, t, lang),
+      overview: resolveLocalizedText(t.overview, t, lang),
+      destination: 'turkey',
+      price: t.price || 0,
+      rating: 4.9,
+      reviewCount: 45,
+      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : ['https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=800&q=80'],
+      link: `/programs/turkey/${t.slug || t.id}`,
+    }));
+
+    const jordanFormatted = (jordanTours || []).slice(0, 2).map((t) => ({
+      id: t.id,
+      slug: t.slug || t.id,
+      title: resolveLocalizedText(t.name || t.title, t, lang),
+      duration: resolveLocalizedText(t.duration, t, lang),
+      overview: resolveLocalizedText(t.overview, t, lang),
+      destination: 'jordan',
+      price: t.price || 0,
+      rating: 4.95,
+      reviewCount: 38,
+      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : ['https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg'],
+      link: `/programs/jordan/${t.slug || t.id}`,
+    }));
+
+    const dubaiFormatted = (dubaiTours || []).slice(0, 2).map((t) => ({
+      id: t.id,
+      slug: t.slug || t.id,
+      title: resolveLocalizedText(t.name || t.title, t, lang),
+      duration: resolveLocalizedText(t.duration, t, lang),
+      overview: resolveLocalizedText(t.overview, t, lang),
+      destination: 'dubai',
+      price: t.price || 0,
+      rating: 4.88,
+      reviewCount: 52,
+      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : ['https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80'],
+      link: `/programs/dubai/${t.slug || t.id}`,
+    }));
+
+    const otherDestTours = (allLiveTours || [])
+      .filter((t) => t && ['morocco', 'greece', 'tunisia'].includes(t.destination))
+      .map((t) => ({
+        ...t,
+        id: t.id || t.slug,
+        title: resolveTourTitle(t, t, lang),
+        duration: resolveTourDuration(t, t, lang),
+        destination: t.destination,
+        images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || t.image || '/imgs/egyothero.png'],
+        link: `/tours/${t.slug || t.id}`,
+      }));
+
+    return [
+      ...egyptTours.slice(0, 2),
+      ...turkeyFormatted.slice(0, 2),
+      ...jordanFormatted.slice(0, 1),
+      ...dubaiFormatted.slice(0, 1),
+      ...otherDestTours,
+      ...egyptTours.slice(2),
+      ...turkeyFormatted.slice(2),
+      ...jordanFormatted.slice(1),
+      ...dubaiFormatted.slice(1),
+    ].filter(Boolean);
+  }, [allLiveTours, turkeyTours, jordanTours, dubaiTours, i18n.language, t]);
 
 
   // Hero Video State
@@ -609,17 +761,14 @@ const Home = () => {
 
 
 
-  const activeTours = activeDestination
-    ? activeDestination === "turkey"
-      ? formattedTurkeyTours
-      : activeDestination === "jordan"
-        ? formattedJordanTours
-        : activeDestination === "dubai"
-          ? formattedDubaiTours
-          : activeDestination === "morocco"
-            ? formattedMoroccoTours
-            : allLiveTours.filter((t) => t.destination === activeDestination)
-    : [];
+  const activeTours = useMemo(() => {
+    if (!activeDestination) return [];
+    if (activeDestination === "turkey") return formattedTurkeyTours;
+    if (activeDestination === "jordan") return formattedJordanTours;
+    if (activeDestination === "dubai") return formattedDubaiTours;
+    if (activeDestination === "holy-land" || activeDestination === "holyland") return [];
+    return (allLiveTours || []).filter((t) => t && t.destination === activeDestination);
+  }, [activeDestination, formattedTurkeyTours, formattedJordanTours, formattedDubaiTours, allLiveTours]);
 
   const handleDestinationClick = (id) => {
     setActiveDestination((prev) => (prev === id ? null : id));
@@ -931,10 +1080,10 @@ const Home = () => {
       <section className="py-10" style={{ background: 'linear-gradient(135deg, rgb(4, 20, 70) 0%, rgb(6, 29, 93) 40%, rgb(10, 40, 120) 100%)' }}>
         <div className="container mx-auto px-6">
           <div className="text-center mb-8">
-            <span className="text-gold-500 uppercase tracking-widest text-caption block mb-4">
+            <span className="text-white uppercase tracking-widest text-caption block mb-4 font-semibold">
               {t("home.discoverMagic")}
             </span>
-            <h2 className="text-display-lg text-ivory-50">
+            <h2 className="text-display-lg text-white font-serif">
               {t("home.destTitle")}
             </h2>
             <div className="w-24 h-1 bg-gold-500 mx-auto mt-6"></div>
@@ -964,25 +1113,30 @@ const Home = () => {
                     boxShadow: "0 0 32px rgba(245,166,35,0.22)",
                     transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
                   }}
-                  className={`relative h-[300px] rounded-2xl overflow-hidden cursor-pointer group transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-gold-500 ${isActive ? "ring-2 ring-gold-500 shadow-[0_0_20px_rgba(245,166,35,0.4)] scale-[1.02]" : "hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(245,166,35,0.2)]"}`}
+                  className={`relative h-[320px] rounded-2xl overflow-hidden cursor-pointer group transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-gold-500 ${isActive ? "ring-2 ring-gold-500 shadow-[0_0_20px_rgba(245,166,35,0.4)] scale-[1.02]" : "hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(245,166,35,0.2)]"}`}
                 >
                   <img
                     src={dest.image}
                     alt={dest.name}
-                    className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
+                    className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.08] transition-transform duration-700"
                     loading="lazy"
                     decoding="async"
                   />
                   <div
-                    className={`absolute inset-0 transition-colors duration-500 ${isActive ? "bg-obsidian-900/40" : "bg-obsidian-900/60 group-hover:bg-obsidian-900/40"}`}
+                    className={`absolute inset-0 transition-colors duration-500 ${isActive ? "bg-gradient-to-t from-obsidian-950/90 via-obsidian-900/50 to-obsidian-900/30" : "bg-gradient-to-t from-obsidian-950/85 via-obsidian-900/60 to-obsidian-900/40 group-hover:from-obsidian-950/75"}`}
                   ></div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
-                    <h3 className="text-display-lg text-ivory-50 mb-2">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-10">
+                    <h3 className="text-display-lg text-white font-bold mb-2 drop-shadow-md">
                       {dest.name}
                     </h3>
-                    <p className="text-body-lg text-gold-500 font-medium mb-4 leading-relaxed">{dest.description}</p>
-                    <span className="text-caption text-ivory-300 uppercase tracking-wider bg-obsidian-900/50 backdrop-blur-sm px-4 py-2 rounded-full border border-ivory-50/10">
-                      {tourCount} {t("home.toursAvailable")}
+                    <p className="text-body-lg text-white font-medium mb-4 leading-relaxed line-clamp-2 max-w-xs drop-shadow">{dest.description}</p>
+                    
+                    {/* Tour Count Badge */}
+                    <span className="inline-flex items-center gap-2 text-caption font-semibold uppercase tracking-wider bg-black/65 backdrop-blur-md px-4 py-2 rounded-full border border-gold-500/40 shadow-lg group-hover:border-gold-400 group-hover:bg-gold-500/20 transition-all">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 002.5-2.5V8.5M12 12a3 3 0 100-6 3 3 0 000 6z" />
+                      </svg>
+                      <span className="text-white font-bold">{tourCount} {t("home.toursAvailable", "رحلات متوفرة")}</span>
                     </span>
                   </div>
                 </motion.div>
@@ -1007,23 +1161,47 @@ const Home = () => {
                     )}{" "}
                     {t("nav.tours")}
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {activeTours.slice(0, 6).map((tour) => (
-                      <TourCard
-                        key={tour.id}
-                        tour={tour}
-                        linkBase={activeDestination === "turkey" ? "/programs/turkey" : activeDestination === "jordan" ? "/programs/jordan" : activeDestination === "dubai" ? "/programs/dubai" : "/tours"}
-                      />
-                    ))}
-                  </div>
-                  {activeTours.length > 6 && (
-                    <div className="flex justify-center mt-10">
-                      <Link to={`/destinations/${activeDestination}`}>
-                        <Button variant="outline-gold" className="px-8 py-3">
-                          {t("home.viewAll", "View All")} {activeTours.length} {t("nav.tours", "Tours")}
+
+                  {activeTours.length === 0 ? (
+                    <div className="text-center py-10 bg-obsidian-900/60 backdrop-blur-md rounded-2xl border border-ivory-50/10 max-w-xl mx-auto p-8 shadow-xl">
+                      <p className="text-ivory-100 text-body-lg mb-6 leading-relaxed">
+                        {t("destinations.noToursCurrently", "لا تتوفر رحلات مجدولة حالياً لهذه الوجهة. يمكنك طلب برنامج مخصص حسب رغبتك.")}
+                      </p>
+                      <Link to="/tailor-a-tour">
+                        <Button variant="outline-gold" className="px-8 py-3 font-semibold">
+                          {t("home.customize", "صمم رحلتك المخصصة")}
                         </Button>
                       </Link>
                     </div>
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {activeTours.slice(0, 6).map((tour) => (
+                          <TourCard
+                            key={tour.id || tour.slug}
+                            tour={tour}
+                            linkBase={
+                              activeDestination === "turkey"
+                                ? "/programs/turkey"
+                                : activeDestination === "jordan"
+                                ? "/programs/jordan"
+                                : activeDestination === "dubai"
+                                ? "/programs/dubai"
+                                : "/tours"
+                            }
+                          />
+                        ))}
+                      </div>
+                      {activeTours.length > 6 && (
+                        <div className="flex justify-center mt-10">
+                          <Link to={`/destinations/${activeDestination}`}>
+                            <Button variant="outline-gold" className="px-8 py-3">
+                              {t("home.viewAll", "View All")} {activeTours.length} {t("nav.tours", "Tours")}
+                            </Button>
+                          </Link>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </motion.div>
@@ -1032,34 +1210,33 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Package Trips Marquee Section */}
+      {/* Destination Tours Marquee Section */}
       <section className="py-12 bg-ivory-100 dark:bg-obsidian-950 overflow-hidden relative">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12 max-w-3xl mx-auto">
             <span className="text-gold-600 dark:text-gold-400 uppercase tracking-widest text-caption block mb-3 font-semibold">
-              {t("home.packageTripsBadge", "Meticulously crafted experiences meeting the highest luxury standards")}
+              {t("home.destToursBadge", "Meticulously crafted experiences across all our destinations")}
             </span>
             <h2 className="text-display-lg text-obsidian-900 dark:text-ivory-50 font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>
-              {t("home.packageTripsTitle", "Trips From Our Packages")}
+              {t("home.destToursTitle", "جولات الوجهات المميزة")}
             </h2>
             <div className="w-24 h-1 bg-gold-500 mx-auto mt-6 rounded-full"></div>
           </div>
         </div>
 
-          <div className="overflow-hidden w-full">
-            <div
-              className="flex w-max"
-              style={{
-                gap: "24px",
-                paddingLeft: "24px",
-                animation: `${isRtl ? 'tourMarqueeRTL' : 'tourMarquee'} 60s linear infinite`,
-              }}
-              onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
-              onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
-            >
+        <div className="overflow-hidden w-full">
+          <div
+            className="flex w-max"
+            style={{
+              gap: "24px",
+              paddingLeft: "24px",
+              animation: `${isRtl ? 'tourMarqueeRTL' : 'tourMarquee'} 35s linear infinite`,
+            }}
+            onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
+            onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
+          >
             {(() => {
-              const packageTrips = packagesToursForMarquee.length > 0 ? packagesToursForMarquee : allToursForMarquee;
-              const sliced = packageTrips.slice(0, 10);
+              const sliced = destinationToursForMarquee;
               return [
                 ...sliced.map(t => ({ ...t, isDuplicate: false })),
                 ...sliced.map(t => ({ ...t, isDuplicate: true }))
@@ -1068,12 +1245,12 @@ const Home = () => {
                 const resolvedTitle = resolveTourTitle(tData, t, lang);
                 const resolvedDuration = resolveTourDuration(tData, t, lang);
                 const rawDest = tData.destination === 'holy-land' ? 'holyland' : (tData.destination || 'egypt');
-                const resolvedDest = resolveLocalizedText(tData.destination, t, lang) || t(`nav.${rawDest}`, rawDest);
+                const resolvedDest = t(`nav.${rawDest}`, rawDest.charAt(0).toUpperCase() + rawDest.slice(1));
 
                 return (
                   <Link
-                    key={`${tData.id}-${idx}`}
-                    to={tData.link}
+                    key={`dest-tour-${tData.id}-${idx}`}
+                    to={tData.link || `/tours/${tData.slug || tData.id}`}
                     tabIndex={tData.isDuplicate ? -1 : undefined}
                     aria-hidden={tData.isDuplicate ? "true" : undefined}
                     className="min-w-[320px] md:min-w-[400px] shrink-0 group relative rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] transition-all duration-500 h-[450px] block focus:outline-none focus:ring-2 focus:ring-gold-500"
@@ -1089,21 +1266,23 @@ const Home = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/90 via-obsidian-900/20 to-transparent"></div>
 
-                    <div className="absolute top-4 left-4 bg-gold-500/90 backdrop-blur-sm text-obsidian-900 text-caption font-bold px-3 py-1 rounded shadow-md uppercase">
+                    <div className="absolute top-4 left-4 bg-gold-500/90 backdrop-blur-sm text-obsidian-900 text-caption font-bold px-3.5 py-1.5 rounded-full shadow-md uppercase">
                       {resolvedDest}
                     </div>
 
                     <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full">
                       <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                        <h3 className="text-display-md text-ivory-50 mb-2 leading-tight">
+                        <h3 className="text-display-md text-white font-bold mb-2 leading-tight">
                           {resolvedTitle}
                         </h3>
 
                         <div className="flex items-center justify-between text-caption text-ivory-300 mb-4">
                           <span>{resolvedDuration}</span>
-                          <span className="text-gold-500 font-semibold">
-                            {tData.price > 0 ? formatPrice(tData.price) : "$0"}
-                          </span>
+                          {tData.price > 0 && (
+                            <span className="text-gold-500 font-semibold">
+                              {formatPrice(tData.price)}
+                            </span>
+                          )}
                         </div>
 
                         {Number.isFinite(Number(tData.rating)) && Number.isFinite(Number(tData.reviewCount)) ? (
@@ -1153,7 +1332,7 @@ const Home = () => {
               initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-400 text-caption font-semibold uppercase tracking-widest mb-4 shadow-glass"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/30 text-white text-caption font-bold uppercase tracking-widest mb-4 shadow-glass"
             >
               <span>✨</span> {t("home.ourPackages", "Discover Egypt Packages")}
             </motion.span>
@@ -1172,7 +1351,7 @@ const Home = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="text-body-md text-ivory-200/80 max-w-2xl mx-auto"
+              className="text-body-md text-white max-w-2xl mx-auto font-medium"
             >
               {t("home.packagesSubtitle", "Selection of premium itineraries designed to experience the magic of Egypt & the Middle East")}
             </motion.p>
@@ -1333,20 +1512,20 @@ const Home = () => {
             style={{
               gap: "24px",
               paddingLeft: "24px",
-              animation: `${isRtl ? 'tourMarqueeRTL' : 'tourMarquee'} 60s linear infinite`,
+              animation: `${isRtl ? 'tourMarqueeRTL' : 'tourMarquee'} 35s linear infinite`,
             }}
             onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
             onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
           >
             {(() => {
-              const sliced = packagesToursForMarquee.slice(0, 8);
+              const sliced = packagesToursForMarquee;
               return [
                 ...sliced.map(t => ({ ...t, isDuplicate: false })),
                 ...sliced.map(t => ({ ...t, isDuplicate: true }))
               ].map((tData, idx) => (
                 <Link
-                  key={`pkg-${tData.id}-${idx}`}
-                  to={tData.link}
+                  key={`pkg-tour-${tData.id}-${idx}`}
+                  to={tData.link || "/tours"}
                   tabIndex={tData.isDuplicate ? -1 : undefined}
                   aria-hidden={tData.isDuplicate ? "true" : undefined}
                   className="min-w-[320px] md:min-w-[400px] shrink-0 group relative rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] transition-all duration-500 h-[450px] block focus:outline-none focus:ring-2 focus:ring-gold-500"
@@ -1360,37 +1539,38 @@ const Home = () => {
                     loading="lazy"
                     decoding="async"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/90 via-obsidian-900/20 to-transparent"></div>
-                  
-                  <div className="absolute top-4 left-4 bg-gold-500/90 backdrop-blur-sm text-obsidian-900 text-caption font-bold px-3 py-1 rounded shadow-md uppercase">
-                    {t(`nav.${tData.destination === 'holy-land' ? 'holyland' : (tData.destination || 'tour')}`, tData.destination || 'tour')}
-                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/95 via-obsidian-900/40 to-transparent"></div>
+
+                  {tData.badge && (
+                    <div className="absolute top-4 left-4 bg-gold-500 text-obsidian-950 text-caption font-bold px-3.5 py-1.5 rounded-full shadow-md uppercase">
+                      ★ {tData.badge}
+                    </div>
+                  )}
 
                   <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full">
                     <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                      <h3 className="text-display-md text-ivory-50 mb-2 leading-tight">
-                        {t(`data.${tData.title}`, tData.title)}
+                      <h3 className="text-display-md text-white font-bold mb-2 leading-tight">
+                        {tData.title}
                       </h3>
 
-                      <div className="flex items-center justify-between text-caption text-ivory-300 mb-4">
-                        <span>{t(`data.${tData.duration}`, tData.duration)}</span>
-                        <span className="text-gold-500 font-semibold">
-                          {formatPrice(tData.price)}
-                        </span>
+                      {tData.overview && (
+                        <p className="text-body-sm text-white/90 line-clamp-2 mb-3">
+                          {resolveLocalizedText(tData.overview, t, i18n.language)}
+                        </p>
+                      )}
+
+                      <div className="flex items-center justify-between text-caption text-gold-400 font-semibold mb-4">
+                        <span>{tData.duration}</span>
+                        {tData.price > 0 && (
+                          <span className="text-gold-400 font-bold">
+                            {formatPrice(tData.price)}
+                          </span>
+                        )}
                       </div>
 
-                      {Number.isFinite(Number(tData.rating)) && Number.isFinite(Number(tData.reviewCount)) ? (
-                        <div className="flex items-center gap-1 text-gold-500 mb-4">
-                          {[...Array(Math.floor(Number(tData.rating)))].map((_, i) => (
-                            <FaStar key={i} size={12} />
-                          ))}
-                          <span className="text-ivory-50 ml-1 text-xs">({tData.reviewCount})</span>
-                        </div>
-                      ) : null}
-
                       <div className="block opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                        <Button variant="outline-gold" tabIndex={-1} className="w-full py-2">
-                          {t("home.viewTour", "View Tour")}
+                        <Button variant="outline-gold" tabIndex={-1} className="w-full py-2 font-bold">
+                          {t("home.viewTour", "View Tour")} →
                         </Button>
                       </div>
                     </div>
@@ -2351,7 +2531,7 @@ const Home = () => {
                     Haram - Giza – Egypt
                   </p>
                   <a 
-                    href="https://maps.google.com/?q=5+Hussein+Said+St,+Old+Hadayk+El+Ahram,+Haram,+Giza,+Egypt" 
+                    href="https://maps.app.goo.gl/oA84mQGwUsHWo4kt8" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-gold-400 hover:text-gold-300 transition-colors pt-2 group/link"
@@ -2378,17 +2558,26 @@ const Home = () => {
                   <span className="text-[10px] text-gold-400 font-bold uppercase tracking-widest block">02 / {t('contact.phoneLabel', 'Phone')}</span>
                   <h3 className="text-lg font-bold text-ivory-50 tracking-wide font-display">{t('home.contactPhone', 'Call Us')}</h3>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
+                    <a
+                      href="https://wa.me/20114940111"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-ivory-300 hover:text-gold-400 text-xs font-medium transition-colors py-1 px-2.5 rounded-lg bg-white/5 border border-white/5 hover:border-gold-500/30 hover:bg-gold-500/5"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      +20114940111
+                    </a>
                     <a
                       href="tel:+20233746643"
-                      className="inline-flex items-center gap-2.5 text-ivory-300 hover:text-gold-400 text-sm font-medium transition-colors py-1 px-3 rounded-lg bg-white/5 border border-white/5 hover:border-gold-500/30 hover:bg-gold-500/5"
+                      className="inline-flex items-center gap-2 text-ivory-300 hover:text-gold-400 text-xs font-medium transition-colors py-1 px-2.5 rounded-lg bg-white/5 border border-white/5 hover:border-gold-500/30 hover:bg-gold-500/5"
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                       02 33746643
                     </a>
                     <a
                       href="tel:+20233746654"
-                      className="inline-flex items-center gap-2.5 text-ivory-300 hover:text-gold-400 text-sm font-medium transition-colors py-1 px-3 rounded-lg bg-white/5 border border-white/5 hover:border-gold-500/30 hover:bg-gold-500/5"
+                      className="inline-flex items-center gap-2 text-ivory-300 hover:text-gold-400 text-xs font-medium transition-colors py-1 px-2.5 rounded-lg bg-white/5 border border-white/5 hover:border-gold-500/30 hover:bg-gold-500/5"
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                       02 33746654
