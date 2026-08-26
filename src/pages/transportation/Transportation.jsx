@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { FaUserFriends, FaCog, FaCheck, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaCog, FaCheck, FaMapMarkerAlt } from 'react-icons/fa';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import { useServices } from '../../hooks/useServices';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
@@ -24,17 +24,14 @@ const Transportation = () => {
 
   const filters = [
     { id: 'All', label: t('transportation.filter.all', 'All') },
-    { id: 'Buses', label: t('transportation.filter.buses', 'Buses') },
-    { id: 'Coasters', label: t('transportation.filter.coasters', 'Coaster Vehicles') },
-    { id: 'Private', label: t('transportation.filter.private', 'Private Vehicles') }
+    ...[...new Set(transportation.map((service) => service.serviceType))]
+      .filter(Boolean)
+      .map((serviceType) => ({ id: serviceType, label: String(serviceType).replaceAll('_', ' ') })),
   ];
 
   const filteredVehicles = transportation.filter(vehicle => {
     if (activeFilter === 'All') return true;
-    if (activeFilter === 'Buses') return vehicle.category === 'bus';
-    if (activeFilter === 'Coasters') return vehicle.category === 'coaster' || vehicle.category === 'van';
-    if (activeFilter === 'Private') return vehicle.category === 'private' || vehicle.category === 'luxury_sedan' || vehicle.category === 'suv';
-    return true;
+    return vehicle.serviceType === activeFilter;
   });
   const fleetFeatures = [...new Set(transportation.flatMap((vehicle) => vehicle.features || []))];
 
@@ -115,11 +112,7 @@ const Transportation = () => {
                 onClick={() => handleReserveClick(vehicle.id)}
                 className="block relative h-64 overflow-hidden cursor-pointer"
               >
-                <img
-                  src={vehicle.image}
-                  alt={t(`data.${vehicle.name}`, vehicle.name)}
-                  className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
-                />
+                {vehicle.image ? <img src={vehicle.image} alt={t(`data.${vehicle.name}`, vehicle.name)} className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]" /> : null}
                 <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
                   <span className="text-ivory-50 font-semibold flex items-center gap-2">
                     <span className={isRtl ? 'rtl-flip' : ''}>{t('transportation.reserveNow', 'Reserve Now')} &rarr;</span>
@@ -130,9 +123,7 @@ const Transportation = () => {
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <span className="text-gold-600 uppercase tracking-widest text-[11px] font-bold block mb-1">
-                      {vehicle.category === 'bus' ? t('transportation.filter.buses', 'Buses') :
-                        vehicle.category === 'coaster' ? t('transportation.filter.coasters', 'Coaster Vehicles') :
-                          t('transportation.filter.private', 'Private Vehicles')}
+                      {String(vehicle.serviceType).replaceAll('_', ' ')}
                     </span>
                     <h3
                       onClick={() => handleReserveClick(vehicle.id)}
@@ -146,12 +137,8 @@ const Transportation = () => {
 
                 <div className="grid grid-cols-2 gap-y-3 gap-x-4 mb-6 pb-6 border-b border-gray-100">
                   <div className="flex items-center gap-2 text-caption text-obsidian-700">
-                    <FaUserFriends className="text-gold-500" />
-                    {vehicle.seats} {t('transportation.seatsCount', 'Seats')}
-                  </div>
-                  <div className="flex items-center gap-2 text-caption text-obsidian-700">
                     <FaCog className="text-gold-500" />
-                    {t(`data.${vehicle.transmission}`, vehicle.transmission)}
+                    {t('transportation.basePrice', 'Base transfer price')}
                   </div>
                 </div>
 
@@ -172,7 +159,7 @@ const Transportation = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <span className="text-body-lg font-bold text-obsidian-900">{formatPrice(vehicle.pricePerDay)}</span>
-                    <span className="text-caption text-obsidian-500"> / {t('transportation.day', 'day')}</span>
+                    <span className="text-caption text-obsidian-500"> / {t('transportation.trip', 'trip')}</span>
                   </div>
                   <button
                     onClick={() => handleReserveClick(vehicle.id)}
@@ -227,7 +214,7 @@ const Transportation = () => {
                 {transportation.map((vehicle) => (
                   <li key={vehicle.id} className="flex items-start gap-3 text-body-md text-ivory-300">
                     <span className="w-1.5 h-1.5 bg-gold-500 rounded-full mt-2 shrink-0"></span>
-                    <span>{vehicle.name} — {vehicle.seats} {t('transportation.seatsCount', 'Seats')}</span>
+                    <span>{vehicle.name} — {String(vehicle.serviceType).replaceAll('_', ' ')}</span>
                   </li>
                 ))}
               </ul>

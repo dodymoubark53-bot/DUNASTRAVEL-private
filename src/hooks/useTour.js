@@ -38,6 +38,18 @@ function normalizeTour(data) {
     images,
     included: data.includedServices,
     excluded: data.excludedServices,
+    pricingTiers: Array.isArray(data.seasonPricing?.pricingTiers)
+      ? data.seasonPricing.pricingTiers
+      : data.seasonPricing?.pricingTiers?.categories
+        || data.seasonPricing?.pricing?.categories
+        || [],
+    optionalExcursionsPricing: data.seasonPricing?.optionalExcursionsPricing || null,
+    accommodation: data.hotelInfo?.accommodation || null,
+    hotels: data.hotelInfo?.hotels || null,
+    hotelCategory: data.hotelInfo?.hotelCategory || null,
+    excursions: data.terms?.excursions || [],
+    transportOptions: data.transportation?.transportOptions || null,
+    route: data.transportation?.route || null,
     itinerary,
     price,
   };

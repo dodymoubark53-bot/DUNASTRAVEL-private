@@ -382,11 +382,27 @@ function App() {
                   }
                 />
                 <Route
+                  path="payment/return"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <BookingSuccess />
+                    </Suspense>
+                  }
+                />
+                <Route
                   path="booking/cancel"
                   element={
                     <PageTransition>
                       <BookingCancel />
                     </PageTransition>
+                  }
+                />
+                <Route
+                  path="payment/cancel"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <BookingCancel />
+                    </Suspense>
                   }
                 />
                 <Route
