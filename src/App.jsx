@@ -6,6 +6,35 @@ import Layout from "./components/layout/Layout";
 import Logo from "./components/ui/Logo";
 import { trackEvent } from "./utils/analytics";
 
+// ── Stale Chunk / Deployment Recovery Helpers ─────────────────────────────
+const isChunkLoadFailed = (error) => {
+  if (!error) return false;
+  const msg = (error.message || error.toString() || '').toLowerCase();
+  return (
+    error.name === 'ChunkLoadError' ||
+    msg.includes('failed to fetch dynamically imported module') ||
+    msg.includes('importing a module script failed') ||
+    msg.includes('error loading dynamically imported module')
+  );
+};
+
+const lazyWithRetry = (componentImport) =>
+  lazy(async () => {
+    try {
+      const component = await componentImport();
+      window.sessionStorage.removeItem('chunk_reload_attempted');
+      return component;
+    } catch (error) {
+      const pageAlreadyRefreshed = window.sessionStorage.getItem('chunk_reload_attempted');
+      if (isChunkLoadFailed(error) && !pageAlreadyRefreshed) {
+        window.sessionStorage.setItem('chunk_reload_attempted', 'true');
+        window.location.reload();
+        return new Promise(() => {}); // Hold rendering until browser reloads new version
+      }
+      throw error;
+    }
+  });
+
 // ── Global Error Boundary ────────────────────────────────────────────────────
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -13,6 +42,14 @@ class ErrorBoundary extends React.Component {
     this.state = { hasError: false, error: null };
   }
   static getDerivedStateFromError(error) {
+    if (isChunkLoadFailed(error)) {
+      const pageAlreadyRefreshed = window.sessionStorage.getItem('chunk_reload_attempted');
+      if (!pageAlreadyRefreshed) {
+        window.sessionStorage.setItem('chunk_reload_attempted', 'true');
+        window.location.reload();
+        return { hasError: false, error: null };
+      }
+    }
     return { hasError: true, error };
   }
   componentDidCatch(error, info) {
@@ -66,6 +103,7 @@ class ErrorBoundary extends React.Component {
           <button
             onClick={() => {
               this.setState({ hasError: false, error: null });
+              window.sessionStorage.removeItem('chunk_reload_attempted');
               window.location.reload();
             }}
             style={{
@@ -89,36 +127,36 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-// Lazy loaded pages for performance
-const Home = lazy(() => import("./pages/Home"));
-const About = lazy(() => import("./pages/About"));
-const Blogs = lazy(() => import("./pages/Blogs"));
-const Services = lazy(() => import("./pages/Services"));
-const Contact = lazy(() => import("./pages/Contact"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const Destinations = lazy(() => import("./pages/destinations/Destinations"));
-const LandingPageDetails = lazy(() => import("./pages/destinations/LandingPageDetails"));
-const BackendToursPage = lazy(() => import("./pages/tours/BackendToursPage"));
-const TourDetails = lazy(() => import("./pages/tours/TourDetails"));
-const BlogDetails = lazy(() => import("./pages/blogs/BlogDetails"));
-const ServiceDetails = lazy(() => import("./pages/services/ServiceDetails"));
-const Transportation = lazy(
+// Lazy loaded pages for performance with automatic deployment recovery
+const Home = lazyWithRetry(() => import("./pages/Home"));
+const About = lazyWithRetry(() => import("./pages/About"));
+const Blogs = lazyWithRetry(() => import("./pages/Blogs"));
+const Services = lazyWithRetry(() => import("./pages/Services"));
+const Contact = lazyWithRetry(() => import("./pages/Contact"));
+const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
+const Destinations = lazyWithRetry(() => import("./pages/destinations/Destinations"));
+const LandingPageDetails = lazyWithRetry(() => import("./pages/destinations/LandingPageDetails"));
+const BackendToursPage = lazyWithRetry(() => import("./pages/tours/BackendToursPage"));
+const TourDetails = lazyWithRetry(() => import("./pages/tours/TourDetails"));
+const BlogDetails = lazyWithRetry(() => import("./pages/blogs/BlogDetails"));
+const ServiceDetails = lazyWithRetry(() => import("./pages/services/ServiceDetails"));
+const Transportation = lazyWithRetry(
   () => import("./pages/transportation/Transportation"),
 );
-const TailorTour = lazy(() => import("./pages/TailorTour"));
-const FAQ = lazy(() => import("./pages/FAQ"));
-const Invoice = lazy(() => import("./pages/Invoice"));
-const BookingSuccess = lazy(() => import("./pages/BookingSuccess"));
-const BookingCancel = lazy(() => import("./pages/BookingCancel"));
-const HotelDetails = lazy(() => import("./pages/hotels/HotelDetails"));
-const RoomDetails = lazy(() => import("./pages/hotels/RoomDetails"));
-const MediaGallery = lazy(() => import("./pages/MediaGallery"));
-const Login = lazy(() => import("./pages/auth/Login"));
-const Register = lazy(() => import("./pages/auth/Register"));
-const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword"));
-const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
-const VerifyEmail = lazy(() => import("./pages/auth/VerifyEmail"));
-const UserDashboard = lazy(() => import("./pages/user/UserDashboard"));
+const TailorTour = lazyWithRetry(() => import("./pages/TailorTour"));
+const FAQ = lazyWithRetry(() => import("./pages/FAQ"));
+const Invoice = lazyWithRetry(() => import("./pages/Invoice"));
+const BookingSuccess = lazyWithRetry(() => import("./pages/BookingSuccess"));
+const BookingCancel = lazyWithRetry(() => import("./pages/BookingCancel"));
+const HotelDetails = lazyWithRetry(() => import("./pages/hotels/HotelDetails"));
+const RoomDetails = lazyWithRetry(() => import("./pages/hotels/RoomDetails"));
+const MediaGallery = lazyWithRetry(() => import("./pages/MediaGallery"));
+const Login = lazyWithRetry(() => import("./pages/auth/Login"));
+const Register = lazyWithRetry(() => import("./pages/auth/Register"));
+const ForgotPassword = lazyWithRetry(() => import("./pages/auth/ForgotPassword"));
+const ResetPassword = lazyWithRetry(() => import("./pages/auth/ResetPassword"));
+const VerifyEmail = lazyWithRetry(() => import("./pages/auth/VerifyEmail"));
+const UserDashboard = lazyWithRetry(() => import("./pages/user/UserDashboard"));
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 

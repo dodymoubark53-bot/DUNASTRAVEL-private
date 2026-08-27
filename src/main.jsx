@@ -9,6 +9,16 @@ import { AuthProvider } from './context/AuthContext'
 import { CurrencyProvider } from './context/CurrencyContext'
 import { ThemeProvider } from './context/ThemeContext'
 
+// Auto-recover if browser tries to load old chunk after a new deployment
+window.addEventListener('vite:preloadError', (event) => {
+  event?.preventDefault?.();
+  const pageAlreadyRefreshed = window.sessionStorage.getItem('chunk_reload_attempted');
+  if (!pageAlreadyRefreshed) {
+    window.sessionStorage.setItem('chunk_reload_attempted', 'true');
+    window.location.reload();
+  }
+});
+
 function Root() {
   const [ready, setReady] = useState(false);
 
