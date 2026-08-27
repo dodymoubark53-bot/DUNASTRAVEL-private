@@ -640,14 +640,14 @@ const Home = () => {
   const [searchPeople, setSearchPeople] = useState(1);
 
   const destinations = [
-    { id: 'egypt', label: t('nav.egypt', 'Egypt') },
-    { id: 'turkey', label: t('nav.turkey', 'Turkey') },
-    { id: 'jordan', label: t('nav.jordan', 'Jordan') },
-    { id: 'morocco', label: t('nav.morocco', 'Morocco') },
-    { id: 'greece', label: t('nav.greece', 'Greece') },
-    { id: 'dubai', label: t('nav.dubai', 'Dubai') },
-    { id: 'tunisia', label: t('nav.tunisia', 'Tunisia') },
-    { id: 'holyland', label: t('nav.holyland', 'Holy Land') },
+    { id: 'egypt', label: t('nav.egypt', 'Egypt'), img: '/imgs/egyothero.png' },
+    { id: 'turkey', label: t('nav.turkey', 'Turkey'), img: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=800&q=80' },
+    { id: 'jordan', label: t('nav.jordan', 'Jordan'), img: 'https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg' },
+    { id: 'morocco', label: t('nav.morocco', 'Morocco'), img: 'https://images.unsplash.com/photo-1539020140153-e479b8c22e70?auto=format&fit=crop&w=800&q=80' },
+    { id: 'greece', label: t('nav.greece', 'Greece'), img: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80' },
+    { id: 'dubai', label: t('nav.dubai', 'Dubai'), img: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80' },
+    { id: 'tunisia', label: t('nav.tunisia', 'Tunisia'), img: 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=800&q=80' },
+    { id: 'holyland', label: t('nav.holyland', 'Holy Land'), img: 'https://images.unsplash.com/photo-1544971587-b842c27f8c14?auto=format&fit=crop&w=800&q=80' },
   ];
 
   const slugify = (str) => str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
