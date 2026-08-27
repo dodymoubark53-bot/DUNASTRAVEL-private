@@ -15,7 +15,7 @@ const destinationSlugForTour = (tour) => {
 const Destinations = () => {
   const { t } = useTranslation();
   const { destinations, loading: destsLoading, error } = useDestinations();
-  const { tours: allToursList, loading: toursLoading } = useTours({ limit: 50 });
+  const { tours: allToursList, loading: toursLoading } = useTours({ limit: 24 });
   
   const loading = destsLoading || toursLoading;
 

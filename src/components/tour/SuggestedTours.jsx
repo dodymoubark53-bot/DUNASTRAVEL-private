@@ -35,7 +35,7 @@ export default function SuggestedTours({ currentDestination = 'egypt', currentSl
   const lang = i18n.language || 'en';
   const scrollRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
-  const { tours } = useTours({ limit: 50 });
+  const { tours } = useTours({ limit: 16 });
 
   const destLower = (currentDestination || 'egypt').toLowerCase();
 

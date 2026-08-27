@@ -3,6 +3,11 @@ import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
 import { supportedLocale } from '../utils/locale';
 
+// Module-level in-memory cache keyed by `slug:lang`
+const tourCache = new Map();
+const pendingTourRequests = new Map();
+const TOUR_CACHE_TTL_MS = 300_000; // 5 minutes — same as useTours list cache
+
 function normalizeTour(data) {
   if (!data?.id || !data?.slug || !data?.title || typeof data.currency !== 'string') {
     throw new Error('Invalid tour details response');
@@ -127,6 +132,7 @@ function normalizeTour(data) {
 export function useTour(slug) {
   const { i18n } = useTranslation();
   const lang = supportedLocale(i18n.language);
+  const cacheKey = slug ? `${slug}:${lang}` : null;
   const [tour, setTour] = useState(null);
   const [loading, setLoading] = useState(Boolean(slug));
   const [error, setError] = useState(null);
@@ -134,16 +140,41 @@ export function useTour(slug) {
 
   useEffect(() => {
     let isMounted = true;
-    if (!slug) return undefined;
+    if (!slug || !cacheKey) return undefined;
 
     const fetchTour = async () => {
       try {
+        await Promise.resolve();
+
+        // 1. Serve from cache if still fresh
+        const cached = tourCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < TOUR_CACHE_TTL_MS) {
+          if (isMounted) {
+            setTour(cached.data);
+            setLoading(false);
+          }
+          return;
+        }
+
         setLoading(true);
         setError(null);
         setTour(null);
-        const result = normalizeTour(
-          await api.get(`/tours/${encodeURIComponent(slug)}?lang=${encodeURIComponent(lang)}`),
-        );
+
+        // 2. Deduplicate concurrent requests for the same slug+lang
+        let request = pendingTourRequests.get(cacheKey);
+        if (!request) {
+          request = api
+            .get(`/tours/${encodeURIComponent(slug)}?lang=${encodeURIComponent(lang)}`)
+            .then((result) => {
+              const normalized = normalizeTour(result);
+              tourCache.set(cacheKey, { data: normalized, timestamp: Date.now() });
+              return normalized;
+            })
+            .finally(() => pendingTourRequests.delete(cacheKey));
+          pendingTourRequests.set(cacheKey, request);
+        }
+
+        const result = await request;
         if (isMounted) {
           setTour(result);
           setError(null);
@@ -157,11 +188,20 @@ export function useTour(slug) {
         if (isMounted) setLoading(false);
       }
     };
+
     void fetchTour();
     return () => {
       isMounted = false;
     };
-  }, [slug, lang, reloadNonce]);
+  }, [slug, lang, cacheKey, reloadNonce]);
 
-  return { tour, loading, error, retry: () => setReloadNonce((value) => value + 1) };
+  return {
+    tour,
+    loading,
+    error,
+    retry: () => {
+      if (cacheKey) tourCache.delete(cacheKey);
+      setReloadNonce((value) => value + 1);
+    },
+  };
 }

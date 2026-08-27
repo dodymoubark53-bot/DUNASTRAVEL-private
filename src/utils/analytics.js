@@ -40,6 +40,10 @@ export async function trackEvent(eventName, payload = {}) {
       ? rawLocale.split('-')[0].toLowerCase()
       : 'en';
     const rawReferrer = typeof document !== 'undefined' ? document.referrer : '';
+    // Only include referrer when it's a valid absolute URL the backend @IsUrl validator accepts.
+    // document.referrer can be '' (no referrer) or 'about:blank' / 'file://...' (non-http origins),
+    // all of which would cause a 400 from the strict @IsUrl({ protocols: ['http','https'] }) rule.
+    const validReferrer = /^https?:\/\//i.test(rawReferrer) ? rawReferrer : undefined;
     const eventId = payload.eventId || generateEventId();
 
     const body = {
@@ -48,7 +52,7 @@ export async function trackEvent(eventName, payload = {}) {
       sessionId,
       deviceCategory,
       locale,
-      ...(rawReferrer ? { referrer: rawReferrer } : {}),
+      ...(validReferrer ? { referrer: validReferrer } : {}),
       pathname: typeof window !== 'undefined' ? window.location.pathname : undefined,
       interfaceSlug: payload.interfaceSlug,
       tourSlug: payload.tourSlug,

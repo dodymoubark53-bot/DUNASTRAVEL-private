@@ -19,7 +19,7 @@ export function useJordanPrograms() {
   const { i18n } = useTranslation();
   const lang = i18n.language || 'en';
   const locale = ['ar', 'en', 'es', 'pt', 'it'].includes(lang) ? lang : 'en';
-  const { tours } = useTours({ destination: 'Jordan', limit: 100 });
+  const { tours } = useTours({ destination: 'Jordan', limit: 50 });
 
   return useMemo(() => {
     return tours.map((program) => {

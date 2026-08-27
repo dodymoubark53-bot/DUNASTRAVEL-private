@@ -81,7 +81,7 @@ export function formatTurkeyProgram(program, locale = 'en') {
 export function useTurkeyPrograms() {
   const { i18n } = useTranslation();
   const lang = supportedLocale(i18n.language || 'en');
-  const { tours } = useTours({ destination: 'Turkey', limit: 100 });
+  const { tours } = useTours({ destination: 'Turkey', limit: 50 });
 
   return useMemo(() => {
     return tours.map((program) => formatTurkeyProgram(program, lang));

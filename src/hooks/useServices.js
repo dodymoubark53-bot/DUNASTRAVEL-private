@@ -129,7 +129,7 @@ export function useServices(category = null) {
           items = readItems(await api.get('/transportation/services'), 'transportation')
             .map(transformTransportToService);
         } else if (category) {
-          const params = new URLSearchParams({ lang, category, limit: '100' });
+          const params = new URLSearchParams({ lang, category, limit: '30' });
           items = readItems(await api.get(`/tours?${params.toString()}`), 'tour services')
             .map((tour) => transformTourToService(tour, category));
         } else {

@@ -19,7 +19,7 @@ export function useDubaiPrograms() {
   const { i18n } = useTranslation();
   const lang = i18n.language || 'en';
   const locale = ['ar', 'en', 'es', 'pt', 'it'].includes(lang) ? lang : 'en';
-  const { tours } = useTours({ destination: 'United Arab Emirates', limit: 100 });
+  const { tours } = useTours({ destination: 'United Arab Emirates', limit: 50 });
 
   return useMemo(() => {
     return tours.map((program) => {

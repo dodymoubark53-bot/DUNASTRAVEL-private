@@ -5,7 +5,7 @@ import { supportedLocale } from '../utils/locale';
 
 const toursCache = new Map();
 const pendingRequests = new Map();
-const CACHE_TTL_MS = 60_000;
+const CACHE_TTL_MS = 300_000; // 5 minutes — tour catalog rarely changes within a session
 const ALLOWED_FILTERS = new Set([
   'destination',
   'category',
