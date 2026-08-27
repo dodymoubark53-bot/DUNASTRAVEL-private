@@ -187,7 +187,8 @@ const Transportation = () => {
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
                     <span className="text-ivory-50 font-semibold flex items-center gap-2">
-                      <span className={isRtl ? 'rtl-flip' : ''}>{t('transportation.reserveNow', 'Reserve Now')} &rarr;</span>
+                      <span>{t('transportation.reserveNow', 'Reserve Now')}</span>
+                      <span className={isRtl ? 'rotate-180 inline-block' : 'inline-block'}>&rarr;</span>
                     </span>
                   </div>
                 </div>
