@@ -42,6 +42,48 @@ const STATIC_DESTINATIONS = [
   { id: 'holy-land', slug: 'holy-land', title: 'Holy Land', name: 'Holy Land', subtitle: 'Faith, History & Sacred Pathways', heroImageUrl: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?w=1200', image: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?w=1200', toursCount: 0 },
 ];
 
+function mergeDestinations(apiItems) {
+  if (!Array.isArray(apiItems) || apiItems.length === 0) {
+    return STATIC_DESTINATIONS;
+  }
+  const apiMap = new Map();
+  apiItems.forEach((item) => {
+    if (item?.slug) apiMap.set(item.slug.toLowerCase(), item);
+    if (item?.id) apiMap.set(String(item.id).toLowerCase(), item);
+  });
+
+  const merged = STATIC_DESTINATIONS.map((staticItem) => {
+    const apiItem = apiMap.get(staticItem.slug.toLowerCase()) || apiMap.get(staticItem.id.toLowerCase());
+    if (!apiItem) return staticItem;
+    return {
+      ...staticItem,
+      ...apiItem,
+      heroImageUrl: apiItem.heroImageUrl || apiItem.image || staticItem.heroImageUrl,
+      image: apiItem.image || apiItem.heroImageUrl || staticItem.image,
+      toursCount: Number.isFinite(Number(apiItem.toursCount)) ? Number(apiItem.toursCount) : staticItem.toursCount,
+    };
+  });
+
+  const staticSlugs = new Set(STATIC_DESTINATIONS.map((s) => s.slug.toLowerCase()));
+  apiItems.forEach((item) => {
+    const slug = (item.slug || item.id || '').toLowerCase();
+    if (slug && !staticSlugs.has(slug)) {
+      merged.push({
+        id: slug,
+        slug,
+        title: item.title || item.name || slug,
+        name: item.title || item.name || slug,
+        subtitle: item.subtitle || item.description || '',
+        heroImageUrl: item.heroImageUrl || item.image || '',
+        image: item.image || item.heroImageUrl || '',
+        toursCount: Number.isFinite(Number(item.toursCount)) ? Number(item.toursCount) : 0,
+      });
+    }
+  });
+
+  return merged;
+}
+
 export function useDestinations() {
   const { i18n } = useTranslation();
   const lang = supportedLocale(i18n.language);
@@ -58,7 +100,7 @@ export function useDestinations() {
         const items = readDestinations(
           await api.get(`/destinations?locale=${encodeURIComponent(lang)}`),
         );
-        if (isMounted) setDestinations(items.length > 0 ? items : STATIC_DESTINATIONS);
+        if (isMounted) setDestinations(mergeDestinations(items));
       } catch (requestError) {
         if (isMounted) {
           setError(requestError);
