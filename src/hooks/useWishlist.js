@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -29,26 +29,29 @@ export const useWishlist = () => {
   }, [fetchFavorites]);
 
   const isFavorite = useCallback(
-    (tourIdOrSlug) => {
+    (tourOrId) => {
+      const target = typeof tourOrId === 'string' ? tourOrId : (tourOrId?.id || tourOrId?.slug);
+      if (!target) return false;
       return favorites.some(
-        (item) => item.id === tourIdOrSlug || item.slug === tourIdOrSlug
+        (item) => item.id === target || item.slug === target
       );
     },
     [favorites]
   );
 
   const toggleFavorite = useCallback(
-    async (tourIdOrSlug) => {
+    async (tourOrId) => {
+      const tourIdOrSlug = typeof tourOrId === 'string' ? tourOrId : (tourOrId?.id || tourOrId?.slug);
       if (!tourIdOrSlug) return;
       const currentlyFav = isFavorite(tourIdOrSlug);
       try {
         if (currentlyFav) {
-          await api.delete(/tours//favorite);
+          await api.delete(`/tours/${tourIdOrSlug}/favorite`);
           setFavorites((prev) =>
             prev.filter((f) => f.id !== tourIdOrSlug && f.slug !== tourIdOrSlug)
           );
         } else {
-          await api.post(/tours//favorite, {});
+          await api.post(`/tours/${tourIdOrSlug}/favorite`, {});
           await fetchFavorites();
         }
       } catch (err) {
