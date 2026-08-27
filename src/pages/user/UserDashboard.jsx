@@ -222,6 +222,24 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
               </span>
               <h1 className="text-display-sm text-ivory-50 font-display font-semibold truncate">
                 {user?.name || 'Customer Profile'}
+              </h1>
+              <p className="text-body-sm text-ivory-400">{user?.email}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <Button
+              variant="outline-gold"
+              onClick={handleLogout}
+              className="w-full md:w-auto flex items-center justify-center gap-2 py-2.5 px-5 text-[12px] uppercase tracking-[1px]"
+            >
+              <FaSignOutAlt /> {t('nav.logout', 'Sign Out')}
+            </Button>
+          </div>
+        </div>
+
+        {/* Tab Navigation & Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar Tabs */}
           <div className="lg:col-span-1 space-y-2">
             <div className="bg-[#121118] border border-[rgba(201,162,39,0.15)] rounded-2xl p-3 shadow-lg">
