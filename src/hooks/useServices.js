@@ -108,9 +108,14 @@ function localeFor(language) {
   return ['en', 'ar', 'es', 'pt', 'it'].includes(locale) ? locale : 'en';
 }
 
+const servicesCache = new Map();
+const pendingServicesRequests = new Map();
+const SERVICES_CACHE_TTL_MS = 300_000; // 5 minutes
+
 export function useServices(category = null) {
   const { i18n } = useTranslation();
   const lang = localeFor(i18n.language);
+  const cacheKey = `${category || 'all'}:${lang}`;
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -119,34 +124,56 @@ export function useServices(category = null) {
     let isMounted = true;
     const fetchServices = async () => {
       try {
+        await Promise.resolve();
+
+        // 1. Serve from in-memory cache
+        const cached = servicesCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < SERVICES_CACHE_TTL_MS) {
+          if (isMounted) {
+            setServices(cached.data);
+            setLoading(false);
+          }
+          return;
+        }
+
         setLoading(true);
         setError(null);
-        let items;
-        if (category === 'hotels') {
-          items = readItems(await api.get(`/hotels?locale=${lang}`), 'hotels')
-            .map(transformHotelToService);
-        } else if (category === 'transportation') {
-          items = readItems(await api.get('/transportation/services'), 'transportation')
-            .map(transformTransportToService);
-        } else if (category) {
-          const params = new URLSearchParams({ lang, category, limit: '30' });
-          items = readItems(await api.get(`/tours?${params.toString()}`), 'tour services')
-            .map((tour) => transformTourToService(tour, category));
-        } else {
-          // These are independent catalogs. A missing optional hotels route
-          // must not hide the transportation catalog that is available.
-          const [hotelsResult, transportResult] = await Promise.allSettled([
-            api.get(`/hotels?locale=${lang}`),
-            api.get('/transportation/services'),
-          ]);
-          const hotels = hotelsResult.status === 'fulfilled'
-            ? readItems(hotelsResult.value, 'hotels').map(transformHotelToService)
-            : [];
-          const transportation = transportResult.status === 'fulfilled'
-            ? readItems(transportResult.value, 'transportation').map(transformTransportToService)
-            : [];
-          items = [...hotels, ...transportation];
+
+        // 2. Deduplicate
+        let request = pendingServicesRequests.get(cacheKey);
+        if (!request) {
+          request = (async () => {
+            let items;
+            if (category === 'hotels') {
+              items = readItems(await api.get(`/hotels?locale=${lang}`), 'hotels')
+                .map(transformHotelToService);
+            } else if (category === 'transportation') {
+              items = readItems(await api.get('/transportation/services'), 'transportation')
+                .map(transformTransportToService);
+            } else if (category) {
+              const params = new URLSearchParams({ lang, category, limit: '30' });
+              items = readItems(await api.get(`/tours?${params.toString()}`), 'tour services')
+                .map((tour) => transformTourToService(tour, category));
+            } else {
+              const [hotelsResult, transportResult] = await Promise.allSettled([
+                api.get(`/hotels?locale=${lang}`),
+                api.get('/transportation/services'),
+              ]);
+              const hotels = hotelsResult.status === 'fulfilled'
+                ? readItems(hotelsResult.value, 'hotels').map(transformHotelToService)
+                : [];
+              const transportation = transportResult.status === 'fulfilled'
+                ? readItems(transportResult.value, 'transportation').map(transformTransportToService)
+                : [];
+              items = [...hotels, ...transportation];
+            }
+            servicesCache.set(cacheKey, { data: items, timestamp: Date.now() });
+            return items;
+          })().finally(() => pendingServicesRequests.delete(cacheKey));
+          pendingServicesRequests.set(cacheKey, request);
         }
+
+        const items = await request;
         if (isMounted) setServices(items);
       } catch (requestError) {
         if (isMounted) {
@@ -159,7 +186,15 @@ export function useServices(category = null) {
     };
     void fetchServices();
     return () => { isMounted = false; };
-  }, [category, lang]);
+  }, [cacheKey, category, lang]);
 
-  return { services, loading, error };
+  return {
+    services,
+    loading,
+    error,
+    retry: () => {
+      servicesCache.delete(cacheKey);
+      setLoading(true);
+    }
+  };
 }

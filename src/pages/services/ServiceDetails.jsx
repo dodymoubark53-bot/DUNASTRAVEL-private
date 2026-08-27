@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
@@ -16,9 +16,10 @@ import NotFound from '../NotFound';
 import BookingForm from '../../components/booking/BookingForm';
 import AdvancedBooking from '../../components/booking/AdvancedBooking';
 import { useCurrency } from '../../context/CurrencyContext';
-import RouteMap from '../../components/tour/RouteMap';
-import ReviewsMap from '../../components/tour/ReviewsMap';
 import SuggestedTours from '../../components/tour/SuggestedTours';
+
+const RouteMap = lazy(() => import('../../components/tour/RouteMap'));
+const ReviewsMap = lazy(() => import('../../components/tour/ReviewsMap'));
 
 const ServiceDetails = () => {
   const { t } = useTranslation();
@@ -283,7 +284,9 @@ const ServiceDetails = () => {
                       </div>
                     </div>
                   </motion.div>
-                  <RouteMap itinerary={service.itinerary} />
+                  <Suspense fallback={<div className="h-80 rounded-2xl bg-obsidian-200/40 animate-pulse my-8" />}>
+                    <RouteMap itinerary={service.itinerary} />
+                  </Suspense>
                 </>
                 )}
 
@@ -700,7 +703,9 @@ const ServiceDetails = () => {
 
       {/* Testimonials Section */}
       {service?.id && !['hotels', 'transportation'].includes(service.category) && (
-        <ReviewsMap tourId={service.slug} />
+        <Suspense fallback={null}>
+          <ReviewsMap tourId={service.slug} />
+        </Suspense>
       )}
 
       {/* Related Services */}

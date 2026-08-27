@@ -31,9 +31,14 @@ function readDestinations(response) {
   });
 }
 
+const destinationsCache = new Map();
+const pendingDestinationsRequests = new Map();
+const DESTINATIONS_CACHE_TTL_MS = 300_000; // 5 minutes
+
 export function useDestinations() {
   const { i18n } = useTranslation();
   const lang = supportedLocale(i18n.language);
+  const cacheKey = lang;
   const [destinations, setDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,12 +47,39 @@ export function useDestinations() {
     let isMounted = true;
     const fetchDestinations = async () => {
       try {
+        await Promise.resolve();
+
+        // 1. Serve from in-memory cache if fresh
+        const cached = destinationsCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < DESTINATIONS_CACHE_TTL_MS) {
+          if (isMounted) {
+            setDestinations(cached.data);
+            setLoading(false);
+          }
+          return;
+        }
+
         setLoading(true);
         setError(null);
-        const items = readDestinations(
-          await api.get(`/destinations?locale=${encodeURIComponent(lang)}`),
-        );
-        if (isMounted) setDestinations(items);
+
+        // 2. Deduplicate concurrent requests
+        let request = pendingDestinationsRequests.get(cacheKey);
+        if (!request) {
+          request = api
+            .get(`/destinations?locale=${encodeURIComponent(lang)}`)
+            .then((res) => {
+              const items = readDestinations(res);
+              destinationsCache.set(cacheKey, { data: items, timestamp: Date.now() });
+              return items;
+            })
+            .finally(() => pendingDestinationsRequests.delete(cacheKey));
+          pendingDestinationsRequests.set(cacheKey, request);
+        }
+
+        const items = await request;
+        if (isMounted) {
+          setDestinations(items);
+        }
       } catch (requestError) {
         if (isMounted) {
           setError(requestError);
@@ -61,9 +93,17 @@ export function useDestinations() {
     return () => {
       isMounted = false;
     };
-  }, [lang]);
+  }, [cacheKey, lang]);
 
-  return { destinations, loading, error };
+  return {
+    destinations,
+    loading,
+    error,
+    retry: () => {
+      destinationsCache.delete(cacheKey);
+      setLoading(true);
+    }
+  };
 }
 
 export default useDestinations;

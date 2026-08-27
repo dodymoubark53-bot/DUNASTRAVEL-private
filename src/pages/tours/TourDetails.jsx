@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,10 +17,11 @@ import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import ErrorState from '../../components/ui/ErrorState';
 import { resolveTourTitle, resolveTourDuration, resolveTourOverview, resolveLocalizedText } from '../../utils/titleHelper';
 import SEOHead from '../../components/seo/SEOHead';
-import ReviewsMap from '../../components/tour/ReviewsMap';
-import RouteMap from '../../components/tour/RouteMap';
 import SuggestedTours from '../../components/tour/SuggestedTours';
 import IncludedNotIncluded from '../../components/tour/IncludedNotIncluded';
+
+const ReviewsMap = lazy(() => import('../../components/tour/ReviewsMap'));
+const RouteMap = lazy(() => import('../../components/tour/RouteMap'));
 
 const marketFlag = (market) => {
   const flags = { Brasil: '🇧🇷', Italia: '🇮🇹', Spain: '🇪🇸', Portugal: '🇵🇹', USA: '🇺🇸', UK: '🇬🇧' };
@@ -372,7 +373,9 @@ const TourDetails = () => {
             </motion.div>
 
             {tour.itinerary && tour.itinerary.length > 0 && (
-              <RouteMap itinerary={tour.itinerary} />
+              <Suspense fallback={<div className="h-80 rounded-2xl bg-obsidian-200/40 dark:bg-obsidian-800/40 animate-pulse my-8" />}>
+                <RouteMap itinerary={tour.itinerary} />
+              </Suspense>
             )}
 
             {(seasonPricingObj || pricingTiers.length > 0) && (
@@ -622,7 +625,9 @@ const TourDetails = () => {
         </div>
       </section>
 
-      <ReviewsMap tourId={tour.slug || tour.id} />
+      <Suspense fallback={null}>
+        <ReviewsMap tourId={tour.slug || tour.id} />
+      </Suspense>
 
       <SuggestedTours currentDestination={tour?.destination || 'egypt'} currentSlug={slug} />
 
