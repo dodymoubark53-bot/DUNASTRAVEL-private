@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { FaChevronLeft, FaChevronRight, FaStar } from 'react-icons/fa';
 import { useTours } from '../../hooks/useTours';
+import { useCurrency } from '../../context/CurrencyContext';
 import {
   resolveTourTitle,
   resolveTourOverview,
@@ -11,8 +12,26 @@ import {
   resolveLocalizedText
 } from '../../utils/titleHelper';
 
+function resolveTourImage(tour) {
+  if (!tour) return null;
+  if (typeof tour.heroImage === 'string' && tour.heroImage.trim()) {
+    return tour.heroImage.trim();
+  }
+  if (Array.isArray(tour.images) && tour.images.length > 0) {
+    const first = tour.images[0];
+    if (typeof first === 'string' && first.trim()) return first.trim();
+    if (first?.imageUrl) return first.imageUrl;
+    if (first?.url) return first.url;
+  }
+  if (typeof tour.image === 'string' && tour.image.trim()) {
+    return tour.image.trim();
+  }
+  return null;
+}
+
 export default function SuggestedTours({ currentDestination = 'egypt', currentSlug = '' }) {
   const { t, i18n } = useTranslation();
+  const { formatPrice } = useCurrency();
   const lang = i18n.language || 'en';
   const scrollRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -25,14 +44,15 @@ export default function SuggestedTours({ currentDestination = 'egypt', currentSl
   if (Array.isArray(tours)) {
     tours.forEach((tour) => {
       if (!tour || !tour.slug) return;
+      const image = resolveTourImage(tour);
       allItems.push({
         ...tour,
         id: tour.id || tour.slug,
         slug: tour.slug,
         destination: tour.destination || 'egypt',
-        price: tour.price ?? 0,
+        price: tour.price ?? Number(tour.basePriceUsd) ?? 0,
         rating: tour.rating || 4.9,
-        image: tour.images && tour.images[0] ? tour.images[0] : tour.heroImage || null,
+        image,
         link: `/tours/${tour.slug}`
       });
     });
@@ -158,7 +178,7 @@ export default function SuggestedTours({ currentDestination = 'egypt', currentSl
               >
                 <Link to={item.link} className="flex flex-col h-full">
                   {/* Image */}
-                  <div className="relative h-[220px] overflow-hidden">
+                  <div className="relative h-[220px] overflow-hidden bg-obsidian-800">
                     {resolvedDuration && (
                       <div className="absolute top-4 left-4 z-10 bg-obsidian-900/80 backdrop-blur-md text-gold-500 text-caption px-3 py-1 rounded-full border border-gold-500/30 shadow-glass">
                         {resolvedDuration}
@@ -170,12 +190,21 @@ export default function SuggestedTours({ currentDestination = 'egypt', currentSl
                       <span>{item.rating}</span>
                     </div>
 
-                    <img
-                      src={item.image}
-                      alt={resolvedTitle}
-                      className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700"
-                      loading="lazy"
-                    />
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={resolvedTitle}
+                        className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-obsidian-800 px-6 text-center text-sm text-ivory-300">
+                        {t('tour.imageUnavailable', 'No image has been added for this tour.')}
+                      </div>
+                    )}
                   </div>
 
                   {/* Content */}
@@ -206,7 +235,7 @@ export default function SuggestedTours({ currentDestination = 'egypt', currentSl
                           {t('extensions.startingFrom', 'Starting From')}
                         </span>
                         <span className="text-display-md text-gold-700 dark:text-gold-400 font-bold">
-                          ${item.price}
+                          {formatPrice(item.price)}
                         </span>
                       </div>
 
