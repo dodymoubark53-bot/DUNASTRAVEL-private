@@ -41,24 +41,32 @@ function normalizeTour(data) {
       throw new Error(`Invalid canonical itinerary item for ${data.slug}`);
     }
     const dayLabelStr = String(item.dayLabel || '').trim();
-    const dayNumFromLabel = Number(dayLabelStr);
-    const day = Number.isInteger(dayNumFromLabel) && dayNumFromLabel > 0
-      ? dayNumFromLabel
-      : (item.sortOrder > 0 ? item.sortOrder : idx + 1);
-    const title = dayLabelStr && isNaN(dayNumFromLabel) ? dayLabelStr : '';
+    const dayMatch = dayLabelStr.match(/\d+/);
+    const day = dayMatch ? parseInt(dayMatch[0], 10) : (idx + 1);
+
+    // If dayLabel is generic (e.g. "Day 1", "Dia 1", "اليوم 1"), do not duplicate it as title
+    const isGenericDayLabel = /^(day|dia|giorno|jour|اليوم|يوم)\s*\d+$/i.test(dayLabelStr);
+    const title = dayLabelStr && !isGenericDayLabel ? dayLabelStr : '';
+
+    // Strip redundant leading "Day X" / "اليوم X" lines from description
+    let description = String(item.description || '').trim();
+    const descLines = description.split('\n');
+    if (descLines.length > 1 && /^(day|dia|giorno|jour|اليوم|يوم)\s*\d+[:.-]?$/i.test(descLines[0].trim())) {
+      description = descLines.slice(1).join('\n').trim();
+    }
 
     return {
       ...item,
       day,
       title,
       meals: item.meals || null,
-      description: item.description,
+      description,
       activities: item.activities || null,
       hotels: item.hotels || null,
       notes: item.notes || null,
       transportation: item.transportation || null,
     };
-  }).sort((a, b) => a.sortOrder - b.sortOrder);
+  }).sort((a, b) => (a.sortOrder !== undefined && b.sortOrder !== undefined ? a.sortOrder - b.sortOrder : a.day - b.day));
 
   const normalizedCountry = String(data.country || '').trim().toLowerCase();
   const destination = normalizedCountry === 'united arab emirates'
