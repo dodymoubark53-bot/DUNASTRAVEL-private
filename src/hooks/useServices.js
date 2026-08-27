@@ -52,6 +52,26 @@ function transformHotelToService(hotel) {
   };
 }
 
+const solPyramidService = {
+  id: 'prog-hot-1',
+  category: 'hotels',
+  slug: 'sol-pyramid-hotel',
+  name: 'Sol Pyramid Hotel',
+  title: 'Sol Pyramid Hotel',
+  city: 'Giza',
+  destinationSlug: 'egypt',
+  location: 'Giza, Egypt',
+  stars: 3,
+  rating: 5.0,
+  price: 85,
+  pricePerNight: 85,
+  images: ['https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Hotel.jpg'],
+  heroImageUrl: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/23/0d/4e/68/henann-park-resort.jpg?w=600&h=600&s=1',
+  shortDesc: 'Solpyramid Hotel is a modern 3-star establishment designed for travellers who want to explore Egypt\'s major sights.',
+  amenities: ['Free Wi-Fi', 'Air conditioning', 'Private bathroom', 'Mini bar', 'Coffee & tea', 'Free safe box'],
+  isActive: true,
+};
+
 function transformTransportToService(service) {
   if (!service?.id || !service?.name || !service?.serviceType) {
     throw new Error('Invalid transportation service');
@@ -115,8 +135,13 @@ export function useServices(category = null) {
         setError(null);
         let items;
         if (category === 'hotels') {
-          items = readItems(await api.get(`/hotels?locale=${lang}`), 'hotels')
-            .map(transformHotelToService);
+          try {
+            const res = await api.get(`/hotels?locale=${lang}`);
+            const rawItems = readItems(res, 'hotels');
+            items = rawItems.length > 0 ? rawItems.map(transformHotelToService) : [solPyramidService];
+          } catch {
+            items = [solPyramidService];
+          }
         } else if (category === 'transportation') {
           items = readItems(await api.get('/transportation/services'), 'transportation')
             .map(transformTransportToService);

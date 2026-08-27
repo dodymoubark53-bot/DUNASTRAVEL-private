@@ -89,7 +89,7 @@ const Navbar = () => {
       dropdown: [
         {
           name: t('nav.hotelsTab', { defaultValue: 'Hotels' }),
-          path: '/services',
+          path: '/services/hotels',
           subItems: [
             { name: 'Sol Pyramid Hotel', path: '/services/hotels/sol-pyramid-hotel' }
           ]

@@ -12,13 +12,15 @@ import { useCurrency } from '../context/CurrencyContext';
 import { resolveLocalizedText } from '../utils/titleHelper';
 
 import { transportation as staticTransportation } from '../data/transportation';
+import HotelDetails from './hotels/HotelDetails';
 
 const Services = () => {
   const { t, i18n } = useTranslation();
   const lang = i18n.language || 'en';
   const { formatPrice } = useCurrency();
-  const { service } = useParams();
+  const params = useParams();
   const location = useLocation();
+  const service = params.service || (location.pathname.includes('/hotels') ? 'hotels' : null);
   const prefix = location.pathname.startsWith('/programs') ? '/programs' : '/services';
   const { services: allServicesData, loading, error } = useServices(service);
 

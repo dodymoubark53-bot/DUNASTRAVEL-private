@@ -282,6 +282,14 @@ function App() {
                     }
                   />
                   <Route
+                    path="hotels"
+                    element={
+                      <PageTransition>
+                        <Services />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
                     path="hotels/:slug"
                     element={
                       <PageTransition>
@@ -320,6 +328,30 @@ function App() {
                     element={
                       <PageTransition>
                         <Services />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="hotels"
+                    element={
+                      <PageTransition>
+                        <Services />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="hotels/:slug"
+                    element={
+                      <PageTransition>
+                        <HotelDetails />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="hotels/:hotelSlug/:roomSlug"
+                    element={
+                      <PageTransition>
+                        <RoomDetails />
                       </PageTransition>
                     }
                   />
