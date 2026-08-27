@@ -9,6 +9,7 @@ import LoginModal from '../auth/LoginModal';
 import Logo from '../ui/Logo';
 import CurrencySelector from '../ui/CurrencySelector';
 import CustomerNotificationBell from '../ui/CustomerNotificationBell';
+import { useActiveLocales } from '../../hooks/useActiveLocales';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ const Navbar = () => {
   const { t, i18n } = useTranslation();
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { activeLanguages } = useActiveLocales();
   const isRtl = i18n.dir() === 'rtl';
 
   const handleLogout = async () => {
@@ -239,13 +241,7 @@ const Navbar = () => {
                       style={{ backgroundColor: 'white' }}
                       className={`absolute top-full ${isRtl ? 'left-0' : 'right-0'} mt-1 w-36 backdrop-blur-xl border border-gray-200 rounded-xl overflow-hidden shadow-2xl z-[10000]`}
                     >
-                      {[
-                        { code: 'en', label: 'English', flag: '🇬🇧' },
-                        { code: 'ar', label: 'العربية', flag: '🇪🇬' },
-                        { code: 'es', label: 'Español', flag: '🇪🇸' },
-                        { code: 'pt', label: 'Português', flag: '🇧🇷' },
-                        { code: 'it', label: 'Italiano', flag: '🇮🇹' },
-                      ].map(lang => (
+                      {activeLanguages.map(lang => (
                         <button
                           key={lang.code}
                           onClick={() => changeLanguage(lang.code)}
