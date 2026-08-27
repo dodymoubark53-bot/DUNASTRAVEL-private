@@ -135,13 +135,7 @@ export function useServices(category = null) {
         setError(null);
         let items;
         if (category === 'hotels') {
-          try {
-            const res = await api.get(`/hotels?locale=${lang}`);
-            const rawItems = readItems(res, 'hotels');
-            items = rawItems.length > 0 ? rawItems.map(transformHotelToService) : [solPyramidService];
-          } catch {
-            items = [solPyramidService];
-          }
+          items = [solPyramidService];
         } else if (category === 'transportation') {
           items = readItems(await api.get('/transportation/services'), 'transportation')
             .map(transformTransportToService);
@@ -150,15 +144,10 @@ export function useServices(category = null) {
           items = readItems(await api.get(`/tours?${params.toString()}`), 'tour services')
             .map((tour) => transformTourToService(tour, category));
         } else {
-          // These are independent catalogs. A missing optional hotels route
-          // must not hide the transportation catalog that is available.
-          const [hotelsResult, transportResult] = await Promise.allSettled([
-            api.get(`/hotels?locale=${lang}`),
+          const [transportResult] = await Promise.allSettled([
             api.get('/transportation/services'),
           ]);
-          const hotels = hotelsResult.status === 'fulfilled'
-            ? readItems(hotelsResult.value, 'hotels').map(transformHotelToService)
-            : [];
+          const hotels = [solPyramidService];
           if (transportResult.status === 'rejected') throw transportResult.reason;
           const transportation = readItems(transportResult.value, 'transportation')
             .map(transformTransportToService);
