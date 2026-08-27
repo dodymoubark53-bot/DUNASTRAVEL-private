@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { FaChevronRight } from 'react-icons/fa';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
+import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 
 export const HONEYMOON_PACKAGES = [
   {
@@ -32,53 +33,30 @@ export default function Honeymooners() {
         />
       </Helmet>
 
-      {/* Hero Header */}
-      <section className="relative w-full h-[500px] md:h-[650px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://hl-tourism.com/media/typecms/Honeymoon_Planning_Guide_2025_Complete_Resource.webp"
-            alt="Romantic sunset"
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background: 'linear-gradient(to bottom, rgba(15,13,11,0.3), rgba(15,13,11,0.7))',
-            }}
-          />
-        </div>
-
-        <motion.div
-          className="relative z-10 text-center px-6 mt-20"
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.span
-            variants={fadeInUp}
-            className="text-gold-400 uppercase tracking-[4px] text-sm block mb-4 font-semibold"
-          >
-            {t('honeymooners.subtitle', 'Honeymooners Package')}
-          </motion.span>
-          <motion.h1
-            variants={fadeInUp}
-            className="text-4xl md:text-6xl lg:text-7xl text-ivory-50 mb-6 font-display"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {t('honeymooners.heading', 'Love Stories Begin Here')}
-          </motion.h1>
-          <motion.p
-            variants={fadeInUp}
-            className="text-body-lg text-ivory-200 max-w-2xl mx-auto leading-relaxed"
-          >
-            {t(
-              'honeymooners.heroDesc',
-              'Let us craft the most romantic chapter of your life. From the timeless pyramids to the tranquil Red Sea, every moment is designed for two.'
-            )}
-          </motion.p>
-        </motion.div>
-      </section>
+      {/* Luxury Hero Section */}
+      <LuxuryHeroSection
+        badge={t('honeymooners.badge', '💖 لحظات للعمر وتجارب مصممة لشخصين')}
+        title={t('honeymooners.heading', 'شهر العسل.. بداية حكاية حب في أجمل وجهات العالم')}
+        subtitle={t('honeymooners.subtitle', 'Honeymoon: Begin Your Story in Unrivaled Paradise')}
+        description={t(
+          'honeymooners.heroDesc',
+          'اصنعا ذكريات لا تُنسى في أكثر الأماكن رومانسية؛ من الأكواخ المائية الفاخرة وعشاء الشموع على النيل، إلى ليالي النجوم في صحراء وادي رم وجولات البسفور الخاصة.'
+        )}
+        highlights={[
+          t('honeymooners.tag1', '🍾 استقبال بالورد وعشاء رومانسي خاص'),
+          t('honeymooners.tag2', '📸 جلسات تصوير احترافية للزوجين'),
+          t('honeymooners.tag3', '🏨 ترقية مجانية للغرف والأجنحة (حسب الإمكانية)')
+        ]}
+        primaryCta={{
+          text: t('honeymooners.ctaPrimary', 'استكشف باقات شهر العسل ←'),
+          link: '#packages-list'
+        }}
+        secondaryCta={{
+          text: t('honeymooners.ctaSecondary', 'صمّم رحلة أحلامكما'),
+          link: '/tailor-tour'
+        }}
+        bgImage="https://hl-tourism.com/media/typecms/Honeymoon_Planning_Guide_2025_Complete_Resource.webp"
+      />
 
       {/* Breadcrumb Navigation */}
       <div className="bg-obsidian-950 border-y border-gold-500/10 py-4 px-6 text-caption text-ivory-300">

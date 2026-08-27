@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { FaChevronRight } from 'react-icons/fa';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
+import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 
 export const EXTENSION_PACKAGES = [
   {
@@ -64,53 +65,30 @@ export default function ExtensionTours() {
         />
       </Helmet>
 
-      {/* Hero Header */}
-      <section className="relative w-full h-[500px] md:h-[650px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://res.cloudinary.com/degbrq3ck/image/upload/v1783030445/Gemini_Generated_Image_kenvzkkenvzkkenv_h9kz07.png"
-            alt="Egypt Extensions"
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background: 'linear-gradient(to bottom, rgba(15,13,11,0.35), rgba(15,13,11,0.75))',
-            }}
-          />
-        </div>
-
-        <motion.div
-          className="relative z-10 text-center px-6 mt-20"
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.span
-            variants={fadeInUp}
-            className="text-white uppercase tracking-[4px] text-sm block mb-4 font-semibold"
-          >
-            {t('extensions.subtitle', 'Egypt Extensions')}
-          </motion.span>
-          <motion.h1
-            variants={fadeInUp}
-            className="text-4xl md:text-6xl lg:text-7xl text-white mb-6 font-display"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {t('extensions.heading', 'Extend Your Egypt Experience')}
-          </motion.h1>
-          <motion.p
-            variants={fadeInUp}
-            className="text-body-lg text-white max-w-2xl mx-auto leading-relaxed"
-          >
-            {t(
-              'extensions.heroDesc',
-              'Enhance your holiday with extra nights on the Red Sea coast or an authentic safari adventure in the Western Desert.'
-            )}
-          </motion.p>
-        </motion.div>
-      </section>
+      {/* Luxury Hero Section */}
+      <LuxuryHeroSection
+        badge={t('extensions.badge', '🏖️ إضافات وامتدادات إقامة فاخرة')}
+        title={t('extensions.heading', 'امتدادات الرحلات.. طوّل متعة الاسترخاء والاستكشاف')}
+        subtitle={t('extensions.subtitle', 'Egypt Extensions: Beach Resorts & Oasis Escapes')}
+        description={t(
+          'extensions.heroDesc',
+          'مدّد رحلتك السياحية بأيام إضافية من الاستجمام الشاطئي على منتجعات الغردقة وشرم الشيخ 5 نجوم، أو مغامرات واحة سيوة وسيناء التاريخية مع طيران وتنقلات سريعة.'
+        )}
+        highlights={[
+          t('extensions.tag1', '🏖️ منتجعات الغردقة وشرم الشيخ الشاملة All-Inclusive'),
+          t('extensions.tag2', '🌴 رحلات واحة سيوة والإسكندرية الاستكشافية'),
+          t('extensions.tag3', '✈️ طيران داخلي مريح من وإلى القاهرة')
+        ]}
+        primaryCta={{
+          text: t('extensions.ctaPrimary', 'تصفّح باقات التمديد ←'),
+          link: '#extensions-list'
+        }}
+        secondaryCta={{
+          text: t('extensions.ctaSecondary', 'إضافة أيام لرحلتك الحالية'),
+          link: '/tailor-tour'
+        }}
+        bgImage="https://res.cloudinary.com/degbrq3ck/image/upload/v1783030445/Gemini_Generated_Image_kenvzkkenvzkkenv_h9kz07.png"
+      />
 
       {/* Breadcrumb Navigation */}
       <div className="bg-obsidian-950 border-y border-gold-500/10 py-4 px-6 text-caption text-ivory-300">

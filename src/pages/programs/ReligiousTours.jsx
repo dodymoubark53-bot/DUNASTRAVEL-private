@@ -16,6 +16,7 @@ import { services } from '../../data/services';
 import { useCurrency } from '../../context/CurrencyContext';
 import Button from '../../components/ui/Button';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
+import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 
 const StarRating = ({ rating }) => {
   const stars = [];
@@ -50,48 +51,30 @@ export default function ReligiousTours() {
         />
       </Helmet>
 
-      {/* Hero Banner */}
-      <section className="relative w-full h-[450px] md:h-[650px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://thf.bing.com/th/id/R.e047649d8bd183efbdd320d17de8a8b1?rik=d18ZW0xT%2fK31lQ&pid=ImgRaw&r=0"
-            alt="Religious Tours & Pilgrimages"
-            className="w-full h-full object-cover object-center scale-105"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-obsidian-900/60 via-obsidian-900/75 to-obsidian-950" />
-        </div>
-
-        <motion.div
-          className="relative z-10 text-center px-6 mt-20 max-w-4xl"
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.span
-            variants={fadeInUp}
-            className="text-gold-500 uppercase tracking-widest text-caption font-semibold block mb-4"
-          >
-            {t('programs.religiousSubtitle', 'Sacred Journeys & Pilgrimages')}
-          </motion.span>
-          <motion.h1
-            variants={fadeInUp}
-            className="text-display-xl md:text-display-2xl text-ivory-50 font-display mb-6"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {t('nav.religious', 'Religious Programs')}
-          </motion.h1>
-          <motion.p
-            variants={fadeInUp}
-            className="text-body-lg md:text-xl text-ivory-200 max-w-2xl mx-auto leading-relaxed"
-          >
-            {t(
-              'programs.religiousLead',
-              "Walk in the footsteps of the Holy Family through Egypt's ancient Coptic monasteries and discover the sacred wonders of the Holy Land. Expertly guided, spiritually enriching journeys crafted with absolute care."
-            )}
-          </motion.p>
-        </motion.div>
-      </section>
+      {/* Luxury Hero Section */}
+      <LuxuryHeroSection
+        badge={t('programs.religiousBadge', '🌐 رحلات الإيمان والتراكم الحضاري الروحي')}
+        title={t('programs.religiousHeadline', 'الرحلات الدينية والروحانية.. رحلة الروح والسكينة')}
+        subtitle={t('programs.religiousSubtitle', 'Religious & Cultural Tours: One Sacred Journey')}
+        description={t(
+          'programs.religiousLead',
+          'سِر على خطى العائلة المقدسة وزُر الأديرة القبطية القديمة في مصر ومساجد وأضرحة آل البيت والأراضي المقدسة برعاية كاملة وتنظيم سياحي فاخر بمرشدين متمرسين.'
+        )}
+        highlights={[
+          t('programs.religiousTag1', '🕊️ جولات الأديرة والمواقع القبطية بمصر'),
+          t('programs.religiousTag2', '📜 إرشاد تاريخي وروحي متمرس'),
+          t('programs.religiousTag3', '✈️ إقامات 5 نجوم وتنقلات مريحة مجهزة بالكامل')
+        ]}
+        primaryCta={{
+          text: t('programs.religiousPrimaryCta', 'تصفّح البرامج الدينية ←'),
+          link: '#religious-list'
+        }}
+        secondaryCta={{
+          text: t('programs.religiousSecondaryCta', 'طلب برنامج ديني خاص'),
+          link: '/tailor-tour'
+        }}
+        bgImage="https://thf.bing.com/th/id/R.e047649d8bd183efbdd320d17de8a8b1?rik=d18ZW0xT%2fK31lQ&pid=ImgRaw&r=0"
+      />
 
       {/* Breadcrumb Bar */}
       <div className="bg-obsidian-950 border-y border-gold-500/10 py-4 px-6 text-caption text-ivory-300">

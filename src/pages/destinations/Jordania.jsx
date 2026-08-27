@@ -24,6 +24,8 @@ const itemVariants = {
   }
 };
 
+import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
+
 const HERO_IMAGE = 'https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg';
 
 export default function Jordania() {
@@ -48,55 +50,30 @@ export default function Jordania() {
         />
       </Helmet>
 
-      {/* Hero Section */}
-      <section className="relative w-full h-[400px] md:h-[600px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img
-            src={HERO_IMAGE}
-            alt={t('dest.jordan.title', 'Jordan')}
-            className="w-full h-full object-cover object-center"
-            loading="lazy"
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: 'linear-gradient(to bottom, rgba(15,13,11,0.3), rgba(15,13,11,0.65))',
-            }}
-          />
-        </div>
-
-        <motion.div
-          className="relative z-10 container mx-auto px-6 text-center mt-20"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.span
-            variants={itemVariants}
-            className="inline-block font-body text-gold-500 tracking-[0.2em] uppercase text-sm mb-4"
-          >
-            {t('dest.jordan.subtitle', 'The rose-red kingdom')}
-          </motion.span>
-
-          <motion.h1
-            variants={itemVariants}
-            className="text-display-xl text-ivory-50 mb-6"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {t('dest.jordan.title', 'Jordan')}
-          </motion.h1>
-
-          <motion.p
-            variants={itemVariants}
-            className="text-body-lg text-ivory-300 max-w-2xl mx-auto"
-          >
-            {t(
-              'dest.jordan.desc',
-              'From the rose-red city of Petra to the otherworldly desert of Wadi Rum and the healing waters of the Dead Sea, Jordan is a land of timeless wonders.'
-            )}
-          </motion.p>
-        </motion.div>
-      </section>
+      {/* Luxury Hero Section */}
+      <LuxuryHeroSection
+        badge={t('dest.jordan.badge', '🏜️ عجيبة العالم الوردية ووديان النجوم')}
+        title={t('dest.jordan.headline', 'الأردن.. سحر البتراء وأسرار وادي رم الأسطورية')}
+        subtitle={t('dest.jordan.subtitle', 'Jordan: Petra’s Rose Beauty & Cosmic Desert Nights')}
+        description={t(
+          'dest.jordan.desc',
+          'من منحوتات السيق الوردية في البتراء إلى هدوء البحر الميت الذي لا يُقاوم، وصولاً إلى التخييم الفاخر تحت قبة نجوم وادي رم. تجربة استكشافية تجمع بين المغامرة والراحة الاستثنائية.'
+        )}
+        highlights={[
+          t('dest.jordan.tag1', '🏛️ زيارة البتراء ودخول خاص'),
+          t('dest.jordan.tag2', '🌌 مخيمات البابليك الفاخرة بوادي رم'),
+          t('dest.jordan.tag3', '🌊 منتجعات علاجية على البحر الميت')
+        ]}
+        primaryCta={{
+          text: t('dest.jordan.ctaPrimary', 'استكشف سحر الأردن ←'),
+          link: '#jordan-tours'
+        }}
+        secondaryCta={{
+          text: t('dest.jordan.ctaSecondary', 'تواصل مع مستشار السفر'),
+          link: '/tailor-tour'
+        }}
+        bgImage={HERO_IMAGE}
+      />
 
       {/* Introduction & Programs Grid */}
       <section className="container mx-auto px-6 mt-16">

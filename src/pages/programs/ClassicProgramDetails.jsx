@@ -12,6 +12,7 @@ import RouteMap from '../../components/tour/RouteMap';
 import ReviewsMap from '../../components/tour/ReviewsMap';
 import SuggestedTours from '../../components/tour/SuggestedTours';
 import tours from '../../data/tours';
+import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -249,44 +250,28 @@ export default function ClassicProgramDetails() {
         <meta name="description" content={overview.substring(0, 150) + '...'} />
       </Helmet>
 
-      {/* Header Banner */}
-      <section className="pt-32 pb-10 bg-obsidian-900 text-center px-6">
-        <div className="container mx-auto">
-          <div className="flex items-center justify-center gap-2 text-caption text-gold-500 mb-4 uppercase tracking-wider text-xs">
-            <Link to="/" className="hover:text-ivory-50 transition-colors">
-              {t('nav.home', 'Home')}
-            </Link>
-            <span className="rtl-flip text-[10px]">
-              <FaChevronRight />
-            </span>
-            <Link to="/destinations/egypt" className="hover:text-ivory-50 transition-colors">
-              {t('dest.egypt.title', 'Egypt')}
-            </Link>
-            <span className="rtl-flip text-[10px]">
-              <FaChevronRight />
-            </span>
-            <span className="text-ivory-300">{title}</span>
-          </div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-display-xl text-ivory-50 mb-4"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {title}
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-body-lg text-gold-400 font-medium tracking-wide"
-          >
-            {duration}
-          </motion.p>
-        </div>
-      </section>
+      {/* Luxury Hero Section */}
+      <LuxuryHeroSection
+        badge={t('programs.classicBadge', '👑 برنامج مصر الكلاسيكي الملكي')}
+        title={title}
+        subtitle={duration}
+        description={overview}
+        highlights={[
+          t('programs.classicTag1', '🐪 الأهرامات وأبو الهول والجيزة'),
+          t('programs.classicTag2', '🚢 رحلة نيلية ديلوكس 5 نجوم (أسوان - الأقصر)'),
+          t('programs.classicTag3', '🏛️ معابد فيلة وكوم أمبو وإدفو والكرنك'),
+          t('programs.classicTag4', '🕌 القاهرة التاريخية وخان الخليلي')
+        ]}
+        primaryCta={{
+          text: t('programs.bookNow', 'احجز هذا البرنامج الآن ←'),
+          link: '#booking-section'
+        }}
+        secondaryCta={{
+          text: t('programs.viewGallery', 'عرض البوم الصور'),
+          onClick: () => setIsLightboxOpen(true)
+        }}
+        bgImage={CLASSIC_IMAGES[0]}
+      />
 
       {/* Hero Lightbox Gallery */}
       <section

@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import Button from '../../components/ui/Button';
 import TourCard from '../../components/tour/TourCard';
 import tours from '../../data/tours.js';
+import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -25,7 +26,7 @@ const itemVariants = {
 };
 
 export default function Egipto() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const egyptTours = tours.filter((tour) => tour && tour.destination === 'egypt');
 
@@ -42,58 +43,33 @@ export default function Egipto() {
         />
       </Helmet>
 
-      {/* Hero Header */}
-      <section className="relative w-full h-[400px] md:h-[600px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img
-            src="/imgs/egyothero.png"
-            alt={t('dest.egypt.title', 'Egypt')}
-            className="w-full h-full object-cover object-center"
-            loading="lazy"
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: 'linear-gradient(to bottom, rgba(15,13,11,0.3), rgba(15,13,11,0.65))',
-            }}
-          />
-        </div>
-
-        <motion.div
-          className="relative z-10 container mx-auto px-6 text-center mt-20"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.span
-            variants={itemVariants}
-            className="inline-block font-body text-gold-500 tracking-[0.2em] uppercase text-sm mb-4"
-          >
-            {t('dest.egypt.subtitle', 'Land of the Pharaohs')}
-          </motion.span>
-
-          <motion.h1
-            variants={itemVariants}
-            className="text-display-xl text-ivory-50 mb-6"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {t('dest.egypt.title', 'Egypt')}
-          </motion.h1>
-
-          <motion.p
-            variants={itemVariants}
-            className="text-body-lg text-ivory-300 max-w-2xl mx-auto"
-          >
-            {t(
-              'dest.egypt.desc',
-              'From the timeless Pyramids of Giza to the golden temples of Luxor and the crystal waters of the Red Sea, Egypt offers a journey through history like no other.'
-            )}
-          </motion.p>
-        </motion.div>
-      </section>
+      {/* Luxury Hero Section */}
+      <LuxuryHeroSection
+        badge={t('dest.egypt.badge', '🏛️ أسرار 7000 عام من الحضارة')}
+        title={t('dest.egypt.headline', 'مصر.. حيث يلتقي التاريخ الخالد برغد الرفاهية')}
+        subtitle={t('dest.egypt.subtitle', 'Egypt: Where Eternal History Meets Pure Luxury')}
+        description={t(
+          'dest.egypt.desc',
+          'انطلق في رحلة أسطورية عبر الزمن؛ استمتع بزيارة أهرامات الجيزة الخالدة، وواجهات معابد الأقصر وأسوان الملكية، وابحر في نيل مصر على متن أفخم الفنادق العائمة مع استرخاء ساحر على شواطئ البحر الأحمر.'
+        )}
+        highlights={[
+          t('dest.egypt.tag1', '🚢 رحلات نيلية 5 نجوم ديلوكس'),
+          t('dest.egypt.tag2', '👑 إرشاد سياحي خاص باللغات العالمية'),
+          t('dest.egypt.tag3', '🐫 تجارب سفاري وحصريات الصحراء')
+        ]}
+        primaryCta={{
+          text: t('dest.egypt.ctaPrimary', 'استكشف برامج مصر الفاخرة ←'),
+          link: '#tours-grid'
+        }}
+        secondaryCta={{
+          text: t('dest.egypt.ctaSecondary', 'صمّم رحلتك الخاصة'),
+          link: '/tailor-tour'
+        }}
+        bgImage="/imgs/egyothero.png"
+      />
 
       {/* Brief Overview & 9 Egypt Tours Grid */}
-      <section className="container mx-auto px-6 mt-16">
+      <section className="container mx-auto px-6 mt-16" id="tours-grid">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <p className="text-body-lg text-obsidian-500 dark:text-black leading-relaxed">
             {t(

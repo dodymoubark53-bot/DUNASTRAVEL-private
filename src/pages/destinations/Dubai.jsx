@@ -24,6 +24,8 @@ const itemVariants = {
   }
 };
 
+import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
+
 const HERO_IMAGE = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80';
 
 export default function Dubai() {
@@ -40,55 +42,30 @@ export default function Dubai() {
         />
       </Helmet>
 
-      {/* Hero Header */}
-      <section className="relative w-full h-[400px] md:h-[600px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img
-            src={HERO_IMAGE}
-            alt={t('dest.dubai.title', 'Dubai')}
-            className="w-full h-full object-cover object-center"
-            loading="lazy"
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: 'linear-gradient(to bottom, rgba(15,13,11,0.3), rgba(15,13,11,0.65))',
-            }}
-          />
-        </div>
-
-        <motion.div
-          className="relative z-10 container mx-auto px-6 text-center mt-20"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.span
-            variants={itemVariants}
-            className="inline-block font-body text-gold-500 tracking-[0.2em] uppercase text-sm mb-4"
-          >
-            {t('dest.dubai.subtitle', 'Modern luxury redefined')}
-          </motion.span>
-
-          <motion.h1
-            variants={itemVariants}
-            className="text-display-xl text-ivory-50 mb-6"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {t('dest.dubai.title', 'Dubai')}
-          </motion.h1>
-
-          <motion.p
-            variants={itemVariants}
-            className="text-body-lg text-ivory-300 max-w-2xl mx-auto"
-          >
-            {t(
-              'dest.dubai.desc',
-              'From the towering Burj Khalifa to the golden dunes of the Arabian Desert, Dubai is a city that defies imagination.'
-            )}
-          </motion.p>
-        </motion.div>
-      </section>
+      {/* Luxury Hero Section */}
+      <LuxuryHeroSection
+        badge={t('dest.dubai.badge', '💎 قمة الرفاهية والتجارب المستقبليّة')}
+        title={t('dest.dubai.headline', 'دبي.. عاصمة الفخامة العالمية والمغامرات الحديثة')}
+        subtitle={t('dest.dubai.subtitle', 'Dubai: The Global Capital of Luxury & Futuristic Wonders')}
+        description={t(
+          'dest.dubai.desc',
+          'عِش تجربة سياحية لا تُضاهى بين أطول ناطحات السحاب في العالم، والجزر الاصطناعية المذهلة، والتسوق الفاخر، إلى جانب سفاري الصحراء الملكي وتجارب اليخوت الخاصة.'
+        )}
+        highlights={[
+          t('dest.dubai.tag1', '🏙️ تذاكر برج خليفة والمنصات VIP'),
+          t('dest.dubai.tag2', '🏎️ سيارات فاخرة ويخوت خاصة'),
+          t('dest.dubai.tag3', '🏜️ سفاري صحراوي ملكي مع عشاء VIP')
+        ]}
+        primaryCta={{
+          text: t('dest.dubai.ctaPrimary', 'احجز رحلتك إلى دبي ←'),
+          link: '#dubai-tours'
+        }}
+        secondaryCta={{
+          text: t('dest.dubai.ctaSecondary', 'عرض الباقات العائلية'),
+          link: '/tailor-tour'
+        }}
+        bgImage={HERO_IMAGE}
+      />
 
       {/* Brief Overview & Programs Grid */}
       <section className="container mx-auto px-6 mt-16">
