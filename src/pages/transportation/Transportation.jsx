@@ -11,19 +11,6 @@ import TransportationForm from '../../components/booking/TransportationForm';
 import { useCurrency } from '../../context/CurrencyContext';
 import Button from '../../components/ui/Button';
 
-const galleryImages = [
-  'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786856/232e5d06-8225-4823-8862-404f65c89ceb_cvji7q.jpg',
-  'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786846/f2b61bac-4413-42e1-b7fc-68d70d11074e_mavxqo.jpg',
-  'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786837/9a9e5b5b-9fe8-429f-b13f-093ce19e8f6e_rkix7o.jpg',
-  'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786828/b6bd4ff2-e979-4924-9fd8-484deb6d9f7c_yp1ooc.jpg',
-  'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786815/5cb96cc3-5d0d-444a-a684-4d8b09401f1c_watv6b.jpg',
-  'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786806/e6afc46a-4212-4dbc-84dc-bad419b101c3_exa95g.jpg',
-  'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786797/3acfceb6-1313-44db-9965-f2b14aac8260_hoeveh.jpg',
-  'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786785/7173bba6-bc2f-4ea0-84db-905374545128_esjlwd.jpg',
-  'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786745/b0e91260-4918-46ed-8067-7392b332641a_vq6lre.jpg',
-  '/imgs/transportation/privte.jpeg'
-];
-
 const Transportation = () => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.dir() === 'rtl';
@@ -37,6 +24,15 @@ const Transportation = () => {
   
   const { services: apiTransportation, loading } = useServices('transportation');
 
+  // Always render all 10 vehicles guaranteed
+  const transportationList = staticTransportation.map(staticItem => {
+    const apiMatch = apiTransportation?.find(api => api.name === staticItem.name || api.id === staticItem.id);
+    return apiMatch ? { ...staticItem, ...apiMatch } : staticItem;
+  });
+
+  // Dynamic gallery images derived from the 10 vehicles
+  const galleryImages = transportationList.map(v => v.image);
+
   // Autoplay slider effect
   useEffect(() => {
     if (!isAutoPlaying || isLightboxOpen) return;
@@ -44,13 +40,7 @@ const Transportation = () => {
       setCurrentSlide((prev) => (prev + 1) % galleryImages.length);
     }, 3800);
     return () => clearInterval(timer);
-  }, [isAutoPlaying, isLightboxOpen]);
-
-  // Always render all 10 vehicles guaranteed
-  const transportationList = staticTransportation.map(staticItem => {
-    const apiMatch = apiTransportation?.find(api => api.name === staticItem.name || api.id === staticItem.id);
-    return apiMatch ? { ...staticItem, ...apiMatch } : staticItem;
-  });
+  }, [isAutoPlaying, isLightboxOpen, galleryImages.length]);
 
   const filters = [
     { id: 'All', label: t('transportation.filter.all', 'All') },
