@@ -4,13 +4,17 @@ import { FaCheckCircle, FaFileInvoiceDollar } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import Button from '../ui/Button';
 import { fadeInUp } from '../../animations/variants';
-import { transportation } from '../../data/transportation';
+import { useServices } from '../../hooks/useServices';
+import { useAuth } from '../../context/AuthContext';
 import InvoiceModal from './InvoiceModal';
-
-const API = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:5000/api';
+import api from '../../utils/api';
+import { transportation as staticTransportation } from '../../data/transportation';
 
 const TransportationForm = ({ preSelectedVehicleId = '' }) => {
   const { t } = useTranslation();
+  const { services: apiTransportation } = useServices('transportation');
+  const transportationList = apiTransportation && apiTransportation.length > 0 ? apiTransportation : staticTransportation;
+  const { user } = useAuth();
   const [status, setStatus] = useState('idle');
   const [bookingResult, setBookingResult] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
@@ -45,54 +49,46 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
     e.preventDefault();
     if (formData.tripDate && formData.tripDate < todayStr) return;
     setError('');
+    if (!user) {
+      setError(t('auth.loginRequired', 'Please sign in before requesting transportation.'));
+      return;
+    }
     setStatus('submitting');
     try {
-      const payload = {
-        type: 'transport',
-        tourTitle: `Transport: ${formData.pickupLocation} → ${formData.dropoffLocation}`,
-        vehicleId: formData.vehicleId,
-        tripDate: formData.tripDate,
-        pickupTime: formData.pickupTime,
-        adults: parseInt(formData.adults) || 1,
-        children: parseInt(formData.children) || 0,
+      const passengerCount = (parseInt(formData.adults) || 1) + (parseInt(formData.children) || 0);
+      const transportPayload = {
+        serviceId: formData.vehicleId,
+        pickupDate: formData.tripDate,
+        pickupTime: formData.pickupTime || '09:00',
         pickupLocation: formData.pickupLocation,
         dropoffLocation: formData.dropoffLocation,
-        fullName: formData.fullName,
-        phone: formData.phone,
-        email: formData.email,
-        specialRequest: formData.specialRequest,
-        totalAmount: 0,
-        currency: 'USD'
+        passengerCount,
       };
-      const res = await fetch(`${API}/bookings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error('Failed to submit booking');
-      const data = await res.json();
+
+      const data = await api.post('/transportation/bookings', transportPayload);
+
       setBookingResult(data);
       setStatus('success');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Error processing request');
       setStatus('idle');
     }
   };
 
   return (
-    <div 
+    <div
       className="relative mx-auto md:mx-0 rounded-2xl p-8 w-full"
       style={{ background: 'linear-gradient(135deg, rgb(4, 20, 70) 0%, rgb(6, 29, 93) 40%, rgb(10, 40, 120) 100%)', boxShadow: '0 0 40px rgba(10,25,105, 0.8)' }}
     >
       <AnimatePresence mode="wait">
         {status === 'success' ? (
-          <motion.div 
+          <motion.div
             key="success"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="flex flex-col items-center justify-center text-center py-12"
           >
-            <motion.div 
+            <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 200, damping: 15 }}
@@ -105,7 +101,12 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
             </p>
             {bookingResult?.invoiceNumber && (
               <button
-                onClick={() => setShowInvoice(true)}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowInvoice(true);
+                }}
                 className="mt-4 px-5 py-2.5 bg-gold-500 text-white font-bold rounded-full hover:scale-105 transition-all text-sm flex items-center gap-2 cursor-pointer"
               >
                 <FaFileInvoiceDollar /> {t('booking.viewInvoice', 'View Invoice')}
@@ -113,7 +114,7 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
             )}
           </motion.div>
         ) : (
-          <motion.form 
+          <motion.form
             key="form"
             variants={fadeInUp}
             initial="hidden"
@@ -121,9 +122,9 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
             onSubmit={handleSubmit}
             className="flex flex-col gap-5"
           >
-            <div className="mb-2">
-              <h3 className="text-display-md text-obsidian-900 mb-2 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('booking.bookYourTransfer', 'Book Your Transfer')}</h3>
-              <p className="text-caption text-obsidian-500">{t('booking.transferDesc', 'Reserve your premium vehicle and professional driver.')}</p>
+            <div className="mb-2 text-center md:text-left">
+              <h3 className="text-display-md text-ivory-50 mb-2 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('booking.bookYourTransfer', 'Book Your Transfer')}</h3>
+              <p className="text-caption text-ivory-300">{t('booking.transferDesc', 'Reserve your premium vehicle and professional driver.')}</p>
             </div>
 
             {error && (
@@ -136,146 +137,146 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
               <label htmlFor="vehicle-select" className="sr-only">
                 {t('booking.selectVehicle', 'Select Vehicle')}
               </label>
-              <select 
+              <select
                 id="vehicle-select"
-                name="vehicleId" 
-                value={formData.vehicleId} 
+                name="vehicleId"
+                value={formData.vehicleId}
                 onChange={handleChange}
                 required
-                className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors bg-white md:col-span-2 text-[16px]"
+                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 md:col-span-2 text-[16px] font-medium"
               >
                 <option value="" disabled>{t('booking.selectVehicle', 'Select Vehicle')}</option>
-                {transportation.map(v => (
+                {transportationList.map(v => (
                   <option key={v.id} value={v.id}>{t(`data.${v.name}`, v.name)}</option>
                 ))}
               </select>
 
               <label htmlFor="trip-date" className="sr-only">{t('booking.tripDate', 'Trip Date')}</label>
-              <input 
+              <input
                 id="trip-date"
-                type="date" 
+                type="date"
                 name="tripDate"
                 value={formData.tripDate}
                 min={todayStr}
                 onChange={handleChange}
                 required
-                className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors text-[16px]"
+                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 text-[16px]"
               />
               <label htmlFor="pickup-time" className="sr-only">{t('booking.pickupTime', 'Pick Up Time')}</label>
-              <input 
+              <input
                 id="pickup-time"
-                type="time" 
+                type="time"
                 name="pickupTime"
                 value={formData.pickupTime}
                 onChange={handleChange}
                 required
-                className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors text-[16px]"
+                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 text-[16px]"
               />
 
               <div className="flex gap-4">
                 <div className="w-1/2">
-                  <label htmlFor="adults-count" className="block text-caption text-obsidian-500 mb-1">{t('booking.adults', 'Adults')}</label>
-                  <input 
+                  <label htmlFor="adults-count" className="block text-caption text-gold-400 font-semibold mb-1 uppercase tracking-wider">{t('booking.adults', 'Adults')}</label>
+                  <input
                     id="adults-count"
-                    type="number" 
+                    type="number"
                     name="adults"
                     min="1" max="20"
                     value={formData.adults}
                     onChange={handleChange}
                     required
-                    className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors text-[16px]"
+                    className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 text-[16px]"
                   />
                 </div>
                 <div className="w-1/2">
-                  <label htmlFor="children-count" className="block text-caption text-obsidian-500 mb-1">{t('booking.children', 'Children')}</label>
-                  <input 
+                  <label htmlFor="children-count" className="block text-caption text-gold-400 font-semibold mb-1 uppercase tracking-wider">{t('booking.children', 'Children')}</label>
+                  <input
                     id="children-count"
-                    type="number" 
+                    type="number"
                     name="children"
                     min="0" max="20"
                     value={formData.children}
                     onChange={handleChange}
                     required
-                    className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors text-[16px]"
+                    className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 text-[16px]"
                   />
                 </div>
               </div>
 
               <label htmlFor="pickup-location" className="sr-only">{t('booking.pickupLocation', 'Pick Up Location')}</label>
-              <input 
+              <input
                 id="pickup-location"
-                type="text" 
+                type="text"
                 name="pickupLocation"
                 placeholder={t('booking.pickupLocation', 'Pick Up Location')}
                 value={formData.pickupLocation}
                 onChange={handleChange}
                 required
-                className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors text-[16px]"
+                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 text-[16px]"
               />
               <label htmlFor="dropoff-location" className="sr-only">{t('booking.dropoffLocation', 'Drop Off Location')}</label>
-              <input 
+              <input
                 id="dropoff-location"
-                type="text" 
+                type="text"
                 name="dropoffLocation"
                 placeholder={t('booking.dropoffLocation', 'Drop Off Location')}
                 value={formData.dropoffLocation}
                 onChange={handleChange}
                 required
-                className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors md:col-span-2 text-[16px]"
+                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 md:col-span-2 text-[16px]"
               />
 
               <label htmlFor="full-name" className="sr-only">{t('booking.fullName', 'Full Name')}</label>
-              <input 
+              <input
                 id="full-name"
-                type="text" 
+                type="text"
                 name="fullName"
-                placeholder={t('booking.fullName', 'Full Name')} 
+                placeholder={t('booking.fullName', 'Full Name')}
                 value={formData.fullName}
                 onChange={handleChange}
                 required
-                className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors text-[16px]"
+                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 text-[16px]"
               />
               <label htmlFor="phone-number" className="sr-only">{t('booking.phone', 'Phone Number')}</label>
-              <input 
+              <input
                 id="phone-number"
-                type="tel" 
+                type="tel"
                 name="phone"
-                placeholder={t('booking.phone', 'Phone Number')} 
+                placeholder={t('booking.phone', 'Phone Number')}
                 value={formData.phone}
                 onChange={handleChange}
                 required
-                className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors text-[16px]"
+                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 text-[16px]"
               />
               <label htmlFor="email-address" className="sr-only">{t('booking.email', 'Email Address')}</label>
-              <input 
+              <input
                 id="email-address"
-                type="email" 
+                type="email"
                 name="email"
-                placeholder={t('booking.email', 'Email Address')} 
+                placeholder={t('booking.email', 'Email Address')}
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors md:col-span-2 text-[16px]"
+                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 md:col-span-2 text-[16px]"
               />
             </div>
 
             <label htmlFor="special-requests" className="sr-only">{t('booking.specialRequestPlaceholder', 'Special Request...')}</label>
-            <textarea 
+            <textarea
               id="special-requests"
               name="specialRequest"
-              placeholder={t('booking.specialRequestPlaceholder', 'Special Request...')} 
+              placeholder={t('booking.specialRequestPlaceholder', 'Special Request...')}
               value={formData.specialRequest}
               onChange={handleChange}
               rows="3"
-              className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors resize-none text-[16px]"
+              className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors resize-none bg-white text-obsidian-900 text-[16px]"
             ></textarea>
-            
+
             <div className="flex justify-end mt-4">
-              <Button 
+              <Button
                 type="submit"
                 disabled={status === 'submitting'}
-                className="w-full py-4 text-lg rounded-full text-white hover:scale-105 transition-transform"
-                style={{ background: 'linear-gradient(135deg, rgb(4, 20, 70) 0%, rgb(6, 29, 93) 40%, rgb(10, 40, 120) 100%)', boxShadow: '0 0 20px rgba(10,25,105, 0.6)', border: '1px solid rgba(255,255,255,0.1)' }}
+                variant="gold-glow"
+                className="w-full py-4 text-lg font-bold rounded-full uppercase tracking-wider text-obsidian-900 shadow-[0_0_25px_rgba(201,162,39,0.4)] hover:scale-[1.02] transition-all cursor-pointer"
               >
                 {status === 'submitting' ? t('common.processing', 'Processing...') : t('transportation.reserveNow', 'Reserve Now')}
               </Button>

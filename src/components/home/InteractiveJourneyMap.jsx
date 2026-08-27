@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaMapMarkerAlt, FaPlane, FaGlobe, FaRoute, FaArrowRight } from 'react-icons/fa';
+import { FaGlobe, FaRoute, FaArrowRight } from 'react-icons/fa';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { journeysRoutesData } from '../../data/journeys_routes_data';
+import api from '../../utils/api';
 
 // Fix Leaflet default marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
@@ -38,11 +37,18 @@ const getCurvePoints = (from, to, numPoints = 50) => {
   for (let i = 0; i <= numPoints; i++) {
     const t = i / numPoints;
     const lat = (1 - t) * (1 - t) * lat1 + 2 * (1 - t) * t * cLat + t * t * lat2;
-    const lng = (1 - t) * (1 - t) * lng1 + 2 * (1 - t) * t * cLng + t * t * lat2;
+    const lng = (1 - t) * (1 - t) * lng1 + 2 * (1 - t) * t * cLng + t * t * lng2;
     points.push([lat, lng]);
   }
   return points;
 };
+
+const escapeHtml = (value) => String(value || '')
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&#039;');
 
 const InteractiveJourneyMap = () => {
   const mapContainerRef = useRef(null);
@@ -52,82 +58,92 @@ const InteractiveJourneyMap = () => {
   const planeMarkerRef = useRef(null);
   const markersRef = useRef([]);
 
-  // Hardcoded English categories for destinations
-  const categories = [
-    "All",
-    "Egypt",
-    "Turkey",
-    "Jordan",
-    "Dubai (UAE)",
-    "Tunisia",
-    "Morocco",
-    "Greece",
-    "Holy Land",
-    "Multi-Country Tours"
-  ];
+  const [apiJourneys, setApiJourneys] = useState([]);
+  const [journeyStatus, setJourneyStatus] = useState('loading');
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchApiJourneys = async () => {
+      try {
+        const items = await api.get('/journey-maps');
+        if (!Array.isArray(items)) throw new Error('Invalid journey-map collection');
+        if (isMounted) {
+          const mapped = items
+            .filter((item) => item?.id && item?.name && item?.destination)
+            .map(item => ({
+              id: item.id,
+              title: item.name,
+              destination: item.destination,
+              tourSlug: item.tour?.slug,
+              stops: Array.isArray(item.pointsJsonb)
+                ? item.pointsJsonb
+                    .filter((point) => (point?.label || point?.name) && Number.isFinite(Number(point?.lat)) && Number.isFinite(Number(point?.lng)))
+                    .map(point => ({
+                      name: point.label || point.name,
+                      coords: [Number(point.lat), Number(point.lng)],
+                      description: point.description || '',
+                      day: point.day || null,
+                      city: point.city || '',
+                      country: point.country || '',
+                    }))
+                : []
+            }))
+            .filter((item) => item.stops.length > 0);
+          setApiJourneys(mapped);
+          setJourneyStatus(mapped.length > 0 ? 'ready' : 'empty');
+        }
+      } catch (err) {
+        console.warn('[InteractiveJourneyMap] Failed to load journey routes from API:', err);
+        if (isMounted) setJourneyStatus('error');
+      }
+    };
+    fetchApiJourneys();
+    return () => { isMounted = false; };
+  }, []);
+
+  const activeJourneysData = apiJourneys;
+  const categories = useMemo(
+    () => ['All', ...new Set(activeJourneysData.map((journey) => journey.destination))],
+    [activeJourneysData],
+  );
 
   const [activeCategory, setActiveCategory] = useState(() => {
     try {
       return localStorage.getItem('dunas_travel_map_category') || "All";
-    } catch (e) {
+    } catch {
       return "All";
     }
   });
   const [selectedJourneyId, setSelectedJourneyId] = useState(() => {
     try {
-      return localStorage.getItem('dunas_travel_map_journey_id') || "";
-    } catch (e) {
-      return "";
+      const cached = localStorage.getItem('dunas_travel_map_journey_id');
+      if (cached && activeJourneysData.some(j => j.id === cached)) return cached;
+    } catch {
+      // ignore
     }
+    return activeJourneysData[0]?.id || '';
   });
 
   // Filter journeys by destination
   const filteredJourneys = useMemo(() => {
-    if (activeCategory === "All") return journeysRoutesData;
-    return journeysRoutesData.filter(j => j.destination === activeCategory);
-  }, [activeCategory]);
+    if (activeCategory === "All") return activeJourneysData;
+    return activeJourneysData.filter(j => j.destination === activeCategory);
+  }, [activeCategory, activeJourneysData]);
 
   // Active selected journey object
   const activeJourney = useMemo(() => {
-    const found = journeysRoutesData.find(j => j.id === selectedJourneyId);
-    if (found) return found;
+    const found = activeJourneysData.find(j => j.id === selectedJourneyId);
+    if (found && (activeCategory === "All" || found.destination === activeCategory)) return found;
     // Fallback to first filtered journey
     if (filteredJourneys.length > 0) return filteredJourneys[0];
-    return journeysRoutesData[0];
-  }, [selectedJourneyId, filteredJourneys]);
-
-  // Keep state updated with selectedJourneyId when category changes
-  useEffect(() => {
-    if (filteredJourneys.length > 0) {
-      // Check if current activeJourney is in the new filtered list
-      const exists = filteredJourneys.some(j => j.id === activeJourney.id);
-      if (!exists) {
-        setSelectedJourneyId(filteredJourneys[0].id);
-      }
-    }
-  }, [filteredJourneys, activeJourney]);
-
-  // Set initial selected journey id
-  useEffect(() => {
-    if (journeysRoutesData.length > 0 && !selectedJourneyId) {
-      try {
-        const cached = localStorage.getItem('dunas_travel_map_journey_id');
-        if (cached && journeysRoutesData.some(j => j.id === cached)) {
-          setSelectedJourneyId(cached);
-        } else {
-          setSelectedJourneyId(journeysRoutesData[0].id);
-        }
-      } catch (e) {
-        setSelectedJourneyId(journeysRoutesData[0].id);
-      }
-    }
-  }, [selectedJourneyId]);
+    return activeJourneysData[0];
+  }, [selectedJourneyId, filteredJourneys, activeCategory, activeJourneysData]);
 
   // Persist selections
   useEffect(() => {
     try {
       localStorage.setItem('dunas_travel_map_category', activeCategory);
-    } catch (e) {
+    } catch {
       // ignore
     }
   }, [activeCategory]);
@@ -137,7 +153,7 @@ const InteractiveJourneyMap = () => {
       if (selectedJourneyId) {
         localStorage.setItem('dunas_travel_map_journey_id', selectedJourneyId);
       }
-    } catch (e) {
+    } catch {
       // ignore
     }
   }, [selectedJourneyId]);
@@ -207,11 +223,8 @@ const InteractiveJourneyMap = () => {
         .bindPopup(`
           <div style="font-family: 'Inter', sans-serif; color: #041446; padding: 4px; direction: ltr; text-align: left;">
             <div style="font-weight: bold; font-size: 13px; color: #C07D0A; margin-bottom: 2px;">Stop ${index + 1}</div>
-            <div style="font-weight: 800; font-size: 14px; margin-bottom: 4px;">${stop.name}</div>
-            <div style="font-size: 12px; opacity: 0.9; display: flex; align-items: center; gap: 4px;">
-              <span>📍</span> <b>${stop.city}, ${stop.country}</b>
-            </div>
-            <div style="font-size: 11px; margin-top: 5px; color: #666;">Visited on Day ${stop.day}</div>
+            <div style="font-weight: 800; font-size: 14px; margin-bottom: 4px;">${escapeHtml(stop.name)}</div>
+            ${stop.description ? `<div style="font-size: 11px; margin-top: 5px; color: #666;">${escapeHtml(stop.description)}</div>` : ''}
           </div>
         `);
       
@@ -318,6 +331,23 @@ const InteractiveJourneyMap = () => {
     }
   };
 
+  if (journeyStatus !== 'ready') {
+    return (
+      <section className="w-full bg-obsidian-950 py-16 text-center text-ivory-50">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-display mb-4">Interactive Itinerary Map</h2>
+          <p className="text-ivory-300">
+            {journeyStatus === 'loading'
+              ? 'Loading published journey routes...'
+              : journeyStatus === 'error'
+                ? 'Journey routes could not be loaded from the server.'
+                : 'No journey routes have been published yet.'}
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <div dir="ltr" lang="en" className="w-full bg-obsidian-950 py-20 lg:py-28 text-ivory-50 relative overflow-hidden">
       {/* Background accents */}
@@ -398,11 +428,13 @@ const InteractiveJourneyMap = () => {
                     </div>
                     
                     <div>
-                      <span className="text-[10px] text-gold-500 font-bold block">Day {stop.day}</span>
+                      {stop.day && <span className="text-[10px] text-gold-500 font-bold block">Day {stop.day}</span>}
                       <h5 className="font-semibold text-body-sm text-white group-hover:text-gold-400 transition-colors">
                         {stop.name}
                       </h5>
-                      <span className="text-[11px] text-ivory-400 block">{stop.city}, {stop.country}</span>
+                      {(stop.city || stop.country) && (
+                        <span className="text-[11px] text-ivory-400 block">{[stop.city, stop.country].filter(Boolean).join(', ')}</span>
+                      )}
                     </div>
                   </div>
                 ))}

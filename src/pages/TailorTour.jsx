@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
+import { supportedLocale } from '../utils/locale';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlane, FaWhatsapp, FaPhone, FaFacebookF, FaInstagram } from 'react-icons/fa';
 import Button from '../components/ui/Button';
+import { useAuth } from '../context/AuthContext';
+import { useDestinations } from '../hooks/useDestinations';
 
 const TailorTour = () => {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
+  const { destinations: publishedDestinations } = useDestinations();
   const isRtl = i18n.dir() === 'rtl';
 
   const [step, setStep] = useState(1);
@@ -15,13 +20,28 @@ const TailorTour = () => {
   const [destError, setDestError] = useState(false);
 
   // Traveler contact & info state
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [nationality, setNationality] = useState('');
-  const [phone, setPhone] = useState('');
+  const [fullName, setFullName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [nationality, setNationality] = useState(user?.country || user?.nationality || '');
+  const [phone, setPhone] = useState(user?.phone || '');
   const [travelDate, setTravelDate] = useState('');
   const [dateError, setDateError] = useState(false);
   const [budget, setBudget] = useState('');
+
+  useEffect(() => {
+    if (!user) return undefined;
+    let isMounted = true;
+    queueMicrotask(() => {
+      if (!isMounted) return;
+      if (!fullName && user.name) setFullName(user.name);
+      if (!email && user.email) setEmail(user.email);
+      if (!phone && user.phone) setPhone(user.phone);
+      if (!nationality && (user.country || user.nationality)) setNationality(user.country || user.nationality);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
   // Today's date logic using local time
   const getTodayString = () => {
@@ -123,7 +143,9 @@ const TailorTour = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Prevent form submission if dates are in the past
     if (travelDate && travelDate < todayStr) {
@@ -131,25 +153,57 @@ const TailorTour = () => {
       return;
     }
 
-    alert(t('tailor.successAlert', 'Your request has been submitted successfully! We will contact you soon.'));
-    // Reset form
-    setSelectedDestinations([]);
-    setFullName('');
-    setEmail('');
-    setNationality('');
-    setPhone('');
-    setTravelDate('');
-    setDateError(false);
-    setBudget('');
-    setAdults(1);
-    setChildren(0);
-    setInfants(0);
-    setPassengerNames(['']);
-    setSpecialRequests('');
-    setAnimationState('parked-1');
-    setStep(1);
-    scrollToTop();
+    try {
+      setIsSubmitting(true);
+      
+      const payload = {
+        fullName,
+        email,
+        phone,
+        preferredLanguage: (() => {
+          const language = String(i18n.language || 'en').toLowerCase().split('-')[0];
+          return ['en', 'es', 'fr', 'de', 'it', 'ar', 'pt'].includes(language)
+            ? language
+            : supportedLocale(language);
+        })(),
+        destinations: selectedDestinations.length > 0 ? selectedDestinations : ['Custom Experience'],
+        startDate: travelDate || undefined,
+        adults: adults || 1,
+        children: (children || 0) + (infants || 0),
+        notes: specialRequests || undefined,
+      };
+
+      if (budget) {
+        payload.budgetAmount = parseFloat(budget.replace(/[^0-9.]/g, ''));
+        payload.budgetCurrency = 'USD';
+      }
+
+      const { default: api } = await import('../utils/api');
+      await api.post('/inquiries', payload);
+
+      alert(t('tailor.successAlert', 'Your request has been submitted successfully! We will contact you soon.'));
+      // Reset form
+      setSelectedDestinations([]);
+      setFullName('');
+      setEmail('');
+      setNationality('');
+      setPhone('');
+      setTravelDate('');
+      setDateError(false);
+      setBudget('');
+      setAdults(1);
+      setChildren(0);
+      setInfants(0);
+      setStep(1);
+      scrollToTop();
+    } catch (err) {
+      console.error('Inquiry submission failed:', err);
+      alert(t('tailor.errorAlert', 'Failed to submit inquiry. Please try again.'));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
 
   // Select plane-icon class dynamically depending on step & language direction
   const getPlaneClass = () => {
@@ -169,48 +223,13 @@ const TailorTour = () => {
 
   const isFlying = animationState === 'flying-forward' || animationState === 'flying-backward';
 
-  const destinations = [
-    {
-      id: 'egypt',
-      name: t('nav.egypt', 'Egypt'),
-      img: 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'turkey',
-      name: t('nav.turkey', 'Turkey'),
-      img: 'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'jordan',
-      name: t('nav.jordan', 'Jordan'),
-      img: 'https://images.unsplash.com/photo-1579606032821-4e6161c81bd3?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'morocco',
-      name: t('nav.morocco', 'Morocco'),
-      img: 'https://images.unsplash.com/photo-1539020140153-e479b8c22e70?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'greece',
-      name: t('nav.greece', 'Greece'),
-      img: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'dubai',
-      name: t('nav.dubai', 'Dubai'),
-      img: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'tunisia',
-      name: t('nav.tunisia', 'Tunisia'),
-      img: 'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'holyland',
-      name: t('nav.holyland', 'Holy Land'),
-      img: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=800&q=80',
-    },
-  ];
+  const destinations = publishedDestinations
+    .filter((destination) => destination.heroImageUrl)
+    .map((destination) => ({
+      id: destination.slug,
+      name: destination.title,
+      img: destination.heroImageUrl,
+    }));
 
   const totalPassengers = adults + children + infants;
 
@@ -990,8 +1009,8 @@ const TailorTour = () => {
                       {t('tailor.back', 'Back')}
                     </button>
                     <div className="submit-wrapper">
-                      <button type="submit" className="btn-3d-glow">
-                        {t('tailor.submit', 'Send Inquiry Now!')}
+                      <button type="submit" className="btn-3d-glow" disabled={isSubmitting}>
+                        {isSubmitting ? t('tailor.submitting', 'Sending...') : t('tailor.submit', 'Send Inquiry Now!')}
                       </button>
                     </div>
                   </div>

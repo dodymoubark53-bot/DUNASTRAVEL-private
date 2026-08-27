@@ -24,14 +24,14 @@ const buttonVariants = {
   `,
 };
 
-const Button = ({ variant = 'gold-glow', className = '', children, ...props }) => {
+const Button = ({ variant = 'gold-glow', className = '', children, as: Component = 'button', ...props }) => {
   const baseClasses = "inline-flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed";
   const variantClasses = buttonVariants[variant] || buttonVariants['gold-glow'];
   
   return (
-    <button className={`${baseClasses} ${variantClasses} ${className}`} {...props}>
+    <Component className={`${baseClasses} ${variantClasses} ${className}`} {...props}>
       {children}
-    </button>
+    </Component>
   );
 };
 

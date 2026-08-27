@@ -4,6 +4,90 @@ import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import Layout from "./components/layout/Layout";
 import Logo from "./components/ui/Logo";
+import { trackEvent } from "./utils/analytics";
+
+// ── Global Error Boundary ────────────────────────────────────────────────────
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    console.error('[ErrorBoundary]', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#060d1a',
+          color: '#E8CB72',
+          fontFamily: 'sans-serif',
+          padding: '2rem',
+          textAlign: 'center',
+          gap: '1rem'
+        }}>
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#C9A227" strokeWidth="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 8v4M12 16h.01"/>
+          </svg>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#C9A227', margin: 0 }}>
+            حدث خطأ غير متوقع
+          </h1>
+          <p style={{ color: '#aaa', margin: 0, fontSize: '0.95rem' }}>
+            An unexpected error occurred. Please refresh the page.
+          </p>
+          {this.state.error && (
+            <pre style={{
+              color: '#ef4444',
+              background: '#111827',
+              padding: '1rem',
+              borderRadius: '0.5rem',
+              maxWidth: '90vw',
+              maxHeight: '300px',
+              overflow: 'auto',
+              textAlign: 'left',
+              fontSize: '0.8rem',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word'
+            }}>
+              {this.state.error.toString()}
+              {'\n'}
+              {this.state.error.stack}
+            </pre>
+          )}
+          <button
+            onClick={() => {
+              this.setState({ hasError: false, error: null });
+              window.location.reload();
+            }}
+            style={{
+              marginTop: '0.5rem',
+              padding: '0.6rem 1.8rem',
+              background: '#C9A227',
+              color: '#060d1a',
+              border: 'none',
+              borderRadius: '999px',
+              fontWeight: 700,
+              fontSize: '0.95rem',
+              cursor: 'pointer'
+            }}
+          >
+            🔄 Refresh Page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // Lazy loaded pages for performance
 const Home = lazy(() => import("./pages/Home"));
@@ -11,15 +95,28 @@ const About = lazy(() => import("./pages/About"));
 const Blogs = lazy(() => import("./pages/Blogs"));
 const Services = lazy(() => import("./pages/Services"));
 const Contact = lazy(() => import("./pages/Contact"));
-const Egypt = lazy(() => import("./pages/destinations/Egipto"));
-const Turkey = lazy(() => import("./pages/destinations/Turquia"));
-const Jordan = lazy(() => import("./pages/destinations/Jordania"));
-const Morocco = lazy(() => import("./pages/destinations/Marruecos"));
-const Greece = lazy(() => import("./pages/destinations/Grecia"));
-const Dubai = lazy(() => import("./pages/destinations/Dubai"));
-const Tunisia = lazy(() => import("./pages/destinations/Tunez"));
-const HolyLand = lazy(() => import("./pages/destinations/TierraSanta"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 const Destinations = lazy(() => import("./pages/destinations/Destinations"));
+const LandingPageDetails = lazy(() => import("./pages/destinations/LandingPageDetails"));
+const Egipto = lazy(() => import("./pages/destinations/Egipto"));
+const Jordania = lazy(() => import("./pages/destinations/Jordania"));
+const JordanProgramDetails = lazy(() => import("./pages/programs/JordanProgramDetails"));
+const Dubai = lazy(() => import("./pages/destinations/Dubai"));
+const DubaiProgramDetails = lazy(() => import("./pages/programs/DubaiProgramDetails"));
+const Turquia = lazy(() => import("./pages/destinations/Turquia"));
+const TurkeyProgramDetails = lazy(() => import("./pages/programs/TurkeyProgramDetails"));
+const Tunisia = lazy(() => import("./pages/destinations/Tunisia"));
+const Morocco = lazy(() => import("./pages/destinations/Morocco"));
+const Greece = lazy(() => import("./pages/destinations/Greece"));
+const HolyLands = lazy(() => import("./pages/destinations/HolyLands"));
+const Honeymooners = lazy(() => import("./pages/programs/Honeymooners"));
+const HoneymoonersDetails = lazy(() => import("./pages/programs/HoneymoonersDetails"));
+const ReligiousTours = lazy(() => import("./pages/programs/ReligiousTours"));
+const MultiCountryTours = lazy(() => import("./pages/programs/MultiCountryTours"));
+const MultiCountryTourDetails = lazy(() => import("./pages/programs/MultiCountryTourDetails"));
+const ExtensionTours = lazy(() => import("./pages/programs/ExtensionTours"));
+const ExtensionDetails = lazy(() => import("./pages/programs/ExtensionDetails"));
+const ClassicProgramDetails = lazy(() => import("./pages/programs/ClassicProgramDetails"));
 const TourDetails = lazy(() => import("./pages/tours/TourDetails"));
 const BlogDetails = lazy(() => import("./pages/blogs/BlogDetails"));
 const ServiceDetails = lazy(() => import("./pages/services/ServiceDetails"));
@@ -29,17 +126,19 @@ const Transportation = lazy(
 const TailorTour = lazy(() => import("./pages/TailorTour"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Invoice = lazy(() => import("./pages/Invoice"));
+const BookingSuccess = lazy(() => import("./pages/BookingSuccess"));
+const BookingCancel = lazy(() => import("./pages/BookingCancel"));
 const HotelDetails = lazy(() => import("./pages/hotels/HotelDetails"));
 const RoomDetails = lazy(() => import("./pages/hotels/RoomDetails"));
-const MultiCountryTours = lazy(() => import("./pages/programs/MultiCountryTours"));
-const MultiCountryTourDetails = lazy(() => import("./pages/programs/MultiCountryTourDetails"));
-const ReligiousTours = lazy(() => import("./pages/programs/ReligiousTours"));
-const TurkeyProgramDetails = lazy(() => import("./pages/programs/TurkeyProgramDetails"));
-const JordanProgramDetails = lazy(() => import("./pages/programs/JordanProgramDetails"));
-const DubaiProgramDetails = lazy(() => import("./pages/programs/DubaiProgramDetails"));
-const MoroccoProgramDetails = lazy(() => import("./pages/programs/MoroccoProgramDetails"));
-const Honeymooners = lazy(() => import("./pages/Honeymooners"));
-const HoneymoonersDetails = lazy(() => import("./pages/HoneymoonersDetails"));
+const MediaGallery = lazy(() => import("./pages/MediaGallery"));
+const Login = lazy(() => import("./pages/auth/Login"));
+const Register = lazy(() => import("./pages/auth/Register"));
+const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
+const VerifyEmail = lazy(() => import("./pages/auth/VerifyEmail"));
+const UserDashboard = lazy(() => import("./pages/user/UserDashboard"));
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+
 
 const PageTransition = ({ children }) => (
   <motion.div
@@ -95,16 +194,7 @@ const FallbackLoader = () => (
 function App() {
   const location = useLocation();
   const { scrollYProgress } = useScroll();
-  const [initialLoading, setInitialLoading] = React.useState(true);
   const { i18n } = useTranslation();
-
-  React.useEffect(() => {
-    // Cinematic load duration
-    const timer = setTimeout(() => {
-      setInitialLoading(false);
-    }, 1800);
-    return () => clearTimeout(timer);
-  }, []);
 
   React.useEffect(() => {
     const dir = i18n.language === "ar" ? "rtl" : "ltr";
@@ -114,25 +204,18 @@ function App() {
 
   React.useEffect(() => {
     window.scrollTo(0, 0);
+    trackEvent('page_view', { pathname: location.pathname });
   }, [location.pathname]);
 
-
   return (
-    <>
+    <ErrorBoundary>
       <motion.div
         style={{ scaleX: scrollYProgress, transformOrigin: "0%" }}
-        className="fixed top-0 left-0 right-0 h-[3px] z-[9999] bg-gradient-to-r from-gold-500 via-gold-300 to-gold-500"
+        className="fixed top-0 left-0 right-0 h-[3px] z-[9999] bg-gradient-to-r from-gold-500 via-gold-300 to-gold-500 pointer-events-none"
       />
 
-      <AnimatePresence>
-        {initialLoading && (
-          <CinematicLoader onComplete={() => setInitialLoading(false)} />
-        )}
-      </AnimatePresence>
-
-      {!initialLoading && (
-        <Suspense fallback={<FallbackLoader />}>
-          <AnimatePresence mode="wait">
+      <Suspense fallback={<FallbackLoader />}>
+        <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
               <Route path="/" element={<Layout />}>
                 <Route
@@ -140,6 +223,14 @@ function App() {
                   element={
                     <PageTransition>
                       <Home />
+                    </PageTransition>
+                  }
+                />
+                <Route
+                  path="media-gallery"
+                  element={
+                    <PageTransition>
+                      <MediaGallery />
                     </PageTransition>
                   }
                 />
@@ -179,7 +270,23 @@ function App() {
                     }
                   />
                   <Route
-                    path=":service"
+                    path="religious"
+                    element={
+                      <PageTransition>
+                        <ReligiousTours />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="religious/:slug"
+                    element={
+                      <PageTransition>
+                        <ServiceDetails />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="hotels"
                     element={
                       <PageTransition>
                         <Services />
@@ -210,6 +317,14 @@ function App() {
                       </PageTransition>
                     }
                   />
+                  <Route
+                    path=":service"
+                    element={
+                      <PageTransition>
+                        <Services />
+                      </PageTransition>
+                    }
+                  />
                 </Route>
                 <Route path="programs">
                   <Route
@@ -217,6 +332,30 @@ function App() {
                     element={
                       <PageTransition>
                         <Services />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="hotels"
+                    element={
+                      <PageTransition>
+                        <Services />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="hotels/:slug"
+                    element={
+                      <PageTransition>
+                        <HotelDetails />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="hotels/:hotelSlug/:roomSlug"
+                    element={
+                      <PageTransition>
+                        <RoomDetails />
                       </PageTransition>
                     }
                   />
@@ -229,10 +368,10 @@ function App() {
                     }
                   />
                   <Route
-                    path="turkey/:programId"
+                    path="religious/:slug"
                     element={
                       <PageTransition>
-                        <TurkeyProgramDetails />
+                        <ServiceDetails />
                       </PageTransition>
                     }
                   />
@@ -253,74 +392,34 @@ function App() {
                     }
                   />
                   <Route
-                    path="morocco/:programId"
+                    path="turkey/:programId"
                     element={
                       <PageTransition>
-                        <MoroccoProgramDetails />
+                        <TurkeyProgramDetails />
                       </PageTransition>
                     }
                   />
                   <Route
-                    path="multi-country"
+                    path="turquia/:programId"
                     element={
                       <PageTransition>
-                        <MultiCountryTours />
+                        <TurkeyProgramDetails />
                       </PageTransition>
                     }
                   />
                   <Route
-                    path="multi-country/:slug"
+                    path=":slug"
                     element={
                       <PageTransition>
-                        <MultiCountryTourDetails />
+                        <LandingPageDetails />
                       </PageTransition>
                     }
                   />
                   <Route
-                    path="honeymooners"
+                    path=":category/:programSlug"
                     element={
                       <PageTransition>
-                        <Honeymooners />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="honeymooners/:id"
-                    element={
-                      <PageTransition>
-                        <HoneymoonersDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path=":service"
-                    element={
-                      <PageTransition>
-                        <Services />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="hotels/:slug"
-                    element={
-                      <PageTransition>
-                        <HotelDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="hotels/:hotelSlug/:roomSlug"
-                    element={
-                      <PageTransition>
-                        <RoomDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path=":category/:slug"
-                    element={
-                      <PageTransition>
-                        <ServiceDetails />
+                        <LandingPageDetails />
                       </PageTransition>
                     }
                   />
@@ -338,15 +437,15 @@ function App() {
                     path="egypt"
                     element={
                       <PageTransition>
-                        <Egypt />
+                        <Egipto />
                       </PageTransition>
                     }
                   />
                   <Route
-                    path="turkey"
+                    path="egito"
                     element={
                       <PageTransition>
-                        <Turkey />
+                        <Egipto />
                       </PageTransition>
                     }
                   />
@@ -354,12 +453,92 @@ function App() {
                     path="jordan"
                     element={
                       <PageTransition>
-                        <Jordan />
+                        <Jordania />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="jordan/:programId"
+                    element={
+                      <PageTransition>
+                        <JordanProgramDetails />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="dubai"
+                    element={
+                      <PageTransition>
+                        <Dubai />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="dubai/:programId"
+                    element={
+                      <PageTransition>
+                        <DubaiProgramDetails />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="turkey"
+                    element={
+                      <PageTransition>
+                        <Turquia />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="turquia"
+                    element={
+                      <PageTransition>
+                        <Turquia />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="turkey/:programId"
+                    element={
+                      <PageTransition>
+                        <TurkeyProgramDetails />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="turquia/:programId"
+                    element={
+                      <PageTransition>
+                        <TurkeyProgramDetails />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="tunisia"
+                    element={
+                      <PageTransition>
+                        <Tunisia />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="tunisie"
+                    element={
+                      <PageTransition>
+                        <Tunisia />
                       </PageTransition>
                     }
                   />
                   <Route
                     path="morocco"
+                    element={
+                      <PageTransition>
+                        <Morocco />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="marruecos"
                     element={
                       <PageTransition>
                         <Morocco />
@@ -375,31 +554,59 @@ function App() {
                     }
                   />
                   <Route
-                    path="dubai"
+                    path="grecia"
                     element={
                       <PageTransition>
-                        <Dubai />
+                        <Greece />
                       </PageTransition>
                     }
                   />
                   <Route
-                    path="tunisia"
+                    path="holy-lands"
                     element={
                       <PageTransition>
-                        <Tunisia />
+                        <HolyLands />
                       </PageTransition>
                     }
                   />
                   <Route
-                    path="holyland"
+                    path="tierra-santa"
                     element={
                       <PageTransition>
-                        <HolyLand />
+                        <HolyLands />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path=":slug"
+                    element={
+                      <PageTransition>
+                        <LandingPageDetails destinationOnly />
                       </PageTransition>
                     }
                   />
                 </Route>
+                <Route path="programs">
+                  <Route path="honeymooners" element={<PageTransition><Honeymooners /></PageTransition>} />
+                  <Route path="honeymooners/:id" element={<PageTransition><HoneymoonersDetails /></PageTransition>} />
+                  <Route path="religious" element={<PageTransition><ReligiousTours /></PageTransition>} />
+                  <Route path="multi-country" element={<PageTransition><MultiCountryTours /></PageTransition>} />
+                  <Route path="multi-country/:slug" element={<PageTransition><MultiCountryTourDetails /></PageTransition>} />
+                  <Route path="extension" element={<PageTransition><ExtensionTours /></PageTransition>} />
+                  <Route path="extension/:id" element={<PageTransition><ExtensionDetails /></PageTransition>} />
+                  <Route path="classic/*" element={<PageTransition><ClassicProgramDetails /></PageTransition>} />
+                  <Route path="classic" element={<PageTransition><ClassicProgramDetails /></PageTransition>} />
+                  <Route path=":slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                </Route>
                 <Route path="tours">
+                  <Route
+                    index
+                    element={
+                      <PageTransition>
+                        <Services />
+                      </PageTransition>
+                    }
+                  />
                   <Route
                     path=":slug"
                     element={
@@ -436,6 +643,14 @@ function App() {
                   }
                 />
                 <Route
+                  path="tailor-tour"
+                  element={
+                    <PageTransition>
+                      <TailorTour />
+                    </PageTransition>
+                  }
+                />
+                <Route
                   path="faq"
                   element={
                     <PageTransition>
@@ -452,6 +667,108 @@ function App() {
                   }
                 />
                 <Route
+                  path="booking/success"
+                  element={
+                    <PageTransition>
+                      <BookingSuccess />
+                    </PageTransition>
+                  }
+                />
+                <Route
+                  path="payment/return"
+                  element={
+                    <Suspense fallback={<FallbackLoader />}>
+                      <BookingSuccess />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="booking/cancel"
+                  element={
+                    <PageTransition>
+                      <BookingCancel />
+                    </PageTransition>
+                  }
+                />
+                <Route
+                  path="payment/cancel"
+                  element={
+                    <Suspense fallback={<FallbackLoader />}>
+                      <BookingCancel />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="login"
+                  element={
+                    <PageTransition>
+                      <Login />
+                    </PageTransition>
+                  }
+                />
+                <Route
+                  path="register"
+                  element={
+                    <PageTransition>
+                      <Register />
+                    </PageTransition>
+                  }
+                />
+                <Route
+                  path="forgot-password"
+                  element={
+                    <PageTransition>
+                      <ForgotPassword />
+                    </PageTransition>
+                  }
+                />
+                <Route
+                  path="reset-password"
+                  element={
+                    <PageTransition>
+                      <ResetPassword />
+                    </PageTransition>
+                  }
+                />
+                <Route
+                  path="verify-email"
+                  element={
+                    <PageTransition>
+                      <VerifyEmail />
+                    </PageTransition>
+                  }
+                />
+                <Route
+                  path="dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <PageTransition>
+                        <UserDashboard initialTab="overview" />
+                      </PageTransition>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="profile"
+                  element={
+                    <ProtectedRoute>
+                      <PageTransition>
+                        <UserDashboard initialTab="profile" />
+                      </PageTransition>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="bookings"
+                  element={
+                    <ProtectedRoute>
+                      <PageTransition>
+                        <UserDashboard initialTab="bookings" />
+                      </PageTransition>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="trips/:slug"
                   element={
                     <PageTransition>
@@ -459,12 +776,19 @@ function App() {
                     </PageTransition>
                   }
                 />
+                <Route
+                  path="*"
+                  element={
+                    <PageTransition>
+                      <NotFound />
+                    </PageTransition>
+                  }
+                />
               </Route>
             </Routes>
           </AnimatePresence>
         </Suspense>
-      )}
-    </>
+    </ErrorBoundary>
   );
 }
 

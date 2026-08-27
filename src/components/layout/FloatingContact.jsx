@@ -1,56 +1,58 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaFacebook, FaInstagram, FaPhone, FaCommentDots, FaTimes, FaEnvelope } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
+import { FaWhatsapp, FaInstagram, FaPhone, FaEnvelope, FaTimes, FaHeadset } from 'react-icons/fa';
+import { useJaiderChat } from '../../context/JaiderChatContext';
 
 const FloatingContact = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
+  const { isOpen: isJaiderOpen } = useJaiderChat();
 
-  const socials = [
-    { icon: FaFacebook, href: 'https://www.facebook.com/share/1BnRWtoUdo/', label: 'Facebook' },
-    { icon: FaInstagram, href: 'https://www.instagram.com/dunas_travel?igsh=bWkyb2FhY2hoNnNo', label: 'Instagram' },
-    { icon: FaPhone, href: 'tel:+20233746643', label: 'Call us' },
-    { icon: FaEnvelope, href: 'mailto:info@dunas-travel.com', label: 'Email' },
+  const options = [
+    { icon: FaWhatsapp, href: 'https://wa.me/201149401111', label: t('contact.whatsapp', 'WhatsApp'), bg: 'bg-[#25D366] text-white hover:bg-[#1ebd5a]' },
+    { icon: FaInstagram, href: 'https://www.instagram.com/dunas_travel?igsh=bWkyb2FhY2hoNnNo', label: t('contact.instagram', 'Instagram'), bg: 'bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white hover:opacity-90' },
+    { icon: FaPhone, href: 'tel:+20233746643', label: t('contact.call', 'Call us'), bg: 'bg-[#1E3A8A] text-white hover:bg-[#172554]' },
+    { icon: FaEnvelope, href: 'mailto:info@dunas-travel.com', label: t('contact.email', 'Email'), bg: 'bg-[#EA4335] text-white hover:bg-[#d3382c]' },
   ];
 
-  // Animation variants for the child items to fan out radially
   const itemVariants = {
     closed: { opacity: 0, x: 0, y: 0, scale: 0 },
     open: (index) => {
-      // Calculate radial positions (arc from top to left)
-      // index 0: straight up
-      // index 1: diagonal up-left
-      // index 2: diagonal left-up
-      // index 3: straight left
-      const positions = [
-        { x: 0, y: -75 },
-        { x: -38, y: -65 },
-        { x: -65, y: -38 },
-        { x: -75, y: 0 }
-      ];
+      const radius = 62;
+      const angleDeg = 90 + index * 30; // 90° (top) to 180° (left)
+      const angleRad = (angleDeg * Math.PI) / 180;
+      const x = Math.cos(angleRad) * radius;
+      const y = -Math.sin(angleRad) * radius;
       return {
         opacity: 1,
-        x: positions[index].x,
-        y: positions[index].y,
+        x: Math.round(x),
+        y: Math.round(y),
         scale: 1,
         transition: {
           type: 'spring',
-          stiffness: 260,
-          damping: 20,
-          delay: index * 0.05
+          stiffness: 380,
+          damping: 22,
+          delay: index * 0.04
         }
       };
     }
   };
 
+  if (isJaiderOpen) return null;
+
   return (
-    <div id="floating-contact-container" className="floating-contact fixed bottom-6 right-6 z-50 flex items-center justify-center">
+    <div
+      id="floating-contact-container"
+      className="floating-contact fixed bottom-[88px] sm:bottom-[98px] right-6 z-[9997] flex items-center justify-center"
+    >
       <AnimatePresence>
-        {isOpen && socials.map((social, idx) => {
-          const Icon = social.icon;
+        {isOpen && options.map((item, idx) => {
+          const Icon = item.icon;
           return (
             <motion.a
-              key={social.label}
-              href={social.href}
+              key={item.label}
+              href={item.href}
               target="_blank"
               rel="noopener noreferrer"
               custom={idx}
@@ -58,43 +60,35 @@ const FloatingContact = () => {
               initial="closed"
               animate="open"
               exit="closed"
-              title={social.label}
-              aria-label={social.label}
-              className="absolute w-12 h-12 bg-obsidian-900 border border-gold-500 rounded-full flex items-center justify-center text-gold-500 shadow-glass hover:bg-gold-500 hover:text-obsidian-900 transition-colors duration-300"
+              whileHover={{ scale: 1.18 }}
+              whileTap={{ scale: 0.92 }}
+              title={item.label}
+              aria-label={item.label}
+              className={`absolute w-10 h-10 rounded-full flex items-center justify-center shadow-[0_4px_16px_rgba(0,0,0,0.35)] transition-all duration-200 group ${item.bg}`}
             >
-              <Icon size={20} />
+              <Icon size={18} />
+              <span className="absolute hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none text-[10px] font-semibold tracking-wide px-2 py-0.5 rounded-md bg-slate-950/90 text-ivory-100 border border-gold-500/30 whitespace-nowrap -top-7 shadow-md">
+                {item.label}
+              </span>
             </motion.a>
           );
         })}
       </AnimatePresence>
 
-      {/* Ripple ring */}
-      {!isOpen && (
-        <motion.span
-          className="absolute inset-0 rounded-full border-2 border-gold-400"
-          animate={{ scale: [1, 1.25, 1], opacity: [0.6, 0, 0.6] }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-        />
-      )}
-      {!isOpen && (
-        <motion.span
-          className="absolute inset-0 rounded-full border border-gold-300"
-          animate={{ scale: [1, 1.45, 1], opacity: [0.4, 0, 0.4] }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
-        />
-      )}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? "Close contact options" : "Open contact options"}
-        className="relative z-10 w-16 h-16 rounded-full flex items-center justify-center text-obsidian-900 bg-gradient-to-tr from-gold-700 via-gold-500 to-gold-300 shadow-[0_0_24px_rgba(201,162,39,0.35)] hover:shadow-[0_0_32px_rgba(201,162,39,0.5)] transition-shadow duration-300"
-        animate={!isOpen ? { scale: [1, 1.06, 1] } : { scale: 1 }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+        aria-expanded={isOpen}
+        aria-haspopup="true"
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.94 }}
+        className="relative z-10 w-12 h-12 rounded-full flex items-center justify-center text-gold-300 bg-slate-950/90 backdrop-blur-md border border-gold-500/50 shadow-[0_4px_20px_rgba(0,0,0,0.45)] hover:border-gold-400 hover:text-gold-200 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:ring-offset-2 transition-all duration-300 cursor-pointer"
       >
         <motion.div
-          animate={{ rotate: isOpen ? 90 : 0, scale: isOpen ? 0.9 : 1 }}
-          transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+          animate={{ rotate: isOpen ? 90 : 0 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 18 }}
         >
-          {isOpen ? <FaTimes size={24} /> : <FaCommentDots size={28} />}
+          {isOpen ? <FaTimes size={18} /> : <FaHeadset size={20} />}
         </motion.div>
       </motion.button>
     </div>
@@ -102,3 +96,4 @@ const FloatingContact = () => {
 };
 
 export default FloatingContact;
+

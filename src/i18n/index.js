@@ -17,7 +17,9 @@ const getDefaultLng = () => {
       const lang = stored.split('-')[0];
       if (supportedLngs.includes(lang)) return lang;
     }
-  } catch (e) {}
+  } catch {
+    // ignore
+  }
   const navLng = (navigator.language || navigator.userLanguage || 'en').split('-')[0];
   return supportedLngs.includes(navLng) ? navLng : 'en';
 };
@@ -25,17 +27,32 @@ const getDefaultLng = () => {
 export const initI18n = async () => {
   if (initPromise) return initPromise;
   initPromise = (async () => {
-    const lng = getDefaultLng();
-    const mod = await localeModules[`./locales/${lng}.json`]();
-    i18n.init({
-      resources: {
-        [lng]: { translation: mod.default },
-      },
-      fallbackLng: 'en',
-      lng,
-      interpolation: { escapeValue: false },
-      keySeparator: false,
-    });
+    try {
+      const lng = getDefaultLng();
+      const loader = localeModules[`./locales/${lng}.json`] || localeModules['./locales/en.json'];
+      const mod = loader ? await loader() : { default: {} };
+      await i18n.init({
+        resources: {
+          [lng]: { translation: mod.default || {} },
+        },
+        fallbackLng: 'en',
+        lng,
+        interpolation: { escapeValue: false },
+        keySeparator: false,
+      });
+    } catch (err) {
+      console.warn('initI18n fallback triggered:', err);
+      try {
+        await i18n.init({
+          fallbackLng: 'en',
+          lng: 'en',
+          interpolation: { escapeValue: false },
+          keySeparator: false,
+        });
+      } catch {
+        // ignore
+      }
+    }
   })();
   return initPromise;
 };

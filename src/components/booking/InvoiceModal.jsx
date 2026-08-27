@@ -1,11 +1,38 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { FaTimes, FaFileInvoiceDollar, FaPrint } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
+import api from '../../utils/api';
+import { normalizeInvoiceResponse } from '../../utils/invoice';
 
-const InvoiceModal = ({ booking, onClose }) => {
+const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoiceNumber, onClose }) => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
   
+  const [invoiceData, setInvoiceData] = useState(null);
+  const [loadingInvoice, setLoadingInvoice] = useState(false);
+
+  const targetInvoiceNum = propInvoiceNumber || initialBooking?.invoiceNumber;
+
+  useEffect(() => {
+    let isMounted = true;
+    if (!targetInvoiceNum) return;
+
+    const fetchInvoice = async () => {
+      setLoadingInvoice(true);
+      try {
+        const data = await api.get(`/invoices/${encodeURIComponent(targetInvoiceNum)}`);
+        if (isMounted) setInvoiceData(data);
+      } catch (err) {
+        console.warn('[InvoiceModal] Failed to fetch invoice details from API:', err);
+      } finally {
+        if (isMounted) setLoadingInvoice(false);
+      }
+    };
+    fetchInvoice();
+    return () => { isMounted = false; };
+  }, [targetInvoiceNum]);
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
@@ -16,29 +43,49 @@ const InvoiceModal = ({ booking, onClose }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  const d = new Date(booking.createdAt);
+  const booking = invoiceData
+    ? normalizeInvoiceResponse({ ...initialBooking, ...invoiceData })
+    : normalizeInvoiceResponse(initialBooking);
+
+  const rawDate = booking.createdAt || booking.date || booking.issueDate;
+  const d = rawDate ? new Date(rawDate) : new Date();
 
   const totalPax = (booking.adults || 0) + (booking.children || 0) + (booking.infants || 0);
 
   const passengerList = [];
-  if (booking.passengerNames) {
-    const names = typeof booking.passengerNames === 'object' ? booking.passengerNames : {};
-    Object.entries(names).forEach(([, name]) => {
-      if (name) passengerList.push(name);
-    });
+  if (booking.passengerNames || booking.passengers) {
+    const names = typeof booking.passengerNames === 'object' ? booking.passengerNames : booking.passengers;
+    if (Array.isArray(names)) {
+      names.forEach((passenger) => {
+        const name = typeof passenger === 'string' ? passenger : passenger?.fullName;
+        if (name) passengerList.push(name);
+      });
+    } else {
+      Object.entries(names || {}).forEach(([, name]) => {
+        if (name) passengerList.push(name);
+      });
+    }
   }
 
   const handlePrint = () => window.print();
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
+  const modalContent = (
+    <div 
+      className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/70 backdrop-blur-md p-4"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onClose();
+      }}
+    >
       <div
-        className="relative bg-white text-gray-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="relative bg-white text-gray-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl z-[100000]"
         dir={isRtl ? 'rtl' : 'ltr'}
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Print Button */}
         <button
+          type="button"
           onClick={handlePrint}
           className="absolute top-4 left-12 z-10 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors print:hidden"
         >
@@ -47,6 +94,7 @@ const InvoiceModal = ({ booking, onClose }) => {
 
         {/* Close Button */}
         <button
+          type="button"
           onClick={onClose}
           className="absolute top-4 left-4 z-10 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors print:hidden"
         >
@@ -186,6 +234,8 @@ const InvoiceModal = ({ booking, onClose }) => {
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default InvoiceModal;

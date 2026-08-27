@@ -1,63 +1,106 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import rawData from '../data/programs.json';
-const rawPrograms = rawData.programs;
+import { jordanTours } from '../data/jordanTours.js';
 
-const PROGRAM_IMAGES = {
-  'REG-15': 'https://www.urtrips.net/wp-content/uploads/2019/02/Archaeological-Sites-In-Jordan-1.jpg',
-  'REG-16': 'https://cdn.alweb.com/thumbs/jordanencyclopedia/article/fit710x532/%D8%A3%D9%83%D8%A8%D8%B1-%D9%88%D8%A7%D8%AF%D9%8A-%D9%81%D9%8A-%D8%A7%D9%84%D8%A3%D8%B1%D8%AF%D9%86.jpg',
-  'REG-17': 'https://as2.ftcdn.net/v2/jpg/01/67/01/83/1000_F_167018309_n4U66E0FtjpdX5HpidLKSNetfnbayUib.jpg',
-  'REG-18': 'https://thf.bing.com/th/id/R.163b5da11482baa539001f4a45596dcf?rik=4f9diCHlS0FjAQ&pid=ImgRaw&r=0',
-  'REG-19': 'https://i.pinimg.com/originals/ea/82/aa/ea82aa3795de28e223cefe6e8cd72ed4.jpg',
-  'REG-20': 'https://www.opreismetco.nl/wp-content/uploads/2023/05/Citadel-van-Amman-min-585x390.jpg',
-  'REG-21': 'https://png.pngtree.com/thumb_back/fh260/background/20220313/pngtree-ruins-at-amman-jordan-moyen-minaret-asia-photo-image_365536.jpg',
-};
+function getLocalizedField(fieldObj, locale) {
+  if (!fieldObj) return '';
+  if (typeof fieldObj === 'string') return fieldObj;
+  return fieldObj[locale] || fieldObj.en || fieldObj.ar || Object.values(fieldObj)[0] || '';
+}
 
-const getLangValue = (obj, lang) => {
-  if (!obj) return '';
-  const available = obj[lang] || obj.en || '';
-  return available;
-};
+function slugify(text) {
+  return String(text)
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+}
 
-const slugify = (str) => str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-
-const JORDAN_IDS = ['REG-15', 'REG-16', 'REG-17', 'REG-18', 'REG-19', 'REG-20', 'REG-21'];
-
-export const useJordanPrograms = () => {
+export function useJordanPrograms() {
   const { i18n } = useTranslation();
-  const lang = i18n.language;
-  const supported = ['ar', 'en', 'es', 'pt', 'it'];
-  const activeLang = supported.includes(lang) ? lang : 'en';
+  const lang = i18n.language || 'en';
+  const locale = ['ar', 'en', 'es', 'pt', 'it'].includes(lang) ? lang : 'en';
 
   return useMemo(() => {
-    return rawPrograms
-      .filter((prog) => JORDAN_IDS.includes(prog.id))
-      .map((prog) => {
-        const name = getLangValue(prog.name, activeLang);
-        return {
-          id: prog.id,
-          title: name,
-          slug: slugify(`${prog.id}-${getLangValue(prog.name, 'en')}`),
-          images: [PROGRAM_IMAGES[prog.id] || PROGRAM_IMAGES['REG-15']],
-          duration: getLangValue(prog.duration, activeLang),
-          highlights: getLangValue(prog.highlights, activeLang),
-          overview: getLangValue(prog.overview, activeLang),
-          code: getLangValue(prog.code, activeLang),
-          minPax: getLangValue(prog.minPax, activeLang),
-          days: prog.days.map((day) => ({
-            day: day.day,
-            description: getLangValue(day.description, activeLang),
-            meals: day.meals ? getLangValue(day.meals, activeLang) : null,
-          })),
-          raw: prog,
-        };
-      });
-  }, [activeLang]);
-};
+    return jordanTours.map((program) => {
+      const title = getLocalizedField(program.name || program.title, locale);
+      const enTitle = getLocalizedField(program.name || program.title, 'en');
+      const slug = program.slug || slugify(`${program.id}-${enTitle}`);
+      const duration = getLocalizedField(program.duration, locale);
+      const highlights = getLocalizedField(program.highlights, locale);
+      const overview = getLocalizedField(program.overview, locale);
+      const code = getLocalizedField(program.code, locale) || program.id;
+      const minPax = getLocalizedField(program.minPax, locale);
 
-export const useJordanProgram = (programSlugOrId) => {
-  const programs = useJordanPrograms();
-  if (!programSlugOrId) return null;
-  const lower = programSlugOrId.toLowerCase();
-  return programs.find((p) => p.slug.toLowerCase() === lower || p.id.toLowerCase() === lower) || null;
-};
+      const days = Array.isArray(program.days)
+        ? program.days.map((d) => ({
+            day: d.day,
+            title: getLocalizedField(d.title, locale),
+            description: getLocalizedField(d.description, locale),
+            meals: d.meals ? getLocalizedField(d.meals, locale) : null,
+          }))
+        : [];
+
+      return {
+        ...program,
+        id: program.id,
+        title,
+        slug,
+        images: Array.isArray(program.images) && program.images.length > 0 ? program.images : [program.heroImage],
+        duration,
+        highlights: Array.isArray(highlights) ? highlights : [],
+        overview,
+        code,
+        minPax,
+        days,
+        raw: program,
+      };
+    });
+  }, [locale]);
+}
+
+export function getJordanProgramBySlug(slug, locale = 'en') {
+  if (!slug) return null;
+  const normSlug = String(slug).toLowerCase();
+  
+  const targetLocale = ['ar', 'en', 'es', 'pt', 'it'].includes(locale) ? locale : 'en';
+
+  const matched = jordanTours.find((p) => {
+    const pSlug = p.slug || slugify(`${p.id}-${getLocalizedField(p.name, 'en')}`);
+    return pSlug.toLowerCase() === normSlug || p.id.toLowerCase() === normSlug;
+  });
+
+  if (!matched) return null;
+
+  const title = getLocalizedField(matched.name || matched.title, targetLocale);
+  const duration = getLocalizedField(matched.duration, targetLocale);
+  const highlights = getLocalizedField(matched.highlights, targetLocale);
+  const overview = getLocalizedField(matched.overview, targetLocale);
+  const code = getLocalizedField(matched.code, targetLocale) || matched.id;
+  const minPax = getLocalizedField(matched.minPax, targetLocale);
+
+  const days = Array.isArray(matched.days)
+    ? matched.days.map((d) => ({
+        day: d.day,
+        title: getLocalizedField(d.title, targetLocale),
+        description: getLocalizedField(d.description, targetLocale),
+        meals: d.meals ? getLocalizedField(d.meals, targetLocale) : null,
+      }))
+    : [];
+
+  return {
+    ...matched,
+    id: matched.id,
+    title,
+    slug: matched.slug || slugify(`${matched.id}-${getLocalizedField(matched.name, 'en')}`),
+    images: Array.isArray(matched.images) && matched.images.length > 0 ? matched.images : [matched.heroImage],
+    duration,
+    highlights: Array.isArray(highlights) ? highlights : [],
+    overview,
+    code,
+    minPax,
+    days,
+    raw: matched,
+  };
+}
+
+export default useJordanPrograms;

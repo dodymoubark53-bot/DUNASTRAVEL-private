@@ -2,13 +2,17 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaPlus, FaMinus, FaCheckCircle, FaPaperPlane, FaGlobeAmericas, FaUser, FaFileInvoiceDollar, FaCalendarAlt, FaClock, FaStar } from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
-
-const API = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:5000/api';
+import api from '../../utils/api';
+import { trackEvent } from '../../utils/analytics';
+import { useAuth } from '../../context/AuthContext';
 
 const inputClass = "w-full p-3 rounded-xl outline-none transition-all text-[14px] bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-[rgba(201,162,39,0.5)] focus:shadow-[0_0_20px_rgba(201,162,39,0.1)] [color-scheme:dark]";
 const labelClass = "block text-caption text-gold-500 font-medium mb-1 text-[12px] uppercase tracking-[1px]";
 const counterBtnClass = "w-8 h-8 rounded-full bg-[rgba(255,252,247,0.06)] text-gold-500 flex items-center justify-center hover:bg-gold-500 hover:text-obsidian-900 transition-all duration-200 border border-[rgba(201,162,39,0.15)] hover:border-gold-500";
 const tabClass = (active) => `flex-1 py-3 text-[13px] font-semibold uppercase tracking-[2px] transition-all duration-200 ${active ? 'text-gold-500 border-b-2 border-gold-500 bg-[rgba(201,162,39,0.06)]' : 'text-ivory-400 hover:text-ivory-300 border-b-2 border-transparent'}`;
+const omitEmptyFields = (payload) => Object.fromEntries(
+  Object.entries(payload).filter(([, value]) => value !== undefined && value !== null && value !== ''),
+);
 
 const languages = [
   { value: 'es', flag: '🇪🇸', labelKey: 'languages.spanish', fallback: 'Spanish' },
@@ -18,8 +22,15 @@ const languages = [
   { value: 'ar', flag: '🇪🇬', labelKey: 'languages.arabic', fallback: 'Arabic' },
 ];
 
-const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => {
-  const { t } = useTranslation();
+const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTransportChoice }) => {
+  const { t, i18n } = useTranslation();
+  const { user } = useAuth();
+  const bookingTourKey = tourSlug || tourId;
+
+  useEffect(() => {
+    trackEvent('booking_started', { tourSlug: tourTitle || tourId });
+  }, []);
+
   const [tab, setTab] = useState('booking');
   const [status, setStatus] = useState('idle');
   const [langOpen, setLangOpen] = useState(null);
@@ -28,6 +39,11 @@ const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => 
   const [bookingResult, setBookingResult] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
   const [error, setError] = useState('');
+  const [pricePreview, setPricePreview] = useState(null);
+  const [promoCode, setPromoCode] = useState('');
+  const [promoMessage, setPromoMessage] = useState('');
+  const [availabilities, setAvailabilities] = useState([]);
+  const [availabilityStatus, setAvailabilityStatus] = useState('loading');
   const langRef = useRef(null);
   const activityRef = useRef(null);
 
@@ -44,15 +60,81 @@ const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => 
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
   const [b, setB] = useState({
-    arrivalDate: '', departureDate: '', arrivalTime: '', departureTime: '', language: '', activityType: '',
+    arrivalDate: todayStr, departureDate: '', arrivalTime: '', departureTime: '', language: user?.preferredLanguage || i18n.language || 'en', activityType: '',
     adults: 1, children: 0, infants: 0,
-    fullName: '', email: '', phone: '',
-    invoiceType: 'personal', companyName: '', taxId: '', address: '', city: '', country: '',
+    fullName: user?.name || '', email: user?.email || '', phone: user?.phone || '',
+    invoiceType: 'PERSONAL', companyName: '', taxId: '', address: '', city: '', country: '',
     notes: ''
   });
   const [passengerNames, setPassengerNames] = useState({});
 
-  const [inq, setInq] = useState({ name: '', email: '', phone: '', language: '', message: '' });
+  const [inq, setInq] = useState({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '', language: user?.preferredLanguage || i18n.language || 'en', message: '' });
+
+  useEffect(() => {
+    let isMounted = true;
+    const availabilityKey = tourSlug || tourId;
+    if (!availabilityKey) return undefined;
+    queueMicrotask(() => {
+      if (isMounted) setAvailabilityStatus('loading');
+    });
+    api.get(`/tours/${encodeURIComponent(availabilityKey)}/availability`)
+      .then((response) => {
+        if (!isMounted) return;
+        const slots = Array.isArray(response?.availabilities)
+          ? response.availabilities
+          : Array.isArray(response?.data?.availabilities)
+            ? response.data.availabilities
+            : [];
+        setAvailabilities(slots);
+        setAvailabilityStatus(slots.length > 0 ? 'ready' : 'empty');
+        if (slots.length > 0) {
+          const firstDate = String(slots[0].date).slice(0, 10);
+          setB((current) => ({
+            ...current,
+            arrivalDate: slots.some((slot) => String(slot.date).slice(0, 10) === current.arrivalDate)
+              ? current.arrivalDate
+              : firstDate,
+          }));
+        }
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setAvailabilities([]);
+        setAvailabilityStatus('error');
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [tourId, tourSlug]);
+
+  const selectedAvailability = availabilities.find(
+    (slot) => String(slot.date).slice(0, 10) === b.arrivalDate,
+  );
+
+  useEffect(() => {
+    if (!user) return undefined;
+    let isMounted = true;
+    queueMicrotask(() => {
+      if (!isMounted) return;
+      setB(prev => ({
+        ...prev,
+        fullName: prev.fullName || user.name || '',
+        email: prev.email || user.email || '',
+        phone: prev.phone || user.phone || '',
+        language: prev.language || user.preferredLanguage || i18n.language || 'en',
+      }));
+      setInq(prev => ({
+        ...prev,
+        name: prev.name || user.name || '',
+        email: prev.email || user.email || '',
+        phone: prev.phone || user.phone || '',
+        language: prev.language || user.preferredLanguage || i18n.language || 'en',
+      }));
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [user, i18n.language]);
 
   const updateB = (k, v) => {
     const num = ['adults', 'children', 'infants'];
@@ -65,6 +147,49 @@ const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => 
     ...Array.from({ length: b.infants }, (_, i) => ({ type: 'Infant', num: i + 1, key: `infant_${i}` })),
   ];
 
+  useEffect(() => {
+    if (!bookingTourKey || tab !== 'booking') return;
+    const fetchPrice = async () => {
+      try {
+        // Pricing calculation must NEVER rely on client-side math; always call POST /api/bookings/calculate
+        const data = await api.post('/bookings/calculate', omitEmptyFields({
+          tourId: bookingTourKey,
+          availabilityId: selectedAvailability?.id,
+          date: b.arrivalDate,
+          adults: b.adults,
+          children: b.children,
+          infants: b.infants,
+          promoCode: promoCode.trim(),
+          language: b.language,
+        }));
+        setPricePreview(data);
+        if (promoCode && data?.promoMessage) {
+          setPromoMessage(data.promoMessage);
+        } else {
+          setPromoMessage('');
+        }
+      } catch {
+        // Never retain an estimate after its authoritative server preview
+        // could not be calculated for the current form state.
+        setPricePreview(null);
+      }
+    };
+    const debounce = setTimeout(fetchPrice, 400);
+    return () => clearTimeout(debounce);
+  }, [bookingTourKey, selectedAvailability?.id, b.arrivalDate, b.adults, b.children, b.infants, b.language, promoCode, tab]);
+
+  const handleValidatePromoCode = async () => {
+    if (!promoCode.trim()) return;
+    try {
+      const res = await api.post('/promotions/validate', { promoCode: promoCode.trim() });
+      if (res) {
+        setPromoMessage(res.message || t('booking.promoValid', 'Promotion code valid!'));
+      }
+    } catch (err) {
+      setPromoMessage(err.message || t('booking.promoInvalid', 'Invalid promo code'));
+    }
+  };
+
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -75,22 +200,29 @@ const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => 
       return;
     }
     setTransportAlert(false);
+    if (!selectedAvailability?.id) {
+      setError(t('booking.noAvailability', 'No bookable departure is available for this date. Please select another departure or send an inquiry.'));
+      return;
+    }
     setStatus('submitting');
     try {
-      const payload = {
+      const payload = omitEmptyFields({
         type: 'booking',
+        tourId: bookingTourKey,
+        availabilityId: selectedAvailability.id,
         tourTitle,
         transportChoice: transportChoice || '',
         arrivalDate: b.arrivalDate,
         departureDate: b.departureDate,
         arrivalTime: b.arrivalTime,
         departureTime: b.departureTime,
-        language: b.language,
+        language: ['en', 'ar', 'es', 'pt', 'it'].includes(b.language?.toLowerCase()) ? b.language.toLowerCase() : 'en',
         activityType: b.activityType,
         adults: b.adults,
         children: b.children,
         infants: b.infants,
         passengerNames: Object.fromEntries(Object.entries(passengerNames)),
+        notes: b.notes,
         fullName: b.fullName,
         email: b.email,
         phone: b.phone,
@@ -100,19 +232,54 @@ const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => 
         address: b.address,
         city: b.city,
         country: b.country,
-        notes: b.notes
-      };
-      const res = await fetch(`${API}/bookings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        promoCode: promoCode.trim(),
+        analyticsSessionId: typeof window !== 'undefined' ? localStorage.getItem('dunas_analytics_sid') : undefined,
+        originInterfaceSlug: typeof window !== 'undefined' ? sessionStorage.getItem('dunas_origin_interface') : undefined,
       });
-      if (!res.ok) throw new Error('Failed to submit booking');
-      const data = await res.json();
-      setBookingResult(data);
+
+      // api.post fetches CSRF token and sends it automatically
+      const data = await api.post('/bookings', payload);
+
+      // Rule 2: Store returned 'guestToken' from POST /api/bookings into localStorage ('dunas_guest_token')
+      const tokenToSave = data?.guestToken || data?.data?.guestToken;
+      if (tokenToSave && typeof window !== 'undefined') {
+        localStorage.setItem('dunas_guest_token', tokenToSave);
+      }
+
+      const bookingResultData = { ...data, type: 'booking' };
+      if ((data?.id || data?.referenceCode) && data?.paymentRequired !== false) {
+        try {
+          const readiness = await api.get('/payments/readiness');
+          if (readiness?.enabled && readiness?.configured) {
+            const targetId = data.id || data.referenceCode;
+            const payData = await api.post('/payments/initiate', { bookingId: targetId });
+            const sessionUrl = payData?.sessionUrl || payData?.url;
+            if (sessionUrl) {
+              window.location.assign(sessionUrl);
+              return;
+            }
+          } else {
+            bookingResultData.paymentUnavailable = true;
+            bookingResultData.paymentProvider = readiness?.provider || 'GETPAYIN';
+          }
+        } catch (payErr) {
+          console.error('Payment initiation failed', payErr);
+          bookingResultData.paymentUnavailable = true;
+          bookingResultData.paymentProvider = 'GETPAYIN';
+        }
+      }
+
+      setBookingResult(bookingResultData);
       setStatus('success');
     } catch (err) {
-      setError(err.message);
+      // Rule 3: Handle 409 (Double booking) and 422 (Validation) errors gracefully with localized user alerts.
+      if (err.status === 409) {
+        setError(t('booking.errorConflict', 'A booking conflict exists for the selected dates. Please adjust your itinerary.'));
+      } else if (err.status === 422) {
+        setError(t('booking.errorValidation', 'Please verify passenger and date information before proceeding.'));
+      } else {
+        setError(err.message || 'Error processing request');
+      }
       setStatus('idle');
     }
   };
@@ -122,26 +289,23 @@ const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => 
     setError('');
     setStatus('submitting');
     try {
-      const payload = {
-        type: 'inquiry',
-        tourTitle,
+      const payload = omitEmptyFields({
         fullName: inq.name,
         email: inq.email,
         phone: inq.phone,
-        language: inq.language,
-        inquiryMessage: inq.message
-      };
-      const res = await fetch(`${API}/bookings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        preferredLanguage: ['en', 'ar', 'es', 'pt', 'it', 'fr', 'de'].includes(inq.language?.toLowerCase())
+          ? inq.language.toLowerCase()
+          : 'en',
+        destinations: [tourTitle || tourId || 'Custom Experience'],
+        adults: 1,
+        children: 0,
+        notes: inq.message,
       });
-      if (!res.ok) throw new Error('Failed to submit inquiry');
-      const data = await res.json();
-      setBookingResult(data);
+      const data = await api.post('/inquiries', payload);
+      setBookingResult({ ...data, type: 'inquiry' });
       setStatus('success');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Error processing request');
       setStatus('idle');
     }
   };
@@ -153,12 +317,23 @@ const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => 
             <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gold-500 to-gold-700 flex items-center justify-center mb-4 shadow-[0_0_25px_rgba(201,162,39,0.3)]">
               <FaCheckCircle className="text-obsidian-900 text-xl" />
             </div>
-            <h3 className="text-display-md text-ivory-50 mb-2 font-display">{t('booking.inquirySent', 'Inquiry Sent')}</h3>
-            <p className="text-body-sm text-ivory-400">{t('booking.successDesc', 'Our team will contact you within 24 hours.')}</p>
+            <h3 className="text-display-md text-ivory-50 mb-2 font-display">
+              {bookingResult.type === 'booking' ? t('booking.created', 'Booking Created') : t('booking.inquirySent', 'Inquiry Sent')}
+            </h3>
+            <p className="text-body-sm text-ivory-400">
+              {bookingResult.paymentUnavailable
+                ? t('payment.getPayInPending', 'Your booking is saved. Secure online payment will be available after GetPayIn activation; our team will contact you with the next step.')
+                : t('booking.successDesc', 'Our team will contact you within 24 hours.')}
+            </p>
             {bookingResult.type === 'booking' && bookingResult.invoiceNumber && (
               <button
-                onClick={() => setShowInvoice(true)}
-                className="mt-4 px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-700 text-obsidian-900 font-bold rounded-xl hover:scale-105 transition-all text-[13px] uppercase tracking-[1px] flex items-center gap-2"
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowInvoice(true);
+                }}
+                className="mt-4 px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-700 text-obsidian-900 font-bold rounded-xl hover:scale-105 transition-all text-[13px] uppercase tracking-[1px] flex items-center gap-2 cursor-pointer"
               >
                 <FaFileInvoiceDollar /> {t('booking.viewInvoice', 'View Invoice')}
               </button>
@@ -198,13 +373,30 @@ const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label htmlFor="arrival-date-input" className={labelClass}><FaCalendarAlt className="inline mr-1.5 text-gold-400" size={11} />{t('booking.arrivalDate', 'Arrival Date')}</label>
-                    <input id="arrival-date-input" type="date" value={b.arrivalDate} min={todayStr} onChange={e => updateB('arrivalDate', e.target.value)} required className={inputClass} />
+                    {availabilities.length > 0 ? (
+                      <select id="arrival-date-input" value={b.arrivalDate} onChange={e => updateB('arrivalDate', e.target.value)} required className={`${inputClass} appearance-none`}>
+                        {availabilities.map((slot) => {
+                          const date = String(slot.date).slice(0, 10);
+                          return <option key={slot.id} value={date}>{date} ({slot.remainingSeats} {t('booking.seatsLeft', 'seats left')})</option>;
+                        })}
+                      </select>
+                    ) : (
+                      <input id="arrival-date-input" type="date" value={b.arrivalDate} min={todayStr} onChange={e => updateB('arrivalDate', e.target.value)} required className={inputClass} disabled={availabilityStatus === 'loading'} />
+                    )}
                   </div>
                   <div>
                     <label htmlFor="departure-date-input" className={labelClass}><FaCalendarAlt className="inline mr-1.5 text-gold-400" size={11} />{t('booking.departureDate', 'Departure Date')}</label>
                     <input id="departure-date-input" type="date" value={b.departureDate} min={b.arrivalDate || todayStr} onChange={e => updateB('departureDate', e.target.value)} required className={inputClass} />
                   </div>
                 </div>
+
+                {(availabilityStatus === 'empty' || availabilityStatus === 'error') && (
+                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3">
+                    <p className="text-body-sm text-amber-300">
+                      {t('booking.noAvailability', 'No bookable departure is available right now. Please use the inquiry tab and our team will confirm the nearest date.')}
+                    </p>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -327,10 +519,10 @@ const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => 
                     <div className="mt-3 space-y-3 bg-[rgba(255,252,247,0.02)] rounded-xl p-3 border border-[rgba(201,162,39,0.08)]">
                       <label htmlFor="invoice-type-select" className="sr-only">{t('booking.invoiceType', 'Invoice Type')}</label>
                       <select id="invoice-type-select" value={b.invoiceType} onChange={e => updateB('invoiceType', e.target.value)} className={`${inputClass} appearance-none`}>
-                        <option value="personal">{t('booking.personal', 'Personal')}</option>
-                        <option value="company">{t('booking.company', 'Company')}</option>
+                      <option value="PERSONAL">{t('booking.personal', 'Personal')}</option>
+                      <option value="COMPANY">{t('booking.company', 'Company')}</option>
                       </select>
-                      {b.invoiceType === 'company' && (
+                      {b.invoiceType === 'COMPANY' && (
                         <>
                           <label htmlFor="company-name-input" className="sr-only">{t('booking.companyName', 'Company Name')}</label>
                           <input id="company-name-input" type="text" placeholder={t('booking.companyName', 'Company Name')} value={b.companyName} onChange={e => updateB('companyName', e.target.value)} className={inputClass} />
@@ -358,6 +550,30 @@ const BookingForm = ({ tourTitle, transportChoice, requireTransportChoice }) => 
                     <p className="text-body-sm text-red-400 font-semibold">
                       {t('booking.transportRequired', 'Please select a transport option (High-Speed Train or Bus) before booking.')}
                     </p>
+                  </div>
+                )}
+
+                <div className="bg-[rgba(201,162,39,0.08)] border border-[rgba(201,162,39,0.15)] rounded-xl p-3">
+                  <label className={labelClass}>{t('booking.promoCode', 'Promo Code')}</label>
+                  <div className="flex gap-2">
+                    <input type="text" placeholder="Promo code..." value={promoCode} onChange={(e) => setPromoCode(e.target.value.toUpperCase())} className={inputClass} />
+                  </div>
+                  {promoMessage && (
+                    <p className={`text-[11px] mt-1 font-semibold ${pricePreview?.promoValid ? 'text-sage-400' : 'text-red-400'}`}>
+                      {promoMessage}
+                    </p>
+                  )}
+                </div>
+
+                {pricePreview && (
+                  <div className="bg-[rgba(255,252,247,0.02)] border border-[rgba(201,162,39,0.15)] rounded-xl p-4">
+                    <p className="text-caption text-ivory-400 text-xs mb-1 uppercase tracking-widest">{t('booking.totalPrice', 'Total Estimated Price')}</p>
+                    <p className="text-display-sm text-gold-500 font-display">${pricePreview.totalAmountUsd}</p>
+                    {pricePreview.promoValid && (
+                      <p className="text-[11px] text-sage-400 mt-1 line-through opacity-70">
+                        ${parseFloat(pricePreview.totalAmountUsd) + parseFloat(pricePreview.discountAmountUsd)}
+                      </p>
+                    )}
                   </div>
                 )}
 

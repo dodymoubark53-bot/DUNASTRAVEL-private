@@ -1,7 +1,6 @@
 import { useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { FaMapMarkerAlt } from 'react-icons/fa';
 import { fadeInUp } from '../../animations/variants';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -980,41 +979,8 @@ const RouteMap = ({ itinerary }) => {
       }
     });
 
-    // Fallback: If no locations were matched, check if there's any destination name we can map
-    if (extracted.length === 0) {
-      const fullText = itinerary.map(d => JSON.stringify(d)).join(" ").toLowerCase();
-      let fallbackName = "Cairo";
-      let fallbackCoords = COORDINATES_DATABASE["cairo"];
-      
-      if (fullText.includes("turkey") || fullText.includes("turquía") || fullText.includes("turquia") || fullText.includes("istanbul")) {
-        fallbackName = "Istanbul";
-        fallbackCoords = COORDINATES_DATABASE["istanbul"];
-      } else if (fullText.includes("jordan") || fullText.includes("jordânia") || fullText.includes("jordania") || fullText.includes("amman")) {
-        fallbackName = "Amman";
-        fallbackCoords = COORDINATES_DATABASE["amman"];
-      } else if (fullText.includes("dubai") || fullText.includes("emirates") || fullText.includes("abu dhabi")) {
-        fallbackName = "Dubai";
-        fallbackCoords = COORDINATES_DATABASE["dubai"];
-      } else if (fullText.includes("morocco") || fullText.includes("marrocos") || fullText.includes("marruecos") || fullText.includes("marrakech")) {
-        fallbackName = "Marrakech";
-        fallbackCoords = COORDINATES_DATABASE["marrakech"];
-      } else if (fullText.includes("greece") || fullText.includes("grecia") || fullText.includes("athens")) {
-        fallbackName = "Athens";
-        fallbackCoords = COORDINATES_DATABASE["athens"];
-      } else if (fullText.includes("tunisia") || fullText.includes("túnez") || fullText.includes("tunes") || fullText.includes("tunis")) {
-        fallbackName = "Tunis";
-        fallbackCoords = COORDINATES_DATABASE["tunis"];
-      }
-      
-      extracted.push({
-        name: fallbackName,
-        coords: fallbackCoords,
-        description: `${fallbackName} Gateway`
-      });
-    }
-
     return extracted;
-  }, [itinerary, t]);
+  }, [itinerary, t, i18n.language]);
 
   useEffect(() => {
     if (!mapContainerRef.current || locations.length === 0) return;
@@ -1036,7 +1002,7 @@ const RouteMap = ({ itinerary }) => {
     locations.forEach((loc) => {
       const marker = L.marker(loc.coords)
         .addTo(map)
-        .bindPopup(`<b>${t('data.' + loc.name, loc.name)}</b><br/>${loc.description || ''}`);
+        .bindPopup(`<b>${loc.name}</b><br/>${loc.description || ''}`);
       markers.push(marker);
     });
 
@@ -1115,6 +1081,8 @@ const RouteMap = ({ itinerary }) => {
       map.remove();
     };
   }, [locations]);
+
+  if (locations.length === 0) return null;
 
   return (
     <motion.div

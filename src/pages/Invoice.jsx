@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaFileInvoiceDollar, FaSearch, FaTimes, FaPrint, FaCheckCircle } from 'react-icons/fa';
-
-const API = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:5000/api';
+import { FaFileInvoiceDollar, FaSearch, FaTimes, FaPrint } from 'react-icons/fa';
+import api from '../utils/api';
+import { normalizeInvoiceResponse } from '../utils/invoice';
 
 const Invoice = () => {
   const { t, i18n } = useTranslation();
@@ -12,6 +12,7 @@ const Invoice = () => {
   const [invoiceNum, setInvoiceNum] = useState(searchParams.get('inv') || '');
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleSearch = async (e) => {
@@ -21,18 +22,36 @@ const Invoice = () => {
     setError('');
     setBooking(null);
     try {
-      const res = await fetch(`${API}/bookings/invoice/${invoiceNum.trim()}`);
-      if (!res.ok) {
-        if (res.status === 404) throw new Error(t('invoice.notFound', 'Invoice not found'));
-        throw new Error('Server error');
-      }
-      const data = await res.json();
-      setBooking(data);
+      const data = await api.get(`/invoices/${invoiceNum.trim()}`);
+      setBooking(normalizeInvoiceResponse(data));
       setSearchParams({ inv: invoiceNum.trim() });
+    } catch (err) {
+      if (err.status === 404) {
+        setError(t('invoice.notFound', 'Invoice not found'));
+      } else {
+        setError(err.message || 'Server error');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePayment = async () => {
+    if (!booking || !booking.bookingId) return;
+    setPaymentLoading(true);
+    setError('');
+    try {
+      const data = await api.post('/payments/initiate', { bookingId: booking.bookingId });
+      const url = data?.session?.url || data?.url;
+      if (url) {
+        window.location.href = url;
+      } else {
+        throw new Error('No payment URL returned');
+      }
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      setPaymentLoading(false);
     }
   };
 
@@ -216,10 +235,29 @@ const Invoice = () => {
               </div>
 
               {/* Footer */}
-              <div className="border-t border-gray-200 pt-6 text-center text-xs text-gray-400 space-y-1">
+              {booking.status === 'pending' && (
+                <div className="border-t border-gray-200 pt-6 mt-6 flex justify-center">
+                  <button
+                    onClick={handlePayment}
+                    disabled={paymentLoading}
+                    className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-xl shadow-md hover:scale-105 transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {paymentLoading ? (
+                      <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <FaFileInvoiceDollar size={18} />
+                    )}
+                    {t('booking.payNow', 'Pay Now')}
+                  </button>
+                </div>
+              )}
+
+              <div className="border-t border-gray-200 pt-6 mt-6 text-center text-xs text-gray-400 space-y-1">
                 <p className="font-semibold text-gray-500">DUNAS TRAVEL</p>
                 <p>{t('booking.invoiceFooter', 'Thank you for choosing DUNAS TRAVEL. We look forward to providing you with an unforgettable experience.')}</p>
-                <p className="mt-2">{t('booking.invoiceNote', 'This is a booking confirmation invoice. Payment details will be sent separately.')}</p>
+                {booking.status === 'pending' && (
+                  <p className="mt-2 text-red-500">{t('booking.invoiceNote', 'This is a booking confirmation invoice. Please complete your payment to secure your reservation.')}</p>
+                )}
               </div>
             </div>
           </div>

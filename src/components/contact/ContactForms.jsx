@@ -1,8 +1,11 @@
 import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import api from '../../utils/api';
+import { useDestinations } from '../../hooks/useDestinations';
 
 const ContactForms = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { destinations: publishedDestinations } = useDestinations();
   const [activeTab, setActiveTab] = useState('b2c'); // 'b2c' | 'b2b'
 
   // B2C Form States
@@ -22,6 +25,7 @@ const ContactForms = () => {
   });
   const [b2cLanguages, setB2cLanguages] = useState(new Set(['english']));
   const [b2cSubmitted, setB2cSubmitted] = useState(false);
+  const [b2cSubmitError, setB2cSubmitError] = useState('');
   const [b2cErrors, setB2cErrors] = useState({});
 
   // B2B Form States
@@ -45,6 +49,7 @@ const ContactForms = () => {
     tax: null,
   });
   const [b2bSubmitted, setB2bSubmitted] = useState(false);
+  const [b2bSubmitError, setB2bSubmitError] = useState('');
   const [b2bErrors, setB2bErrors] = useState({});
 
   // Drag and Drop Dragging States
@@ -54,51 +59,6 @@ const ContactForms = () => {
   // File Input Refs
   const licenseInputRef = useRef(null);
   const taxInputRef = useRef(null);
-
-  // B2C Price Calculations
-  const getB2cPrice = () => {
-    const destinationRates = {
-      egypt: 1200,
-      turkey: 1500,
-      jordan: 1400,
-      dubai: 1800,
-      tunisia: 1100,
-      morocco: 1300,
-      greece: 2200,
-      holyland: 1700,
-    };
-    const baseAdult = destinationRates[b2cForm.destination] || 1200;
-    const baseChild = baseAdult * 0.5;
-
-    const durationMultipliers = {
-      '1-7': 1.0,
-      '8-14': 1.6,
-      '15+': 2.4,
-    };
-    const multiplier = durationMultipliers[b2cForm.duration] || 1.6;
-
-    const accommodationAddons = {
-      '5star': 200,
-      boutique: 400,
-      villa: 1000,
-    };
-    const addon = accommodationAddons[b2cForm.accommodation] || 200;
-
-    const subtotal = (b2cForm.adults * baseAdult) + (b2cForm.children * baseChild);
-    return Math.round(subtotal * multiplier + addon);
-  };
-
-  // B2B Commission Tier Calculations
-  const getCommissionTier = () => {
-    const volume = b2bForm.expectedVolume;
-    if (volume === 'under-10') {
-      return { tier: 'Gold Tier', rate: '10%', desc: 'Standard commission rate on all custom tour bookings.' };
-    } else if (volume === '10-50') {
-      return { tier: 'Platinum Tier', rate: '12%', desc: 'Preferred partner commission with priority support.' };
-    } else {
-      return { tier: 'Diamond Tier', rate: '15%', desc: 'VIP partner commission, co-marketing opportunities & FAM trips.' };
-    }
-  };
 
   // B2C Handlers
   const handleB2cChange = (e) => {
@@ -147,19 +107,46 @@ const ContactForms = () => {
     return errors;
   };
 
-  const handleB2cSubmit = (e) => {
+  const handleB2cSubmit = async (e) => {
     e.preventDefault();
+    setB2cSubmitError('');
     const errors = validateB2c();
     if (Object.keys(errors).length > 0) {
       setB2cErrors(errors);
-      // Scroll to first error
       const firstError = Object.keys(errors)[0];
       const el = document.getElementsByName(firstError)[0];
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
-    setB2cSubmitted(true);
+    try {
+      const b2cMessage = [
+        `Destination: ${b2cForm.destination}`,
+        `Travel Date: ${b2cForm.date}`,
+        `Duration: ${b2cForm.duration} days`,
+        `Travelers: ${b2cForm.adults} Adults, ${b2cForm.children} Children`,
+        `Accommodation: ${b2cForm.accommodation}`,
+        `Pace: ${b2cForm.pace}`,
+        `Preferred Guides: ${Array.from(b2cLanguages).join(', ')}`
+      ].join('\n');
+
+      await api.post('/contact', {
+        firstName: b2cForm.firstName.trim(),
+        lastName: b2cForm.lastName.trim(),
+        email: b2cForm.email.trim(),
+        phone: b2cForm.phone.trim() || undefined,
+        subject: `B2C Inquiry: ${b2cForm.destination.toUpperCase()} (${b2cForm.duration} days)`,
+        message: b2cMessage,
+        locale: (() => {
+          const locale = String(i18n?.language || 'en').toLowerCase().split('-')[0];
+          return ['en', 'es', 'fr', 'de', 'ar', 'pt', 'it'].includes(locale) ? locale : 'en';
+        })(),
+      });
+      setB2cSubmitted(true);
+    } catch (err) {
+      console.error('B2C contact submission error', err);
+      setB2cSubmitError(err?.message || t('common.errorOccurred', 'Your request could not be sent. Please try again.'));
+    }
   };
 
   // B2B Handlers
@@ -233,22 +220,69 @@ const ContactForms = () => {
     return errors;
   };
 
-  const handleB2bSubmit = (e) => {
+  const handleB2bSubmit = async (e) => {
     e.preventDefault();
+    setB2bSubmitError('');
     const errors = validateB2b();
     if (Object.keys(errors).length > 0) {
       setB2bErrors(errors);
-      // Scroll to first error
       const firstError = Object.keys(errors)[0];
       const el = document.getElementsByName(firstError)[0] || document.getElementById(`${firstError}-dropzone`);
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
-    setB2bSubmitted(true);
-  };
+    try {
+      const b2bMessage = [
+        `B2B Partnership Application`,
+        `Agent: ${b2bForm.agentName} (${b2bForm.jobTitle})`,
+        `Agency: ${b2bForm.agencyName}`,
+        `Website: ${b2bForm.website || 'N/A'}`,
+        `Address: ${b2bForm.address}`,
+        `IATA / Tax ID: ${b2bForm.iataNumber}`,
+        `Source Country: ${b2bForm.sourceCountry}`,
+        `Expected Volume: ${b2bForm.expectedVolume}`,
+        `Interested Destinations: ${Array.from(b2bDestinations).join(', ')}`,
+        `Notes: ${b2bForm.additionalInfo || 'N/A'}`
+      ].join('\n');
 
-  const commission = getCommissionTier();
+      const nameParts = b2bForm.agentName.trim().split(' ');
+      const firstName = nameParts[0] || b2bForm.agentName.trim();
+      const lastName = nameParts.slice(1).join(' ') || 'Agent';
+
+      await api.post('/contact', {
+        firstName,
+        lastName,
+        email: b2bForm.agentEmail.trim(),
+        phone: b2bForm.agentPhone.trim() || undefined,
+        subject: `B2B Partnership: ${b2bForm.agencyName}`,
+        message: b2bMessage,
+        locale: (() => {
+          const locale = String(i18n?.language || 'en').toLowerCase().split('-')[0];
+          return ['en', 'es', 'fr', 'de', 'ar', 'pt', 'it'].includes(locale) ? locale : 'en';
+        })(),
+      });
+
+      try {
+        await api.post('/agencies/register', {
+          name: b2bForm.agencyName.trim(),
+          email: b2bForm.agentEmail.trim(),
+          phone: b2bForm.agentPhone.trim() || undefined,
+          taxId: b2bForm.iataNumber.trim(),
+          address: b2bForm.address.trim() || undefined,
+          website: b2bForm.website.trim() && b2bForm.website.startsWith('https://') ? b2bForm.website.trim() : undefined,
+        });
+      } catch (agencyError) {
+        // A duplicate agency is idempotent; surface validation/server errors.
+        if (agencyError?.status !== 409) throw agencyError;
+      }
+
+      setB2bSubmitted(true);
+    } catch (err) {
+      console.error('B2B contact submission error', err);
+      setB2bSubmitError(err?.message || t('common.errorOccurred', 'Your application could not be sent. Please try again.'));
+    }
+  };
 
   return (
     <>
@@ -665,6 +699,11 @@ const ContactForms = () => {
                 </div>
               ) : (
                 <form onSubmit={handleB2cSubmit} noValidate>
+                  {b2cSubmitError && (
+                    <div role="alert" className="mb-6 rounded-xl border border-red-400/40 bg-red-500/10 p-4 text-sm text-red-200">
+                      {b2cSubmitError}
+                    </div>
+                  )}
                   
                   {/* Section 1: Personal Information */}
                   <div className="mb-10">
@@ -739,14 +778,11 @@ const ContactForms = () => {
                           onChange={handleB2cChange}
                           className="form-select"
                         >
-                          <option value="egypt">{t('contactForms.destEgypt', 'Egypt & Nile Cruising')}</option>
-                          <option value="turkey">{t('contactForms.destTurkey', 'Turkey Heritage & Coast')}</option>
-                          <option value="jordan">{t('contactForms.destJordan', 'Jordanian Petra & Desert')}</option>
-                          <option value="dubai">{t('contactForms.destDubai', 'Dubai Oasis & Luxury')}</option>
-                          <option value="tunisia">{t('contactForms.destTunisia', 'Tunisian Sahara & Ruins')}</option>
-                          <option value="morocco">{t('contactForms.destMorocco', 'Moroccan Medinas & Atlas')}</option>
-                          <option value="greece">{t('contactForms.destGreece', 'Greek Islands & Yachts')}</option>
-                          <option value="holyland">{t('contactForms.destHolyland', 'Holy Land Heritage')}</option>
+                          {publishedDestinations.map((destination) => (
+                            <option key={destination.id} value={destination.slug}>
+                              {destination.title}
+                            </option>
+                          ))}
                         </select>
                       </div>
                       <div className="form-field-group">
@@ -954,6 +990,11 @@ const ContactForms = () => {
                 </div>
               ) : (
                 <form onSubmit={handleB2bSubmit} noValidate>
+                  {b2bSubmitError && (
+                    <div role="alert" className="mb-6 rounded-xl border border-red-400/40 bg-red-500/10 p-4 text-sm text-red-200">
+                      {b2bSubmitError}
+                    </div>
+                  )}
 
                   {/* Section 1: Agent Details */}
                   <div className="mb-10">
@@ -1084,14 +1125,14 @@ const ContactForms = () => {
                     <div className="form-field-group mb-6">
                       <label className="form-label mb-3">{t('contactForms.targetDests', 'Target Destinations for Luxury Clients')}</label>
                       <div className="pills-grid">
-                        {['egypt', 'turkey', 'jordan', 'dubai', 'tunisia', 'morocco', 'greece', 'holyland'].map((dest) => (
+                        {publishedDestinations.map((destination) => (
                           <button
-                            key={dest}
+                            key={destination.id}
                             type="button"
-                            className={`pill-btn ${b2bDestinations.has(dest) ? 'active' : ''}`}
-                            onClick={() => toggleB2bDestination(dest)}
+                            className={`pill-btn ${b2bDestinations.has(destination.slug) ? 'active' : ''}`}
+                            onClick={() => toggleB2bDestination(destination.slug)}
                           >
-                            {dest === 'holyland' ? t('nav.holyland', 'Holy Land') : dest}
+                            {destination.title}
                           </button>
                         ))}
                       </div>

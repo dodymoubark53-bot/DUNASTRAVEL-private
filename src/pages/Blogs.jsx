@@ -4,12 +4,15 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { staggerContainer, fadeInUp, cardHover } from '../animations/variants';
-import { blogs } from '../data/blogs';
+import { useBlogs } from '../hooks/useBlogs';
+import SkeletonLoader from '../components/ui/SkeletonLoader';
+import ErrorState from '../components/ui/ErrorState';
 import { FaChevronRight, FaChevronLeft, FaClock, FaCalendarAlt, FaPlane } from 'react-icons/fa';
 
 const Blogs = () => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.dir() === 'rtl';
+  const { blogs, loading, error } = useBlogs();
 
   const categoryColors = {
     'History': 'from-amber-600 to-yellow-500',
@@ -28,9 +31,12 @@ const Blogs = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const filteredBlogs = blogs.filter(blog => !blog.draft && blog.status !== 'draft');
-  const totalPages = Math.ceil(filteredBlogs.length / perPage);
+  const totalPages = Math.ceil(filteredBlogs.length / perPage) || 1;
   const startIndex = (currentPage - 1) * perPage;
   const currentBlogs = filteredBlogs.slice(startIndex, startIndex + perPage);
+
+  if (loading) return <SkeletonLoader count={6} />;
+  if (error) return <ErrorState message={error.message || 'Failed to load blogs'} />;
 
   const goToPage = (page) => {
     if (page < 1 || page > totalPages) return;

@@ -26,7 +26,7 @@ export default {
           100: '#FDE9BC',
           300: '#F9C76B',
           500: '#F5A623',   // Accent Gold — highlights, hover, icons, CTAs
-          600: '#9E6900',   // High-Contrast Gold — for text on light backgrounds
+          600: '#8A5C00',   // High-Contrast Gold — for text on light backgrounds
           700: '#C07D0A',
           900: '#7A4F04',
         },

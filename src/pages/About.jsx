@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { FaCalendarAlt, FaSuitcase, FaUsers, FaMapMarkedAlt, FaGlobe } from 'react-icons/fa';
+import { useCmsBlock } from '../hooks/useCmsBlock';
 
 const styles = `
   :root {
@@ -729,6 +730,7 @@ const chartData = [
 
 const About = () => {
   const { t } = useTranslation();
+  const { data: cmsData } = useCmsBlock('about');
   const pageRef = useRef(null);
 
   useEffect(() => {
@@ -826,9 +828,9 @@ const About = () => {
 
       <header className="hero" id="about-hero">
         <div className="hero-watermark">DT</div>
-        <div className="hero-eyebrow eyebrow">{t('about.heroEyebrow')}</div>
-        <h1 dangerouslySetInnerHTML={{ __html: t('about.heroTitle') }} />
-        <p className="sub">{t('about.heroSub')}</p>
+        <div className="hero-eyebrow eyebrow">{cmsData?.heroEyebrow || t('about.heroEyebrow')}</div>
+        <h1 dangerouslySetInnerHTML={{ __html: cmsData?.heroTitle || t('about.heroTitle') }} />
+        <p className="sub">{cmsData?.heroSub || t('about.heroSub')}</p>
 
         <div className="routes-wrap" id="routesWrap">
           <svg viewBox="0 0 980 260" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>

@@ -1,0 +1,14 @@
+# DUNAS TRAVEL
+
+DUNAS TRAVEL is a luxury travel agency specializing in curated journeys across Africa, the Middle East, and beyond.
+
+## Pages
+- [Home](https://dunas-travel.com/)
+- [Programs](https://dunas-travel.com/programs)
+- [Destinations](https://dunas-travel.com/destinations)
+- [Blogs](https://dunas-travel.com/blogs)
+- [About](https://dunas-travel.com/about)
+- [Contact](https://dunas-travel.com/contact)
+
+## sitemap
+- https://dunas-travel.com/sitemap.xml

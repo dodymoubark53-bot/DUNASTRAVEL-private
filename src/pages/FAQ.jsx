@@ -3,10 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaChevronDown } from 'react-icons/fa';
 import { staggerContainer, fadeInUp, accordionContent } from '../animations/variants';
+import { useCmsBlock } from '../hooks/useCmsBlock';
 
 const FAQ = () => {
   const { t } = useTranslation();
   const [openId, setOpenId] = useState(null);
+  const { data: cmsData } = useCmsBlock('faq_page');
 
   const categories = [
     { id: 'general', title: t('faq.cat.general', 'General Reservations'), count: 10 },
@@ -50,10 +52,10 @@ const FAQ = () => {
           className="relative z-10 text-center px-4"
         >
           <span className="text-gold-500 uppercase tracking-widest text-caption block mb-2">
-            {t('faq.helpCenter', 'HELP CENTER')}
+            {cmsData?.helpCenter || t('faq.helpCenter', 'HELP CENTER')}
           </span>
           <h1 className="text-display-xl text-white font-display">
-            {t('faq.heading', 'Frequently Asked Questions')}
+            {cmsData?.heading || t('faq.heading', 'Frequently Asked Questions')}
           </h1>
         </motion.div>
       </section>

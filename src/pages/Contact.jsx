@@ -7,7 +7,7 @@ import Button from '../components/ui/Button';
 import ContactForms from '../components/contact/ContactForms';
 
 const Contact = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   return (
     <div className="w-full bg-obsidian-50 pb-24">
       <Helmet>
@@ -52,8 +52,8 @@ const Contact = () => {
                       <a href="tel:+20233746654" className="hover:text-gold-500 transition-colors flex items-center gap-2">
                         <FaPhone className="text-gold-500 text-sm" /> 02 33746654
                       </a>
-                      <a href="tel:+201149401111" className="hover:text-gold-500 transition-colors flex items-center gap-2">
-                        <FaWhatsapp className="text-gold-500 text-sm" /> +20 114 940 1111
+                      <a href="https://wa.me/20114940111" target="_blank" rel="noopener noreferrer" className="hover:text-gold-500 transition-colors flex items-center gap-2">
+                        <FaWhatsapp className="text-gold-500 text-sm" /> +20 114 940 111
                       </a>
                     </div>
                   </div>
@@ -63,42 +63,80 @@ const Contact = () => {
                   <div>
                     <h4 className="text-caption text-gold-500 uppercase tracking-widest mb-1">{t('contact.emailLabel', 'Email')}</h4>
                     <div className="flex flex-col gap-1 text-body-md text-ivory-300">
-                      <a href="mailto:info@dunas-travel.com" className="hover:text-gold-500 transition-colors">info@dunas-travel.com</a>
-                      <a href="mailto:attia@dunas-travel.com" className="hover:text-gold-500 transition-colors">attia@dunas-travel.com</a>
-                      <a href="mailto:Spain@dunas-travel.com" className="hover:text-gold-500 transition-colors">Spain@dunas-travel.com</a>
-                      <a href="mailto:booking@dunas-travel.com" className="hover:text-gold-500 transition-colors">booking@dunas-travel.com</a>
+                      <a href="mailto:info@dunas-travel.com" aria-label="Send us an email at info@dunas-travel.com" className="hover:text-gold-500 transition-colors">info@dunas-travel.com</a>
+                      <a href="mailto:attia@dunas-travel.com" aria-label="Send us an email at attia@dunas-travel.com" className="hover:text-gold-500 transition-colors">attia@dunas-travel.com</a>
+                      <a href="mailto:Spain@dunas-travel.com" aria-label="Send us an email at Spain@dunas-travel.com" className="hover:text-gold-500 transition-colors">Spain@dunas-travel.com</a>
+                      <a href="mailto:booking@dunas-travel.com" aria-label="Send us an email at booking@dunas-travel.com" className="hover:text-gold-500 transition-colors">booking@dunas-travel.com</a>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Real Google Map */}
-            <div className="w-full h-[300px] lg:h-[450px] rounded-[16px] overflow-hidden border border-[rgba(201,162,39,0.2)] shadow-[0_0_32px_rgba(201,162,39,0.1)]">
+            {/* Real Google Map clickable link */}
+            <a
+              href="https://maps.app.goo.gl/oA84mQGwUsHWo4kt8"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full h-[300px] lg:h-[450px] rounded-[16px] overflow-hidden border border-[rgba(201,162,39,0.2)] shadow-[0_0_32px_rgba(201,162,39,0.1)] relative group cursor-pointer"
+              title={t('contact.openMaps', 'Open in Google Maps')}
+            >
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3453!2d31.2180!3d30.0090!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDA1JzMyLjQiTiAzMcKwMTMnMDQuOCJF!5e0!3m2!1sen!2seg!4v1234567890"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3454.026723223011!2d31.2052!3d30.0076!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDAwJzI3LjQiTiAzMcKwMTInMTg3LjJF!5e0!3m2!1sen!2seg!4v1680000000000"
                 width="100%"
                 height="100%"
-                style={{ border: 0 }}
+                style={{ border: 0, pointerEvents: 'none' }}
                 allowFullScreen=""
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               ></iframe>
-            </div>
+              <div className="absolute inset-0 bg-obsidian-950/20 group-hover:bg-transparent transition-all duration-300 flex items-center justify-center">
+                <span className="bg-obsidian-900/85 backdrop-blur-md text-gold-400 font-bold px-5 py-2.5 rounded-full border border-gold-500/40 text-xs shadow-xl group-hover:scale-105 transition-all">
+                  📍 {t('contact.openGoogleMaps', 'تواصل معنا - فتح الموقع على خرائط جوجل')}
+                </span>
+              </div>
+            </a>
           </div>
 
           {/* Form */}
           <div className="lg:w-1/2 p-12">
             <h3 className="text-display-md text-obsidian-900 mb-6">{t('contact.sendMessage', 'Send us a message')}</h3>
-            <form className="flex flex-col gap-6">
+            <form className="flex flex-col gap-6" onSubmit={async (e) => {
+              e.preventDefault();
+              const form = e.target;
+              const firstName = form.firstName.value;
+              const lastName = form.lastName.value;
+              const email = form.email.value;
+              const phone = form.phone.value;
+              const message = form.message.value;
+              
+              try {
+                const { default: api } = await import('../utils/api');
+                const payload = {
+                  firstName,
+                  lastName,
+                  email,
+                  phone: phone || undefined,
+                  subject: 'Contact Form Submission',
+                  message: message.length >= 10 ? message : `${message} (Inquiry)`,
+                  locale: String(i18n.language || 'en').toLowerCase().split('-')[0],
+                };
+                await api.post('/contact', payload);
+                alert(t('contact.success', 'Your message has been sent successfully.'));
+                form.reset();
+              } catch (err) {
+                console.error(err);
+                alert(t('contact.error', 'There was an error sending your message.'));
+              }
+            }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <input type="text" placeholder={t('contact.firstName', 'First Name')} required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
-                <input type="text" placeholder={t('contact.lastName', 'Last Name')} required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
+                <input name="firstName" type="text" placeholder={t('contact.firstName', 'First Name')} required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
+                <input name="lastName" type="text" placeholder={t('contact.lastName', 'Last Name')} required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
               </div>
-              <input type="email" placeholder={t('contact.emailPlaceholder', 'Email Address')} required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
-              <input type="tel" placeholder={t('contact.phonePlaceholder', 'Phone Number')} className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
-              <textarea placeholder={t('contact.messagePlaceholder', 'How can we help you craft your perfect journey?')} rows="5" required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors resize-none"></textarea>
-              <Button variant="gold-glow" className="self-start px-8">{t('contact.sendBtn', 'Send Message')}</Button>
+              <input name="email" type="email" placeholder={t('contact.emailPlaceholder', 'Email Address')} required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
+              <input name="phone" type="tel" placeholder={t('contact.phonePlaceholder', 'Phone Number')} className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
+              <textarea name="message" placeholder={t('contact.messagePlaceholder', 'How can we help you craft your perfect journey?')} rows="5" required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors resize-none"></textarea>
+              <Button type="submit" variant="gold-glow" className="self-start px-8">{t('contact.sendBtn', 'Send Message')}</Button>
             </form>
           </div>
 

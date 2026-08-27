@@ -4,7 +4,11 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
-import { blogs } from '../../data/blogs';
+import { useBlog } from '../../hooks/useBlog';
+import { useBlogs } from '../../hooks/useBlogs';
+import SkeletonLoader from '../../components/ui/SkeletonLoader';
+import ErrorState from '../../components/ui/ErrorState';
+import NotFound from '../NotFound';
 import { FaChevronRight, FaCalendarAlt, FaClock, FaTag, FaShareAlt, FaPlane, FaArrowRight } from 'react-icons/fa';
 
 const BlogDetails = () => {
@@ -12,7 +16,8 @@ const BlogDetails = () => {
   const isRtl = i18n.dir() === 'rtl';
   const { slug } = useParams();
   const navigate = useNavigate();
-  const blog = blogs.find(b => b.slug === slug);
+  const { blog, loading, error } = useBlog(slug);
+  const { blogs: allBlogs } = useBlogs();
 
   const rawTourLinks = [
     { name: 'Cairo Express com Alexandria', path: '/tours/cairo-express-alexandria-5d' },
@@ -72,18 +77,34 @@ const BlogDetails = () => {
     }
   }, [navigate]);
 
-  if (!blog) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-obsidian-50">
-        <h1 className="text-display-lg text-obsidian-900">{t('blogs.notFound', 'Article not found')}</h1>
+      <div className="min-h-screen bg-obsidian-50 py-24 px-6 max-w-5xl mx-auto">
+        <SkeletonLoader count={3} type="card" />
       </div>
     );
   }
 
-  const currentIndex = blogs.findIndex(b => b.slug === slug);
+  if (error) {
+    return (
+      <div className="min-h-screen bg-obsidian-50 py-24 px-6 max-w-5xl mx-auto flex items-center justify-center">
+        <ErrorState message="Failed to load article details." onRetry={() => window.location.reload()} />
+      </div>
+    );
+  }
+
+  if (!blog) {
+    return <NotFound />;
+  }
+
+  const blogList = (allBlogs && allBlogs.length > 0) ? allBlogs : [blog];
+  const currentIndex = blogList.findIndex(b => b.slug === slug);
   const relatedArticles = [];
-  for (let i = 1; i <= 3; i++) {
-    relatedArticles.push(blogs[(currentIndex + i) % blogs.length]);
+  for (let i = 1; i <= Math.min(3, blogList.length - 1); i++) {
+    const idx = (currentIndex + i) % blogList.length;
+    if (blogList[idx] && blogList[idx].slug !== slug) {
+      relatedArticles.push(blogList[idx]);
+    }
   }
 
   return (

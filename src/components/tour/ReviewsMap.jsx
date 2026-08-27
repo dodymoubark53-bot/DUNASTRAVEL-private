@@ -1,158 +1,128 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
-import { FaStar, FaRegStar, FaCheckCircle } from 'react-icons/fa';
-import { fadeInUp } from '../../animations/variants';
+import { FaCheckCircle, FaRegStar, FaStar } from 'react-icons/fa';
+import api from '../../utils/api';
 
-const seedReviews = [
-  { name: 'Carlos García', country: 'Spain', rating: 5, textKey: 'reviews.r1' },
-  { name: 'Sofia Conti', country: 'Italy', rating: 5, textKey: 'reviews.r2' },
-  { name: 'Martín Fernández', country: 'Argentina', rating: 5, textKey: 'reviews.r3' },
-  { name: 'Ana Lucía Hernández', country: 'Mexico', rating: 5, textKey: 'reviews.r4' },
-  { name: 'João Silva', country: 'Portugal', rating: 5, textKey: 'reviews.r5' },
-  { name: 'Rafael Oliveira', country: 'Brazil', rating: 5, textKey: 'reviews.r6' },
-  { name: 'Jennifer Adams', country: 'USA', rating: 5, textKey: 'reviews.r7' },
-  { name: 'James Mitchell', country: 'Australia', rating: 5, textKey: 'reviews.r8' },
-];
-
-const StarRating = ({ rating, onRate, readonly }) => (
-  <div className="flex gap-1">
-    {[1, 2, 3, 4, 5].map((star) => (
-      <button
-        key={star}
-        type="button"
-        disabled={readonly}
-        onClick={() => onRate?.(star)}
-        className={`${readonly ? 'cursor-default' : 'cursor-pointer hover:scale-110'} transition-transform`}
-      >
-        {star <= rating ? (
-          <FaStar className="w-5 h-5 text-gold-500 reviews-star" />
-        ) : (
-          <FaRegStar className="w-5 h-5 text-gold-500 reviews-star" />
-        )}
-      </button>
-    ))}
-  </div>
-);
-
-const ReviewsMap = () => {
-  const { t } = useTranslation();
-  const [reviews, setReviews] = useState(seedReviews);
-  const [newReview, setNewReview] = useState({ name: '', country: '', rating: 5, text: '' });
-  const [success, setSuccess] = useState(false);
-
-  const avgRating = (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!newReview.name || !newReview.text) return;
-    const newReviewData = { name: newReview.name, country: newReview.country, rating: parseInt(newReview.rating), text: newReview.text };
-    setReviews(prev => [newReviewData, ...prev]);
-    setNewReview({ name: '', country: '', rating: 5, text: '' });
-    setSuccess(true);
-    setTimeout(() => setSuccess(false), 3000);
-  };
-
+function Stars({ rating, onRate, readOnly = false }) {
   return (
-    <section className="reviews-section py-16 bg-ivory-50">
-      <div className="container mx-auto px-6 max-w-6xl">
-        {/* Reviews Section */}
-        <motion.div variants={fadeInUp} initial="hidden" whileInView="visible">
-          <div className="text-center mb-10">
-            <h2 className="text-display-lg text-obsidian-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-              {t('reviews.title', 'Guest Reviews')}
-            </h2>
-            <div className="flex items-center justify-center gap-3 mb-2">
-              <StarRating rating={Math.round(parseFloat(avgRating))} readonly />
-              <span className="text-display-sm text-gold-500 reviews-star font-bold">{avgRating}</span>
-            </div>
-            <p className="text-obsidian-500 text-body-md">
-              {t('reviews.count', 'Based on {{count}} reviews', { count: reviews.length })}
-            </p>
-            <div className="w-24 h-1 bg-gold-500 mx-auto mt-4"></div>
-          </div>
+    <div className="flex gap-1" aria-label={`${rating} out of 5 stars`}>
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button key={star} type="button" disabled={readOnly} onClick={() => onRate?.(star)} className={readOnly ? 'cursor-default' : 'cursor-pointer'}>
+          {star <= rating ? <FaStar className="w-4 h-4 text-white" /> : <FaRegStar className="w-4 h-4 text-white" />}
+        </button>
+      ))}
+    </div>
+  );
+}
 
-          {/* Reviews List */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-            {reviews.map((rev, idx) => (
-              <motion.div
-                key={idx}
-                variants={fadeInUp}
-                className="bg-white rounded-2xl p-6 shadow-card border border-obsidian-900/5"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <p className="font-semibold text-obsidian-900">{rev.name}</p>
-                    {rev.country && (
-                      <p className="text-body-sm text-obsidian-400">{rev.country}</p>
-                    )}
-                  </div>
-                  <StarRating rating={rev.rating} readonly />
-                </div>
-                <p className="review-text text-obsidian-700 text-body-md leading-relaxed italic font-light">"{rev.textKey ? t(rev.textKey) : rev.text}"</p>
-              </motion.div>
+function formatReview(review, locale) {
+  return {
+    id: review.id,
+    name: review.reviewerName || 'Anonymous traveler',
+    rating: review.rating,
+    comment: review.comment || '',
+    date: new Date(review.createdAt).toLocaleDateString(locale, { month: 'long', year: 'numeric' }),
+  };
+}
+
+export default function ReviewsMap({ tourId }) {
+  const { t, i18n } = useTranslation();
+  const [reviews, setReviews] = useState([]);
+  const [summary, setSummary] = useState({ averageRating: 0, totalReviews: 0 });
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [submitError, setSubmitError] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState({ rating: 5, comment: '' });
+
+  useEffect(() => {
+    if (!tourId) return undefined;
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (!active) return;
+      setLoading(true);
+      setLoadError('');
+    });
+    api.get(`/tours/${encodeURIComponent(tourId)}/reviews`)
+      .then((response) => {
+        if (!active) return;
+        const items = Array.isArray(response?.items)
+          ? response.items
+          : (Array.isArray(response?.data) ? response.data : (Array.isArray(response) ? response : []));
+        setReviews(items.map((review) => formatReview(review, i18n.language || 'en')));
+        const averageRating = items.length
+          ? items.reduce((total, review) => total + Number(review.rating || 0), 0) / items.length
+          : 0;
+        setSummary(response?.ratingSummary || { averageRating, totalReviews: items.length });
+      })
+      .catch((requestError) => {
+        if (!active) return;
+        setReviews([]);
+        setSummary({ averageRating: 0, totalReviews: 0 });
+        setLoadError(requestError?.message || t('reviews.loadError', 'Reviews could not be loaded.'));
+      })
+      .finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, [tourId, i18n.language, t]);
+
+  if (!tourId) return null;
+
+  async function submit(event) {
+    event.preventDefault();
+    setSubmitting(true);
+    setSubmitError('');
+    try {
+      const payload = {
+        rating: Number(form.rating),
+        comment: form.comment,
+      };
+      await api.post(`/tours/${encodeURIComponent(tourId)}/reviews`, payload);
+      setForm({ rating: 5, comment: '' });
+      setSubmitted(true);
+    } catch (error) {
+      setSubmitError(error?.message || t('reviews.submitError', 'Your review could not be submitted.'));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const averageRating = Number(summary.averageRating || 0).toFixed(1);
+  return (
+    <section className="reviews-section py-20" style={{ background: 'linear-gradient(135deg, #070D19 0%, #0D2040 100%)' }}>
+      <div className="mx-auto max-w-6xl px-6 text-white">
+        <header className="mb-10 text-center">
+          <p className="mb-3 text-sm font-semibold uppercase tracking-widest">{t('reviews.subheading', 'Guest Feedback')}</p>
+          <h2 className="mb-4 text-4xl font-medium">{t('reviews.titleHeading', 'What People Say')}</h2>
+          <div className="flex items-center justify-center gap-3"><Stars rating={Math.round(Number(averageRating))} readOnly /><span className="text-2xl font-bold">{averageRating}</span></div>
+          <p className="mt-2 text-sm">{t('reviews.count', 'Based on {{count}} reviews', { count: summary.totalReviews })}</p>
+        </header>
+
+        <div aria-busy={loading} className="mb-12">
+          {loadError && <p className="text-center">{loadError}</p>}
+          {!loading && !loadError && reviews.length === 0 && <p className="text-center">{t('reviews.empty', 'No verified reviews yet.')}</p>}
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {reviews.map((review) => (
+              <article key={review.id} className="rounded-2xl border border-white/10 bg-white/5 p-6">
+                <div className="mb-4 flex items-center justify-between gap-3"><p className="font-semibold">{review.name}</p><Stars rating={review.rating} readOnly /></div>
+                <p className="text-sm leading-relaxed">“{review.comment}”</p>
+                <p className="mt-4 text-right text-xs font-semibold uppercase tracking-wider">{review.date}</p>
+              </article>
             ))}
           </div>
+        </div>
 
-          {/* Write Review Form */}
-          <motion.div variants={fadeInUp} className="max-w-2xl mx-auto bg-white rounded-2xl p-8 shadow-card border border-obsidian-900/5">
-            <h3 className="text-display-sm text-obsidian-900 mb-6 text-center">
-              {t('tour.leaveReview', 'Write a Review')}
-            </h3>
-            {success && (
-              <div className="flex items-center gap-2 text-green-600 bg-green-50 rounded-xl px-4 py-3 mb-6 text-body-md">
-                <FaCheckCircle />
-                {t('reviews.reviewSuccess', 'Review submitted successfully!')}
-              </div>
-            )}
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-body-sm font-semibold text-obsidian-700 mb-1.5">{t('reviews.yourName', 'Your Name')} *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newReview.name}
-                    onChange={(e) => setNewReview(p => ({ ...p, name: e.target.value }))}
-                    className="w-full p-3 bg-ivory-50 border border-obsidian-900/10 rounded-xl focus:border-gold-500 outline-none text-obsidian-900"
-                  />
-                </div>
-                <div>
-                  <label className="block text-body-sm font-semibold text-obsidian-700 mb-1.5">{t('reviews.country', 'Country')}</label>
-                  <input
-                    type="text"
-                    value={newReview.country}
-                    onChange={(e) => setNewReview(p => ({ ...p, country: e.target.value }))}
-                    className="w-full p-3 bg-ivory-50 border border-obsidian-900/10 rounded-xl focus:border-gold-500 outline-none text-obsidian-900"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-body-sm font-semibold text-obsidian-700 mb-1.5">{t('reviews.rating', 'Rating')}</label>
-                <StarRating rating={newReview.rating} onRate={(val) => setNewReview(p => ({ ...p, rating: val }))} />
-              </div>
-              <div>
-                <label className="block text-body-sm font-semibold text-obsidian-700 mb-1.5">{t('reviews.reviewText', 'Your Review')} *</label>
-                <textarea
-                  required
-                  rows="3"
-                  value={newReview.text}
-                  onChange={(e) => setNewReview(p => ({ ...p, text: e.target.value }))}
-                  className="w-full p-3 bg-ivory-50 border border-obsidian-900/10 rounded-xl focus:border-gold-500 outline-none text-obsidian-900 resize-none"
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full py-3 bg-gradient-to-r from-[#C9A227] to-[#E8C97A] text-obsidian-900 font-semibold tracking-widest uppercase text-xs rounded-full shadow-[0_0_20px_rgba(201,162,39,0.4)] hover:shadow-[0_0_36px_rgba(201,162,39,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
-              >
-                {t('tour.submitReview', 'Submit Review')}
-              </button>
-            </form>
-          </motion.div>
-        </motion.div>
+        <form onSubmit={submit} className="mx-auto max-w-2xl rounded-3xl border border-white/10 bg-white/5 p-8">
+          <h3 className="mb-6 text-center text-2xl font-medium">{t('tour.leaveReview', 'Write a Review')}</h3>
+          {submitted && <div role="status" className="mb-6 flex gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm"><FaCheckCircle />{t('reviews.reviewSuccess', 'Review submitted successfully!')}</div>}
+          {submitError && <div role="alert" className="mb-6 rounded-xl border border-red-300/40 bg-red-500/20 px-4 py-3 text-sm">{submitError}</div>}
+          <p className="mb-1.5 text-xs font-bold uppercase tracking-wider">{t('reviews.rating', 'Rating')}</p>
+          <div className="mb-5"><Stars rating={form.rating} onRate={(rating) => setForm((current) => ({ ...current, rating }))} /></div>
+          <label htmlFor="review-body-text" className="mb-1.5 block text-xs font-bold uppercase tracking-wider">{t('reviews.reviewText', 'Your Review')} *</label>
+          <textarea id="review-body-text" required rows="3" maxLength="5000" value={form.comment} onChange={(event) => setForm((current) => ({ ...current, comment: event.target.value }))} className="mb-5 w-full resize-none rounded-xl border border-white/20 bg-white/10 p-3" />
+          <button type="submit" disabled={submitting} className="w-full rounded-full border border-white/20 bg-white/10 py-4 text-xs font-bold uppercase tracking-widest disabled:opacity-60">{submitting ? t('reviews.submitting', 'Submitting…') : t('tour.submitReview', 'Submit Review')}</button>
+        </form>
       </div>
     </section>
   );
-};
-
-export default ReviewsMap;
+}

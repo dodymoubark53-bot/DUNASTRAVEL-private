@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import api, { readCollection } from '../utils/api';
 
 const TripsList = () => {
   const [trips, setTrips] = useState([]);
@@ -10,10 +9,20 @@ const TripsList = () => {
   useEffect(() => {
     const fetchTrips = async () => {
       try {
-        const res = await fetch(`${API}/trips`);
-        if (!res.ok) throw new Error(`Server error: ${res.status}`);
-        const data = await res.json();
-        setTrips(data);
+        // api.get unwraps the envelope; paginated response has .items
+        const items = readCollection(await api.get('/tours'), 'tours');
+        // Map backend field names to what the component expects
+        setTrips(
+          items.map((t) => ({
+            id: t.id,
+            title: t.title,
+            country: t.category,          // backend uses 'category'
+            price: t.basePriceUsd,        // backend uses 'basePriceUsd'
+            duration: t.duration,
+            heroImage: t.heroImage,
+            slug: t.slug,
+          }))
+        );
       } catch (err) {
         setError(err.message || 'Unable to load trips. Please try again later.');
       } finally {
