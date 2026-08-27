@@ -9,7 +9,7 @@ export const transportation = [
     reviews: 140,
     transmission: 'Auto',
     pricePerDay: 0,
-    image: '/imgs/transportation/bus1.jpeg',
+    image: 'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786856/232e5d06-8225-4823-8862-404f65c89ceb_cvji7q.jpg',
     features: ['AC', 'WiFi', 'Professional Driver', 'Restroom', 'Leather Seats', 'Luggage Compartment']
   },
   {
@@ -22,7 +22,7 @@ export const transportation = [
     reviews: 98,
     transmission: 'Auto',
     pricePerDay: 0,
-    image: '/imgs/transportation/bus2.jpeg',
+    image: 'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786846/f2b61bac-4413-42e1-b7fc-68d70d11074e_mavxqo.jpg',
     features: ['AC', 'WiFi', 'Professional Driver', 'Restroom', 'Audio System', 'Reclining Seats']
   },
   {
@@ -35,7 +35,7 @@ export const transportation = [
     reviews: 215,
     transmission: 'Auto',
     pricePerDay: 0,
-    image: '/imgs/transportation/bus3.jpeg',
+    image: 'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786837/9a9e5b5b-9fe8-429f-b13f-093ce19e8f6e_rkix7o.jpg',
     features: ['AC', 'WiFi', 'Professional Driver', 'Restroom', 'Leather Seats', 'USB Chargers']
   },
   {
@@ -48,7 +48,7 @@ export const transportation = [
     reviews: 112,
     transmission: 'Auto',
     pricePerDay: 0,
-    image: '/imgs/transportation/bus4.jpeg',
+    image: 'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786828/b6bd4ff2-e979-4924-9fd8-484deb6d9f7c_yp1ooc.jpg',
     features: ['AC', 'WiFi', 'Professional Driver', 'Restroom', 'Premium Audio', 'Reclining Seats']
   },
   {
@@ -61,7 +61,7 @@ export const transportation = [
     reviews: 85,
     transmission: 'Auto',
     pricePerDay: 0,
-    image: '/imgs/transportation/bus5.jpeg',
+    image: 'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786815/5cb96cc3-5d0d-444a-a684-4d8b09401f1c_watv6b.jpg',
     features: ['AC', 'WiFi', 'Professional Driver', 'Restroom', 'LED TV', 'USB Chargers']
   },
   {
@@ -74,7 +74,7 @@ export const transportation = [
     reviews: 76,
     transmission: 'Auto',
     pricePerDay: 0,
-    image: '/imgs/transportation/bus6.jpeg',
+    image: 'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786806/e6afc46a-4212-4dbc-84dc-bad419b101c3_exa95g.jpg',
     features: ['AC', 'WiFi', 'Professional Driver', 'Audio System', 'Luggage Compartment']
   },
   {
@@ -87,7 +87,7 @@ export const transportation = [
     reviews: 130,
     transmission: 'Auto',
     pricePerDay: 0,
-    image: '/imgs/transportation/bus7.jpeg',
+    image: 'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786797/3acfceb6-1313-44db-9965-f2b14aac8260_hoeveh.jpg',
     features: ['AC', 'WiFi', 'Professional Driver', 'Restroom', 'Leather Seats', 'Mini Fridge']
   },
   {
@@ -100,7 +100,7 @@ export const transportation = [
     reviews: 92,
     transmission: 'Auto',
     pricePerDay: 0,
-    image: '/imgs/transportation/costar.jpeg',
+    image: 'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786785/7173bba6-bc2f-4ea0-84db-905374545128_esjlwd.jpg',
     features: ['AC', 'WiFi', 'Professional Driver', 'Audio System', 'Spacious Legroom']
   },
   {
@@ -113,7 +113,7 @@ export const transportation = [
     reviews: 104,
     transmission: 'Auto',
     pricePerDay: 0,
-    image: '/imgs/transportation/costar1.jpeg',
+    image: 'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786745/b0e91260-4918-46ed-8067-7392b332641a_vq6lre.jpg',
     features: ['AC', 'WiFi', 'Professional Driver', 'Leather Seats', 'USB Chargers', 'Premium Audio']
   },
   {
@@ -126,7 +126,7 @@ export const transportation = [
     reviews: 320,
     transmission: 'Auto',
     pricePerDay: 0,
-    image: '/imgs/transportation/privte.jpeg',
+    image: 'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786856/232e5d06-8225-4823-8862-404f65c89ceb_cvji7q.jpg',
     features: ['AC', 'GPS', 'Airbag', 'WiFi', 'Professional Driver', 'Leather Seats', 'Mineral Water']
   }
 ];

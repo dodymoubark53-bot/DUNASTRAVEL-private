@@ -47,20 +47,11 @@ const Transportation = () => {
     return () => clearInterval(timer);
   }, [isAutoPlaying, isLightboxOpen]);
 
-  // Use dynamic API services if available with full details, otherwise static transportation array from Vercel
-  const transportationList = apiTransportation && apiTransportation.length > 0
-    ? apiTransportation.map(item => ({
-        ...item,
-        category: item.category || (item.serviceType ? String(item.serviceType).toLowerCase() : 'bus'),
-        seats: item.seats || 50,
-        doors: item.doors || 2,
-        rating: item.rating || 5.0,
-        reviews: item.reviews || 100,
-        transmission: item.transmission || 'Auto',
-        image: item.image || item.images?.[0] || '/imgs/services/transportation-cover.webp',
-        features: item.features && item.features.length > 0 ? item.features : ['AC', 'WiFi', 'Professional Driver']
-      }))
-    : staticTransportation;
+  // Always render all 10 vehicles guaranteed
+  const transportationList = staticTransportation.map(staticItem => {
+    const apiMatch = apiTransportation?.find(api => api.name === staticItem.name || api.id === staticItem.id);
+    return apiMatch ? { ...staticItem, ...apiMatch } : staticItem;
+  });
 
   const filters = [
     { id: 'All', label: t('transportation.filter.all', 'All') },
