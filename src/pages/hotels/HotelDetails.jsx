@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaCheckCircle, FaMapMarkerAlt, FaStar, FaBed, FaChevronRight } from 'react-icons/fa';
 import { useHotel } from '../../hooks/useHotels';
@@ -11,6 +11,8 @@ import NotFound from '../NotFound';
 const HotelDetails = () => {
   const { t } = useTranslation();
   const { slug } = useParams();
+  const routeLocation = useLocation();
+  const basePath = routeLocation.pathname.startsWith('/programs') ? '/programs' : '/services';
   const { formatPrice } = useCurrency();
   const { hotel, loading, error } = useHotel(slug);
 
@@ -30,22 +32,18 @@ const HotelDetails = () => {
           .filter(([, enabled]) => enabled === true)
           .map(([name]) => name.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()))
       : [];
-  const location = [hotel.city, hotel.destinationSlug].filter(Boolean).join(', ');
+  const hotelLocation = [hotel.city, hotel.destinationSlug].filter(Boolean).join(', ');
 
   return (
     <main className="min-h-screen bg-obsidian-50 pb-24 text-obsidian-900">
       <Helmet>
         <title>{hotel.name} | Dunas Travel</title>
-        <meta name="description" content={hotel.description || `${hotel.name} — ${location}`} />
+        <meta name="description" content={hotel.description || `${hotel.name} — ${hotelLocation}`} />
       </Helmet>
 
       {/* Hero Banner */}
       <section className="relative min-h-[480px] overflow-hidden bg-obsidian-900 text-white">
-        {hotel.heroImageUrl ? (
-          <img src={hotel.heroImageUrl} alt={hotel.heroImageAlt || hotel.name} className="absolute inset-0 h-full w-full object-cover" />
-        ) : (
-          <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/23/0d/4e/68/henann-park-resort.jpg?w=1200&h=-1&s=1" alt={hotel.name} className="absolute inset-0 h-full w-full object-cover" />
-        )}
+        {hotel.heroImageUrl ? <img src={hotel.heroImageUrl} alt={hotel.heroImageAlt || hotel.name} className="absolute inset-0 h-full w-full object-cover" /> : null}
         <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900 via-obsidian-900/65 to-obsidian-900/20" />
         <div className="container relative z-10 mx-auto flex min-h-[480px] items-end px-6 py-16">
           <div className="max-w-3xl">
@@ -63,8 +61,8 @@ const HotelDetails = () => {
                   {Array.from({ length: stars }, (_, index) => <FaStar key={index} />)}
                 </span>
               ) : null}
-              {location ? (
-                <span className="flex items-center gap-2 text-white/85"><FaMapMarkerAlt />{location}</span>
+              {hotelLocation ? (
+                <span className="flex items-center gap-2 text-white/85"><FaMapMarkerAlt />{hotelLocation}</span>
               ) : null}
             </div>
             <h1 className="text-4xl font-bold md:text-6xl font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{hotel.name}</h1>
@@ -88,16 +86,7 @@ const HotelDetails = () => {
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {['5-Star Luxury Experience', 'High-Speed Wi-Fi', '24/7 Concierge Service', 'Swimming Pool & Wellness'].map((amenity) => (
-                  <div key={amenity} className="flex items-center gap-3 rounded-xl border border-gold-500/15 bg-white p-4 shadow-sm">
-                    <FaCheckCircle className="shrink-0 text-gold-500" />
-                    <span className="font-medium text-obsidian-800">{amenity}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+            ) : <p className="text-obsidian-600">{t('hotel.noAmenities', 'No amenities have been published for this hotel.')}</p>}
           </div>
 
           {/* Rooms & Suites */}
@@ -130,7 +119,7 @@ const HotelDetails = () => {
                         <strong className="text-xl text-gold-600">{formatPrice(room.ratePerNight)}</strong>
                       </div>
                       <Link
-                        to={`/contact?hotel=${encodeURIComponent(hotel.slug)}&room=${encodeURIComponent(room.slug)}`}
+                        to={`${basePath}/hotels/${encodeURIComponent(hotel.slug)}/${encodeURIComponent(room.slug)}`}
                         className="rounded-full bg-gold-500 hover:bg-gold-600 px-4 py-2 text-xs font-bold text-obsidian-900 transition"
                       >
                         {t('hotel.bookRoom', 'Book Room')}

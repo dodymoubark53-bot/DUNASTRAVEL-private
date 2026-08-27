@@ -1,9 +1,11 @@
+// @vitest-environment jsdom
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor, renderHook, fireEvent } from '@testing-library/react';
 import { useTours } from '../hooks/useTours';
 import { useTour } from '../hooks/useTour';
 import { useCmsBlock } from '../hooks/useCmsBlock';
 import { useMedia } from '../hooks/useMedia';
+import { useHotel } from '../hooks/useHotels';
 import ReviewsMap from '../components/tour/ReviewsMap';
 import api from '../utils/api';
 
@@ -17,7 +19,9 @@ vi.mock('react-i18next', () => ({
 describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    localStorage.clear();
+    if (typeof localStorage !== 'undefined') {
+      localStorage.clear();
+    }
   });
 
   it('useTours includes active lang and catalog filters in GET /api/tours', async () => {
@@ -42,17 +46,33 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
     expect(result.current.tours[0].slug).toBe('grand-pyramids');
   });
 
-  it('useTour passes active lang parameter to GET /api/tours/:slug', async () => {
+  it('useTour passes active lang parameter and normalizes canonical fields in GET /api/tours/:slug', async () => {
     const mockTour = {
       id: 'tour-greece',
       slug: 'greece-odyssey',
       title: 'Greece Odyssey',
       basePriceUsd: '1200.00',
       currency: 'USD',
-      images: [],
-      itinerary: [],
-      includedServices: [],
-      excludedServices: [],
+      city: 'Athens',
+      minPax: '2',
+      departureTime: '08:00',
+      returnTime: '18:00',
+      cancellationPolicy: 'Free cancellation up to 48 hours before start',
+      images: [{ id: 'img-1', imageUrl: 'https://example.com/greece.jpg', isHero: true, sortOrder: 0 }],
+      itinerary: [
+        {
+          id: 'it-1',
+          sortOrder: 1,
+          dayLabel: 'Day 1',
+          description: 'Arrival in Athens and Acropolis tour',
+          activities: 'Acropolis visit',
+          hotels: 'Grand Bretagne',
+          notes: 'Wear comfortable shoes',
+          transportation: 'Luxury Mercedes Van',
+        },
+      ],
+      includedServices: ['Private Guide', 'Breakfast'],
+      excludedServices: ['Tips', 'Flights'],
     };
     vi.spyOn(api, 'get').mockResolvedValue(mockTour);
 
@@ -64,6 +84,13 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
 
     expect(api.get).toHaveBeenCalledWith('/tours/greece-odyssey?lang=es');
     expect(result.current.tour.title).toBe('Greece Odyssey');
+    expect(result.current.tour.city).toBe('Athens');
+    expect(result.current.tour.minPax).toBe('2');
+    expect(result.current.tour.departureTime).toBe('08:00');
+    expect(result.current.tour.returnTime).toBe('18:00');
+    expect(result.current.tour.cancellationPolicy).toBe('Free cancellation up to 48 hours before start');
+    expect(result.current.tour.itinerary[0].activities).toBe('Acropolis visit');
+    expect(result.current.tour.itinerary[0].hotels).toBe('Grand Bretagne');
   });
 
   it('does not display seed data when the tour API is unavailable', async () => {
@@ -112,7 +139,7 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
         comment: 'Unforgettable tour!',
       });
     });
-    expect(screen.queryByText('Jane Smith')).not.toBeInTheDocument();
+    expect(screen.queryByText('Jane Smith')).toBeNull();
   });
 
   it('useCmsBlock passes lang to GET /api/cms/:key', async () => {
@@ -140,5 +167,18 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
 
     expect(api.get).toHaveBeenCalledWith('/media/tours/tour-123');
     expect(result.current.galleryImages.length).toBe(1);
+  });
+
+  it('useHotel propagates API error and sets hotel to null instead of mock fallback', async () => {
+    vi.spyOn(api, 'get').mockRejectedValue(new Error('Hotel not found'));
+
+    const { result } = renderHook(() => useHotel('non-existent-hotel'));
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.error).toBeDefined();
+    expect(result.current.hotel).toBeNull();
   });
 });

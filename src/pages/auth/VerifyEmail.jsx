@@ -12,12 +12,13 @@ const VerifyEmail = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const tokenFromUrl = searchParams.get('token') || '';
+  const emailFromUrl = searchParams.get('email') || '';
 
   const [token, setToken] = useState(tokenFromUrl);
   const [isVerifying, setIsVerifying] = useState(Boolean(tokenFromUrl));
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [resendEmail, setResendEmail] = useState('');
+  const [resendEmail, setResendEmail] = useState(emailFromUrl);
   const [isResending, setIsResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState('');
   const [resendError, setResendError] = useState('');
@@ -87,8 +88,8 @@ const VerifyEmail = () => {
     setResendSuccess('');
 
     try {
-      await resendVerification(resendEmail.trim());
-      setResendSuccess(t('auth.verificationResent', 'Verification email sent! Please check your inbox.'));
+      const response = await resendVerification(resendEmail.trim());
+      setResendSuccess(response?.message || t('auth.verificationResent', 'Verification email sent! Please check your inbox.'));
     } catch (err) {
       setResendError(err.message || t('auth.resendFailed', 'Failed to resend verification email.'));
     } finally {

@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { FaCheck, FaMapMarkerAlt, FaStar, FaUserFriends, FaDoorClosed, FaCogs, FaExpandAlt, FaChevronLeft, FaChevronRight, FaTimes, FaImages, FaPlay, FaPause } from 'react-icons/fa';
+import { FaCheck, FaMapMarkerAlt, FaUserFriends, FaExpandAlt, FaChevronLeft, FaChevronRight, FaTimes, FaImages, FaPlay, FaPause } from 'react-icons/fa';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import { useServices } from '../../hooks/useServices';
-import { transportation as staticTransportation } from '../../data/transportation';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
+import ErrorState from '../../components/ui/ErrorState';
 import TransportationForm from '../../components/booking/TransportationForm';
 import { useCurrency } from '../../context/CurrencyContext';
 import Button from '../../components/ui/Button';
@@ -22,20 +22,14 @@ const Transportation = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   
-  const { services: apiTransportation, loading } = useServices('transportation');
+  const { services: transportationList, loading, error } = useServices('transportation');
 
-  // Always render all 10 vehicles guaranteed
-  const transportationList = staticTransportation.map(staticItem => {
-    const apiMatch = apiTransportation?.find(api => api.name === staticItem.name || api.id === staticItem.id);
-    return apiMatch ? { ...staticItem, ...apiMatch } : staticItem;
-  });
-
-  // Dynamic gallery images derived from the 10 vehicles
-  const galleryImages = transportationList.map(v => v.image);
+  // Media and service cards are exclusively backed by the public catalog.
+  const galleryImages = transportationList.map((service) => service.image).filter(Boolean);
 
   // Autoplay slider effect
   useEffect(() => {
-    if (!isAutoPlaying || isLightboxOpen) return;
+    if (!isAutoPlaying || isLightboxOpen || galleryImages.length === 0) return;
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % galleryImages.length);
     }, 3800);
@@ -44,17 +38,13 @@ const Transportation = () => {
 
   const filters = [
     { id: 'All', label: t('transportation.filter.all', 'All') },
-    { id: 'Buses', label: t('transportation.filter.buses', 'Buses') },
-    { id: 'Coaster Vehicles', label: t('transportation.filter.coasters', 'Coaster Vehicles') },
-    { id: 'Private Vehicles', label: t('transportation.filter.private', 'Private Vehicles') },
+    ...Array.from(new Set(transportationList.map((service) => service.serviceType).filter(Boolean)))
+      .map((serviceType) => ({ id: serviceType, label: String(serviceType).replaceAll('_', ' ') })),
   ];
 
   const filteredVehicles = transportationList.filter(vehicle => {
     if (activeFilter === 'All') return true;
-    if (activeFilter === 'Buses') return vehicle.category === 'bus';
-    if (activeFilter === 'Coaster Vehicles') return vehicle.category === 'coaster';
-    if (activeFilter === 'Private Vehicles') return vehicle.category === 'private';
-    return true;
+    return vehicle.serviceType === activeFilter;
   });
 
   const fleetFeatures = [...new Set(transportationList.flatMap((vehicle) => vehicle.features || []))];
@@ -96,9 +86,10 @@ const Transportation = () => {
     setCurrentSlide((prev) => (prev + 1) % galleryImages.length);
   };
 
-  if (loading && (!transportationList || transportationList.length === 0)) {
+  if (loading) {
     return <SkeletonLoader count={4} />;
   }
+  if (error) return <ErrorState message={error.message || t('transportation.loadError', 'Transportation services could not be loaded.')} />;
 
   return (
     <div className="w-full bg-obsidian-50 pb-24">
@@ -181,9 +172,7 @@ const Transportation = () => {
                     />
                   ) : null}
                   <div className="absolute top-4 left-4 bg-gold-500 text-obsidian-900 text-caption uppercase px-3 py-1 rounded-full shadow-md font-bold">
-                    {vehicle.category === 'bus' ? t('transportation.filter.buses', 'Buses') :
-                     vehicle.category === 'coaster' ? t('transportation.filter.coasters', 'Coaster Vehicles') :
-                     t('transportation.filter.private', 'Private Vehicles')}
+                    {String(vehicle.vehicleCategory || vehicle.serviceType).replaceAll('_', ' ')}
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
                     <span className="text-ivory-50 font-semibold flex items-center gap-2">
@@ -203,28 +192,16 @@ const Transportation = () => {
                       >
                         {t(`data.${vehicle.name}`, vehicle.name)}
                       </h3>
-                      {vehicle.rating && (
-                        <div className="flex items-center gap-1.5 mt-1 text-sm text-gold-600">
-                          <FaStar className="text-gold-500" />
-                          <span className="font-bold">{vehicle.rating}</span>
-                          {vehicle.reviews && (
-                            <span className="text-obsidian-400 text-xs">({vehicle.reviews} {t('common.reviews', 'reviews')})</span>
-                          )}
-                        </div>
-                      )}
+                      {vehicle.description ? <p className="mt-1 text-sm text-obsidian-600">{vehicle.description}</p> : null}
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4 text-caption text-obsidian-700 mb-4 pb-4 border-b border-gray-100">
-                    <span className="flex items-center gap-1">
-                      <FaUserFriends className="text-gold-500" /> {vehicle.seats} {t('transportation.seatsCount', 'Seats')}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <FaCogs className="text-gold-500" /> {vehicle.transmission || 'Auto'}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <FaDoorClosed className="text-gold-500" /> {vehicle.doors || 2} {t('transportation.doorsCount', 'Doors')}
-                    </span>
+                    {vehicle.capacity ? <span className="flex items-center gap-1"><FaUserFriends className="text-gold-500" /> {vehicle.capacity} {t('transportation.seatsCount', 'Seats')}</span> : null}
+                    {vehicle.vehicleType ? <span>{vehicle.vehicleType}</span> : null}
+                    {vehicle.doors ? <span>{vehicle.doors} {t('transportation.doorsCount', 'Doors')}</span> : null}
+                    {vehicle.transmission ? <span>{vehicle.transmission}</span> : null}
+                    <span>{vehicle.isPrivate ? t('transportation.private', 'Private') : t('transportation.shared', 'Shared')}</span>
                   </div>
 
                   <ul className="mb-6 space-y-2">
@@ -262,7 +239,7 @@ const Transportation = () => {
       </section>
 
       {/* Private & Comfortable Transfers Block */}
-      <section className="container mx-auto px-6 py-12 mb-20 bg-obsidian-900 rounded-3xl border border-[rgba(245,166,35,0.2)] text-ivory-50 overflow-hidden relative">
+      {transportationList.length > 0 ? <section className="container mx-auto px-6 py-12 mb-20 bg-obsidian-900 rounded-3xl border border-[rgba(245,166,35,0.2)] text-ivory-50 overflow-hidden relative">
         <div className="absolute top-0 right-0 w-64 h-64 bg-gold-500/10 rounded-full blur-[80px] -mr-32 -mt-32"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-gold-500/10 rounded-full blur-[80px] -ml-32 -mb-32"></div>
 
@@ -301,7 +278,7 @@ const Transportation = () => {
                 {transportationList.map((vehicle) => (
                   <li key={vehicle.id} className="flex items-start gap-3 text-body-md text-ivory-300">
                     <span className="w-1.5 h-1.5 bg-gold-500 rounded-full mt-2 shrink-0"></span>
-                    <span>{t(`data.${vehicle.name}`, vehicle.name)} — {t(`transportation.category.${vehicle.category}`, vehicle.category)}</span>
+                    <span>{t(`data.${vehicle.name}`, vehicle.name)} — {String(vehicle.vehicleCategory || vehicle.serviceType).replaceAll('_', ' ')}</span>
                   </li>
                 ))}
               </ul>
@@ -318,10 +295,10 @@ const Transportation = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> : null}
 
       {/* Infinite Moving Marquee Strip Gallery Section */}
-      <section className="w-full py-12 mb-20 bg-obsidian-950 overflow-hidden relative" dir="ltr">
+      {galleryImages.length > 0 ? <section className="w-full py-12 mb-20 bg-obsidian-950 overflow-hidden relative" dir="ltr">
         <style>{`
           @keyframes dunasMarqueeLtr {
             0% { transform: translate3d(0, 0, 0); }
@@ -371,7 +348,7 @@ const Transportation = () => {
             })}
           </div>
         </div>
-      </section>
+      </section> : null}
 
       {/* Lightbox Modal - Click anywhere to close */}
       <AnimatePresence>

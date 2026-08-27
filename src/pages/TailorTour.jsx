@@ -224,11 +224,10 @@ const TailorTour = () => {
   const isFlying = animationState === 'flying-forward' || animationState === 'flying-backward';
 
   const destinations = publishedDestinations
-    .filter((destination) => destination.heroImageUrl)
     .map((destination) => ({
       id: destination.slug,
-      name: destination.title,
-      img: destination.heroImageUrl,
+      name: destination.title || destination.name,
+      img: destination.heroImageUrl || destination.image || 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026771/8_mpyvu4.jpg',
     }));
 
   const totalPassengers = adults + children + infants;
@@ -697,39 +696,49 @@ const TailorTour = () => {
                     {destinations.map((dest) => {
                       const isSelected = selectedDestinations.includes(dest.id);
                       return (
-                        <div
+                        <button
+                          type="button"
                           key={dest.id}
                           onClick={() => handleDestinationToggle(dest.id)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault();
-                              handleDestinationToggle(dest.id);
-                            }
-                          }}
-                          role="button"
-                          tabIndex={0}
                           aria-pressed={isSelected}
-                          aria-label={`${t("home.select", "Select")} ${dest.name}`}
-                          className="relative h-[200px] rounded-xl overflow-hidden cursor-pointer group border-3 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gold-500"
-                          style={{
-                            borderColor: isSelected ? 'var(--color-gold, #f5a623)' : 'rgba(26,26,46,0.1)',
-                            boxShadow: isSelected ? '0 0 24px rgba(245,166,35,0.25)' : 'none',
-                          }}
+                          aria-label={`${isSelected ? t('tailor.unselect', 'Unselect') : t('home.select', 'Select')} ${dest.name}`}
+                          className={`relative h-[200px] rounded-xl overflow-hidden cursor-pointer group border-2 bg-transparent p-0 text-left transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-gold-500/40 ${
+                            isSelected
+                              ? 'border-gold-500 shadow-gold ring-2 ring-gold-500/40'
+                              : 'border-obsidian-900/10 hover:border-gold-500/70 hover:shadow-gold'
+                          }`}
                         >
                           <img
                             src={dest.img}
                             alt={dest.name}
+                            draggable="false"
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/80 via-obsidian-900/20 to-transparent flex items-end justify-center p-4">
+                          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-obsidian-900/80 via-obsidian-900/20 to-transparent flex items-end justify-center p-4">
                             <span className="text-ivory-50 font-bold text-lg drop-shadow-md text-center">
                               {dest.name}
                             </span>
                           </div>
-                        </div>
+                          {isSelected && (
+                            <span
+                              className="pointer-events-none absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-gold-500 text-xl font-bold text-obsidian-900 shadow-lg"
+                              aria-hidden="true"
+                            >
+                              ✓
+                            </span>
+                          )}
+                        </button>
                       );
                     })}
                   </div>
+
+                  <p className="min-h-6 text-center text-body-sm font-medium text-obsidian-700" aria-live="polite">
+                    {selectedDestinations.length > 0
+                      ? t('tailor.destinationsSelected', '{{count}} destination(s) selected', {
+                        count: selectedDestinations.length,
+                      })
+                      : t('tailor.selectDestinationHint', 'Select one or more destinations, then continue.')}
+                  </p>
 
                   {destError && (
                     <p className="text-[#e74c3c] text-center mb-6 font-medium text-body-md">

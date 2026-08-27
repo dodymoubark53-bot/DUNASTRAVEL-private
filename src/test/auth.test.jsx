@@ -94,9 +94,21 @@ describe('AuthContext Security & Session Integration', () => {
 
     // Test updateProfile
     await act(async () => {
-      await authRef.updateProfile({ name: 'Updated Name', phone: '+123456789' });
+      await authRef.updateProfile({
+        name: 'Updated Name',
+        phone: '+123456789',
+        nationality: 'Egyptian',
+        preferredLanguage: 'ar',
+        preferredCurrency: 'EGP',
+      });
     });
-    expect(api.patch).toHaveBeenCalledWith('/auth/profile', { name: 'Updated Name', phone: '+123456789' });
+    expect(api.patch).toHaveBeenCalledWith('/auth/profile', {
+      name: 'Updated Name',
+      phone: '+123456789',
+      nationality: 'Egyptian',
+      preferredLanguage: 'ar',
+      preferredCurrency: 'EGP',
+    });
     expect(authRef.user.name).toBe('Updated Name');
 
     // Test changePassword

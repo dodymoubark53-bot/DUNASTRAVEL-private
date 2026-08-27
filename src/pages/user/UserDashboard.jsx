@@ -32,8 +32,9 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
     name: user?.name || '',
     email: user?.email || '',
     phone: user?.phone || '',
-    country: user?.country || '',
+    nationality: user?.nationality || '',
     preferredLanguage: user?.preferredLanguage || i18n.language || 'en',
+    preferredCurrency: user?.preferredCurrency || 'USD',
   });
   const [profileMsg, setProfileMsg] = useState({ type: '', text: '' });
   const [updatingProfile, setUpdatingProfile] = useState(false);
@@ -67,8 +68,9 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
         name: user.name || '',
         email: user.email || '',
         phone: user.phone || '',
-        country: user.country || '',
+        nationality: user.nationality || '',
         preferredLanguage: user.preferredLanguage || i18n.language || 'en',
+        preferredCurrency: user.preferredCurrency || 'USD',
       });
     });
     return () => {
@@ -152,13 +154,45 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
     setCancellingCode(refCode);
     try {
       await api.post(`/bookings/${encodeURIComponent(refCode)}/cancel`, {});
-      const updated = await getUserBookings();
-      setBookings(updated);
+      const tourBookings = (await getUserBookings()) || [];
+      let transportBookings = [];
+      try {
+        const transList = await api.get('/transportation/bookings/my');
+        if (Array.isArray(transList)) {
+          transportBookings = transList.map(tb => ({
+            ...tb,
+            isTransport: true,
+            tourTitle: tb.tourTitle || `Transport: ${tb.pickupLocation || 'Pickup'} → ${tb.dropoffLocation || 'Dropoff'}`,
+            referenceCode: tb.referenceCode || tb.bookingReference || tb.id,
+            totalPrice: tb.totalPrice || tb.totalAmount || 0,
+          }));
+        }
+      } catch {
+        // ignore transport load error
+      }
+      setBookings([...tourBookings, ...transportBookings]);
     } catch (err) {
       console.error('Cancellation error', err);
     } finally {
       setCancellingCode(null);
     }
+  };
+
+  const accountIsActive = user?.status === 'ACTIVE' && !user?.suspendedAt;
+  const profileValue = (value, fallback = t('common.notProvided', 'Not provided')) => {
+    if (value === null || value === undefined || value === '') return fallback;
+    if (typeof value === 'string' || typeof value === 'number') return String(value);
+    if (Array.isArray(value)) return value.length ? value.join(', ') : fallback;
+    if (typeof value === 'object') {
+      const values = Object.values(value).filter((item) => typeof item === 'string' && item.trim());
+      return values.length ? values.join(', ') : fallback;
+    }
+    return fallback;
+  };
+  const formatProfileDate = (value) => {
+    if (!value) return t('common.notProvided', 'Not provided');
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? t('common.notProvided', 'Not provided') : date.toLocaleDateString();
   };
 
   return (
@@ -176,7 +210,7 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
             </div>
             <div>
               <span className="inline-block px-3 py-1 bg-gold-500/10 border border-gold-500/30 text-gold-400 rounded-full text-caption text-[11px] uppercase tracking-[1.5px] font-semibold mb-1">
-                {user?.role === 'admin' ? 'VIP Admin' : 'Luxury Explorer'}
+                {user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN' ? 'VIP Admin' : user?.isVip ? 'VIP Member' : 'Luxury Explorer'}
               </span>
               <h1 className="text-display-sm text-ivory-50 font-display font-semibold truncate">
                 {user?.name || 'Customer Profile'}
@@ -248,18 +282,58 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
                   <div className="bg-[#121118] border border-[rgba(201,162,39,0.15)] rounded-2xl p-5 text-center">
                     <p className="text-caption text-ivory-400 uppercase tracking-widest text-[10px] mb-1">{t('user.totalBookings', 'Total Bookings')}</p>
                     <p className="text-display-md text-gold-500 font-display">{bookings.length}</p>
                   </div>
                   <div className="bg-[#121118] border border-[rgba(201,162,39,0.15)] rounded-2xl p-5 text-center">
                     <p className="text-caption text-ivory-400 uppercase tracking-widest text-[10px] mb-1">{t('user.accountStatus', 'Account Status')}</p>
-                    <p className="text-display-xs text-sage-400 font-semibold mt-2">{t('user.verified', 'Verified Member')}</p>
+                    <p className={`text-display-xs font-semibold mt-2 ${accountIsActive ? 'text-sage-400' : 'text-red-400'}`}>
+                      {accountIsActive ? t('user.accountActive', 'Active') : user?.status || t('user.accountInactive', 'Inactive')}
+                    </p>
                   </div>
                   <div className="bg-[#121118] border border-[rgba(201,162,39,0.15)] rounded-2xl p-5 text-center">
-                    <p className="text-caption text-ivory-400 uppercase tracking-widest text-[10px] mb-1">{t('user.supportStatus', 'Concierge Support')}</p>
-                    <p className="text-display-xs text-gold-400 font-semibold mt-2">24/7 Active</p>
+                    <p className="text-caption text-ivory-400 uppercase tracking-widest text-[10px] mb-1">{t('user.emailStatus', 'Email Status')}</p>
+                    <p className={`text-display-xs font-semibold mt-2 ${user?.isVerified ? 'text-sage-400' : 'text-amber-400'}`}>
+                      {user?.isVerified ? t('user.verified', 'Verified') : t('user.notVerified', 'Not verified')}
+                    </p>
+                  </div>
+                  <div className="bg-[#121118] border border-[rgba(201,162,39,0.15)] rounded-2xl p-5 text-center">
+                    <p className="text-caption text-ivory-400 uppercase tracking-widest text-[10px] mb-1">{t('user.customerNumber', 'Customer Number')}</p>
+                    <p className="text-body-md text-gold-400 font-semibold mt-2">{profileValue(user?.customerNumber, '—')}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                  <div className="bg-[#121118] border border-[rgba(201,162,39,0.15)] rounded-2xl p-5">
+                    <h4 className="text-body-lg text-gold-500 font-semibold mb-4">{t('user.personalDetails', 'Personal Details')}</h4>
+                    <dl className="space-y-3 text-body-sm">
+                      <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('user.nationality', 'Nationality')}</dt><dd className="text-ivory-100 text-right">{profileValue(user?.nationality)}</dd></div>
+                      <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('user.gender', 'Gender')}</dt><dd className="text-ivory-100 text-right">{profileValue(user?.gender)}</dd></div>
+                      <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('user.dateOfBirth', 'Date of Birth')}</dt><dd className="text-ivory-100 text-right">{formatProfileDate(user?.dateOfBirth)}</dd></div>
+                      <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('user.memberSince', 'Member Since')}</dt><dd className="text-ivory-100 text-right">{formatProfileDate(user?.createdAt)}</dd></div>
+                    </dl>
+                  </div>
+                  <div className="bg-[#121118] border border-[rgba(201,162,39,0.15)] rounded-2xl p-5">
+                    <h4 className="text-body-lg text-gold-500 font-semibold mb-4">{t('user.travelPreferences', 'Travel Preferences')}</h4>
+                    <dl className="space-y-3 text-body-sm">
+                      <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('user.preferredLanguage', 'Language')}</dt><dd className="text-ivory-100 text-right uppercase">{profileValue(user?.preferredLanguage)}</dd></div>
+                      <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('user.preferredCurrency', 'Currency')}</dt><dd className="text-ivory-100 text-right uppercase">{profileValue(user?.preferredCurrency)}</dd></div>
+                      <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('user.preferredDestination', 'Preferred Destination')}</dt><dd className="text-ivory-100 text-right">{profileValue(user?.preferredDestination)}</dd></div>
+                      <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('user.preferredTravelType', 'Travel Style')}</dt><dd className="text-ivory-100 text-right">{profileValue(user?.preferredTravelType)}</dd></div>
+                    </dl>
+                  </div>
+                  <div className="lg:col-span-2 bg-[#121118] border border-[rgba(201,162,39,0.15)] rounded-2xl p-5">
+                    <h4 className="text-body-lg text-gold-500 font-semibold mb-4">{t('user.contactPreferences', 'Contact & Account Preferences')}</h4>
+                    <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-body-sm">
+                      <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('auth.phoneNumber', 'Phone')}</dt><dd className="text-ivory-100 text-right">{profileValue(user?.phone)}</dd></div>
+                      <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('user.phoneStatus', 'Phone Status')}</dt><dd className="text-ivory-100 text-right">{user?.phoneVerified ? t('user.verified', 'Verified') : t('user.notVerified', 'Not verified')}</dd></div>
+                      <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('user.address', 'Address')}</dt><dd className="text-ivory-100 text-right">{profileValue(user?.address)}</dd></div>
+                      <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('user.emergencyContact', 'Emergency Contact')}</dt><dd className="text-ivory-100 text-right">{profileValue(user?.emergencyContact)}</dd></div>
+                      <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('user.marketingConsent', 'Marketing Updates')}</dt><dd className="text-ivory-100 text-right">{user?.marketingConsent ? t('common.enabled', 'Enabled') : t('common.disabled', 'Disabled')}</dd></div>
+                      <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('user.travelCompanions', 'Travel Companions')}</dt><dd className="text-ivory-100 text-right">{Array.isArray(user?.travelCompanions) ? user.travelCompanions.length : 0}</dd></div>
+                    </dl>
                   </div>
                 </div>
               </div>
@@ -416,13 +490,43 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
                       />
                     </div>
                     <div>
-                      <label className={labelClass}><FaGlobeAmericas className="inline mr-1" size={11} />{t('booking.country', 'Country of Residence')}</label>
+                      <label className={labelClass}><FaGlobeAmericas className="inline mr-1" size={11} />{t('user.nationality', 'Nationality')}</label>
                       <input
                         type="text"
-                        disabled
-                        value={profileForm.country}
-                        className={`${inputClass} opacity-60 cursor-not-allowed`}
+                        value={profileForm.nationality}
+                        maxLength={100}
+                        onChange={(e) => setProfileForm({ ...profileForm, nationality: e.target.value })}
+                        className={inputClass}
                       />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className={labelClass}><FaGlobeAmericas className="inline mr-1" size={11} />{t('user.preferredLanguage', 'Preferred Language')}</label>
+                      <select
+                        value={profileForm.preferredLanguage}
+                        onChange={(e) => setProfileForm({ ...profileForm, preferredLanguage: e.target.value })}
+                        className={inputClass}
+                      >
+                        <option value="en">English</option>
+                        <option value="ar">العربية</option>
+                        <option value="es">Español</option>
+                        <option value="pt">Português</option>
+                        <option value="it">Italiano</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className={labelClass}>{t('user.preferredCurrency', 'Preferred Currency')}</label>
+                      <select
+                        value={profileForm.preferredCurrency}
+                        onChange={(e) => setProfileForm({ ...profileForm, preferredCurrency: e.target.value })}
+                        className={inputClass}
+                      >
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="EGP">EGP</option>
+                      </select>
                     </div>
                   </div>
 

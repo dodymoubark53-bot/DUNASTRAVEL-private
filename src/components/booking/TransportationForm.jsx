@@ -8,12 +8,10 @@ import { useServices } from '../../hooks/useServices';
 import { useAuth } from '../../context/AuthContext';
 import InvoiceModal from './InvoiceModal';
 import api from '../../utils/api';
-import { transportation as staticTransportation } from '../../data/transportation';
 
 const TransportationForm = ({ preSelectedVehicleId = '' }) => {
   const { t } = useTranslation();
-  const { services: apiTransportation } = useServices('transportation');
-  const transportationList = apiTransportation && apiTransportation.length > 0 ? apiTransportation : staticTransportation;
+  const { services: transportationList, loading: servicesLoading, error: servicesError } = useServices('transportation');
   const { user } = useAuth();
   const [status, setStatus] = useState('idle');
   const [bookingResult, setBookingResult] = useState(null);
@@ -34,9 +32,6 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
     children: 0,
     pickupLocation: '',
     dropoffLocation: '',
-    fullName: '',
-    phone: '',
-    email: '',
     specialRequest: ''
   });
 
@@ -63,6 +58,7 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
         pickupLocation: formData.pickupLocation,
         dropoffLocation: formData.dropoffLocation,
         passengerCount,
+        notes: formData.specialRequest.trim() || undefined,
       };
 
       const data = await api.post('/transportation/bookings', transportPayload);
@@ -132,6 +128,11 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
                 <p className="text-body-sm text-red-400">{error}</p>
               </div>
             )}
+            {servicesError && (
+              <div className="bg-red-500/15 border border-red-500/40 rounded-xl px-4 py-3 text-center">
+                <p className="text-body-sm text-red-400">{servicesError.message || t('transportation.loadError', 'Transportation services could not be loaded.')}</p>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <label htmlFor="vehicle-select" className="sr-only">
@@ -143,6 +144,7 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
                 value={formData.vehicleId}
                 onChange={handleChange}
                 required
+                disabled={servicesLoading || transportationList.length === 0}
                 className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 md:col-span-2 text-[16px] font-medium"
               >
                 <option value="" disabled>{t('booking.selectVehicle', 'Select Vehicle')}</option>
@@ -225,39 +227,6 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
                 className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 md:col-span-2 text-[16px]"
               />
 
-              <label htmlFor="full-name" className="sr-only">{t('booking.fullName', 'Full Name')}</label>
-              <input
-                id="full-name"
-                type="text"
-                name="fullName"
-                placeholder={t('booking.fullName', 'Full Name')}
-                value={formData.fullName}
-                onChange={handleChange}
-                required
-                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 text-[16px]"
-              />
-              <label htmlFor="phone-number" className="sr-only">{t('booking.phone', 'Phone Number')}</label>
-              <input
-                id="phone-number"
-                type="tel"
-                name="phone"
-                placeholder={t('booking.phone', 'Phone Number')}
-                value={formData.phone}
-                onChange={handleChange}
-                required
-                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 text-[16px]"
-              />
-              <label htmlFor="email-address" className="sr-only">{t('booking.email', 'Email Address')}</label>
-              <input
-                id="email-address"
-                type="email"
-                name="email"
-                placeholder={t('booking.email', 'Email Address')}
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full p-4 border border-gold-500/30 rounded-xl focus:border-gold-500 outline-none transition-colors bg-white text-obsidian-900 md:col-span-2 text-[16px]"
-              />
             </div>
 
             <label htmlFor="special-requests" className="sr-only">{t('booking.specialRequestPlaceholder', 'Special Request...')}</label>

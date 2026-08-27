@@ -11,7 +11,6 @@ import ErrorState from '../components/ui/ErrorState';
 import { useCurrency } from '../context/CurrencyContext';
 import { resolveLocalizedText } from '../utils/titleHelper';
 
-import { transportation as staticTransportation } from '../data/transportation';
 import HotelDetails from './hotels/HotelDetails';
 
 const Services = () => {
@@ -33,8 +32,6 @@ const Services = () => {
   ];
 
   const filteredServices = service ? allServicesData.filter(s => s.category === service) : allServicesData;
-  const apiTrans = allServicesData.filter(s => s.category === 'transportation');
-  const transportation = apiTrans.length > 0 ? apiTrans : staticTransportation;
 
   if (loading) return <SkeletonLoader count={6} />;
   if (error) return <ErrorState message={error.message || 'Failed to load services'} />;
@@ -216,7 +213,7 @@ const Services = () => {
                           {resolveLocalizedText('tour_siwa_duration', t, lang)}
                         </div>
                       )}
-                      <img src={item.images?.[0] || item.heroImage || item.image || "/imgs/services/transportation-cover.webp"} alt={resolveLocalizedText(item.title || item.name, t, lang)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                      {item.images?.[0] || item.heroImage || item.image ? <img src={item.images?.[0] || item.heroImage || item.image} alt={resolveLocalizedText(item.title || item.name, t, lang)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" /> : <div className="h-full w-full bg-obsidian-200 dark:bg-obsidian-800" aria-label={t('common.imageUnavailable', 'Image unavailable')} />}
                     </div>
                     <div className="p-8 flex flex-col flex-grow">
                       {isSiwa ? (

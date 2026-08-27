@@ -84,9 +84,9 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * POST /api/auth/register
-   * Body: { email, password, name, phone, address, preferredLanguage }
+   * Body: { email, password, name, phone }
    */
-  const register = async (nameOrObj, email, phone, password, address, preferredLanguage) => {
+  const register = async (nameOrObj, email, phone, password) => {
     let payload;
     if (typeof nameOrObj === 'object' && nameOrObj !== null) {
       payload = nameOrObj;
@@ -96,8 +96,6 @@ export const AuthProvider = ({ children }) => {
         email,
         phone,
         password,
-        address,
-        preferredLanguage,
       };
     }
 
@@ -108,13 +106,14 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * PATCH /api/auth/profile
-   * Body: { name, phone, address, preferredLanguage }
+   * Body: { name, phone, nationality, preferredCurrency, preferredLanguage }
    */
   const updateProfile = async (profileData) => {
     const payload = Object.fromEntries(
       Object.entries({
         name: profileData?.name,
         phone: profileData?.phone,
+        nationality: profileData?.nationality,
         preferredCurrency: profileData?.preferredCurrency,
         preferredLanguage: profileData?.preferredLanguage,
       }).filter(([, value]) => value !== undefined),

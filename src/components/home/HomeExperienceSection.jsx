@@ -276,7 +276,6 @@ const HomeExperienceSection = () => {
   const { t, i18n } = useTranslation();
   const { formatPrice } = useCurrency();
   const navigate = useNavigate();
-  const [activeDestination, setActiveDestination] = useState(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
   const [zoomScale, setZoomScale] = useState(1);
@@ -331,12 +330,6 @@ const HomeExperienceSection = () => {
       };
     }).filter((packageCard) => packageCard.tours.length > 0);
   }, [allLiveTours, t]);
-  const toursForDestination = (destination) =>
-    (allLiveTours || []).filter((tour) => tour && tour.destination === destination);
-  const formattedTurkeyTours = toursForDestination('turkey');
-  const formattedJordanTours = toursForDestination('jordan');
-  const formattedDubaiTours = toursForDestination('dubai');
-  const formattedMoroccoTours = toursForDestination('morocco');
 
   const allToursForMarquee = useMemo(() => {
     if (!Array.isArray(allLiveTours)) return [];
@@ -522,20 +515,8 @@ const HomeExperienceSection = () => {
 
 
 
-  const activeTours = activeDestination
-    ? activeDestination === "turkey"
-      ? formattedTurkeyTours
-      : activeDestination === "jordan"
-        ? formattedJordanTours
-        : activeDestination === "dubai"
-          ? formattedDubaiTours
-          : activeDestination === "morocco"
-            ? formattedMoroccoTours
-            : allLiveTours.filter((t) => t.destination === activeDestination)
-    : [];
-
   const handleDestinationClick = (id) => {
-    setActiveDestination((prev) => (prev === id ? null : id));
+    navigate(`/destinations/${id}`);
   };
 
   const [activePackage, setActivePackage] = useState(null);
@@ -871,7 +852,6 @@ const HomeExperienceSection = () => {
             )}
             {!destinationsLoading && !toursLoading && !destinationsError && !toursError && liveDestinationCards.map((dest) => {
               const tourCount = dest.toursCount;
-              const isActive = activeDestination === dest.id;
 
               return (
                 <motion.div
@@ -885,14 +865,13 @@ const HomeExperienceSection = () => {
                   }}
                   role="button"
                   tabIndex={0}
-                  aria-pressed={isActive}
-                  aria-label={`${t("home.select", "Select")} ${dest.name} ${t("nav.tours", "Tours")}`}
+                  aria-label={`${t("destination.viewGuide", "View destination guide")} ${dest.name}`}
                   whileHover={{
                     y: -6,
                     boxShadow: "0 0 32px rgba(245,166,35,0.22)",
                     transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
                   }}
-                  className={`relative h-[300px] rounded-2xl overflow-hidden cursor-pointer group transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-gold-500 ${isActive ? "ring-2 ring-gold-500 shadow-[0_0_20px_rgba(245,166,35,0.4)] scale-[1.02]" : "hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(245,166,35,0.2)]"}`}
+                  className="relative h-[300px] rounded-2xl overflow-hidden cursor-pointer group transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-gold-500 hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(245,166,35,0.2)]"
                 >
                   {dest.image ? (
                     <img
@@ -908,7 +887,7 @@ const HomeExperienceSection = () => {
                     </div>
                   )}
                   <div
-                    className={`absolute inset-0 transition-colors duration-500 ${isActive ? "bg-obsidian-900/40" : "bg-obsidian-900/60 group-hover:bg-obsidian-900/40"}`}
+                    className="absolute inset-0 bg-obsidian-900/60 transition-colors duration-500 group-hover:bg-obsidian-900/40"
                   ></div>
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
                     <h3 className="text-display-lg text-ivory-50 mb-2">
@@ -924,45 +903,6 @@ const HomeExperienceSection = () => {
             })}
           </div>
 
-          <AnimatePresence>
-            {activeDestination && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-                className="overflow-hidden"
-              >
-                <div className="pt-12">
-                  <h3 className="text-display-md text-ivory-50 mb-8 text-center capitalize">
-                    {t(
-                      `nav.${activeDestination === 'holy-land' ? 'holyland' : activeDestination}`,
-                      activeDestination.charAt(0).toUpperCase() + activeDestination.slice(1)
-                    )}{" "}
-                    {t("nav.tours")}
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {activeTours.slice(0, 6).map((tour) => (
-                      <TourCard
-                        key={tour.id}
-                        tour={tour}
-                        linkBase={activeDestination === "turkey" ? "/programs/turkey" : activeDestination === "jordan" ? "/programs/jordan" : activeDestination === "dubai" ? "/programs/dubai" : "/tours"}
-                      />
-                    ))}
-                  </div>
-                  {activeTours.length > 6 && (
-                    <div className="flex justify-center mt-10">
-                      <Link to={`/destinations/${activeDestination}`}>
-                        <Button variant="outline-gold" className="px-8 py-3">
-                          {t("home.viewAll", "View All")} {activeTours.length} {t("nav.tours", "Tours")}
-                        </Button>
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
       </section>
 
