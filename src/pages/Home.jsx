@@ -321,46 +321,42 @@ const Home = () => {
   };
 
   const liveDestinationCards = useMemo(() => {
-    return liveDestinations
-      .map((destination) => {
-        const slug = destination.slug || destination.id;
-        const heroImg = DEST_HERO_MAP[slug] || destination.heroImageUrl || destination.image;
-        const dynamicCount = (allLiveTours || []).filter(t => t && (t.destination === slug || (slug.includes('holy') && (t.destination === 'holy-land' || t.destination === 'holyland')))).length;
-        const exactCount = DEST_TOUR_COUNTS[slug] !== undefined ? DEST_TOUR_COUNTS[slug] : destination.toursCount;
-        const toursCount = exactCount !== undefined ? exactCount : dynamicCount;
-        const navKey = slug === 'holy-land' ? 'holyland' : slug;
+    const cardMap = new Map();
 
-        const name = t(`nav.${navKey}`, destination.title || destination.name);
-        const subtitle = t(`dest.${navKey}.subtitle`, destination.subtitle || destination.description || '');
+    (liveDestinations || []).forEach((destination) => {
+      const slug = destination.slug || destination.id;
+      const heroImg = DEST_HERO_MAP[slug] || destination.heroImageUrl || destination.image;
+      const dynamicCount = (allLiveTours || []).filter(t => t && (t.destination === slug || (slug.includes('holy') && (t.destination === 'holy-land' || t.destination === 'holyland')))).length;
+      const exactCount = DEST_TOUR_COUNTS[slug] !== undefined ? DEST_TOUR_COUNTS[slug] : destination.toursCount;
+      const toursCount = exactCount !== undefined ? exactCount : dynamicCount;
+      const navKey = (slug === 'holy-land' || slug === 'holyland') ? 'holyland' : slug;
 
-        return {
-          id: slug,
-          name,
-          description: subtitle,
-          subtitle,
-          image: heroImg,
-          toursCount: toursCount,
-          link: `/destinations/${slug}`,
-        };
-      })
-      .filter((dest) => {
-        const slug = String(dest.id || '').toLowerCase();
-        const name = String(dest.name || '').toLowerCase();
-        
-        // 1. Remove destinations with 0 available tours (0 جولات متاحة)
-        if (!dest.toursCount || dest.toursCount <= 0) return false;
+      const name = t(`nav.${navKey}`, destination.title || destination.name);
+      const subtitle = t(`dest.${navKey}.subtitle`, destination.subtitle || destination.description || '');
 
-        // 2. Remove multi-country tours (رحلات متعددة الدول)
-        if (slug.includes('multi') || slug.includes('combo') || name.includes('متعددة')) return false;
+      const key = slug === 'holyland' ? 'holy-land' : slug;
 
-        // 3. Remove comprehensive tours / packages (رحلات شاملة)
-        if (slug.includes('package') || slug.includes('comprehensive') || name.includes('شاملة')) return false;
-
-        // 4. Remove religious programs (البرامج الدينية / الأراضي المقدسة)
-        if (slug.includes('religious') || slug.includes('holy') || name.includes('دينية') || name.includes('مقدسة')) return false;
-
-        return true;
+      cardMap.set(key, {
+        id: slug,
+        name,
+        description: subtitle,
+        subtitle,
+        image: heroImg,
+        toursCount: toursCount,
+        link: `/destinations/${slug}`,
       });
+    });
+
+    const DESIRED_ORDER = ['egypt', 'turkey', 'dubai', 'jordan', 'morocco', 'tunisia', 'greece', 'holy-land'];
+
+    const result = [];
+    DESIRED_ORDER.forEach((key) => {
+      if (cardMap.has(key)) {
+        result.push(cardMap.get(key));
+      }
+    });
+
+    return result;
   }, [liveDestinations, allLiveTours, t]);
   const livePackageCards = useMemo(() => {
     if (Array.isArray(holidayPackages) && holidayPackages.length >= 5) {
@@ -663,11 +659,12 @@ const Home = () => {
   const destinations = [
     { id: 'egypt', label: t('nav.egypt', 'Egypt'), img: '/imgs/egyothero.png' },
     { id: 'turkey', label: t('nav.turkey', 'Turkey'), img: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=1200' },
+    { id: 'dubai', label: t('nav.dubai', 'Dubai'), img: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200' },
     { id: 'jordan', label: t('nav.jordan', 'Jordan'), img: 'https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg' },
     { id: 'morocco', label: t('nav.morocco', 'Morocco'), img: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200' },
-    { id: 'greece', label: t('nav.greece', 'Greece'), img: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200' },
-    { id: 'dubai', label: t('nav.dubai', 'Dubai'), img: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200' },
     { id: 'tunisia', label: t('nav.tunisia', 'Tunisia'), img: 'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=1200&q=80' },
+    { id: 'greece', label: t('nav.greece', 'Greece'), img: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200' },
+    { id: 'holyland', label: t('nav.holyland', 'Holy Land'), img: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?w=1200' },
   ];
 
   const slugify = (str) => str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
