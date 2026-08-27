@@ -279,8 +279,10 @@ const getOptimizedImageUrl = (url, width = 400, height = 450) => {
   return url;
 };
 
+// Updated Home page component with 5 Egypt package tours section
 const Home = () => {
   const { t, i18n } = useTranslation();
+  const isAr = (i18n.language || 'en').startsWith('ar');
   const { formatPrice } = useCurrency();
   const navigate = useNavigate();
   const [activeDestination, setActiveDestination] = useState(null);
@@ -289,6 +291,7 @@ const Home = () => {
   const [zoomScale, setZoomScale] = useState(1);
   const [isAllToursPopupOpen, setIsAllToursPopupOpen] = useState(false);
   const [activeVideo, setActiveVideo] = useState(null);
+  const [selectedPackageFilter, setSelectedPackageFilter] = useState('all');
   const { galleryImages = [], videos = [] } = useMedia();
   const { tours: allLiveToursRaw } = useTours({ limit: 100 });
   const allLiveTours = useMemo(() => Array.isArray(allLiveToursRaw) ? allLiveToursRaw : [], [allLiveToursRaw]);
@@ -465,89 +468,214 @@ const Home = () => {
   }, [allLiveTours]);
 
   const packagesToursForMarquee = useMemo(() => {
-    const lang = i18n.language || 'en';
-    const isAr = lang.startsWith('ar');
-
-    const safeTours = Array.isArray(allLiveTours) ? allLiveTours : [];
-    const combined = [];
-    const seen = new Set();
-
-    // 1. Gather all actual tours from packagesToursMap
-    Object.entries(packagesToursMap || {}).forEach(([pkgKey, tourList]) => {
-      (tourList || []).forEach((tour) => {
-        if (!tour) return;
-        const link = `/tours/${tour.slug || tour.id}`;
-        if (!seen.has(link)) {
-          seen.add(link);
-          const title = resolveTourTitle(tour, t, lang);
-          const duration = resolveTourDuration(tour, t, lang);
-          const images = Array.isArray(tour.images) && tour.images.length > 0
-            ? tour.images
-            : [tour.heroImage || tour.image || '/imgs/egyothero.png'];
-
-          const badge = pkgKey === 'classic-program'
-            ? (isAr ? 'برنامج كلاسيكي' : 'Classic Program')
-            : pkgKey === 'honeymooners'
-            ? (isAr ? 'شهر العسل' : 'Honeymoon')
-            : pkgKey === 'religious'
-            ? (isAr ? 'رحلة دينية' : 'Religious')
-            : pkgKey === 'multi-country'
-            ? (isAr ? 'رحلة متعددة الدول' : 'Multi-Country')
-            : (isAr ? 'تمديد وساحل' : 'Extension');
-
-          combined.push({
-            ...tour,
-            id: tour.id || tour.slug,
-            title,
-            duration,
-            badge,
-            images,
-            link,
-          });
-        }
-      });
-    });
-
-    // 2. Fallback/Explicit Package Trips (Hurghada, Sharm, Siwa, etc.)
-    const explicitPackageItems = [
+    // 15 exact tours inside the 5 programs/packages
+    return [
+      // 1. Classic Program (1 tour)
       {
-        id: "hurghada-4d3n",
+        id: "classic-program-tour-1",
+        slug: "classic-program",
+        title: isAr ? "البرنامج الكلاسيكي: القاهرة والأهرامات والنيل الفاخر" : "Classic Egypt: Cairo, Pyramids & Nile Cruise",
+        overview: isAr ? "برنامج متميز يجمع بين الأهرامات، الجيزة، والمتحف الكبير مع رحلة نيلية فاخرة." : "Timeless Classic Egypt itinerary covering Cairo Pyramids, GEM Museum, and Nile Cruise.",
+        duration: isAr ? "8 أيام / 7 ليالي" : "8 Days / 7 Nights",
+        price: 1290,
+        badge: isAr ? "البرنامج الكلاسيكي" : "Classic Program",
+        rating: 4.9,
+        reviewCount: 312,
+        images: ["https://res.cloudinary.com/degbrq3ck/image/upload/v1783029636/Classic_Program_gfal0s.jpg"],
+        link: "/programs/classic/classic-program"
+      },
+
+      // 2. Honeymooners (1 tour)
+      {
+        id: "honeymooners-tour-1",
+        slug: "honeymooners",
+        title: isAr ? "باقة شهر العسل والرفاهية الرومانسية" : "Honeymoon & Romantic Luxury Escape",
+        overview: isAr ? "عطلة رومانسية ساحرة تشمل شواطئ البحر الأحمر وغروب النيل المذهل." : "Enchanting Red Sea escapes & private Nile sunset cruises for couples.",
+        duration: isAr ? "10 أيام / 9 ليالي" : "10 Days / 9 Nights",
+        price: 1650,
+        badge: isAr ? "شهر العسل" : "Honeymoon",
+        rating: 4.95,
+        reviewCount: 189,
+        images: ["https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=800&q=80"],
+        link: "/programs/honeymooners"
+      },
+
+      // 3. Religious Programs (1 tour)
+      {
+        id: "religious-tour-1",
+        slug: "religious",
+        title: isAr ? "برنامج مسار العائلة المقدسة والتراث الديني" : "Holy Family & Sacred Journeys",
+        overview: isAr ? "مسار إيماني وثقافي عريق يمتد عبر الكنائس والأديرة الأثرية في مصر." : "Spiritual path along Coptic monasteries & ancient holy shrines.",
+        duration: isAr ? "9 أيام / 8 ليالي" : "9 Days / 8 Nights",
+        price: 1390,
+        badge: isAr ? "رحلة دينية" : "Religious Heritage",
+        rating: 4.85,
+        reviewCount: 176,
+        images: ["https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=800&q=80"],
+        link: "/programs/religious"
+      },
+
+      // 4. Multi-Country Combined (9 tours)
+      {
+        id: "mct-001",
+        slug: "estrellas-medio-oriente-19d",
+        title: isAr ? "نجوم الشرق الأوسط (مصر والأردن وتركيا ودبي)" : "Estrellas del Medio Oriente (19 Days)",
+        overview: isAr ? "رحلة أسطورية تجمع بين عظمة الفراعنة، البتراء الوردية، مناطيد كبادوكيا وبرج خليفة." : "19-day grand odyssey traversing Egypt, Jordan, Turkey, and Dubai.",
+        duration: isAr ? "19 يوم / 18 ليلة" : "19 Days / 18 Nights",
+        price: 3450,
+        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+        rating: 4.9,
+        reviewCount: 210,
+        images: ["https://theglobetrottingdetective.com/wp-content/uploads/2022/03/best-places-in-the-middle-east-traveling-the-middle-east-cappadocia-turkey.jpg"],
+        link: "/programs/multi-country/estrellas-medio-oriente-19d"
+      },
+      {
+        id: "mct-002",
+        slug: "cairo-and-athens-11-days",
+        title: isAr ? "رحلة القاهرة وأثينا (عجائب مصر واليونان)" : "Cairo and Athens 11 Days",
+        overview: isAr ? "رحلة تجمع بين حضارة الفراعنة في القاهرة وأساطير الأكروبوليس في أثينا." : "11 days combining ancient Egyptian wonders and Greek Mediterranean mythology.",
+        duration: isAr ? "11 يوم / 10 ليالي" : "11 Days / 10 Nights",
+        price: 2250,
+        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+        rating: 4.88,
+        reviewCount: 145,
+        images: ["https://cdn.thecollector.com/wp-content/uploads/2024/07/history-cairo-monuments.jpg"],
+        link: "/programs/multi-country/cairo-and-athens-11-days"
+      },
+      {
+        id: "mct-003",
+        slug: "essences-of-egypt-and-turkey-15-days",
+        title: isAr ? "جوهر مصر وتركيا (النيل وإسطنبول 15 يوماً)" : "Essences of Egypt and Turkey 15 Days",
+        overview: isAr ? "برنامج فاخر يربط سحر الأهرامات والرحلة النيلية بأجواء البسفور وكبادوكيا." : "15 days spanning Cairo, Nile Cruise, Istanbul, and Cappadocia balloon skies.",
+        duration: isAr ? "15 يوم / 14 ليلة" : "15 Days / 14 Nights",
+        price: 2890,
+        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+        rating: 4.92,
+        reviewCount: 278,
+        images: ["/imgs/Essences of Egypt and Turkey .png"],
+        link: "/programs/multi-country/essences-of-egypt-and-turkey-15-days"
+      },
+      {
+        id: "mct-004",
+        slug: "marvels-of-dubai-and-turkey-14-days",
+        title: isAr ? "روائع دبي وتركيا (فخامة الخليج وسحر البسفور)" : "Marvels of Dubai and Turkey (14 Days)",
+        overview: isAr ? "توليفة استثنائية بين حداثة دبي الفائقة وتاريخ إسطنبول وجمال الطبيعة التركية." : "14 days exploring futuristic Dubai luxury and historic Turkish Riviera beauty.",
+        duration: isAr ? "14 يوم / 13 ليلة" : "14 Days / 13 Nights",
+        price: 2750,
+        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+        rating: 4.91,
+        reviewCount: 198,
+        images: ["/imgs/Marvels of Dubai and Turkey.png"],
+        link: "/programs/multi-country/marvels-of-dubai-and-turkey-14-days"
+      },
+      {
+        id: "mct-005",
+        slug: "stars-of-the-middle-east-16-days",
+        title: isAr ? "نجوم الشرق الأوسط (مصر والأردن ودبي 16 يوماً)" : "Stars of the Middle East 16 Days",
+        overview: isAr ? "رحلة استكشافية شاملة تجمع بين النيل، البتراء، وصحراء رم، وناطحات سحاب دبي." : "16-day luxury tour across the Nile valley, Petra rose city, and Dubai skyline.",
+        duration: isAr ? "16 يوم / 15 ليلة" : "16 Days / 15 Nights",
+        price: 3100,
+        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+        rating: 4.94,
+        reviewCount: 165,
+        images: ["/imgs/Stars of the Middle East .png"],
+        link: "/programs/multi-country/stars-of-the-middle-east-16-days"
+      },
+      {
+        id: "mct-006",
+        slug: "treasures-of-egypt-and-tunisia-16-days",
+        title: isAr ? "كنوز مصر وتونس (الحضارة وسيدي بو سعيد)" : "Treasures of Egypt and Tunisia 16 Days",
+        overview: isAr ? "رحلة شمال أفريقية تدمج الأهرامات والنيل مع تاريخ قرطاج وجمال سيدي بو سعيد." : "16 days combining Pharaohs' temples with Carthage ruins and blue whitewashed Sidi Bou Said.",
+        duration: isAr ? "16 يوم / 15 ليلة" : "16 Days / 15 Nights",
+        price: 2950,
+        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+        rating: 4.87,
+        reviewCount: 132,
+        images: ["/imgs/Treasures of Egypt and Tunisia.png"],
+        link: "/programs/multi-country/treasures-of-egypt-and-tunisia-16-days"
+      },
+      {
+        id: "mct-007",
+        slug: "egypt-and-dubai-13-days",
+        title: isAr ? "رحلة مصر ودبي (الأهرامات والتسوق الفاخر)" : "Egypt and Dubai 13 Days",
+        overview: isAr ? "مزيج متناغم بين أسرار الفراعنة وأشهر المعالم الحديثة والتجارب الفاخرة في دبي." : "13 days combining ancient Egyptian heritage with Dubai modern luxury.",
+        duration: isAr ? "13 يوم / 12 ليلة" : "13 Days / 12 Nights",
+        price: 2650,
+        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+        rating: 4.89,
+        reviewCount: 175,
+        images: ["/imgs/Egypt and Dubai.png"],
+        link: "/programs/multi-country/egypt-and-dubai-13-days"
+      },
+      {
+        id: "mct-008",
+        slug: "spices-of-egypt-and-morocco",
+        title: isAr ? "عبق مصر والمغرب (النيل وسحر مراكش)" : "Spices of Egypt and Morocco 12 Days",
+        overview: isAr ? "تجربة ثقافية ساحرة بين النيل وأهرامات مصر وأسواق مراكش وقصور فاس." : "12 days exploring Nile valley treasures and imperial medinas of Morocco.",
+        duration: isAr ? "12 يوم / 11 ليلة" : "12 Days / 11 Nights",
+        price: 2490,
+        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+        rating: 4.93,
+        reviewCount: 220,
+        images: ["https://th.bing.com/th/id/R.58564825c2c22ad5062b00d620ed4397?rik=XgQR%2bu8MUj6NHA&pid=ImgRaw&r=0"],
+        link: "/programs/multi-country/spices-of-egypt-and-morocco"
+      },
+      {
+        id: "mct-009",
+        slug: "jewels-of-egypt-and-jordan-11-days",
+        title: isAr ? "جواهر مصر والأردن (القاهرة، النيل، البتراء والبحر الميت)" : "Jewels of Egypt and Jordan 11 Days",
+        overview: isAr ? "برنامج رائع يشمل عجائب الجيزة، الأقصر، أسوان، البتراء، والطفو في البحر الميت." : "11 days featuring Giza Pyramids, Nile Cruise, Petra Wonders, and Dead Sea floating.",
+        duration: isAr ? "11 يوم / 10 ليالي" : "11 Days / 10 Nights",
+        price: 2350,
+        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+        rating: 4.96,
+        reviewCount: 285,
+        images: ["https://th.bing.com/th/id/R.d4c411bd75b827b087396502b4144fe6?rik=3VllwT9EP1BvFA&pid=ImgRaw&r=0"],
+        link: "/programs/multi-country/jewels-of-egypt-and-jordan-11-days"
+      },
+
+      // 5. Extensions (3 tours)
+      {
+        id: "extension-tour-1",
         slug: "hurghada-4d3n",
         title: isAr ? "استجمام الغردقة والبحر الأحمر" : "Hurghada Red Sea Escape",
+        overview: isAr ? "إقامة فاخرة على ساحل الغردقة للاستمتاع بالمياه الفيروزية والأنشطة البحرية." : "Red Sea resorts in Hurghada with beach escapes and coral diving.",
         duration: isAr ? "4 أيام / 3 ليالي" : "4 Days / 3 Nights",
+        price: 590,
         badge: isAr ? "تمديد وساحل" : "Extension",
-        images: ["https://1.bp.blogspot.com/-HqmKDzZ73hY/XgSOtrhSAOI/AAAAAAAARdc/cxtywSwZxLIaZPfw98FzQHYtiPblmzg2gCLcBGAsYHQ/w1200-h630-p-k-no-nu/%D8%A3%D9%81%D8%B6%D9%84-%D8%A7%D9%84%D8%A3%D9%86%D8%B4%D8%B7%D8%A9-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D9%8A%D8%A9-%D9%81%D9%89-%D8%A7%D9%84%D8%BA%D8%B1%D8%AF%D9%82%D8%A9-825x510.jpg"],
+        rating: 4.8,
+        reviewCount: 168,
+        images: ["https://1.bp.blogspot.com/-HqmKDzZ73hY/XgSOtrhSAOI/AAAAAAAARdc/cxtywSwZxLIaZPfw98FzQHYtiPblmzg2gCLcBGAsYHQ/w1200-h630-p-k-no-nu/%D8%A3%D9%81%D8%B6%D9%84-%D8%A3%D9%86%D8%B4%D8%B7%D8%A9-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D9%8A%D8%A9-%D9%81%D9%89-%D8%A7%D9%84%D8%BA%D8%B1%D8%AF%D9%82%D8%A9-825x510.jpg"],
         link: "/programs/extension/hurghada-4d3n"
       },
       {
-        id: "sharm-4d3n",
+        id: "extension-tour-2",
         slug: "sharm-4d3n",
-        title: isAr ? "شرم الشيخ ومنتجات البحر الأحمر" : "Sharm El Sheikh Paradise",
+        title: isAr ? "شرم الشيخ ومنتجعات البحر الأحمر" : "Sharm El Sheikh Paradise",
+        overview: isAr ? "استجمام شاطئي ممتع في شرم الشيخ مع زيارة محمية رأس محمد الساحرة." : "Red Sea luxury resort getaway in Sharm El Sheikh.",
         duration: isAr ? "4 أيام / 3 ليالي" : "4 Days / 3 Nights",
+        price: 620,
         badge: isAr ? "تمديد وساحل" : "Extension",
+        rating: 4.84,
+        reviewCount: 135,
         images: ["https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80"],
         link: "/programs/extension/sharm-4d3n"
       },
       {
-        id: "siwa-oasis-alexandria",
+        id: "extension-tour-3",
         slug: "siwa-oasis-alexandria",
         title: isAr ? "سحر واحة سيوة والإسكندرية" : "Siwa Oasis & Alexandria Adventure",
+        overview: isAr ? "مغامرة صحراوية بيئية فريدة في سيوة مع جولة تاريخية ساحلية بالإسكندرية." : "Siwa Desert Oasis eco-adventure & Mediterranean Alexandria escape.",
         duration: isAr ? "5 أيام / 4 ليالي" : "5 Days / 4 Nights",
+        price: 780,
         badge: isAr ? "سياحة بيئية" : "Eco Tour",
+        rating: 4.88,
+        reviewCount: 110,
         images: ["https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80"],
         link: "/programs/extension/siwa-oasis-alexandria"
       }
     ];
-
-    explicitPackageItems.forEach(item => {
-      if (!seen.has(item.link)) {
-        seen.add(item.link);
-        combined.push(item);
-      }
-    });
-
-    return combined;
-  }, [packagesToursMap, allLiveTours, i18n.language, t]);
+  }, [isAr]);
 
   const destinationToursForMarquee = useMemo(() => {
     const lang = i18n.language || 'en';
@@ -1260,13 +1388,13 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="overflow-hidden w-full">
+        <div dir="ltr" className="overflow-hidden w-full relative">
           <div
             className="flex w-max"
             style={{
               gap: "24px",
               paddingLeft: "24px",
-              animation: `${isRtl ? 'tourMarqueeRTL' : 'tourMarquee'} 35s linear infinite`,
+              animation: "tourMarquee 110s linear infinite",
             }}
             onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
             onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
@@ -1528,93 +1656,118 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Packages Tours Marquee */}
-      <section className="py-12 bg-ivory-100 overflow-hidden relative">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-12">
-            <span className="text-gold-600 uppercase tracking-widest text-caption block mb-4">
-              {t("home.packageTripsSub", "FEATURED TRIPS")}
-            </span>
-            <h2 className="text-display-lg text-obsidian-900">
-              {t("home.packageTripsTitle", "Trips From Our Packages")}
-            </h2>
-            <div className="w-24 h-1 bg-gold-500 mx-auto mt-6"></div>
+      {/* Packages Trips Marquee Section — رحلات الباقات الخاصة بنا */}
+      <section className="py-16 md:py-20 relative overflow-hidden bg-ivory-100 dark:bg-obsidian-950">
+        <div className="container mx-auto px-6 mb-12">
+          {/* Header */}
+          <div className="text-center max-w-4xl mx-auto">
+            <motion.span 
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-600 dark:text-gold-400 text-caption font-bold uppercase tracking-widest mb-4 shadow-sm"
+            >
+              <span>✨</span> {t("home.packageTripsSub", "تجارب مصممة بعناية فائقة لتلبي أعلى تطلعات عشاق الفخامة والتميز")}
+            </motion.span>
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-3xl md:text-5xl lg:text-6xl text-obsidian-900 dark:text-white font-serif tracking-tight mb-4"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              {t("home.packageTripsTitle", "رحلات الباقات الخاصة بنا")}
+            </motion.h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto mt-4 rounded-full"></div>
           </div>
         </div>
 
-        <div className="overflow-hidden w-full">
+        {/* Marquee Strip: Moving from Right to Left (من اليمين للشمال) */}
+        <div dir="ltr" className="overflow-hidden w-full relative py-4">
           <div
             className="flex w-max"
             style={{
               gap: "24px",
               paddingLeft: "24px",
-              animation: `${isRtl ? 'tourMarqueeRTL' : 'tourMarquee'} 35s linear infinite`,
+              animation: "tourMarquee 120s linear infinite",
             }}
             onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
             onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
           >
             {(() => {
-              const sliced = packagesToursForMarquee;
-              return [
-                ...sliced.map(t => ({ ...t, isDuplicate: false })),
-                ...sliced.map(t => ({ ...t, isDuplicate: true }))
-              ].map((tData, idx) => (
-                <Link
-                  key={`pkg-tour-${tData.id}-${idx}`}
-                  to={tData.link || "/tours"}
-                  tabIndex={tData.isDuplicate ? -1 : undefined}
-                  aria-hidden={tData.isDuplicate ? "true" : undefined}
-                  className="min-w-[320px] md:min-w-[400px] shrink-0 group relative rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] transition-all duration-500 h-[450px] block focus:outline-none focus:ring-2 focus:ring-gold-500"
-                >
-                  <img
-                    src={getOptimizedImageUrl(tData.images && tData.images.length > 0 ? tData.images[0] : "", 400, 450)}
-                    alt={tData.title}
-                    width="400"
-                    height="450"
-                    className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/95 via-obsidian-900/40 to-transparent"></div>
+              const sliced = Array.isArray(packagesToursForMarquee) && packagesToursForMarquee.length > 0
+                ? packagesToursForMarquee
+                : [];
+              const infiniteList = [
+                ...sliced.map((tItem, i) => ({ ...tItem, isDuplicate: false, uKey: `set1-${tItem.id}-${i}` })),
+                ...sliced.map((tItem, i) => ({ ...tItem, isDuplicate: true, uKey: `set2-${tItem.id}-${i}` })),
+                ...sliced.map((tItem, i) => ({ ...tItem, isDuplicate: true, uKey: `set3-${tItem.id}-${i}` })),
+                ...sliced.map((tItem, i) => ({ ...tItem, isDuplicate: true, uKey: `set4-${tItem.id}-${i}` })),
+              ];
+              return infiniteList.map((tData, idx) => {
+                const tourImg = (Array.isArray(tData.images) && tData.images[0]) || tData.heroImage || tData.image || '/imgs/egyothero.png';
+                return (
+                  <Link
+                    key={tData.uKey || `pkg-tour-${idx}`}
+                    to={tData.link || "/tours"}
+                    tabIndex={tData.isDuplicate ? -1 : undefined}
+                    aria-hidden={tData.isDuplicate ? "true" : undefined}
+                    className="min-w-[300px] sm:min-w-[340px] md:min-w-[380px] shrink-0 group relative rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_40px_rgba(245,166,35,0.3)] transition-all duration-500 h-[450px] block border border-obsidian-700/50 hover:border-gold-500 bg-obsidian-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                  >
+                    <img
+                      src={getOptimizedImageUrl(tourImg, 400, 450)}
+                      alt={tData.title}
+                      width="400"
+                      height="450"
+                      className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.08] opacity-90 group-hover:opacity-100"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-900/50 to-transparent"></div>
 
-                  {tData.badge && (
-                    <div className="absolute top-4 left-4 bg-gold-500 text-obsidian-950 text-caption font-bold px-3.5 py-1.5 rounded-full shadow-md uppercase">
-                      ★ {tData.badge}
-                    </div>
-                  )}
+                    {tData.badge && (
+                      <div className="absolute top-4 left-4 z-20 bg-gold-500 text-obsidian-950 text-caption font-bold px-3.5 py-1.5 rounded-full shadow-md uppercase backdrop-blur-md">
+                        ★ {tData.badge}
+                      </div>
+                    )}
 
-                  <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full">
-                    <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                      <h3 className="text-display-md text-white font-bold mb-2 leading-tight">
-                        {tData.title}
-                      </h3>
+                    <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full z-10">
+                      <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                        <h3 className="text-xl md:text-2xl text-white font-serif font-bold mb-2 leading-tight drop-shadow-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
+                          {tData.title}
+                        </h3>
 
-                      {tData.overview && (
-                        <p className="text-body-sm text-white/90 line-clamp-2 mb-3">
-                          {resolveLocalizedText(tData.overview, t, i18n.language)}
-                        </p>
-                      )}
-
-                      <div className="flex items-center justify-between text-caption text-gold-400 font-semibold mb-4">
-                        <span>{tData.duration}</span>
-                        {tData.price > 0 && (
-                          <span className="text-gold-400 font-bold">
-                            {formatPrice(tData.price)}
-                          </span>
+                        {tData.overview && (
+                          <p className="text-body-sm text-ivory-200 line-clamp-2 mb-3 font-medium drop-shadow">
+                            {tData.overview}
+                          </p>
                         )}
-                      </div>
 
-                      <div className="block opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                        <Button variant="outline-gold" tabIndex={-1} className="w-full py-2 font-bold">
-                          {t("home.viewTour", "View Tour")} →
-                        </Button>
+                        <div className="flex items-center text-caption text-gold-400 font-semibold mb-4 pt-2 border-t border-white/15">
+                          <span>{tData.duration}</span>
+                        </div>
+
+                        <div className="block">
+                          <Button variant="gold-glow" tabIndex={-1} className="w-full py-2.5 text-xs font-bold shadow-lg">
+                            {t("home.viewTour", "عرض التفاصيل وحجز الرحلة")} →
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              ));
+                  </Link>
+                );
+              });
             })()}
           </div>
+        </div>
+
+        <div className="flex justify-center mt-12">
+          <Link to="/tours">
+            <Button variant="outline-gold" className="px-8 py-3 text-body-sm font-bold">
+              {t("home.exploreAllTours", "استكشف جميع البرامج والرحلات")} →
+            </Button>
+          </Link>
         </div>
       </section>
 
