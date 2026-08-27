@@ -32,7 +32,7 @@ const TourDetails = () => {
   const cleanSlug = rawSlug ? String(rawSlug).replace(/^classic\/?/, '').trim() : '';
   const slug = cleanSlug;
 
-  const { tour, loading, error } = useTour(slug);
+  const { tour, loading, error, retry } = useTour(slug);
   const { tours: relatedToursList } = useTours({ limit: 6 });
 
   useEffect(() => {
@@ -75,9 +75,9 @@ const TourDetails = () => {
       <div className="w-full bg-obsidian-50 dark:bg-[#0f0f1a] min-h-screen pt-32 px-6 container mx-auto">
         <ErrorState
           title={t('common.errorOccurred', 'Tour not found')}
-          message={error || t('tour.notFoundDesc', 'We could not find the requested luxury tour.')}
-          actionLabel={t('tour.browseAll', 'Browse Tours')}
-          actionLink="/tours"
+          message={error?.message || t('tour.notFoundDesc', 'We could not find the requested luxury tour.')}
+          actionLabel={t('common.tryAgain', 'Try again')}
+          onRetry={retry}
         />
       </div>
     );
@@ -88,6 +88,11 @@ const TourDetails = () => {
   const duration = resolveTourDuration(tour, t, lang);
   const tourImages = Array.isArray(tour?.images) ? tour.images : [];
   const heroImg = tourImages[0] || tour?.heroImage || null;
+  const destinationSlug = typeof tour.destination === 'string' && tour.destination.trim()
+    ? tour.destination
+    : null;
+  const destinationLabel = resolveLocalizedText(destinationSlug || tour.country, t, lang)
+    || t('tour.destinationNotSpecified', 'Destination not specified');
 
   const tourSchema = {
     '@context': 'https://schema.org',
@@ -114,7 +119,7 @@ const TourDetails = () => {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://dunastravel.com/' },
-      { '@type': 'ListItem', position: 2, name: resolveLocalizedText(tour.destination || 'egypt', t, lang), item: `https://dunastravel.com/destinations/${tour.destination || 'egypt'}` },
+      ...(destinationSlug ? [{ '@type': 'ListItem', position: 2, name: destinationLabel, item: `https://dunastravel.com/destinations/${destinationSlug}` }] : []),
       { '@type': 'ListItem', position: 3, name: title, item: `https://dunastravel.com/tours/${tour.slug}` },
     ],
   };
@@ -135,9 +140,11 @@ const TourDetails = () => {
           <div className="flex items-center justify-center gap-2 text-caption text-gold-500 mb-4 uppercase tracking-wider">
             <Link to="/" className="hover:text-ivory-50 transition-colors">{t('nav.home', 'Home')}</Link>
             <span className="rtl-flip"><FaChevronRight className="text-[10px]" /></span>
-            <Link to={`/destinations/${tour.destination || 'egypt'}`} className="hover:text-ivory-50 transition-colors">
-              {resolveLocalizedText(tour.destination || 'egypt', t, lang)}
-            </Link>
+            {destinationSlug ? (
+              <Link to={`/destinations/${destinationSlug}`} className="hover:text-ivory-50 transition-colors">
+                {destinationLabel}
+              </Link>
+            ) : <span className="text-ivory-300">{destinationLabel}</span>}
             <span className="rtl-flip"><FaChevronRight className="text-[10px]" /></span>
             <span className="text-ivory-300">{title}</span>
           </div>
@@ -195,12 +202,12 @@ const TourDetails = () => {
             <div className="p-6 flex flex-col items-center justify-center text-center gap-2">
               <FaTag className="text-gold-500 text-2xl mb-1" />
               <span className="text-caption text-obsidian-500 dark:text-ivory-400 uppercase">{t('tour.tourType', 'Tour Type')}</span>
-              <span className="text-body-md font-semibold text-obsidian-900 dark:text-ivory-50">{resolveLocalizedText(tour.type || tour.category || 'City Break', t, lang)}</span>
+              <span className="text-body-md font-semibold text-obsidian-900 dark:text-ivory-50">{resolveLocalizedText(tour.type || tour.category, t, lang) || t('tour.notSpecified', 'Not specified')}</span>
             </div>
             <div className="p-6 flex flex-col items-center justify-center text-center gap-2">
               <FaUsers className="text-gold-500 text-2xl mb-1" />
               <span className="text-caption text-obsidian-500 dark:text-ivory-400 uppercase">{t('tour.minPax', 'Min Pax')}</span>
-              <span className="text-body-md font-semibold text-obsidian-900 dark:text-ivory-50">{resolveLocalizedText(tour.minPax, t, lang) || '2 Pax'}</span>
+              <span className="text-body-md font-semibold text-obsidian-900 dark:text-ivory-50">{resolveLocalizedText(tour.minPax, t, lang) || t('tour.notSpecified', 'Not specified')}</span>
             </div>
           </div>
         </div>

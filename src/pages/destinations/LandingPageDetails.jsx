@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import TourCard from '../../components/tour/TourCard';
 import { useLandingPage } from '../../hooks/useLandingPage';
+import ErrorState from '../../components/ui/ErrorState';
 
 function readableSections(sections) {
   if (!Array.isArray(sections)) return [];
@@ -13,10 +14,10 @@ export default function LandingPageDetails({ destinationOnly = false }) {
   const params = useParams();
   const slug = params.slug || params.programSlug || params.programId || params.id;
   const { t } = useTranslation();
-  const { landingPage, loading, error } = useLandingPage(slug, { destinationOnly });
+  const { landingPage, loading, error, retry } = useLandingPage(slug, { destinationOnly });
 
-  if (loading) return <div className="flex min-h-[60vh] items-center justify-center bg-obsidian-50"><div className="h-10 w-10 animate-spin rounded-full border-2 border-gold-500 border-t-transparent" /></div>;
-  if (error || !landingPage) return <section className="mx-auto max-w-3xl px-6 py-24 text-center"><h1 className="text-display-lg text-obsidian-900">{t('destinations.unavailable', 'This destination is unavailable')}</h1><p className="mt-4 text-obsidian-600">{t('destinations.unavailableDescription', 'It may be unpublished, inactive, or no longer offered.')}</p><Link className="mt-8 inline-flex rounded-xl bg-gold-500 px-5 py-3 font-semibold text-obsidian-900" to="/destinations">{t('destinations.back', 'Browse destinations')}</Link></section>;
+  if (loading) return <div className="mx-auto grid min-h-[60vh] max-w-6xl grid-cols-1 gap-8 px-6 py-24 md:grid-cols-3" role="status" aria-label={t('common.loading', 'Loading destination')}>{[0, 1, 2].map((item) => <div key={item} className="h-80 animate-pulse rounded-2xl bg-obsidian-200/70" />)}</div>;
+  if (error || !landingPage) return <section className="mx-auto max-w-3xl px-6 py-24"><ErrorState title={t('destinations.unavailable', 'This destination is unavailable')} message={t('destinations.unavailableDescription', 'It may be unpublished, inactive, or no longer offered.')} actionLabel={t('common.tryAgain', 'Try again')} onRetry={retry} /><Link className="mx-auto mt-4 inline-flex min-h-11 items-center rounded-full border border-gold-500/30 px-5 py-3 font-semibold text-obsidian-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2" to="/destinations">{t('destinations.back', 'Browse destinations')}</Link></section>;
 
   const sections = readableSections(landingPage.sections);
   return <main className="bg-obsidian-50 pb-24">

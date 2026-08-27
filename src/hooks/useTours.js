@@ -67,6 +67,7 @@ export function useTours(filters = {}) {
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reloadNonce, setReloadNonce] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -119,7 +120,12 @@ export function useTours(filters = {}) {
     return () => {
       isMounted = false;
     };
-  }, [cacheKey, filterKey, lang]);
+  }, [cacheKey, filterKey, lang, reloadNonce]);
 
-  return { tours, loading, error };
+  const retry = () => {
+    toursCache.delete(cacheKey);
+    setReloadNonce((value) => value + 1);
+  };
+
+  return { tours, loading, error, retry };
 }

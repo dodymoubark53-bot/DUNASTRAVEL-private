@@ -252,7 +252,6 @@ export const JaiderChatProvider = ({ children }) => {
       ]);
     } catch (err) {
       if (err?.name === 'CanceledError' || err?.message === 'canceled') {
-        console.log("GuideR generation aborted by traveler");
         return;
       }
       console.warn("GuideR backend call failed:", err);

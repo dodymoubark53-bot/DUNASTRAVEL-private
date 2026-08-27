@@ -30,6 +30,7 @@ export function useLandingPage(slug, { destinationOnly = false } = {}) {
   const [landingPage, setLandingPage] = useState(null);
   const [loading, setLoading] = useState(Boolean(slug));
   const [error, setError] = useState(null);
+  const [reloadNonce, setReloadNonce] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -60,9 +61,9 @@ export function useLandingPage(slug, { destinationOnly = false } = {}) {
 
     void load();
     return () => { active = false; };
-  }, [destinationOnly, locale, slug]);
+  }, [destinationOnly, locale, slug, reloadNonce]);
 
-  return { landingPage, loading, error };
+  return { landingPage, loading, error, retry: () => setReloadNonce((value) => value + 1) };
 }
 
 export default useLandingPage;

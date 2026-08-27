@@ -29,7 +29,7 @@ const Destinations = () => {
     <section className="relative h-[50vh] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1600&q=80"
+          src="https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1600,c_fill/v1783026771/5_upvijm.jpg"
           alt="Destinations Hero"
           className="w-full h-full object-cover"
           loading="lazy"

@@ -50,7 +50,7 @@ const Services = () => {
           {service === 'safari' ? (
             <>
               <img
-                src="https://images.unsplash.com/photo-1682687982185-531d09ec56fc?auto=format&fit=crop&w=1920&q=80"
+                src="https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920,c_fill/v1783026771/6_q4vcdg.jpg"
                 alt="Desert Safari Sunset"
                 className="w-full h-full object-cover object-center"
                 loading="lazy"
@@ -76,7 +76,7 @@ const Services = () => {
           ) : service === 'camping' ? (
             <>
               <img
-                src="https://images.unsplash.com/photo-1534777367038-9404f45b869a?auto=format&fit=crop&w=1920&q=80"
+                src="https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920,c_fill/v1783026771/8_mpyvu4.jpg"
                 alt="Luxury Desert Camping Starry Night"
                 className="w-full h-full object-cover object-center"
                 loading="lazy"
@@ -117,7 +117,7 @@ const Services = () => {
           ) : (
             <>
               <img
-                src="https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1920&q=80"
+                src="https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920,c_fill/v1783026771/11_xydddd.jpg"
                 alt="Luxury Travel Resort Sunset"
                 className="w-full h-full object-cover object-center"
                 loading="lazy"

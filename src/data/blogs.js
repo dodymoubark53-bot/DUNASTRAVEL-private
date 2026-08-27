@@ -8,7 +8,7 @@ export const blogs = [
     "relatedTour": { "slug": "cairo-express-4d", "label": "Cairo Express", "path": "/tours/cairo-express-4d" },
     "hidden": true,
     "excerpt": "Beyond Karnak and the Valley of the Kings lie incredible, lesser-known temples waiting to be explored. Discover the secrets of ancient Thebes without the crowds.",
-    "img": "https://images.unsplash.com/photo-1596130535979-eedea4278d29?w=800&q=80&fit=crop",
+    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026773/13_wtazze.jpg",
     "content": [
       "Luxor, often described as the world's greatest open-air museum, is undeniably famous for the colossal Karnak Temple and the pharaohs' tombs in the Valley of the Kings. However, for the discerning traveler, the true magic of this ancient city lies off the beaten path, hidden amongst the sugar cane fields and lesser-visited desert valleys. These secondary temples offer a profound, uncrowded connection to Egypt's majestic past.",
       "One such marvel is the Temple of Medinet Habu. Second only to Karnak in size, this magnificent mortuary temple of Ramses III is remarkably well-preserved. Its deeply carved hieroglyphs retain much of their original vibrant coloring, providing a vivid glimpse into ancient artistry. The towering pylons and massive courtyards are often devoid of the large tour groups, allowing visitors to wander in serene contemplation.",
@@ -24,7 +24,7 @@ export const blogs = [
     "date": "Nov 05, 2023",
     "relatedTour": { "slug": "reg-15", "label": "Classic Jordan", "path": "/programs/jordan/reg-15" },
     "excerpt": "Experiencing the rose-red city illuminated by thousands of candles is a bucket-list event. Here is everything you need to know to plan your magical evening.",
-    "img": "https://images.unsplash.com/photo-1662747974561-f2f5ea3825a6?w=800&q=80&fit=crop",
+    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026773/20_riy2ce.jpg",
     "content": [
       "There are few travel experiences as universally acclaimed yet deeply moving as Petra by Night. Operating only three times a week—Mondays, Wednesdays, and Thursdays—this after-dark excursion transforms the already mystical ancient Nabatean city into a scene straight out of a desert fairy tale. The journey begins at the visitor center, but the true magic starts as you step into the Siq.",
       "The Siq, a narrow 1.2-kilometer gorge flanked by towering 80-meter-high sandstone cliffs, is lit only by the soft, flickering glow of paper lanterns lining the path. Walking through this winding canyon in near silence, accompanied only by the whisper of the wind and the crunch of gravel beneath your feet, builds an incredible sense of anticipation. It is a meditative walk that prepares you for the grand reveal.",
@@ -40,7 +40,7 @@ export const blogs = [
     "date": "Dec 18, 2023",
     "relatedTour": { "slug": "reg-01-legendary-turkey", "label": "Legendary Turkey", "path": "/programs/turkey/reg-01-legendary-turkey" },
     "excerpt": "Navigate the labyrinthine alleys of one of the world's oldest and largest covered markets. From Turkish delight to antique kilims, here is your ultimate shopping guide.",
-    "img": "https://images.unsplash.com/photo-1547057365-90f38124c65b?w=800&q=80&fit=crop",
+    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026773/19_suxy3c.jpg",
     "content": [
       "The Grand Bazaar (Kapalıçarşı) in Istanbul is not merely a market; it is a chaotic, colorful, and sensory labyrinth that has pulsed as the commercial heart of the city for over half a millennium. Spanning 61 covered streets and housing over 4,000 shops, it is one of the largest and oldest covered markets in the world. Stepping through its grand archways is like stepping into an Ottoman era time capsule.",
       "Navigating the bazaar can feel overwhelming to the uninitiated. The key is to embrace the art of getting lost. The market is roughly organized by trade—one alley shimmers with gold jewelry, another is draped in vibrant textiles and carpets, while others are filled with the rich aromas of leather goods or the clinking of hand-painted ceramics. Allow your senses to guide you, and do not be afraid to wander off the main thoroughfares into the quieter, more specialized courtyards (han).",
@@ -56,7 +56,7 @@ export const blogs = [
     "date": "Jan 22, 2024",
     "relatedTour": { "slug": "cairo-express-4d", "label": "Cairo Express", "path": "/tours/cairo-express-4d" },
     "excerpt": "Step away from the massive cruise ships and experience the lifeblood of Egypt on a traditional wooden felucca. A peaceful, authentic journey awaits.",
-    "img": "https://images.unsplash.com/photo-1684100096410-fd39cdff91a3?w=800&q=80&fit=crop",
+    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026774/21_gqrhmg.jpg",
     "content": [
       "While multi-story luxury cruise ships offer undeniable comfort, there is no more authentic or peaceful way to experience the Nile River than aboard a traditional felucca. These simple, wooden sailing boats, distinguished by their lateen (triangular) sails, have navigated the waters of the Nile since the time of the pharaohs. A felucca trip strips away the noise and haste of modern travel, replacing it with the gentle lap of water and the whispering of the wind.",
       "A felucca relies entirely on the wind and the river's current, meaning the journey dictates its own pace. You will recline on soft cushions laid across the deck, shielded from the Egyptian sun by a canvas canopy. As you drift silently past lush riverbanks, local fishermen casting their nets, and the timeless silhouettes of mud-brick villages, you gain a perspective of rural Egyptian life that is impossible to see from the deck of a large ship.",
@@ -73,7 +73,7 @@ export const blogs = [
     "relatedTour": { "slug": "reg-15", "label": "Classic Jordan", "path": "/programs/jordan/reg-15" },
     "hidden": true,
     "excerpt": "Towering sandstone mountains, crimson sands, and a sky exploding with stars. Discover why camping in Jordan's Valley of the Moon is the ultimate desert escape.",
-    "img": "https://images.unsplash.com/photo-1612892483236-52d32a0e0ac1?w=800&q=80&fit=crop",
+    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026774/1_uidqje.jpg",
     "content": [
       "Wadi Rum, known as the Valley of the Moon, is a landscape of such alien beauty that it has served as the backdrop for countless science fiction films. Located in southern Jordan, this vast expanse of crimson sand and towering, monolith-like sandstone mountains offers one of the most spectacular desert environments on earth. However, a daytime jeep tour only scratches the surface; to truly understand Wadi Rum, you must spend the night.",
       "Luxury glamping has transformed the Wadi Rum experience. You no longer need to sacrifice comfort to immerse yourself in the wilderness. High-end camps offer geodesic dome tents—often referred to as 'Martian Domes'—featuring transparent panoramic panels. From the comfort of a king-sized bed adorned with premium linens, you can watch the sun set the desert ablaze in reds and purples before giving way to the darkest, most star-filled sky you will ever witness.",
@@ -89,7 +89,7 @@ export const blogs = [
     "date": "Mar 08, 2024",
     "relatedTour": { "slug": "reg-01-legendary-turkey", "label": "Legendary Turkey", "path": "/programs/turkey/reg-01-legendary-turkey" },
     "excerpt": "Turkish food is a rich fusion of Central Asian, Middle Eastern, and Mediterranean flavors. Here are the iconic dishes you absolutely must taste during your visit.",
-    "img": "https://images.unsplash.com/photo-1748540459503-19efc015143b?w=800&q=80&fit=crop",
+    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026774/2_h2krys.jpg",
     "content": [
       "Turkish cuisine is a magnificent tapestry woven from the historical influences of the Ottoman Empire, bridging Central Asian traditions with Mediterranean and Middle Eastern flavors. It is a culinary culture that reveres fresh ingredients, masterful spicing, and the joy of communal dining. A journey to Turkey is as much an exploration of taste as it is of history, and missing out on its authentic dishes is missing out on the country's soul.",
       "The day inevitably begins with the legendary Turkish Breakfast (Kahvaltı). This is not merely a meal, but a lavish morning ritual. A traditional kahvaltı spread covers the entire table with small plates: a variety of cheeses (like salty feta and mild kashkaval), black and green olives, fresh tomatoes, cucumbers, thick clotted cream (kaymak) drenched in local honey, spicy sujuk (sausage), and endless glasses of black tea, all accompanied by freshly baked simit—a sesame-encrusted bread ring.",
@@ -105,7 +105,7 @@ export const blogs = [
     "date": "Mar 25, 2024",
     "relatedTour": { "slug": "cairo-express-4d", "label": "Cairo Express", "path": "/tours/cairo-express-4d" },
     "excerpt": "Planning your dream trip to the Pyramids? Weather plays a crucial role. Read our comprehensive month-by-month guide to choosing the perfect season.",
-    "img": "https://images.unsplash.com/photo-1623674587543-9c7564de99d1?w=800&q=80&fit=crop",
+    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026775/22_gywthx.jpg",
     "content": [
       "Timing is everything when planning a journey to Egypt. With a climate defined by scorching desert summers and mild, pleasant winters, choosing the right month can drastically alter your experience at open-air historical sites. The general consensus is that the prime tourist season runs from October to April, but each season offers its own unique advantages and challenges for the DUNAS TRAVELer.",
       "The 'Peak Season' occurs during the winter months of December, January, and February. During this time, the weather is incredibly pleasant, with daytime temperatures in Cairo and Luxor hovering around a comfortable 20°C to 25°C (68°F to 77°F). This is the absolute best weather for exploring the Valley of the Kings or wandering around the Giza plateau without suffering from heat exhaustion. However, because the weather is ideal, this is also when the crowds are thickest and luxury hotel rates are at their premium.",
@@ -121,7 +121,7 @@ export const blogs = [
     "date": "Apr 02, 2024",
     "relatedTour": { "slug": "reg-15", "label": "Classic Jordan", "path": "/programs/jordan/reg-15" },
     "excerpt": "It is the lowest point on earth and the world's largest natural spa. Discover the incredible health benefits of floating in Jordan's hypersaline lake.",
-    "img": "https://images.unsplash.com/photo-1743943932415-947f79353387?w=800&q=80&fit=crop",
+    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026775/3_rbjrys.jpg",
     "content": [
       "Sitting at 430 meters below sea level, the Dead Sea is the lowest point on the surface of the Earth. Bordering Jordan to the east, this landlocked body of water is one of the world's most unique natural phenomena and has been revered as a sanctuary of health and healing since the days of King Herod and Cleopatra. Today, it remains the ultimate destination for wellness-focused DUNAS TRAVELers.",
       "The most famous aspect of the Dead Sea is, of course, the buoyancy. The water is nearly ten times saltier than the ocean. This extreme hypersalinity means that swimming is practically impossible; instead, you effortlessly bob on the surface like a cork. Reading a newspaper or a book while floating on your back is the quintessential Dead Sea photo opportunity. However, it is the composition of the water, rich in magnesium, calcium, potassium, and bromide, that provides remarkable therapeutic benefits for the skin and joints.",
@@ -137,7 +137,7 @@ export const blogs = [
     "date": "Apr 15, 2024",
     "relatedTour": { "slug": "reg-01-legendary-turkey", "label": "Legendary Turkey", "path": "/programs/turkey/reg-01-legendary-turkey" },
     "excerpt": "Drifting silently over fairy chimneys at sunrise is a transcendent experience. Here is everything you need to know about booking a balloon flight in Turkey.",
-    "img": "https://images.unsplash.com/photo-1559783510-c448bd7d686b?w=800&q=80&fit=crop",
+    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg",
     "content": [
       "The image of hundreds of colorful hot air balloons ascending simultaneously over the surreal, lunar-like landscape of Cappadocia is one of travel's most iconic visuals. This central Turkish region, famous for its 'fairy chimneys' (tall, cone-shaped rock formations), ancient cave dwellings, and underground cities, is arguably the best place in the world for hot air ballooning. For the DUNAS TRAVELer, this is an absolute, non-negotiable bucket list experience.",
       "The magic begins before dawn. You are picked up from your luxury cave hotel while the stars are still out and driven to the launch site. As you sip hot coffee in the crisp morning air, you watch the massive nylon envelopes inflate, glowing like giant lightbulbs against the dark landscape as the burners roar to life. The anticipation builds until you step into the woven wicker basket and gently, almost imperceptibly, leave the earth behind.",
@@ -337,7 +337,7 @@ export const blogs = [
     "date": "Jul 12, 2026",
     "relatedTour": { "slug": "lo-mejor-de-grecia-9d", "label": "Lo Mejor de Grecia", "path": "/tours/lo-mejor-de-grecia-9d" },
     "excerpt": "Explore the luxury of our custom Lo Mejor de Grecia – 09 Días program in Greece. Discover why this 9 Días / 8 Noches itinerary is perfect for your travel dreams",
-    "img": "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1920&q=80",
+    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920,c_fill/v1783023877/2ec72126-709b-4c8d-8f7b-a592d212cc3b_czpoig.jpg",
     "content": [
       "Greece is a sun-drenched paradise where ancient ruins stand proud against the backdrop of the deep blue Aegean Sea. The \"Lo Mejor de Grecia – 09 Días\" vacation package offers a legendary 9 Días / 8 Noches itinerary that blends classical mythology with island luxury. From the iconic Acropolis in Athens to the caldera cliffs of Santorini and the cosmopolitan beach clubs of Mykonos, this tour is designed for travelers seeking the ultimate Mediterranean escape. Savor fresh seafood, watch world-famous sunsets, and wander through historic villages while enjoying premium accommodations and private transfers. Here is everything you need to know about this spectacular Greek odyssey.",
       "## Why Visit Greece",
@@ -383,7 +383,7 @@ export const blogs = [
     "date": "May 15, 2026",
     "relatedTour": { "slug": "reg-01-legendary-turkey", "label": "Legendary Turkey", "path": "/programs/turkey/reg-01-legendary-turkey" },
     "excerpt": "Explore the luxury of our custom Legendary Turkey program in Turkey. Discover why this 11 days / 10 nights itinerary is perfect for your travel dreams with Duna",
-    "img": "https://images.unsplash.com/photo-1565552645632-d725f8bfc19a?w=800&q=80&fit=crop",
+    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783023865/80f6f47a-4938-4684-aaf1-b1e61d44dab6_n8vdtl.jpg",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Legendary Turkey\" itinerary is a premier 11 days / 10 nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -406,7 +406,7 @@ export const blogs = [
     "date": "Oct 15, 2026",
     "relatedTour": { "slug": "reg-04-legendary-cappadocia", "label": "Legendary Cappadocia", "path": "/programs/turkey/reg-04-legendary-cappadocia" },
     "excerpt": "Explore the luxury of our custom Legendary Cappadocia program in Turkey. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Du",
-    "img": "https://images.unsplash.com/photo-1559783510-c448bd7d686b?w=800&q=80&fit=crop",
+    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Legendary Cappadocia\" itinerary is a premier 8 days / 7 nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -429,7 +429,7 @@ export const blogs = [
     "date": "Nov 5, 2026",
     "relatedTour": { "slug": "ist-01-best-of-istanbul", "label": "Best of Istanbul", "path": "/programs/turkey/ist-01-best-of-istanbul" },
     "excerpt": "Explore the luxury of our custom Best of Istanbul program in Turkey. Discover why this 4 days / 3 nights itinerary is perfect for your travel dreams with Dunas ",
-    "img": "https://images.unsplash.com/photo-1547057365-90f38124c65b?w=800&q=80&fit=crop",
+    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026773/19_suxy3c.jpg",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Best of Istanbul\" itinerary is a premier 4 days / 3 nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -452,7 +452,7 @@ export const blogs = [
     "date": "Dec 3, 2026",
     "relatedTour": { "slug": "reg-03-passion-of-turkey", "label": "Passion of Turkey", "path": "/programs/turkey/reg-03-passion-of-turkey" },
     "excerpt": "Explore the luxury of our custom Passion of Turkey program in Turkey. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Dunas",
-    "img": "https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=800&q=80&fit=crop",
+    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783023927/dad14822-455c-419c-8627-32b3daebef90_akfw3l.jpg",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Passion of Turkey\" itinerary is a premier 8 days / 7 nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -751,7 +751,7 @@ export const blogs = [
     "date": "May 15, 2026",
     "relatedTour": { "slug": "reg-27", "label": "One Week in Dubai", "path": "/programs/dubai/reg-27" },
     "excerpt": "Explore the luxury of our custom One Week in Dubai program in Dubai. Discover why this 7 Nights / 8 Days itinerary is perfect for your travel dreams with Dunas ",
-    "img": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80&fit=crop",
+    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783024003/d34eeca3-6bc8-4a19-aa18-bf13404bb11b_n0f8zn.jpg",
     "content": [
       "In the heart of the Arabian Gulf, Dubai stands as a glittering oasis of futuristic architecture, world-class shopping, and ultra-luxury lifestyle. The \"One Week in Dubai\" tour package offers a spectacular 7 Nights / 8 Days itinerary that bridges the rich heritage of the old spice markets with the towering wonders of the modern skyline. From the breathtaking heights of the Burj Khalifa and the tranquility of a desert safari to the historic alleys of the Al Fahidi district, this trip is a masterclass in luxury exploration. This guide details the marvelous highlights of this journey and explains why traveling with Dunas Travel ensures a premium, seamless experience in the City of Gold.",
       "## Why Visit Dubai",
@@ -843,7 +843,7 @@ export const blogs = [
     "date": "Jul 20, 2026",
     "relatedTour": { "slug": "reg-05-admirable-turkey", "label": "Admirable Turkey", "path": "/programs/turkey/reg-05-admirable-turkey" },
     "excerpt": "Explore the luxury of our custom Admirable Turkey program in Turkey. Discover why this 10 days / 9 nights itinerary is perfect for your travel dreams with Dunas",
-    "img": "https://images.unsplash.com/photo-1655832975303-9c474a06ed56?w=800&q=80&fit=crop",
+    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783024053/66dc2b5e-f90d-424f-b9a7-4164b52f4e5a_eoqd3p.jpg",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Admirable Turkey\" itinerary is a premier 10 days / 9 nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",

@@ -32,9 +32,18 @@ function normalizeTour(data) {
       meals: item.meals || null,
     };
   });
+  const normalizedCountry = String(data.country || '').trim().toLowerCase();
+  const destination = normalizedCountry === 'united arab emirates'
+    ? 'dubai'
+    : normalizedCountry === 'multi country'
+      ? 'multi-country'
+      : normalizedCountry.replace(/\s+/g, '-');
 
   return {
     ...data,
+    // The detail API returns a commercial country, while customer routes use
+    // landing-page slugs. Do not redirect missing data to another country.
+    destination: data.destination || destination || null,
     images,
     included: data.includedServices,
     excluded: data.excludedServices,
@@ -61,6 +70,7 @@ export function useTour(slug) {
   const [tour, setTour] = useState(null);
   const [loading, setLoading] = useState(Boolean(slug));
   const [error, setError] = useState(null);
+  const [reloadNonce, setReloadNonce] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -91,7 +101,7 @@ export function useTour(slug) {
     return () => {
       isMounted = false;
     };
-  }, [slug, lang]);
+  }, [slug, lang, reloadNonce]);
 
-  return { tour, loading, error };
+  return { tour, loading, error, retry: () => setReloadNonce((value) => value + 1) };
 }
