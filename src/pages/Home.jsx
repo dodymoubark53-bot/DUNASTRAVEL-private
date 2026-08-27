@@ -639,11 +639,16 @@ const Home = () => {
   const [searchTour, setSearchTour] = useState("");
   const [searchPeople, setSearchPeople] = useState(1);
 
-  const destinations = liveDestinationCards.map((destination) => ({
-    id: destination.id,
-    label: destination.name,
-    img: destination.image,
-  }));
+  const destinations = [
+    { id: 'egypt', label: t('nav.egypt', 'Egypt') },
+    { id: 'turkey', label: t('nav.turkey', 'Turkey') },
+    { id: 'jordan', label: t('nav.jordan', 'Jordan') },
+    { id: 'morocco', label: t('nav.morocco', 'Morocco') },
+    { id: 'greece', label: t('nav.greece', 'Greece') },
+    { id: 'dubai', label: t('nav.dubai', 'Dubai') },
+    { id: 'tunisia', label: t('nav.tunisia', 'Tunisia') },
+    { id: 'holyland', label: t('nav.holyland', 'Holy Land') },
+  ];
 
   const slugify = (str) => str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
@@ -652,8 +657,16 @@ const Home = () => {
 
     const addTour = (tour, baseUrl) => {
       const slug = tour.slug || slugify((tour.id || '') + "-" + (tour.title || ""));
-      result.push({ label: t(`tour.${tour.id}`, tour.title), url: `${baseUrl}/${slug}`, id: `tour-${slug}` });
+      result.push({ label: t(`tour.${tour.id}`, tour.title || tour.name), url: `${baseUrl}/${slug}`, id: `tour-${slug}` });
     };
+
+    if (destId === "egypt" || destId === "all") {
+      result.push({
+        id: "tour-sol-pyramid-hotel",
+        label: "Sol Pyramid Hotel",
+        url: "/services/hotels/sol-pyramid-hotel",
+      });
+    }
 
     if (destId === "all") {
       allLiveTours.forEach((tour) => addTour(tour, "/tours"));
