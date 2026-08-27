@@ -1969,14 +1969,14 @@ const HomeExperienceSection = () => {
           <div className="flex flex-col md:flex-row gap-8 w-full max-w-5xl mx-auto min-h-[500px] md:h-[550px]">
             
             {/* Hotels Card */}
-            <motion.a
-              href="/programs/hotels"
+            <motion.div
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: 0.1 }}
               className="relative flex-1 md:hover:grow-[1.4] transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] group rounded-3xl overflow-hidden cursor-pointer shadow-card hover:shadow-card-lg border border-gold-200/20 flex flex-col justify-end"
             >
+              <Link to="/services" className="absolute inset-0 z-20" aria-label={t('nav.hotelsTab', 'Hotels')} />
               {/* Background Image with Muted Overlay */}
               <div 
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out group-hover:scale-105"
@@ -2025,7 +2025,7 @@ const HomeExperienceSection = () => {
                   </div>
                 </div>
               </div>
-            </motion.a>
+            </motion.div>
 
             {/* Transportation Card */}
             <motion.a

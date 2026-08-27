@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaPlay, FaCompass } from 'react-icons/fa';
 import TourCard from '../../components/tour/TourCard';
@@ -11,9 +11,12 @@ function readableSections(sections) {
   return sections.filter((section) => typeof section === 'string' && section.trim());
 }
 
-export default function LandingPageDetails({ destinationOnly = false }) {
+export default function LandingPageDetails({ destinationOnly = false, slug: slugProp }) {
   const params = useParams();
-  const slug = params.slug || params.programSlug || params.programId || params.id;
+  const location = useLocation();
+  const pathSegments = location.pathname.split('/').filter(Boolean);
+  const routeSlug = params.slug || params.programSlug || params.programId || params.id;
+  const slug = slugProp || routeSlug || (pathSegments.length > 0 ? pathSegments[pathSegments.length - 1] : undefined);
   const { t } = useTranslation();
   const { landingPage, loading, error, retry } = useLandingPage(slug, { destinationOnly });
 

@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import Layout from "./components/layout/Layout";
@@ -325,6 +325,8 @@ function App() {
                   <Route path="jordan/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
                   <Route path="dubai" element={<PageTransition><BackendToursPage titleKey="nav.dubai" titleDefault="Dubai Tours" filters={{ destination: 'United Arab Emirates' }} /></PageTransition>} />
                   <Route path="dubai/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="hotels" element={<Navigate to="/services" replace />} />
+                  <Route path="transportation" element={<Navigate to="/transportation" replace />} />
                   <Route path=":slug" element={<PageTransition><TourDetails /></PageTransition>} />
                 </Route>
                 <Route path="destinations">
@@ -337,90 +339,18 @@ function App() {
                     }
                   />
                   <Route
-                    path="egypt"
-                    element={
-                      <PageTransition>
-                        <LandingPageDetails destinationOnly />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="egito"
-                    element={
-                      <PageTransition>
-                        <LandingPageDetails destinationOnly />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="jordan"
-                    element={
-                      <PageTransition>
-                        <LandingPageDetails destinationOnly />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="jordan/:programId"
-                    element={
-                      <PageTransition>
-                        <TourDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="dubai"
-                    element={
-                      <PageTransition>
-                        <LandingPageDetails destinationOnly />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="dubai/:programId"
-                    element={
-                      <PageTransition>
-                        <TourDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="turkey"
-                    element={
-                      <PageTransition>
-                        <LandingPageDetails destinationOnly />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="turquia"
-                    element={
-                      <PageTransition>
-                        <LandingPageDetails destinationOnly />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="turkey/:programId"
-                    element={
-                      <PageTransition>
-                        <TourDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="turquia/:programId"
-                    element={
-                      <PageTransition>
-                        <TourDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
                     path=":slug"
                     element={
                       <PageTransition>
                         <LandingPageDetails destinationOnly />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path=":destinationSlug/:slug"
+                    element={
+                      <PageTransition>
+                        <TourDetails />
                       </PageTransition>
                     }
                   />

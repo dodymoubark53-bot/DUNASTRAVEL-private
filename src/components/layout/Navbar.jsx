@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaGlobe, FaChevronDown, FaUserCircle, FaSignOutAlt, FaBookmark, FaMoon, FaSun, FaPlane, FaEnvelope, FaPhone, FaWhatsapp } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +11,7 @@ import CurrencySelector from '../ui/CurrencySelector';
 import CustomerNotificationBell from '../ui/CustomerNotificationBell';
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -26,6 +27,13 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const isRtl = i18n.dir() === 'rtl';
+
+  const handleLogout = async () => {
+    setProfileDropdownOpen(false);
+    setMobileMenuOpen(false);
+    await logout();
+    navigate('/', { replace: true });
+  };
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
@@ -544,7 +552,7 @@ const Navbar = () => {
                       <FaBookmark className="text-[#F5A623]" /> {t('nav.myBookings', 'My Bookings')}
                     </Link>
                     <button
-                      onClick={() => { logout(); setMobileMenuOpen(false); }}
+                      onClick={handleLogout}
                       className="w-full py-3.5 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl text-lg font-semibold flex items-center justify-center gap-2 border border-red-200 dark:border-red-800 transition-colors active:bg-red-100 dark:active:bg-red-900/50"
                     >
                       <FaSignOutAlt /> {t('nav.logout', 'Logout')}
@@ -591,7 +599,7 @@ const Navbar = () => {
               <Link to="/bookings" onClick={() => setProfileDropdownOpen(false)} className="w-full text-left px-4 py-3 text-obsidian-700 dark:text-ivory-300 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-obsidian-700 transition-colors text-body-md border-b border-obsidian-100 dark:border-obsidian-700 flex items-center gap-2">
                 <FaBookmark className="text-amber-500" size={15} /> {t('nav.myBookings', 'My Bookings')}
               </Link>
-              <button onClick={() => { logout(); setProfileDropdownOpen(false); }} className="w-full text-left px-4 py-3 text-red-500 hover:text-white hover:bg-red-500 transition-colors text-body-md flex items-center gap-2">
+              <button onClick={handleLogout} className="w-full text-left px-4 py-3 text-red-500 hover:text-white hover:bg-red-500 transition-colors text-body-md flex items-center gap-2">
                 <FaSignOutAlt size={15} /> {t('nav.logout', 'Logout')}
               </button>
             </motion.div>

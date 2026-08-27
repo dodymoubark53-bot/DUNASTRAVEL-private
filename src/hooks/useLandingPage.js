@@ -4,24 +4,64 @@ import api from '../utils/api';
 import { supportedLocale } from '../utils/locale';
 
 function normalizeLandingPage(value) {
-  if (!value || !value.id || !value.slug || !value.title || !value.type || !Array.isArray(value.tours)) {
+  if (!value || typeof value !== 'object') {
     throw new Error('Invalid landing page response');
   }
 
+  const slug = value.slug || value.id;
+  if (!slug) {
+    throw new Error('Missing landing page slug');
+  }
+
+  const rawTours = Array.isArray(value.tours) ? value.tours : [];
+
   return {
     ...value,
-    tours: value.tours.map((tour) => {
-      if (!tour?.id || !tour.slug || typeof tour.title !== 'string' || typeof tour.basePriceUsd !== 'string' || typeof tour.currency !== 'string') {
-        throw new Error(`Invalid landing page tour for ${value.slug}`);
-      }
-      return tour;
+    id: value.id || slug,
+    slug,
+    title: typeof value.title === 'string' && value.title.trim() ? value.title : slug,
+    subtitle: typeof value.subtitle === 'string' ? value.subtitle : '',
+    description: typeof value.description === 'string' ? value.description : '',
+    brief: typeof value.brief === 'string' ? value.brief : '',
+    type: value.type || 'DESTINATION',
+    sections: Array.isArray(value.sections) ? value.sections : [],
+    tours: rawTours.map((tour, idx) => {
+      const tourId = tour?.id || tour?.slug || `tour-${idx}`;
+      const tourSlug = tour?.slug || tourId;
+      const title = typeof tour?.title === 'string' && tour.title.trim()
+        ? tour.title
+        : (tour?.title?.en || tour?.title?.ar || tourSlug || 'Tour');
+      const basePriceUsd = tour?.basePriceUsd != null ? String(tour.basePriceUsd) : '0';
+      const currency = typeof tour?.currency === 'string' && tour.currency.trim() ? tour.currency : 'USD';
+      const images = Array.isArray(tour?.images) ? tour.images : (tour?.heroImage ? [tour.heroImage] : []);
+
+      return {
+        ...tour,
+        id: tourId,
+        slug: tourSlug,
+        title,
+        basePriceUsd,
+        currency,
+        images,
+        heroImage: tour?.heroImage || images[0] || null,
+        country: tour?.country || '',
+        city: tour?.city || '',
+        customBadge: tour?.customBadge || null,
+      };
     }),
   };
 }
 
 const destinationSlugAliases = {
   egito: 'egypt',
+  egipto: 'egypt',
   turquia: 'turkey',
+  jordania: 'jordan',
+  marruecos: 'morocco',
+  marrocos: 'morocco',
+  grecia: 'greece',
+  tunez: 'tunisia',
+  tunisie: 'tunisia',
 };
 
 export function useLandingPage(slug, { destinationOnly = false } = {}) {
