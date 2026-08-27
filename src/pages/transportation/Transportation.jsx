@@ -21,8 +21,7 @@ const galleryImages = [
   'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786797/3acfceb6-1313-44db-9965-f2b14aac8260_hoeveh.jpg',
   'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786785/7173bba6-bc2f-4ea0-84db-905374545128_esjlwd.jpg',
   'https://res.cloudinary.com/degbrq3ck/image/upload/v1787786745/b0e91260-4918-46ed-8067-7392b332641a_vq6lre.jpg',
-  'https://res.cloudinary.com/degbrq3ck/image/upload/v1783033441/logo6_drog9y.jpg',
-  'https://res.cloudinary.com/degbrq3ck/image/upload/v1783033442/logo3_sk0tns.png'
+  '/imgs/transportation/privte.jpeg'
 ];
 
 const Transportation = () => {
