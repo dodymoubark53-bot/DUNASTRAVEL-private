@@ -123,7 +123,7 @@ const Blogs = () => {
                   )}
 
                   <img
-                    src={blog.img}
+                    src={blog.img || blog.coverImage || "/imgs/hero.png"}
                     alt={t(`blogs.${blog.title}`, blog.title)}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     loading="lazy"
@@ -135,7 +135,7 @@ const Blogs = () => {
                   <div className="flex items-center gap-3 text-caption text-gray-400 mb-3">
                     <span className="flex items-center gap-1">
                       <FaCalendarAlt size={10} />
-                      {t(`blogs.${blog.date}`, blog.date)}
+                      {blog.date || (blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString() : 'Recent')}
                     </span>
                     <span className="flex items-center gap-1">
                       <FaClock size={10} />

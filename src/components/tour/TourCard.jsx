@@ -34,9 +34,10 @@ const TourCard = ({
 
   const parsedPrice = Number(tour.price ?? tour.basePriceUsd ?? tour.raw?.price);
   const tourPrice = Number.isFinite(parsedPrice) ? parsedPrice : null;
-  const tourImage = (Array.isArray(tour.images) && tour.images.length > 0 && tour.images[0])
-    ? tour.images[0]
-    : (tour.heroImage || null);
+  const firstImage = Array.isArray(tour.images) && tour.images.length > 0 ? tour.images[0] : null;
+  const tourImage = typeof firstImage === 'string'
+    ? firstImage
+    : firstImage?.imageUrl || firstImage?.url || tour.heroImage || null;
 
   const codeText = resolveLocalizedText(tour.code, t, lang);
   const minPaxText = resolveLocalizedText(tour.minPax, t, lang);

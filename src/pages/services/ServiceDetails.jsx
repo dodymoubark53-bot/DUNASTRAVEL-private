@@ -19,7 +19,6 @@ import { useCurrency } from '../../context/CurrencyContext';
 import RouteMap from '../../components/tour/RouteMap';
 import ReviewsMap from '../../components/tour/ReviewsMap';
 import SuggestedTours from '../../components/tour/SuggestedTours';
-import { services as staticServices } from '../../data/services';
 
 const ServiceDetails = () => {
   const { t } = useTranslation();
@@ -27,7 +26,7 @@ const ServiceDetails = () => {
   const { category: urlCategory, slug } = useParams();
   const { services: apiServices, loading, error } = useServices(urlCategory);
   
-  const allServices = [...(apiServices || []), ...staticServices];
+  const allServices = Array.isArray(apiServices) ? apiServices : [];
   const service = allServices.find((s) => s.slug === slug) || allServices.find((s) => (urlCategory ? s.category === urlCategory : true) && s.slug === slug);
   const category = service ? service.category : urlCategory;
   const [activeImage, setActiveImage] = useState(null);
@@ -68,6 +67,16 @@ const ServiceDetails = () => {
 
   const relatedServices = allServices.filter((s) => s.category === category && s.id !== service.id).slice(0, 3);
   const hasItinerary = !!service.itinerary;
+  const serviceImages = Array.isArray(service.images) ? service.images.filter(Boolean) : [];
+  const serviceOverview = Array.isArray(service.overview)
+    ? service.overview.filter(Boolean)
+    : service.overview
+      ? [service.overview]
+      : [];
+  const serviceHighlights = Array.isArray(service.highlights) ? service.highlights.filter(Boolean) : [];
+  const serviceIncluded = Array.isArray(service.included) ? service.included.filter(Boolean) : [];
+  const serviceExcluded = Array.isArray(service.excluded) ? service.excluded.filter(Boolean) : [];
+  const serviceRating = Number.isFinite(Number(service.rating)) ? Number(service.rating) : 0;
 
   return (
     <div className="w-full bg-obsidian-50 pb-24">
@@ -115,11 +124,11 @@ const ServiceDetails = () => {
           {/* Large Image Showcase */}
           <section
             className="relative w-full h-[50vh] lg:h-[70vh] overflow-hidden group cursor-pointer focus:outline-none focus:ring-2 focus:ring-gold-500"
-            onClick={() => setActiveImage(service.images[0])}
+            onClick={() => setActiveImage(serviceImages[0])}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                setActiveImage(service.images[0]);
+                setActiveImage(serviceImages[0]);
               }
             }}
             tabIndex={0}
@@ -127,7 +136,7 @@ const ServiceDetails = () => {
             aria-label={t('tour.clickGallery', 'Click to open gallery')}
           >
             <motion.img
-              src={service.images[0]}
+              src={serviceImages[0]}
               alt={translateData(service.title, service.title)}
               className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
               loading="lazy"
@@ -164,7 +173,7 @@ const ServiceDetails = () => {
                 <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                   <h2 className="text-display-md text-obsidian-900 mb-6 font-display animate-none text-start" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.overview', 'Overview')}</h2>
                   <div className="prose prose-lg prose-p:text-obsidian-500 prose-p:font-body prose-p:mb-6 text-start">
-                    {service.overview.map((para, idx) => (
+                    {serviceOverview.map((para, idx) => (
                       <p key={idx}>{translateData(para, para)}</p>
                     ))}
                   </div>
@@ -174,7 +183,7 @@ const ServiceDetails = () => {
                 <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-start">
                   <h2 className="text-display-md text-obsidian-900 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.highlights', 'Key Highlights')}</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {service.highlights.map((highlight, idx) => (
+                    {serviceHighlights.map((highlight, idx) => (
                       <div key={idx} className="flex items-start gap-3">
                         <FaCheckCircle className="text-gold-500 mt-1 flex-shrink-0" />
                         <span className="text-body-md text-obsidian-700">{translateData(highlight, highlight)}</span>
@@ -497,7 +506,7 @@ const ServiceDetails = () => {
                       {translateData(service.title, service.title)} — {translateData('tour_siwa_includes_title', 'Package Includes')}
                     </h2>
                     <ul className="space-y-3">
-                      {service.included.map((item, idx) => (
+                      {serviceIncluded.map((item, idx) => (
                         <li key={idx} className="flex items-start gap-3 text-obsidian-600 dark:text-ivory-300">
                           <FaCheckCircle className="text-sage-500 dark:text-green-400 mt-1 flex-shrink-0" />
                           <span>{translateData(item, item)}</span>
@@ -512,7 +521,7 @@ const ServiceDetails = () => {
                       <div>
                         <h3 className="text-body-lg font-semibold text-sage-700 dark:text-green-400 mb-4 flex items-center gap-2 font-display">{t('tourDetail.included', 'Included')}</h3>
                         <ul className="space-y-3">
-                          {service.included.map((item, idx) => (
+                          {serviceIncluded.map((item, idx) => (
                             <li key={idx} className="flex items-start gap-3 text-obsidian-600 dark:text-ivory-300">
                               <FaCheckCircle className="text-sage-500 dark:text-green-400 mt-1" />
                               <span>{translateData(item, item)}</span>
@@ -523,7 +532,7 @@ const ServiceDetails = () => {
                       <div>
                         <h3 className="text-body-lg font-semibold text-red-700 dark:text-red-300 mb-4 flex items-center gap-2 font-display">{t('tourDetail.excluded', 'Not Included')}</h3>
                         <ul className="space-y-3">
-                          {service.excluded.map((item, idx) => (
+                          {serviceExcluded.map((item, idx) => (
                             <li key={idx} className="flex items-start gap-3 text-obsidian-600 dark:text-ivory-300">
                               <FaTimesCircle className="text-red-500 dark:text-red-300 mt-1" />
                               <span>{translateData(item, item)}</span>
@@ -549,12 +558,18 @@ const ServiceDetails = () => {
         /* Original Non-Itinerary Hero Section */
         <section className="relative h-[65vh] flex items-end justify-center overflow-hidden pb-16">
           <div className="absolute inset-0 z-0">
-            <img
-              src={service.images[0]}
-              alt={translateData(service.title, service.title)}
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
+            {serviceImages[0] ? (
+              <img
+                src={serviceImages[0]}
+                alt={translateData(service.title, service.title)}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-obsidian-800 px-6 text-center text-ivory-300">
+                {t('tour.imageUnavailable', 'No image has been added for this service.')}
+              </div>
+            )}
             <div className="absolute inset-0 bg-obsidian-900/60 bg-gradient-to-t from-obsidian-900 via-obsidian-900/30 to-transparent"></div>
           </div>
 
@@ -578,9 +593,9 @@ const ServiceDetails = () => {
             <motion.div variants={fadeInUp} className="flex flex-col items-start md:items-end bg-obsidian-900/80 backdrop-blur-md p-6 rounded-2xl border border-ivory-50/10">
               <div className="flex text-gold-500 mb-2">
                 {[...Array(5)].map((_, i) => (
-                  <FaStar key={i} className={i < Math.floor(service.rating) ? "text-gold-500" : "text-obsidian-300"} />
+                  <FaStar key={i} className={i < Math.floor(serviceRating) ? "text-gold-500" : "text-obsidian-300"} />
                 ))}
-                <span className="text-ivory-50 ml-2 text-body-sm font-medium">{service.rating}</span>
+                <span className="text-ivory-50 ml-2 text-body-sm font-medium">{serviceRating}</span>
               </div>
               <div className="text-[#F5EDD6] text-caption uppercase tracking-wider mb-1">{t('tourCard.startingFrom', 'Starting From')}</div>
               <div className="text-display-md text-ivory-50">{formatPrice(service.price)}</div>
@@ -598,7 +613,7 @@ const ServiceDetails = () => {
               <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                 <h2 className="text-display-md text-obsidian-900 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.overview', 'Overview')}</h2>
                 <div className="prose prose-lg prose-p:text-obsidian-500 prose-p:font-body prose-p:mb-6 text-start">
-                  {service.overview.map((para, idx) => (
+                  {serviceOverview.map((para, idx) => (
                     <p key={idx}>{translateData(para, para)}</p>
                   ))}
                 </div>
@@ -608,7 +623,7 @@ const ServiceDetails = () => {
               <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-start">
                 <h2 className="text-display-md text-obsidian-900 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.highlights', 'Key Highlights')}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {service.highlights.map((highlight, idx) => (
+                  {serviceHighlights.map((highlight, idx) => (
                     <div key={idx} className="flex items-start gap-3">
                       <FaCheckCircle className="text-gold-500 mt-1 flex-shrink-0" />
                       <span className="text-body-md text-obsidian-700">{translateData(highlight, highlight)}</span>
@@ -624,7 +639,7 @@ const ServiceDetails = () => {
                   <div>
                     <h3 className="text-body-lg font-semibold text-sage-700 dark:text-green-400 mb-4 flex items-center gap-2 font-display">{t('tourDetail.included', 'Included')}</h3>
                     <ul className="space-y-3">
-                      {service.included.map((item, idx) => (
+                      {serviceIncluded.map((item, idx) => (
                         <li key={idx} className="flex items-start gap-3 text-obsidian-600 dark:text-ivory-300">
                           <FaCheckCircle className="text-sage-500 dark:text-green-400 mt-1" />
                           <span>{translateData(item, item)}</span>
@@ -635,7 +650,7 @@ const ServiceDetails = () => {
                   <div>
                     <h3 className="text-body-lg font-semibold text-red-700 dark:text-red-300 mb-4 flex items-center gap-2 font-display">{t('tourDetail.excluded', 'Not Included')}</h3>
                     <ul className="space-y-3">
-                      {service.excluded.map((item, idx) => (
+                      {serviceExcluded.map((item, idx) => (
                         <li key={idx} className="flex items-start gap-3 text-obsidian-600 dark:text-ivory-300">
                           <FaTimesCircle className="text-red-500 dark:text-red-300 mt-1" />
                           <span>{translateData(item, item)}</span>
@@ -650,7 +665,7 @@ const ServiceDetails = () => {
               <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-start">
                 <h2 className="text-display-md text-obsidian-900 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.gallery', 'Gallery')}</h2>
                 <div className="grid grid-cols-3 gap-4">
-                  {service.images.map((img, idx) => (
+                  {serviceImages.map((img, idx) => (
                     <div
                       key={idx}
                       className={`rounded-xl overflow-hidden cursor-pointer group relative focus:outline-none focus:ring-2 focus:ring-gold-500 ${idx === 0 ? 'col-span-3 h-80' : 'col-span-1 h-40'}`}
@@ -702,7 +717,7 @@ const ServiceDetails = () => {
                 <div key={relService.id} className="bg-obsidian-50 rounded-2xl overflow-hidden group h-full flex flex-col shadow-sm border border-obsidian-900/5 hover:shadow-card transition-all">
                   <div className="relative h-60 overflow-hidden text-start">
                     <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4 z-10 bg-gold-500 text-obsidian-900 text-caption uppercase px-3 py-1 rounded-full">{translateData(relService.location, relService.location)}</div>
-                    <img src={relService.images[0]} alt={translateData(relService.title, relService.title)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                    <img src={(relService.images?.[0] || relService.image || '/imgs/services/transportation-cover.webp')} alt={translateData(relService.title, relService.title)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
                   </div>
                   <div className="p-8 flex flex-col flex-grow text-start">
                     <h3 className="text-display-md text-obsidian-900 mb-3 text-xl line-clamp-1">{translateData(relService.title, relService.title)}</h3>

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { jordanTours } from '../data/jordanTours.js';
+import { useTours } from './useTours';
 
 function getLocalizedField(fieldObj, locale) {
   if (!fieldObj) return '';
@@ -19,9 +19,10 @@ export function useJordanPrograms() {
   const { i18n } = useTranslation();
   const lang = i18n.language || 'en';
   const locale = ['ar', 'en', 'es', 'pt', 'it'].includes(lang) ? lang : 'en';
+  const { tours } = useTours({ destination: 'Jordan', limit: 100 });
 
   return useMemo(() => {
-    return jordanTours.map((program) => {
+    return tours.map((program) => {
       const title = getLocalizedField(program.name || program.title, locale);
       const enTitle = getLocalizedField(program.name || program.title, 'en');
       const slug = program.slug || slugify(`${program.id}-${enTitle}`);
@@ -45,7 +46,7 @@ export function useJordanPrograms() {
         id: program.id,
         title,
         slug,
-        images: Array.isArray(program.images) && program.images.length > 0 ? program.images : [program.heroImage],
+        images: Array.isArray(program.images) && program.images.length > 0 ? program.images : (program.heroImage ? [program.heroImage] : []),
         duration,
         highlights: Array.isArray(highlights) ? highlights : [],
         overview,
@@ -55,52 +56,15 @@ export function useJordanPrograms() {
         raw: program,
       };
     });
-  }, [locale]);
+  }, [locale, tours]);
 }
 
 export function getJordanProgramBySlug(slug, locale = 'en') {
-  if (!slug) return null;
-  const normSlug = String(slug).toLowerCase();
-  
-  const targetLocale = ['ar', 'en', 'es', 'pt', 'it'].includes(locale) ? locale : 'en';
-
-  const matched = jordanTours.find((p) => {
-    const pSlug = p.slug || slugify(`${p.id}-${getLocalizedField(p.name, 'en')}`);
-    return pSlug.toLowerCase() === normSlug || p.id.toLowerCase() === normSlug;
-  });
-
-  if (!matched) return null;
-
-  const title = getLocalizedField(matched.name || matched.title, targetLocale);
-  const duration = getLocalizedField(matched.duration, targetLocale);
-  const highlights = getLocalizedField(matched.highlights, targetLocale);
-  const overview = getLocalizedField(matched.overview, targetLocale);
-  const code = getLocalizedField(matched.code, targetLocale) || matched.id;
-  const minPax = getLocalizedField(matched.minPax, targetLocale);
-
-  const days = Array.isArray(matched.days)
-    ? matched.days.map((d) => ({
-        day: d.day,
-        title: getLocalizedField(d.title, targetLocale),
-        description: getLocalizedField(d.description, targetLocale),
-        meals: d.meals ? getLocalizedField(d.meals, targetLocale) : null,
-      }))
-    : [];
-
-  return {
-    ...matched,
-    id: matched.id,
-    title,
-    slug: matched.slug || slugify(`${matched.id}-${getLocalizedField(matched.name, 'en')}`),
-    images: Array.isArray(matched.images) && matched.images.length > 0 ? matched.images : [matched.heroImage],
-    duration,
-    highlights: Array.isArray(highlights) ? highlights : [],
-    overview,
-    code,
-    minPax,
-    days,
-    raw: matched,
-  };
+  // Detail resolution is asynchronous and must go through GET /api/tours/:slug.
+  // Keep this legacy synchronous helper inert so it can never expose a local catalog.
+  void slug;
+  void locale;
+  return null;
 }
 
 export default useJordanPrograms;

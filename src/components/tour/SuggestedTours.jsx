@@ -2,9 +2,8 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { FaChevronLeft, FaChevronRight, FaClock, FaStar } from 'react-icons/fa';
-import tours from '../../data/tours';
-import { services } from '../../data/services';
+import { FaChevronLeft, FaChevronRight, FaStar } from 'react-icons/fa';
+import { useTours } from '../../hooks/useTours';
 import {
   resolveTourTitle,
   resolveTourOverview,
@@ -17,10 +16,10 @@ export default function SuggestedTours({ currentDestination = 'egypt', currentSl
   const lang = i18n.language || 'en';
   const scrollRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
+  const { tours } = useTours({ limit: 50 });
 
   const destLower = (currentDestination || 'egypt').toLowerCase();
 
-  // Combine tours and services data
   const allItems = [];
 
   if (Array.isArray(tours)) {
@@ -33,42 +32,8 @@ export default function SuggestedTours({ currentDestination = 'egypt', currentSl
         destination: tour.destination || 'egypt',
         price: tour.price ?? 0,
         rating: tour.rating || 4.9,
-        image: tour.images && tour.images[0] ? tour.images[0] : '/imgs/egyothero.png',
-        link: tour.category === 'extension' || ['hurghada-4d3n', 'sharm-4d3n', 'siwa-oasis-alexandria'].includes(tour.slug)
-          ? `/programs/extension/${tour.slug}`
-          : tour.link || `/tours/${tour.slug}`
-      });
-    });
-  }
-
-  if (Array.isArray(services)) {
-    services.forEach((service) => {
-      if (!service || !service.slug) return;
-      if (allItems.some((item) => item.slug === service.slug)) return;
-
-      let link = `/services/${service.category || 'classic'}/${service.slug}`;
-      if (service.category === 'extension' || ['hurghada-4d3n', 'sharm-4d3n', 'siwa-oasis-alexandria'].includes(service.slug)) {
-        link = `/programs/extension/${service.slug}`;
-      } else if (service.category === 'honeymooners') {
-        link = `/programs/honeymooners`;
-      } else if (service.category === 'religious') {
-        link = `/programs/religious`;
-      } else if (service.slug === 'classic-program') {
-        link = `/programs/classic/classic-program`;
-      }
-
-      allItems.push({
-        ...service,
-        id: service.id || service.slug,
-        slug: service.slug,
-        title: service.title || service.slug,
-        overview: service.shortDesc || (service.overview && service.overview[0]) || '',
-        destination: service.location || 'egypt',
-        duration: service.itinerary ? `${service.itinerary.length} Days` : '4 Days',
-        price: service.price ?? 0,
-        rating: service.rating || 4.9,
-        image: service.images && service.images[0] ? service.images[0] : '/imgs/egyothero.png',
-        link
+        image: tour.images && tour.images[0] ? tour.images[0] : tour.heroImage || null,
+        link: `/tours/${tour.slug}`
       });
     });
   }
@@ -100,8 +65,6 @@ export default function SuggestedTours({ currentDestination = 'egypt', currentSl
     .map((slug) => matchingItems.find((i) => i.slug === slug))
     .slice(0, 8);
 
-  if (suggestedTours.length === 0) return null;
-
   const isRtl = lang === 'ar';
 
   const scroll = (direction) => {
@@ -129,6 +92,8 @@ export default function SuggestedTours({ currentDestination = 'egypt', currentSl
 
     return () => clearInterval(interval);
   }, [isHovered, isRtl]);
+
+  if (suggestedTours.length === 0) return null;
 
   return (
     <section className="w-full bg-obsidian-50 dark:bg-[#0c0d19] py-16 relative overflow-hidden border-t border-gold-500/10">

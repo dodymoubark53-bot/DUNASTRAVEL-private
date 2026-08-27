@@ -216,7 +216,7 @@ const Services = () => {
                           {resolveLocalizedText('tour_siwa_duration', t, lang)}
                         </div>
                       )}
-                      <img src={item.images[0]} alt={resolveLocalizedText(item.title, t, lang)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                      <img src={item.images?.[0] || item.heroImage || item.image || "/imgs/services/transportation-cover.webp"} alt={resolveLocalizedText(item.title || item.name, t, lang)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
                     </div>
                     <div className="p-8 flex flex-col flex-grow">
                       {isSiwa ? (
@@ -252,52 +252,6 @@ const Services = () => {
               );
             })}
           </motion.div>
-        )}        {/* Transportation Section */}
-        {(!service || service === 'transportation') && (
-          <div className={!service ? "mt-20" : ""}>
-            {!service && <h2 className="text-display-lg text-obsidian-900 dark:text-ivory-50 mb-8 text-center" style={{ fontFamily: "'Playfair Display', serif" }}>{t('nav.transportation', 'Transportation')}</h2>}
-            <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-              variants={staggerContainer}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-50px" }}
-            >
-              {transportation.map((item) => (
-                <motion.div
-                  key={item.id}
-                  variants={fadeInUp}
-                  className="bg-ivory-50 dark:bg-[#1a1a30] rounded-2xl overflow-hidden shadow-card group h-full flex flex-col transition-all border border-obsidian-200/40 dark:border-gray-700"
-                >
-                  <div className="relative h-60 overflow-hidden">
-                    <div className="absolute top-4 left-4 z-10 bg-gold-500 text-obsidian-900 text-caption uppercase px-3 py-1 rounded-full shadow-md font-bold">{t(`transportation.cat.${item.category}`, item.category)}</div>
-                    <img src={item.heroImage || item.image} alt={resolveLocalizedText(item.name, t, lang)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
-                  </div>
-                  <div className="p-8 flex flex-col flex-grow">
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-caption text-obsidian-400 dark:text-ivory-400 uppercase tracking-widest">{t('nav.transportation', 'Transportation')}</span>
-                    <div className="flex items-center text-gold-600 dark:text-gold-400 text-caption font-medium">
-                        <span className="mr-1">★</span> {item.rating}
-                      </div>
-                    </div>
-                    <h3 className="text-display-md text-obsidian-900 dark:text-ivory-50 mb-3 text-xl line-clamp-1 font-semibold">{resolveLocalizedText(item.name, t, lang)}</h3>
-                    <p className="text-body-sm text-obsidian-600 dark:text-ivory-300 line-clamp-2 mb-6">
-                      {item.seats} {t('transportation.seatsCount', 'Seats')} • {resolveLocalizedText(item.transmission, t, lang)} • {item.doors} {t('transportation.doorsCount', 'Doors')}
-                    </p>
-                    <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-100 dark:border-gray-800">
-                      <div>
-                        <span className="text-caption text-obsidian-400 dark:text-ivory-400 block">{t('tourCard.from', 'From')}</span>
-                        <span className="text-body-lg font-semibold text-obsidian-900 dark:text-gold-400">{formatPrice(item.pricePerDay)}</span>
-                      </div>
-                      <Link to="/transportation">
-                        <Button variant="outline-gold" className="px-4 py-2 text-sm group-hover:bg-gold-500 group-hover:text-obsidian-900 group-hover:shadow-[0_0_15px_rgba(201,162,39,0.4)] transition-all">{t('transportation.reserveNow', 'Reserve Now')}</Button>
-                      </Link>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
         )}
       </section>
 

@@ -107,7 +107,8 @@ const Navbar = () => {
         { name: t('nav.greece'), path: '/destinations/greece' },
         { name: t('nav.dubai'), path: '/destinations/dubai' },
         { name: t('nav.tunisia'), path: '/destinations/tunisia' },
-        { name: t('nav.holyland'), path: '/destinations/holyland' },
+        { name: t('nav.multiCountry', { defaultValue: 'Multi-Country Tours' }), path: '/programs/multi-country' },
+        { name: t('nav.religious', { defaultValue: 'Religious Tours' }), path: '/programs/religious' },
       ]
     },
     { name: t('nav.about'), path: '/about' },

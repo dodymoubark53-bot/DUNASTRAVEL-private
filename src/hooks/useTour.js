@@ -55,87 +55,22 @@ function normalizeTour(data) {
   };
 }
 
-import { tours as staticTours } from '../data/tours.js';
-import multiCountryTours from '../data/multiCountryTours.js';
-
-const allStaticTours = [...staticTours, ...multiCountryTours];
-
-function getFallbackTour(slug, lang) {
-  const lowerSlug = slug ? String(slug).toLowerCase() : 'complete-egypt-8d';
-  const normSlug = (lowerSlug.includes('classic') || lowerSlug === 'classic-program' || !slug) ? 'complete-egypt-8d' : slug;
-  
-  const match = allStaticTours.find(
-    (t) => t.slug === normSlug || t.id === normSlug
-      || t.slug === slug || t.id === slug
-      || String(t.code?.en || t.code?.ar || t.id).toLowerCase() === String(normSlug).toLowerCase()
-      || String(t.code?.en || t.code?.ar || t.id).toLowerCase() === String(slug).toLowerCase(),
-  ) || allStaticTours.find((t) => t.destination === 'egypt') || allStaticTours[0];
-
-  if (!match) return null;
-
-  const resolveText = (val) => (typeof val === 'object' && val !== null ? (val[lang] || val.en || Object.values(val)[0]) : (val || ''));
-  const resolveList = (val) => (Array.isArray(val) ? val : (val && typeof val === 'object' ? (val[lang] || val.en || []) : []));
-
-  const price = Number(match.price || match.basePriceUsd || 0);
-  const images = Array.isArray(match.images) && match.images.length > 0 ? match.images : (match.heroImage ? [match.heroImage] : []);
-
-  const rawItinerary = Array.isArray(match.days)
-    ? match.days
-    : Array.isArray(match.itinerary)
-      ? match.itinerary
-      : (match.itinerary?.[lang] || match.itinerary?.en || []);
-
-  const itinerary = rawItinerary.map((item, index) => ({
-    id: `day-${index + 1}`,
-    day: item.day || index + 1,
-    title: resolveText(item.title) || `Day ${index + 1}`,
-    description: resolveText(item.description),
-    meals: resolveText(item.meals),
-  }));
-
-  return {
-    ...match,
-    id: match.id || match.slug,
-    slug: match.slug || slug,
-    title: resolveText(match.title || match.name),
-    overview: resolveText(match.overview),
-    duration: resolveText(match.duration),
-    country: match.country || match.destination || 'Egypt',
-    destination: String(match.destination || match.country || 'egypt').toLowerCase(),
-    images,
-    heroImage: images[0] || '',
-    price,
-    basePriceUsd: price,
-    included: resolveList(match.included || match.includes),
-    excluded: resolveList(match.excluded || match.excludes),
-    highlights: resolveList(match.highlights),
-    minPax: resolveText(match.minPax),
-    code: resolveText(match.code),
-    pricing: match.pricing || null,
-    itinerary,
-    currency: 'USD',
-  };
-}
-
 export function useTour(slug) {
   const { i18n } = useTranslation();
   const lang = supportedLocale(i18n.language);
-  const [tour, setTour] = useState(() => getFallbackTour(slug, lang));
-  const [loading, setLoading] = useState(false);
+  const [tour, setTour] = useState(null);
+  const [loading, setLoading] = useState(Boolean(slug));
   const [error, setError] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
-    const initialFallback = getFallbackTour(slug, lang);
-    if (initialFallback && isMounted) {
-      setTour(initialFallback);
-      setError(null);
-    }
-
     if (!slug) return undefined;
 
     const fetchTour = async () => {
       try {
+        setLoading(true);
+        setError(null);
+        setTour(null);
         const result = normalizeTour(
           await api.get(`/tours/${encodeURIComponent(slug)}?lang=${encodeURIComponent(lang)}`),
         );
@@ -145,13 +80,8 @@ export function useTour(slug) {
         }
       } catch (requestError) {
         if (isMounted) {
-          const fallback = getFallbackTour(slug, lang);
-          if (fallback) {
-            setTour(fallback);
-            setError(null);
-          } else {
-            setError(requestError);
-          }
+          setTour(null);
+          setError(requestError);
         }
       } finally {
         if (isMounted) setLoading(false);

@@ -7,10 +7,15 @@ import { useDestinations } from '../../hooks/useDestinations';
 import { useTours } from '../../hooks/useTours';
 import TourCard from '../../components/tour/TourCard';
 
+const destinationSlugForTour = (tour) => {
+  const country = String(tour.country || tour.destination || '').trim().toLowerCase();
+  return country === 'united arab emirates' ? 'dubai' : country;
+};
+
 const Destinations = () => {
   const { t } = useTranslation();
   const { destinations, loading: destsLoading, error } = useDestinations();
-  const { tours: allToursList, loading: toursLoading } = useTours({ limit: 100 });
+  const { tours: allToursList, loading: toursLoading } = useTours({ limit: 50 });
   
   const loading = destsLoading || toursLoading;
 
@@ -64,7 +69,9 @@ const Destinations = () => {
       ) : (
         <div className="flex flex-col gap-24">
           {destinations.map((destination) => {
-            const destTours = allToursList.filter(tour => tour.destination === destination.slug || tour.destination === destination.id);
+            const destTours = allToursList.filter((tour) =>
+              destinationSlugForTour(tour) === destination.slug,
+            );
 
             return (
               <motion.article 

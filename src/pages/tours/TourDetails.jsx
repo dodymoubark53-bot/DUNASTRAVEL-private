@@ -25,11 +25,12 @@ import SuggestedTours from '../../components/tour/SuggestedTours';
 
 const TourDetails = () => {
   const { t, i18n } = useTranslation();
+  const { formatPrice } = useCurrency();
   const lang = i18n.language || 'en';
   const params = useParams();
-  const rawSlug = params.slug || params['*'] || params.programId || 'complete-egypt-8d';
-  const cleanSlug = String(rawSlug).replace(/^classic\/?/, '').trim();
-  const slug = (!cleanSlug || cleanSlug === 'classic' || cleanSlug === 'classic-program') ? 'complete-egypt-8d' : cleanSlug;
+  const rawSlug = params.slug || params.programId || params.id || params['*'];
+  const cleanSlug = rawSlug ? String(rawSlug).replace(/^classic\/?/, '').trim() : '';
+  const slug = cleanSlug;
 
   const { tour, loading, error } = useTour(slug);
   const { tours: relatedToursList } = useTours({ limit: 6 });

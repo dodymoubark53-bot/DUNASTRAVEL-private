@@ -42,35 +42,19 @@ function transformHotelToService(hotel) {
     location: `${hotel.city} - ${hotel.destinationSlug}`,
     images: hotel.heroImageUrl ? [hotel.heroImageUrl] : [],
     image: hotel.heroImageUrl || null,
-    rating,
+    rating: rating || stars || 5,
     stars,
     price: pricePerNight,
     pricePerNight,
+    overview: hotel.description ? [hotel.description] : [],
+    highlights: amenities,
+    included: [],
+    excluded: [],
     shortDesc: hotel.description || '',
     amenities,
     isActive: true,
   };
 }
-
-const solPyramidService = {
-  id: 'prog-hot-1',
-  category: 'hotels',
-  slug: 'sol-pyramid-hotel',
-  name: 'Sol Pyramid Hotel',
-  title: 'Sol Pyramid Hotel',
-  city: 'Giza',
-  destinationSlug: 'egypt',
-  location: 'Giza, Egypt',
-  stars: 3,
-  rating: 5.0,
-  price: 85,
-  pricePerNight: 85,
-  images: ['https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Hotel.jpg'],
-  heroImageUrl: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/23/0d/4e/68/henann-park-resort.jpg?w=600&h=600&s=1',
-  shortDesc: 'Solpyramid Hotel is a modern 3-star establishment designed for travellers who want to explore Egypt\'s major sights.',
-  amenities: ['Free Wi-Fi', 'Air conditioning', 'Private bathroom', 'Mini bar', 'Coffee & tea', 'Free safe box'],
-  isActive: true,
-};
 
 function transformTransportToService(service) {
   if (!service?.id || !service?.name || !service?.serviceType) {
@@ -88,13 +72,18 @@ function transformTransportToService(service) {
     slug: service.id,
     title: service.name,
     location: String(service.serviceType).replaceAll('_', ' '),
-    images: [],
-    image: null,
+    images: service.heroImage ? [service.heroImage] : [],
+    image: service.heroImage || null,
     price: pricePerTrip,
     pricePerTrip,
     pricePerDay: pricePerTrip,
+    rating: 5.0,
+    overview: service.description ? [service.description] : [],
+    highlights: [],
+    included: [],
+    excluded: [],
     features: [],
-    shortDesc: '',
+    shortDesc: service.description || '',
     isActive: service.isActive === true,
   };
 }
@@ -135,7 +124,8 @@ export function useServices(category = null) {
         setError(null);
         let items;
         if (category === 'hotels') {
-          items = [solPyramidService];
+          items = readItems(await api.get(`/hotels?locale=${lang}`), 'hotels')
+            .map(transformHotelToService);
         } else if (category === 'transportation') {
           items = readItems(await api.get('/transportation/services'), 'transportation')
             .map(transformTransportToService);
@@ -144,13 +134,18 @@ export function useServices(category = null) {
           items = readItems(await api.get(`/tours?${params.toString()}`), 'tour services')
             .map((tour) => transformTourToService(tour, category));
         } else {
-          const [transportResult] = await Promise.allSettled([
+          // These are independent catalogs. A missing optional hotels route
+          // must not hide the transportation catalog that is available.
+          const [hotelsResult, transportResult] = await Promise.allSettled([
+            api.get(`/hotels?locale=${lang}`),
             api.get('/transportation/services'),
           ]);
-          const hotels = [solPyramidService];
-          if (transportResult.status === 'rejected') throw transportResult.reason;
-          const transportation = readItems(transportResult.value, 'transportation')
-            .map(transformTransportToService);
+          const hotels = hotelsResult.status === 'fulfilled'
+            ? readItems(hotelsResult.value, 'hotels').map(transformHotelToService)
+            : [];
+          const transportation = transportResult.status === 'fulfilled'
+            ? readItems(transportResult.value, 'transportation').map(transformTransportToService)
+            : [];
           items = [...hotels, ...transportation];
         }
         if (isMounted) setServices(items);

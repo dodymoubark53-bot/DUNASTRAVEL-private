@@ -9,19 +9,13 @@ import TourCard from "../components/tour/TourCard";
 import { useTours } from "../hooks/useTours";
 import { useMedia } from "../hooks/useMedia";
 import { useDestinations } from "../hooks/useDestinations";
-import { useCmsBlock } from "../hooks/useCmsBlock";
 import useScrollAnimations from "../hooks/useScrollAnimations";
 import { useCurrency } from "../context/CurrencyContext";
 import {
   resolveTourTitle,
-  resolveTourOverview,
   resolveTourDuration,
   resolveLocalizedText
 } from "../utils/titleHelper";
-import { turkeyTours } from "../data/turkeyTours.js";
-import { jordanTours } from "../data/jordanTours.js";
-import { dubaiTours } from "../data/dubaiTours.js";
-import { transportation as transportationData } from "../data/transportation.js";
 
 
 const _destinationsData = [
@@ -29,49 +23,49 @@ const _destinationsData = [
     id: "egypt",
     nameKey: "nav.egypt",
     descKey: "home.destEgyptDesc",
-    image: "/imgs/egyothero.png",
+    image: "https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=600&q=40&fm=webp",
   },
   {
     id: "turkey",
     nameKey: "nav.turkey",
     descKey: "home.destTurkeyDesc",
-    image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1920&q=80",
-  },
-  {
-    id: "jordan",
-    nameKey: "nav.jordan",
-    descKey: "home.destJordanDesc",
-    image: "https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg",
+    image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=600&q=40&fm=webp",
   },
   {
     id: "dubai",
     nameKey: "nav.dubai",
     descKey: "home.destDubaiDesc",
-    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80",
+    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=600&q=40&fm=webp",
+  },
+  {
+    id: "jordan",
+    nameKey: "nav.jordan",
+    descKey: "home.destJordanDesc",
+    image: "https://images.unsplash.com/photo-1579606032821-4e6161c81bd3?auto=format&fit=crop&w=600&q=40&fm=webp",
   },
   {
     id: "morocco",
     nameKey: "nav.morocco",
     descKey: "home.destMoroccoDesc",
-    image: "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200",
+    image: "https://images.unsplash.com/photo-1539020140153-e479b8c22e70?auto=format&fit=crop&w=600&q=40&fm=webp",
   },
   {
     id: "greece",
     nameKey: "nav.greece",
     descKey: "home.destGreeceDesc",
-    image: "https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200",
+    image: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=600&q=40&fm=webp",
   },
   {
     id: "tunisia",
     nameKey: "nav.tunisia",
     descKey: "home.destTunisiaDesc",
-    image: "https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=1200&q=80",
+    image: "https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=600&q=40&fm=webp",
   },
   {
     id: "holy-land",
     nameKey: "nav.holyland",
     descKey: "home.destHolyLandDesc",
-    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=1920&q=80",
+    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=40&fm=webp",
   },
 ];
 
@@ -177,7 +171,7 @@ const _newDestinationsList = [
     tagEn: "PHARAOHS & IMMORTAL TEMPLES",
     descAr: "رحلة عبر خمسة آلاف عام من السحر والغموض، من عظمة الجيزة إلى هدوء أسوان.",
     descEn: "A journey through five millennia of magic, from the majesty of Giza to the serenity of Aswan.",
-    image: "/imgs/egyothero.png",
+    image: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=800&q=80",
     link: "/destinations/egypt"
   },
   {
@@ -188,7 +182,7 @@ const _newDestinationsList = [
     tagEn: "CAPPADOCIA BALLOONS & OTTOMAN LEGACY",
     descAr: "جسور الحضارة التاريخية، وشواطئ الريفييرا التركية، ومناطيد كبادوكيا الحالمة.",
     descEn: "Bridges of history, the sun-kissed Turkish Riviera, and the dreamlike balloon-filled skies of Cappadocia.",
-    image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1920&q=80",
+    image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=800&q=80",
     link: "/destinations/turkey"
   },
   {
@@ -199,7 +193,7 @@ const _newDestinationsList = [
     tagEn: "PETRA WONDERS & BEDOUIN STARS",
     descAr: "من روعة البتراء المنحوتة في الصخر إلى هدوء وادي رم الساحر وسحر البحر الميت.",
     descEn: "From the pink-hued stone carvings of Petra to the starry silence of Wadi Rum.",
-    image: "https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg",
+    image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=800&q=80",
     link: "/destinations/jordan"
   },
   {
@@ -210,7 +204,7 @@ const _newDestinationsList = [
     tagEn: "MEDINAS & ATLAS MOUNTAIN PALACES",
     descAr: "دروب فاس العتيقة، وقصور مراكش الفاخرة، وحكايات الصحراء تحت النجوم.",
     descEn: "The ancient winding streets of Fez, red palaces of Marrakech, and tales of the Sahara.",
-    image: "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200",
+    image: "https://images.unsplash.com/photo-1539020140153-e479b8c22e70?auto=format&fit=crop&w=800&q=80",
     link: "/destinations/morocco"
   },
   {
@@ -221,7 +215,7 @@ const _newDestinationsList = [
     tagEn: "SANTORINI DOMES & GREEK MYTHS",
     descAr: "قباب زرقاء ممتدة مع الأفق، ومياه فيروزية تحكي قصص الفلاسفة والآلهة.",
     descEn: "Blue domes meeting the infinite horizon, and turquoise waters whispering ancient myths.",
-    image: "https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200",
+    image: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80",
     link: "/destinations/greece"
   },
   {
@@ -232,7 +226,7 @@ const _newDestinationsList = [
     tagEn: "SKY-HIGH LUXURY & SAND DUNES",
     descAr: "ناطحات سحاب تعانق السماء، وتجارب تسوق فاخرة، وصحراء ذهبية لا تنام.",
     descEn: "Futuristic skylines, ultra-luxury retreats, and golden desert dunes that never sleep.",
-    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80",
+    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80",
     link: "/destinations/dubai"
   },
   {
@@ -243,19 +237,19 @@ const _newDestinationsList = [
     tagEn: "CARTHAGE RUINS & MEDITERRANEAN BREEZE",
     descAr: "نسيم البحر الأبيض المتوسط يداعب جدران الضيعات البيضاء والزرقاء وأطلال قرطاج.",
     descEn: "Mediterranean breezes caressing whitewashed walls and the ancient columns of Carthage.",
-    image: "https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=1200&q=80",
+    image: "https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=800&q=80",
     link: "/destinations/tunisia"
   },
   {
-    id: "holy-land",
+    id: "holyland",
     nameAr: "الأراضي المقدسة",
     nameEn: "Holy Land",
     tagAr: "مهد الأديان وعبق التاريخ",
     tagEn: "FAITH, HISTORY & SACRED PATHWAYS",
     descAr: "معالم روحية وتاريخية خالدة تروي قصص الأنبياء والحضارات المتعاقبة.",
     descEn: "Sacred spires and ancient pathways whispering stories of faith and human history.",
-    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=1920&q=80",
-    link: "/destinations/holy-land"
+    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=800&q=80",
+    link: "/destinations/holyland"
   }
 ];
 
@@ -279,10 +273,8 @@ const getOptimizedImageUrl = (url, width = 400, height = 450) => {
   return url;
 };
 
-// Updated Home page component with 5 Egypt package tours section
 const Home = () => {
   const { t, i18n } = useTranslation();
-  const isAr = (i18n.language || 'en').startsWith('ar');
   const { formatPrice } = useCurrency();
   const navigate = useNavigate();
   const [activeDestination, setActiveDestination] = useState(null);
@@ -291,474 +283,98 @@ const Home = () => {
   const [zoomScale, setZoomScale] = useState(1);
   const [isAllToursPopupOpen, setIsAllToursPopupOpen] = useState(false);
   const [activeVideo, setActiveVideo] = useState(null);
-  const [selectedPackageFilter, setSelectedPackageFilter] = useState('all');
   const { galleryImages = [], videos = [] } = useMedia();
-  const { tours: allLiveToursRaw } = useTours({ limit: 100 });
+  const {
+    tours: allLiveToursRaw,
+    loading: toursLoading,
+    error: toursError,
+  } = useTours({ limit: 100 });
   const allLiveTours = useMemo(() => Array.isArray(allLiveToursRaw) ? allLiveToursRaw : [], [allLiveToursRaw]);
-  const { destinations: liveDestinationsRaw } = useDestinations();
+  const {
+    destinations: liveDestinationsRaw,
+    loading: destinationsLoading,
+    error: destinationsError,
+  } = useDestinations();
   const liveDestinations = useMemo(() => Array.isArray(liveDestinationsRaw) ? liveDestinationsRaw : [], [liveDestinationsRaw]);
-  const { block: holidayPackages } = useCmsBlock('holiday_packages');
-
-  const DEST_HERO_MAP = {
-    egypt: '/imgs/egyothero.png',
-    turkey: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1920&q=80',
-    jordan: 'https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg',
-    dubai: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80',
-    morocco: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200',
-    greece: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200',
-    tunisia: 'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=1200&q=80',
-    'holy-land': 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=1920&q=80',
-    holyland: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=1920&q=80',
-  };
-
-  const DEST_TOUR_COUNTS = {
-    egypt: 9,
-    turkey: 15,
-    jordan: 7,
-    dubai: 9,
-    morocco: 1,
-    greece: 1,
-    tunisia: 1,
-    'holy-land': 0,
-    holyland: 0,
-  };
-
-  const liveDestinationCards = useMemo(() => {
-    const cardMap = new Map();
-
-    (liveDestinations || []).forEach((destination) => {
-      const slug = destination.slug || destination.id;
-      const heroImg = DEST_HERO_MAP[slug] || destination.heroImageUrl || destination.image;
-      const dynamicCount = (allLiveTours || []).filter(t => t && (t.destination === slug || (slug.includes('holy') && (t.destination === 'holy-land' || t.destination === 'holyland')))).length;
-      const exactCount = DEST_TOUR_COUNTS[slug] !== undefined ? DEST_TOUR_COUNTS[slug] : destination.toursCount;
-      const toursCount = exactCount !== undefined ? exactCount : dynamicCount;
-      const navKey = (slug === 'holy-land' || slug === 'holyland') ? 'holyland' : slug;
-
-      const name = t(`nav.${navKey}`, destination.title || destination.name);
-      const subtitle = t(`dest.${navKey}.subtitle`, destination.subtitle || destination.description || '');
-
-      const key = slug === 'holyland' ? 'holy-land' : slug;
-
-      cardMap.set(key, {
-        id: slug,
-        name,
-        description: subtitle,
-        subtitle,
-        image: heroImg,
-        toursCount: toursCount,
-        link: `/destinations/${slug}`,
-      });
-    });
-
-    const DESIRED_ORDER = ['egypt', 'turkey', 'dubai', 'jordan', 'morocco', 'tunisia', 'greece', 'holy-land'];
-
-    const result = [];
-    DESIRED_ORDER.forEach((key) => {
-      if (cardMap.has(key)) {
-        result.push(cardMap.get(key));
-      }
-    });
-
-    return result;
-  }, [liveDestinations, allLiveTours, t]);
+  const liveDestinationCards = useMemo(() => liveDestinations.map((destination) => ({
+    id: destination.slug,
+    name: destination.title,
+    description: destination.description || destination.subtitle || '',
+    subtitle: destination.subtitle || '',
+    image: destination.heroImageUrl,
+    toursCount: destination.toursCount,
+    link: `/destinations/${destination.slug}`,
+  })), [liveDestinations]);
   const livePackageCards = useMemo(() => {
-    if (Array.isArray(holidayPackages) && holidayPackages.length >= 5) {
-      return holidayPackages
-        .filter((item) => item?.id && item?.title && item?.image && Number.isFinite(Number(item?.price)))
-        .map((item) => {
-          const type = String(item.type || '').toLowerCase();
-          const categoryId = type.includes('honeymoon')
-            ? 'honeymooners'
-            : type.includes('combo')
-              ? 'multi-country'
-              : type.includes('classic')
-                ? 'classic-program'
-                : item.slug;
-          return {
-            id: categoryId,
-            recordId: item.id,
-            name: item.title,
-            desc: item.description || item.duration || '',
-            image: item.image,
-            price: Number(item.price),
-            link: '/tours',
-          };
-        });
-    }
+    const definitions = [
+      { id: 'classic-program', titleKey: 'egyptPackages.classic.name', fallbackTitle: 'Classic Egypt Program', link: '/programs/classic', categories: ['classic'] },
+      { id: 'honeymooners', titleKey: 'egyptPackages.honeymooners.name', fallbackTitle: 'Honeymoon & Romantic Luxury', link: '/programs/honeymooners', categories: ['honeymoon'] },
+      { id: 'religious', titleKey: 'egyptPackages.religious.name', fallbackTitle: 'Sacred Journeys', link: '/programs/religious', categories: ['religious'] },
+      { id: 'multi-country', titleKey: 'egyptPackages.multiCountry.name', fallbackTitle: 'Multi-Country Journeys', link: '/programs/multi-country', destinations: ['multi-country'], categories: ['multi-country'] },
+      { id: 'extension', titleKey: 'egyptPackages.extension.name', fallbackTitle: 'Egypt Extensions & Escapes', link: '/programs/extension', categories: ['extension'] },
+    ];
 
-    return _packagesData.map((pkg) => ({
-      ...pkg,
-      recordId: pkg.id,
-      name: t(pkg.nameKey, pkg.nameDefault),
-      desc: t(pkg.descKey, pkg.descDefault),
-      badge: t(pkg.badgeKey, pkg.badgeDefault),
-      duration: t(pkg.durationKey, pkg.durationDefault),
-      tag1: pkg.tag1Key ? t(pkg.tag1Key, '') : '',
-      tag2: pkg.tag2Key ? t(pkg.tag2Key, '') : '',
-      tag3: pkg.tag3Key ? t(pkg.tag3Key, '') : '',
-    }));
-  }, [holidayPackages, t]);
-  const formattedTurkeyTours = useMemo(() => {
-    return (turkeyTours || []).map((t) => ({
-      id: t.id,
-      slug: t.slug || t.id,
-      title: resolveLocalizedText(t.name || t.title, t, i18n.language),
-      overview: resolveLocalizedText(t.overview, t, i18n.language),
-      duration: resolveLocalizedText(t.duration, t, i18n.language),
-      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=800&q=80'],
-      destination: 'turkey',
-      price: t.price || 0,
-      link: `/programs/turkey/${t.slug || t.id}`,
-    }));
-  }, [i18n.language]);
-
-  const formattedJordanTours = useMemo(() => {
-    return (jordanTours || []).map((t) => ({
-      id: t.id,
-      slug: t.slug || t.id,
-      title: resolveLocalizedText(t.name || t.title, t, i18n.language),
-      overview: resolveLocalizedText(t.overview, t, i18n.language),
-      duration: resolveLocalizedText(t.duration, t, i18n.language),
-      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || 'https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg'],
-      destination: 'jordan',
-      price: t.price || 0,
-      link: `/programs/jordan/${t.slug || t.id}`,
-    }));
-  }, [i18n.language]);
-
-  const formattedDubaiTours = useMemo(() => {
-    return (dubaiTours || []).map((t) => ({
-      id: t.id,
-      slug: t.slug || t.id,
-      title: resolveLocalizedText(t.name || t.title, t, i18n.language),
-      overview: resolveLocalizedText(t.overview, t, i18n.language),
-      duration: resolveLocalizedText(t.duration, t, i18n.language),
-      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80'],
-      destination: 'dubai',
-      price: t.price || 0,
-      link: `/programs/dubai/${t.slug || t.id}`,
-    }));
-  }, [i18n.language]);
+    return definitions.map((definition) => {
+      const matches = allLiveTours.filter((tour) => {
+        const category = String(tour.category || '').trim().toLowerCase();
+        return definition.categories?.includes(category) || definition.destinations?.includes(tour.destination);
+      });
+      const representative = matches.find((tour) => tour.heroImage) || matches[0] || null;
+      return {
+        ...definition,
+        recordId: representative?.id || definition.id,
+        name: t(definition.titleKey, representative?.title || definition.fallbackTitle),
+        desc: representative?.overview || representative?.description || '',
+        image: representative?.heroImage || null,
+        duration: representative?.duration || '',
+        featured: Boolean(representative?.isFeatured),
+        tours: matches,
+      };
+    }).filter((packageCard) => packageCard.tours.length > 0);
+  }, [allLiveTours, t]);
+  const toursForDestination = (destination) =>
+    (allLiveTours || []).filter((tour) => tour && tour.destination === destination);
+  const formattedTurkeyTours = toursForDestination('turkey');
+  const formattedJordanTours = toursForDestination('jordan');
+  const formattedDubaiTours = toursForDestination('dubai');
+  const formattedMoroccoTours = toursForDestination('morocco');
 
   const allToursForMarquee = useMemo(() => {
     if (!Array.isArray(allLiveTours)) return [];
     return allLiveTours.filter(Boolean).map((tour) => ({
       ...tour,
       description: tour.overview || tour.description || '',
-      images: Array.isArray(tour.images) && tour.images.length > 0 ? tour.images : [tour.heroImage || tour.image || '/imgs/egyothero.png'],
+        images: Array.isArray(tour.images) ? tour.images : [],
       link: `/tours/${tour.slug || tour.id}`,
     }));
   }, [allLiveTours]);
 
   const packagesToursMap = useMemo(() => {
-    const matches = (tour, values) => {
-      if (!tour) return false;
-      const searchable = `${tour.slug || ''} ${tour.category || ''} ${tour.title || ''}`.toLowerCase();
-      return values.some((value) => searchable.includes(value));
-    };
     const withLinkBase = (items) => (items || []).map((tour) => ({ ...tour, linkBase: '/tours' }));
-    const safeTours = Array.isArray(allLiveTours) ? allLiveTours : [];
-    return {
-      'classic-program': withLinkBase(safeTours.filter((tour) => matches(tour, ['classic', 'classico', 'clásico']))),
-      honeymooners: withLinkBase(safeTours.filter((tour) => matches(tour, ['honeymoon', 'luna de miel', 'شهر العسل']))),
-      religious: withLinkBase(safeTours.filter((tour) => matches(tour, ['religious', 'holy family', 'العائلة المقدسة']))),
-      'multi-country': withLinkBase(safeTours.filter((tour) => matches(tour, ['multi-country', 'combined', 'and-']))),
-      extension: withLinkBase(safeTours.filter((tour) => matches(tour, ['extension', 'escape']))),
-    };
-  }, [allLiveTours]);
+    return Object.fromEntries(livePackageCards.map((packageCard) => [
+      packageCard.id,
+      withLinkBase(packageCard.tours),
+    ]));
+  }, [livePackageCards]);
 
   const packagesToursForMarquee = useMemo(() => {
-    // 15 exact tours inside the 5 programs/packages
-    return [
-      // 1. Classic Program (1 tour)
-      {
-        id: "classic-program-tour-1",
-        slug: "classic-program",
-        title: isAr ? "البرنامج الكلاسيكي: القاهرة والأهرامات والنيل الفاخر" : "Classic Egypt: Cairo, Pyramids & Nile Cruise",
-        overview: isAr ? "برنامج متميز يجمع بين الأهرامات، الجيزة، والمتحف الكبير مع رحلة نيلية فاخرة." : "Timeless Classic Egypt itinerary covering Cairo Pyramids, GEM Museum, and Nile Cruise.",
-        duration: isAr ? "8 أيام / 7 ليالي" : "8 Days / 7 Nights",
-        price: 1290,
-        badge: isAr ? "البرنامج الكلاسيكي" : "Classic Program",
-        rating: 4.9,
-        reviewCount: 312,
-        images: ["https://res.cloudinary.com/degbrq3ck/image/upload/v1783029636/Classic_Program_gfal0s.jpg"],
-        link: "/programs/classic/classic-program"
-      },
+    const combined = [];
+    const seen = new Set();
 
-      // 2. Honeymooners (1 tour)
-      {
-        id: "honeymooners-tour-1",
-        slug: "honeymooners",
-        title: isAr ? "باقة شهر العسل والرفاهية الرومانسية" : "Honeymoon & Romantic Luxury Escape",
-        overview: isAr ? "عطلة رومانسية ساحرة تشمل شواطئ البحر الأحمر وغروب النيل المذهل." : "Enchanting Red Sea escapes & private Nile sunset cruises for couples.",
-        duration: isAr ? "10 أيام / 9 ليالي" : "10 Days / 9 Nights",
-        price: 1650,
-        badge: isAr ? "شهر العسل" : "Honeymoon",
-        rating: 4.95,
-        reviewCount: 189,
-        images: ["https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=800&q=80"],
-        link: "/programs/honeymooners"
-      },
-
-      // 3. Religious Programs (1 tour)
-      {
-        id: "religious-tour-1",
-        slug: "religious",
-        title: isAr ? "برنامج مسار العائلة المقدسة والتراث الديني" : "Holy Family & Sacred Journeys",
-        overview: isAr ? "مسار إيماني وثقافي عريق يمتد عبر الكنائس والأديرة الأثرية في مصر." : "Spiritual path along Coptic monasteries & ancient holy shrines.",
-        duration: isAr ? "9 أيام / 8 ليالي" : "9 Days / 8 Nights",
-        price: 1390,
-        badge: isAr ? "رحلة دينية" : "Religious Heritage",
-        rating: 4.85,
-        reviewCount: 176,
-        images: ["https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=800&q=80"],
-        link: "/programs/religious"
-      },
-
-      // 4. Multi-Country Combined (9 tours)
-      {
-        id: "mct-001",
-        slug: "estrellas-medio-oriente-19d",
-        title: isAr ? "نجوم الشرق الأوسط (مصر والأردن وتركيا ودبي)" : "Estrellas del Medio Oriente (19 Days)",
-        overview: isAr ? "رحلة أسطورية تجمع بين عظمة الفراعنة، البتراء الوردية، مناطيد كبادوكيا وبرج خليفة." : "19-day grand odyssey traversing Egypt, Jordan, Turkey, and Dubai.",
-        duration: isAr ? "19 يوم / 18 ليلة" : "19 Days / 18 Nights",
-        price: 3450,
-        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
-        rating: 4.9,
-        reviewCount: 210,
-        images: ["https://theglobetrottingdetective.com/wp-content/uploads/2022/03/best-places-in-the-middle-east-traveling-the-middle-east-cappadocia-turkey.jpg"],
-        link: "/programs/multi-country/estrellas-medio-oriente-19d"
-      },
-      {
-        id: "mct-002",
-        slug: "cairo-and-athens-11-days",
-        title: isAr ? "رحلة القاهرة وأثينا (عجائب مصر واليونان)" : "Cairo and Athens 11 Days",
-        overview: isAr ? "رحلة تجمع بين حضارة الفراعنة في القاهرة وأساطير الأكروبوليس في أثينا." : "11 days combining ancient Egyptian wonders and Greek Mediterranean mythology.",
-        duration: isAr ? "11 يوم / 10 ليالي" : "11 Days / 10 Nights",
-        price: 2250,
-        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
-        rating: 4.88,
-        reviewCount: 145,
-        images: ["https://cdn.thecollector.com/wp-content/uploads/2024/07/history-cairo-monuments.jpg"],
-        link: "/programs/multi-country/cairo-and-athens-11-days"
-      },
-      {
-        id: "mct-003",
-        slug: "essences-of-egypt-and-turkey-15-days",
-        title: isAr ? "جوهر مصر وتركيا (النيل وإسطنبول 15 يوماً)" : "Essences of Egypt and Turkey 15 Days",
-        overview: isAr ? "برنامج فاخر يربط سحر الأهرامات والرحلة النيلية بأجواء البسفور وكبادوكيا." : "15 days spanning Cairo, Nile Cruise, Istanbul, and Cappadocia balloon skies.",
-        duration: isAr ? "15 يوم / 14 ليلة" : "15 Days / 14 Nights",
-        price: 2890,
-        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
-        rating: 4.92,
-        reviewCount: 278,
-        images: ["/imgs/Essences of Egypt and Turkey .png"],
-        link: "/programs/multi-country/essences-of-egypt-and-turkey-15-days"
-      },
-      {
-        id: "mct-004",
-        slug: "marvels-of-dubai-and-turkey-14-days",
-        title: isAr ? "روائع دبي وتركيا (فخامة الخليج وسحر البسفور)" : "Marvels of Dubai and Turkey (14 Days)",
-        overview: isAr ? "توليفة استثنائية بين حداثة دبي الفائقة وتاريخ إسطنبول وجمال الطبيعة التركية." : "14 days exploring futuristic Dubai luxury and historic Turkish Riviera beauty.",
-        duration: isAr ? "14 يوم / 13 ليلة" : "14 Days / 13 Nights",
-        price: 2750,
-        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
-        rating: 4.91,
-        reviewCount: 198,
-        images: ["/imgs/Marvels of Dubai and Turkey.png"],
-        link: "/programs/multi-country/marvels-of-dubai-and-turkey-14-days"
-      },
-      {
-        id: "mct-005",
-        slug: "stars-of-the-middle-east-16-days",
-        title: isAr ? "نجوم الشرق الأوسط (مصر والأردن ودبي 16 يوماً)" : "Stars of the Middle East 16 Days",
-        overview: isAr ? "رحلة استكشافية شاملة تجمع بين النيل، البتراء، وصحراء رم، وناطحات سحاب دبي." : "16-day luxury tour across the Nile valley, Petra rose city, and Dubai skyline.",
-        duration: isAr ? "16 يوم / 15 ليلة" : "16 Days / 15 Nights",
-        price: 3100,
-        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
-        rating: 4.94,
-        reviewCount: 165,
-        images: ["/imgs/Stars of the Middle East .png"],
-        link: "/programs/multi-country/stars-of-the-middle-east-16-days"
-      },
-      {
-        id: "mct-006",
-        slug: "treasures-of-egypt-and-tunisia-16-days",
-        title: isAr ? "كنوز مصر وتونس (الحضارة وسيدي بو سعيد)" : "Treasures of Egypt and Tunisia 16 Days",
-        overview: isAr ? "رحلة شمال أفريقية تدمج الأهرامات والنيل مع تاريخ قرطاج وجمال سيدي بو سعيد." : "16 days combining Pharaohs' temples with Carthage ruins and blue whitewashed Sidi Bou Said.",
-        duration: isAr ? "16 يوم / 15 ليلة" : "16 Days / 15 Nights",
-        price: 2950,
-        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
-        rating: 4.87,
-        reviewCount: 132,
-        images: ["/imgs/Treasures of Egypt and Tunisia.png"],
-        link: "/programs/multi-country/treasures-of-egypt-and-tunisia-16-days"
-      },
-      {
-        id: "mct-007",
-        slug: "egypt-and-dubai-13-days",
-        title: isAr ? "رحلة مصر ودبي (الأهرامات والتسوق الفاخر)" : "Egypt and Dubai 13 Days",
-        overview: isAr ? "مزيج متناغم بين أسرار الفراعنة وأشهر المعالم الحديثة والتجارب الفاخرة في دبي." : "13 days combining ancient Egyptian heritage with Dubai modern luxury.",
-        duration: isAr ? "13 يوم / 12 ليلة" : "13 Days / 12 Nights",
-        price: 2650,
-        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
-        rating: 4.89,
-        reviewCount: 175,
-        images: ["/imgs/Egypt and Dubai.png"],
-        link: "/programs/multi-country/egypt-and-dubai-13-days"
-      },
-      {
-        id: "mct-008",
-        slug: "spices-of-egypt-and-morocco",
-        title: isAr ? "عبق مصر والمغرب (النيل وسحر مراكش)" : "Spices of Egypt and Morocco 12 Days",
-        overview: isAr ? "تجربة ثقافية ساحرة بين النيل وأهرامات مصر وأسواق مراكش وقصور فاس." : "12 days exploring Nile valley treasures and imperial medinas of Morocco.",
-        duration: isAr ? "12 يوم / 11 ليلة" : "12 Days / 11 Nights",
-        price: 2490,
-        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
-        rating: 4.93,
-        reviewCount: 220,
-        images: ["https://th.bing.com/th/id/R.58564825c2c22ad5062b00d620ed4397?rik=XgQR%2bu8MUj6NHA&pid=ImgRaw&r=0"],
-        link: "/programs/multi-country/spices-of-egypt-and-morocco"
-      },
-      {
-        id: "mct-009",
-        slug: "jewels-of-egypt-and-jordan-11-days",
-        title: isAr ? "جواهر مصر والأردن (القاهرة، النيل، البتراء والبحر الميت)" : "Jewels of Egypt and Jordan 11 Days",
-        overview: isAr ? "برنامج رائع يشمل عجائب الجيزة، الأقصر، أسوان، البتراء، والطفو في البحر الميت." : "11 days featuring Giza Pyramids, Nile Cruise, Petra Wonders, and Dead Sea floating.",
-        duration: isAr ? "11 يوم / 10 ليالي" : "11 Days / 10 Nights",
-        price: 2350,
-        badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
-        rating: 4.96,
-        reviewCount: 285,
-        images: ["https://th.bing.com/th/id/R.d4c411bd75b827b087396502b4144fe6?rik=3VllwT9EP1BvFA&pid=ImgRaw&r=0"],
-        link: "/programs/multi-country/jewels-of-egypt-and-jordan-11-days"
-      },
-
-      // 5. Extensions (3 tours)
-      {
-        id: "extension-tour-1",
-        slug: "hurghada-4d3n",
-        title: isAr ? "استجمام الغردقة والبحر الأحمر" : "Hurghada Red Sea Escape",
-        overview: isAr ? "إقامة فاخرة على ساحل الغردقة للاستمتاع بالمياه الفيروزية والأنشطة البحرية." : "Red Sea resorts in Hurghada with beach escapes and coral diving.",
-        duration: isAr ? "4 أيام / 3 ليالي" : "4 Days / 3 Nights",
-        price: 590,
-        badge: isAr ? "تمديد وساحل" : "Extension",
-        rating: 4.8,
-        reviewCount: 168,
-        images: ["https://1.bp.blogspot.com/-HqmKDzZ73hY/XgSOtrhSAOI/AAAAAAAARdc/cxtywSwZxLIaZPfw98FzQHYtiPblmzg2gCLcBGAsYHQ/w1200-h630-p-k-no-nu/%D8%A3%D9%81%D8%B6%D9%84-%D8%A3%D9%86%D8%B4%D8%B7%D8%A9-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D9%8A%D8%A9-%D9%81%D9%89-%D8%A7%D9%84%D8%BA%D8%B1%D8%AF%D9%82%D8%A9-825x510.jpg"],
-        link: "/programs/extension/hurghada-4d3n"
-      },
-      {
-        id: "extension-tour-2",
-        slug: "sharm-4d3n",
-        title: isAr ? "شرم الشيخ ومنتجعات البحر الأحمر" : "Sharm El Sheikh Paradise",
-        overview: isAr ? "استجمام شاطئي ممتع في شرم الشيخ مع زيارة محمية رأس محمد الساحرة." : "Red Sea luxury resort getaway in Sharm El Sheikh.",
-        duration: isAr ? "4 أيام / 3 ليالي" : "4 Days / 3 Nights",
-        price: 620,
-        badge: isAr ? "تمديد وساحل" : "Extension",
-        rating: 4.84,
-        reviewCount: 135,
-        images: ["https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80"],
-        link: "/programs/extension/sharm-4d3n"
-      },
-      {
-        id: "extension-tour-3",
-        slug: "siwa-oasis-alexandria",
-        title: isAr ? "سحر واحة سيوة والإسكندرية" : "Siwa Oasis & Alexandria Adventure",
-        overview: isAr ? "مغامرة صحراوية بيئية فريدة في سيوة مع جولة تاريخية ساحلية بالإسكندرية." : "Siwa Desert Oasis eco-adventure & Mediterranean Alexandria escape.",
-        duration: isAr ? "5 أيام / 4 ليالي" : "5 Days / 4 Nights",
-        price: 780,
-        badge: isAr ? "سياحة بيئية" : "Eco Tour",
-        rating: 4.88,
-        reviewCount: 110,
-        images: ["https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80"],
-        link: "/programs/extension/siwa-oasis-alexandria"
+    // Add only tours returned by the canonical Backend catalog.
+    Object.values(packagesToursMap || {}).flat().filter(Boolean).forEach(t => {
+      const link = t.link || `${t.linkBase || '/tours'}/${t.slug || t.id}`;
+      if (!seen.has(link)) {
+        seen.add(link);
+        combined.push({
+          ...t,
+          link,
+          images: Array.isArray(t.images) ? t.images : [],
+        });
       }
-    ];
-  }, [isAr]);
-
-  const destinationToursForMarquee = useMemo(() => {
-    const lang = i18n.language || 'en';
-
-    const egyptTours = (allLiveTours || [])
-      .filter((t) => t && (t.destination === 'egypt' || String(t.country || '').toLowerCase() === 'egypt'))
-      .slice(0, 3)
-      .map((t) => ({
-        ...t,
-        id: t.id || t.slug,
-        title: resolveTourTitle(t, t, lang),
-        duration: resolveTourDuration(t, t, lang),
-        destination: 'egypt',
-        images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || t.image || '/imgs/egyothero.png'],
-        link: `/tours/${t.slug || t.id}`,
-      }));
-
-    const turkeyFormatted = (turkeyTours || []).slice(0, 3).map((t) => ({
-      id: t.id,
-      slug: t.slug || t.id,
-      title: resolveLocalizedText(t.name || t.title, t, lang),
-      duration: resolveLocalizedText(t.duration, t, lang),
-      overview: resolveLocalizedText(t.overview, t, lang),
-      destination: 'turkey',
-      price: t.price || 0,
-      rating: 4.9,
-      reviewCount: 45,
-      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : ['https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=800&q=80'],
-      link: `/programs/turkey/${t.slug || t.id}`,
-    }));
-
-    const jordanFormatted = (jordanTours || []).slice(0, 2).map((t) => ({
-      id: t.id,
-      slug: t.slug || t.id,
-      title: resolveLocalizedText(t.name || t.title, t, lang),
-      duration: resolveLocalizedText(t.duration, t, lang),
-      overview: resolveLocalizedText(t.overview, t, lang),
-      destination: 'jordan',
-      price: t.price || 0,
-      rating: 4.95,
-      reviewCount: 38,
-      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : ['https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg'],
-      link: `/programs/jordan/${t.slug || t.id}`,
-    }));
-
-    const dubaiFormatted = (dubaiTours || []).slice(0, 2).map((t) => ({
-      id: t.id,
-      slug: t.slug || t.id,
-      title: resolveLocalizedText(t.name || t.title, t, lang),
-      duration: resolveLocalizedText(t.duration, t, lang),
-      overview: resolveLocalizedText(t.overview, t, lang),
-      destination: 'dubai',
-      price: t.price || 0,
-      rating: 4.88,
-      reviewCount: 52,
-      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : ['https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80'],
-      link: `/programs/dubai/${t.slug || t.id}`,
-    }));
-
-    const otherDestTours = (allLiveTours || [])
-      .filter((t) => t && ['morocco', 'greece', 'tunisia'].includes(t.destination))
-      .map((t) => ({
-        ...t,
-        id: t.id || t.slug,
-        title: resolveTourTitle(t, t, lang),
-        duration: resolveTourDuration(t, t, lang),
-        destination: t.destination,
-        images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || t.image || '/imgs/egyothero.png'],
-        link: `/tours/${t.slug || t.id}`,
-      }));
-
-    return [
-      ...egyptTours.slice(0, 2),
-      ...turkeyFormatted.slice(0, 2),
-      ...jordanFormatted.slice(0, 1),
-      ...dubaiFormatted.slice(0, 1),
-      ...otherDestTours,
-      ...egyptTours.slice(2),
-      ...turkeyFormatted.slice(2),
-      ...jordanFormatted.slice(1),
-      ...dubaiFormatted.slice(1),
-    ].filter(Boolean);
-  }, [allLiveTours, turkeyTours, jordanTours, dubaiTours, i18n.language, t]);
+    });
+    return combined;
+  }, [packagesToursMap]);
 
 
   // Hero Video State
@@ -784,16 +400,11 @@ const Home = () => {
   const [searchTour, setSearchTour] = useState("");
   const [searchPeople, setSearchPeople] = useState(1);
 
-  const destinations = [
-    { id: 'egypt', label: t('nav.egypt', 'Egypt'), img: '/imgs/egyothero.png' },
-    { id: 'turkey', label: t('nav.turkey', 'Turkey'), img: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=1200' },
-    { id: 'dubai', label: t('nav.dubai', 'Dubai'), img: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200' },
-    { id: 'jordan', label: t('nav.jordan', 'Jordan'), img: 'https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg' },
-    { id: 'morocco', label: t('nav.morocco', 'Morocco'), img: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200' },
-    { id: 'tunisia', label: t('nav.tunisia', 'Tunisia'), img: 'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=1200&q=80' },
-    { id: 'greece', label: t('nav.greece', 'Greece'), img: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200' },
-    { id: 'holyland', label: t('nav.holyland', 'Holy Land'), img: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?w=1200' },
-  ];
+  const destinations = liveDestinationCards.map((destination) => ({
+    id: destination.id,
+    label: destination.name,
+    img: destination.image,
+  }));
 
   const slugify = (str) => str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
@@ -802,16 +413,8 @@ const Home = () => {
 
     const addTour = (tour, baseUrl) => {
       const slug = tour.slug || slugify((tour.id || '') + "-" + (tour.title || ""));
-      result.push({ label: t(`tour.${tour.id}`, tour.title || tour.name), url: `${baseUrl}/${slug}`, id: `tour-${slug}` });
+      result.push({ label: t(`tour.${tour.id}`, tour.title), url: `${baseUrl}/${slug}`, id: `tour-${slug}` });
     };
-
-    if (destId === "egypt" || destId === "all") {
-      result.push({
-        id: "tour-sol-pyramid-hotel",
-        label: "Sol Pyramid Hotel",
-        url: "/services/hotels/sol-pyramid-hotel",
-      });
-    }
 
     if (destId === "all") {
       allLiveTours.forEach((tour) => addTour(tour, "/tours"));
@@ -889,12 +492,7 @@ const Home = () => {
   useScrollAnimations();
   const isRtl = i18n.dir() === 'rtl';
 
-  const filteredVehicles = useMemo(() => {
-    return (transportationData || []).filter((v) => {
-      if (vehicleFilter === "all") return true;
-      return v.category === vehicleFilter;
-    });
-  }, [vehicleFilter]);
+  const filteredVehicles = [];
 
   // Shared galleryImages and videos retrieved from useMedia hook
 
@@ -925,14 +523,17 @@ const Home = () => {
 
 
 
-  const activeTours = useMemo(() => {
-    if (!activeDestination) return [];
-    if (activeDestination === "turkey") return formattedTurkeyTours;
-    if (activeDestination === "jordan") return formattedJordanTours;
-    if (activeDestination === "dubai") return formattedDubaiTours;
-    if (activeDestination === "holy-land" || activeDestination === "holyland") return [];
-    return (allLiveTours || []).filter((t) => t && t.destination === activeDestination);
-  }, [activeDestination, formattedTurkeyTours, formattedJordanTours, formattedDubaiTours, allLiveTours]);
+  const activeTours = activeDestination
+    ? activeDestination === "turkey"
+      ? formattedTurkeyTours
+      : activeDestination === "jordan"
+        ? formattedJordanTours
+        : activeDestination === "dubai"
+          ? formattedDubaiTours
+          : activeDestination === "morocco"
+            ? formattedMoroccoTours
+            : allLiveTours.filter((t) => t.destination === activeDestination)
+    : [];
 
   const handleDestinationClick = (id) => {
     setActiveDestination((prev) => (prev === id ? null : id));
@@ -1244,17 +845,32 @@ const Home = () => {
       <section className="py-10" style={{ background: 'linear-gradient(135deg, rgb(4, 20, 70) 0%, rgb(6, 29, 93) 40%, rgb(10, 40, 120) 100%)' }}>
         <div className="container mx-auto px-6">
           <div className="text-center mb-8">
-            <span className="text-white uppercase tracking-widest text-caption block mb-4 font-semibold">
+            <span className="text-gold-500 uppercase tracking-widest text-caption block mb-4">
               {t("home.discoverMagic")}
             </span>
-            <h2 className="text-display-lg text-white font-serif">
+            <h2 className="text-display-lg text-ivory-50">
               {t("home.destTitle")}
             </h2>
             <div className="w-24 h-1 bg-gold-500 mx-auto mt-6"></div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {liveDestinationCards.map((dest) => {
+            {(destinationsLoading || toursLoading) && (
+              <div className="md:col-span-3 rounded-2xl border border-white/10 bg-obsidian-950/30 px-6 py-10 text-center text-ivory-200">
+                {t('common.loading', 'Loading destinations and tours...')}
+              </div>
+            )}
+            {(destinationsError || toursError) && !destinationsLoading && !toursLoading && (
+              <div className="md:col-span-3 rounded-2xl border border-red-300/30 bg-red-950/20 px-6 py-10 text-center text-red-100">
+                {t('common.loadError', 'Unable to load live catalog data. Please try again later.')}
+              </div>
+            )}
+            {!destinationsLoading && !toursLoading && !destinationsError && !toursError && liveDestinationCards.length === 0 && (
+              <div className="md:col-span-3 rounded-2xl border border-white/10 bg-obsidian-950/30 px-6 py-10 text-center text-ivory-200">
+                {t('destination.empty', 'No destinations are currently available.')}
+              </div>
+            )}
+            {!destinationsLoading && !toursLoading && !destinationsError && !toursError && liveDestinationCards.map((dest) => {
               const tourCount = dest.toursCount;
               const isActive = activeDestination === dest.id;
 
@@ -1277,30 +893,31 @@ const Home = () => {
                     boxShadow: "0 0 32px rgba(245,166,35,0.22)",
                     transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
                   }}
-                  className={`relative h-[320px] rounded-2xl overflow-hidden cursor-pointer group transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-gold-500 ${isActive ? "ring-2 ring-gold-500 shadow-[0_0_20px_rgba(245,166,35,0.4)] scale-[1.02]" : "hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(245,166,35,0.2)]"}`}
+                  className={`relative h-[300px] rounded-2xl overflow-hidden cursor-pointer group transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-gold-500 ${isActive ? "ring-2 ring-gold-500 shadow-[0_0_20px_rgba(245,166,35,0.4)] scale-[1.02]" : "hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(245,166,35,0.2)]"}`}
                 >
-                  <img
-                    src={dest.image}
-                    alt={dest.name}
-                    className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.08] transition-transform duration-700"
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  {dest.image ? (
+                    <img
+                      src={dest.image}
+                      alt={dest.name}
+                      className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-obsidian-800 px-4 text-center text-sm text-ivory-300">
+                      {t('destination.imageUnavailable', 'No image has been added for this destination.')}
+                    </div>
+                  )}
                   <div
-                    className={`absolute inset-0 transition-colors duration-500 ${isActive ? "bg-gradient-to-t from-obsidian-950/90 via-obsidian-900/50 to-obsidian-900/30" : "bg-gradient-to-t from-obsidian-950/85 via-obsidian-900/60 to-obsidian-900/40 group-hover:from-obsidian-950/75"}`}
+                    className={`absolute inset-0 transition-colors duration-500 ${isActive ? "bg-obsidian-900/40" : "bg-obsidian-900/60 group-hover:bg-obsidian-900/40"}`}
                   ></div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-10">
-                    <h3 className="text-display-lg text-white font-bold mb-2 drop-shadow-md">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
+                    <h3 className="text-display-lg text-ivory-50 mb-2">
                       {dest.name}
                     </h3>
-                    <p className="text-body-lg text-white font-medium mb-4 leading-relaxed line-clamp-2 max-w-xs drop-shadow">{dest.description}</p>
-                    
-                    {/* Tour Count Badge */}
-                    <span className="inline-flex items-center gap-2 text-caption font-semibold uppercase tracking-wider bg-black/65 backdrop-blur-md px-4 py-2 rounded-full border border-gold-500/40 shadow-lg group-hover:border-gold-400 group-hover:bg-gold-500/20 transition-all">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 002.5-2.5V8.5M12 12a3 3 0 100-6 3 3 0 000 6z" />
-                      </svg>
-                      <span className="text-white font-bold">{tourCount} {t("home.toursAvailable", "رحلات متوفرة")}</span>
+                    <p className="text-body-lg text-gold-500 font-medium mb-4 leading-relaxed">{dest.description}</p>
+                    <span className="text-caption text-ivory-300 uppercase tracking-wider bg-obsidian-900/50 backdrop-blur-sm px-4 py-2 rounded-full border border-ivory-50/10">
+                      {tourCount} {t("home.toursAvailable")}
                     </span>
                   </div>
                 </motion.div>
@@ -1325,47 +942,23 @@ const Home = () => {
                     )}{" "}
                     {t("nav.tours")}
                   </h3>
-
-                  {activeTours.length === 0 ? (
-                    <div className="text-center py-10 bg-obsidian-900/60 backdrop-blur-md rounded-2xl border border-ivory-50/10 max-w-xl mx-auto p-8 shadow-xl">
-                      <p className="text-ivory-100 text-body-lg mb-6 leading-relaxed">
-                        {t("destinations.noToursCurrently", "لا تتوفر رحلات مجدولة حالياً لهذه الوجهة. يمكنك طلب برنامج مخصص حسب رغبتك.")}
-                      </p>
-                      <Link to="/tailor-a-tour">
-                        <Button variant="outline-gold" className="px-8 py-3 font-semibold">
-                          {t("home.customize", "صمم رحلتك المخصصة")}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {activeTours.slice(0, 6).map((tour) => (
+                      <TourCard
+                        key={tour.id}
+                        tour={tour}
+                        linkBase={activeDestination === "turkey" ? "/programs/turkey" : activeDestination === "jordan" ? "/programs/jordan" : activeDestination === "dubai" ? "/programs/dubai" : "/tours"}
+                      />
+                    ))}
+                  </div>
+                  {activeTours.length > 6 && (
+                    <div className="flex justify-center mt-10">
+                      <Link to={`/destinations/${activeDestination}`}>
+                        <Button variant="outline-gold" className="px-8 py-3">
+                          {t("home.viewAll", "View All")} {activeTours.length} {t("nav.tours", "Tours")}
                         </Button>
                       </Link>
                     </div>
-                  ) : (
-                    <>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {activeTours.slice(0, 6).map((tour) => (
-                          <TourCard
-                            key={tour.id || tour.slug}
-                            tour={tour}
-                            linkBase={
-                              activeDestination === "turkey"
-                                ? "/programs/turkey"
-                                : activeDestination === "jordan"
-                                ? "/programs/jordan"
-                                : activeDestination === "dubai"
-                                ? "/programs/dubai"
-                                : "/tours"
-                            }
-                          />
-                        ))}
-                      </div>
-                      {activeTours.length > 6 && (
-                        <div className="flex justify-center mt-10">
-                          <Link to={`/destinations/${activeDestination}`}>
-                            <Button variant="outline-gold" className="px-8 py-3">
-                              {t("home.viewAll", "View All")} {activeTours.length} {t("nav.tours", "Tours")}
-                            </Button>
-                          </Link>
-                        </div>
-                      )}
-                    </>
                   )}
                 </div>
               </motion.div>
@@ -1374,33 +967,34 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Destination Tours Marquee Section */}
+      {/* Package Trips Marquee Section */}
       <section className="py-12 bg-ivory-100 dark:bg-obsidian-950 overflow-hidden relative">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12 max-w-3xl mx-auto">
             <span className="text-gold-600 dark:text-gold-400 uppercase tracking-widest text-caption block mb-3 font-semibold">
-              {t("home.destToursBadge", "Meticulously crafted experiences across all our destinations")}
+              {t("home.packageTripsBadge", "Meticulously crafted experiences meeting the highest luxury standards")}
             </span>
             <h2 className="text-display-lg text-obsidian-900 dark:text-ivory-50 font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>
-              {t("home.destToursTitle", "جولات الوجهات المميزة")}
+              {t("home.packageTripsTitle", "Trips From Our Packages")}
             </h2>
             <div className="w-24 h-1 bg-gold-500 mx-auto mt-6 rounded-full"></div>
           </div>
         </div>
 
-        <div dir="ltr" className="overflow-hidden w-full relative">
-          <div
-            className="flex w-max"
-            style={{
-              gap: "24px",
-              paddingLeft: "24px",
-              animation: "tourMarquee 110s linear infinite",
-            }}
-            onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
-            onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
-          >
+          <div className="overflow-hidden w-full">
+            <div
+              className="flex w-max"
+              style={{
+                gap: "24px",
+                paddingLeft: "24px",
+                animation: `${isRtl ? 'tourMarqueeRTL' : 'tourMarquee'} 60s linear infinite`,
+              }}
+              onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
+              onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
+            >
             {(() => {
-              const sliced = destinationToursForMarquee;
+              const packageTrips = packagesToursForMarquee.length > 0 ? packagesToursForMarquee : allToursForMarquee;
+              const sliced = packageTrips.slice(0, 10);
               return [
                 ...sliced.map(t => ({ ...t, isDuplicate: false })),
                 ...sliced.map(t => ({ ...t, isDuplicate: true }))
@@ -1409,12 +1003,12 @@ const Home = () => {
                 const resolvedTitle = resolveTourTitle(tData, t, lang);
                 const resolvedDuration = resolveTourDuration(tData, t, lang);
                 const rawDest = tData.destination === 'holy-land' ? 'holyland' : (tData.destination || 'egypt');
-                const resolvedDest = t(`nav.${rawDest}`, rawDest.charAt(0).toUpperCase() + rawDest.slice(1));
+                const resolvedDest = resolveLocalizedText(tData.destination, t, lang) || t(`nav.${rawDest}`, rawDest);
 
                 return (
                   <Link
-                    key={`dest-tour-${tData.id}-${idx}`}
-                    to={tData.link || `/tours/${tData.slug || tData.id}`}
+                    key={`${tData.id}-${idx}`}
+                    to={tData.link}
                     tabIndex={tData.isDuplicate ? -1 : undefined}
                     aria-hidden={tData.isDuplicate ? "true" : undefined}
                     className="min-w-[320px] md:min-w-[400px] shrink-0 group relative rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] transition-all duration-500 h-[450px] block focus:outline-none focus:ring-2 focus:ring-gold-500"
@@ -1430,23 +1024,21 @@ const Home = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/90 via-obsidian-900/20 to-transparent"></div>
 
-                    <div className="absolute top-4 left-4 bg-gold-500/90 backdrop-blur-sm text-obsidian-900 text-caption font-bold px-3.5 py-1.5 rounded-full shadow-md uppercase">
+                    <div className="absolute top-4 left-4 bg-gold-500/90 backdrop-blur-sm text-obsidian-900 text-caption font-bold px-3 py-1 rounded shadow-md uppercase">
                       {resolvedDest}
                     </div>
 
                     <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full">
                       <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                        <h3 className="text-display-md text-white font-bold mb-2 leading-tight">
+                        <h3 className="text-display-md text-ivory-50 mb-2 leading-tight">
                           {resolvedTitle}
                         </h3>
 
                         <div className="flex items-center justify-between text-caption text-ivory-300 mb-4">
                           <span>{resolvedDuration}</span>
-                          {tData.price > 0 && (
-                            <span className="text-gold-500 font-semibold">
-                              {formatPrice(tData.price)}
-                            </span>
-                          )}
+                          <span className="text-gold-500 font-semibold">
+                            {tData.price > 0 ? formatPrice(tData.price) : "$0"}
+                          </span>
                         </div>
 
                         {Number.isFinite(Number(tData.rating)) && Number.isFinite(Number(tData.reviewCount)) ? (
@@ -1496,7 +1088,7 @@ const Home = () => {
               initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/30 text-white text-caption font-bold uppercase tracking-widest mb-4 shadow-glass"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-400 text-caption font-semibold uppercase tracking-widest mb-4 shadow-glass"
             >
               <span>✨</span> {t("home.ourPackages", "Discover Egypt Packages")}
             </motion.span>
@@ -1515,7 +1107,7 @@ const Home = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="text-body-md text-white max-w-2xl mx-auto font-medium"
+              className="text-body-md text-ivory-200/80 max-w-2xl mx-auto"
             >
               {t("home.packagesSubtitle", "Selection of premium itineraries designed to experience the magic of Egypt & the Middle East")}
             </motion.p>
@@ -1525,7 +1117,6 @@ const Home = () => {
           {/* 5-Card Bento Layout Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
             {livePackageCards.map((pkg, idx) => {
-              const isActive = activePackage === pkg.id;
               const isHero = pkg.featured || idx === 0;
 
               return (
@@ -1544,12 +1135,16 @@ const Home = () => {
                 >
                   {/* Background Image with High Clarity & Gradient Overlay */}
                   <div className="absolute inset-0 z-0 overflow-hidden">
-                    <img
-                      src={pkg.image}
-                      alt={pkg.name}
-                      className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-700 ease-out opacity-85 group-hover:opacity-100"
-                      loading="lazy"
-                    />
+                    {pkg.image ? (
+                      <img
+                        src={pkg.image}
+                        alt={pkg.name}
+                        className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-700 ease-out opacity-85 group-hover:opacity-100"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-obsidian-800" aria-label={t('tour.imageUnavailable', 'No image has been added for this tour.')} />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-[#060a17]/95 via-[#060a17]/40 to-transparent"></div>
                   </div>
 
@@ -1656,118 +1251,92 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Packages Trips Marquee Section — رحلات الباقات الخاصة بنا */}
-      <section className="py-16 md:py-20 relative overflow-hidden bg-ivory-100 dark:bg-obsidian-950">
-        <div className="container mx-auto px-6 mb-12">
-          {/* Header */}
-          <div className="text-center max-w-4xl mx-auto">
-            <motion.span 
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-600 dark:text-gold-400 text-caption font-bold uppercase tracking-widest mb-4 shadow-sm"
-            >
-              <span>✨</span> {t("home.packageTripsSub", "تجارب مصممة بعناية فائقة لتلبي أعلى تطلعات عشاق الفخامة والتميز")}
-            </motion.span>
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="text-3xl md:text-5xl lg:text-6xl text-obsidian-900 dark:text-white font-serif tracking-tight mb-4"
-              style={{ fontFamily: "'Playfair Display', serif" }}
-            >
-              {t("home.packageTripsTitle", "رحلات الباقات الخاصة بنا")}
-            </motion.h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto mt-4 rounded-full"></div>
+      {/* Packages Tours Marquee */}
+      <section className="py-12 bg-ivory-100 overflow-hidden relative">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-12">
+            <span className="text-gold-600 uppercase tracking-widest text-caption block mb-4">
+              {t("home.packageTripsSub", "FEATURED TRIPS")}
+            </span>
+            <h2 className="text-display-lg text-obsidian-900">
+              {t("home.packageTripsTitle", "Trips From Our Packages")}
+            </h2>
+            <div className="w-24 h-1 bg-gold-500 mx-auto mt-6"></div>
           </div>
         </div>
 
-        {/* Marquee Strip: Moving from Right to Left (من اليمين للشمال) */}
-        <div dir="ltr" className="overflow-hidden w-full relative py-4">
+        <div className="overflow-hidden w-full">
           <div
             className="flex w-max"
             style={{
               gap: "24px",
               paddingLeft: "24px",
-              animation: "tourMarquee 120s linear infinite",
+              animation: `${isRtl ? 'tourMarqueeRTL' : 'tourMarquee'} 60s linear infinite`,
             }}
             onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
             onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
           >
             {(() => {
-              const sliced = Array.isArray(packagesToursForMarquee) && packagesToursForMarquee.length > 0
-                ? packagesToursForMarquee
-                : [];
-              const infiniteList = [
-                ...sliced.map((tItem, i) => ({ ...tItem, isDuplicate: false, uKey: `set1-${tItem.id}-${i}` })),
-                ...sliced.map((tItem, i) => ({ ...tItem, isDuplicate: true, uKey: `set2-${tItem.id}-${i}` })),
-                ...sliced.map((tItem, i) => ({ ...tItem, isDuplicate: true, uKey: `set3-${tItem.id}-${i}` })),
-                ...sliced.map((tItem, i) => ({ ...tItem, isDuplicate: true, uKey: `set4-${tItem.id}-${i}` })),
-              ];
-              return infiniteList.map((tData, idx) => {
-                const tourImg = (Array.isArray(tData.images) && tData.images[0]) || tData.heroImage || tData.image || '/imgs/egyothero.png';
-                return (
-                  <Link
-                    key={tData.uKey || `pkg-tour-${idx}`}
-                    to={tData.link || "/tours"}
-                    tabIndex={tData.isDuplicate ? -1 : undefined}
-                    aria-hidden={tData.isDuplicate ? "true" : undefined}
-                    className="min-w-[300px] sm:min-w-[340px] md:min-w-[380px] shrink-0 group relative rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_40px_rgba(245,166,35,0.3)] transition-all duration-500 h-[450px] block border border-obsidian-700/50 hover:border-gold-500 bg-obsidian-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
-                  >
-                    <img
-                      src={getOptimizedImageUrl(tourImg, 400, 450)}
-                      alt={tData.title}
-                      width="400"
-                      height="450"
-                      className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.08] opacity-90 group-hover:opacity-100"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-900/50 to-transparent"></div>
+              const sliced = packagesToursForMarquee.slice(0, 8);
+              return [
+                ...sliced.map(t => ({ ...t, isDuplicate: false })),
+                ...sliced.map(t => ({ ...t, isDuplicate: true }))
+              ].map((tData, idx) => (
+                <Link
+                  key={`pkg-${tData.id}-${idx}`}
+                  to={tData.link}
+                  tabIndex={tData.isDuplicate ? -1 : undefined}
+                  aria-hidden={tData.isDuplicate ? "true" : undefined}
+                  className="min-w-[320px] md:min-w-[400px] shrink-0 group relative rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] transition-all duration-500 h-[450px] block focus:outline-none focus:ring-2 focus:ring-gold-500"
+                >
+                  <img
+                    src={getOptimizedImageUrl(tData.images && tData.images.length > 0 ? tData.images[0] : "", 400, 450)}
+                    alt={tData.title}
+                    width="400"
+                    height="450"
+                    className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/90 via-obsidian-900/20 to-transparent"></div>
+                  
+                  <div className="absolute top-4 left-4 bg-gold-500/90 backdrop-blur-sm text-obsidian-900 text-caption font-bold px-3 py-1 rounded shadow-md uppercase">
+                    {t(`nav.${tData.destination === 'holy-land' ? 'holyland' : (tData.destination || 'tour')}`, tData.destination || 'tour')}
+                  </div>
 
-                    {tData.badge && (
-                      <div className="absolute top-4 left-4 z-20 bg-gold-500 text-obsidian-950 text-caption font-bold px-3.5 py-1.5 rounded-full shadow-md uppercase backdrop-blur-md">
-                        ★ {tData.badge}
+                  <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full">
+                    <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                      <h3 className="text-display-md text-ivory-50 mb-2 leading-tight">
+                        {t(`data.${tData.title}`, tData.title)}
+                      </h3>
+
+                      <div className="flex items-center justify-between text-caption text-ivory-300 mb-4">
+                        <span>{t(`data.${tData.duration}`, tData.duration)}</span>
+                        <span className="text-gold-500 font-semibold">
+                          {formatPrice(tData.price)}
+                        </span>
                       </div>
-                    )}
 
-                    <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full z-10">
-                      <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                        <h3 className="text-xl md:text-2xl text-white font-serif font-bold mb-2 leading-tight drop-shadow-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
-                          {tData.title}
-                        </h3>
-
-                        {tData.overview && (
-                          <p className="text-body-sm text-ivory-200 line-clamp-2 mb-3 font-medium drop-shadow">
-                            {tData.overview}
-                          </p>
-                        )}
-
-                        <div className="flex items-center text-caption text-gold-400 font-semibold mb-4 pt-2 border-t border-white/15">
-                          <span>{tData.duration}</span>
+                      {Number.isFinite(Number(tData.rating)) && Number.isFinite(Number(tData.reviewCount)) ? (
+                        <div className="flex items-center gap-1 text-gold-500 mb-4">
+                          {[...Array(Math.floor(Number(tData.rating)))].map((_, i) => (
+                            <FaStar key={i} size={12} />
+                          ))}
+                          <span className="text-ivory-50 ml-1 text-xs">({tData.reviewCount})</span>
                         </div>
+                      ) : null}
 
-                        <div className="block">
-                          <Button variant="gold-glow" tabIndex={-1} className="w-full py-2.5 text-xs font-bold shadow-lg">
-                            {t("home.viewTour", "عرض التفاصيل وحجز الرحلة")} →
-                          </Button>
-                        </div>
+                      <div className="block opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <Button variant="outline-gold" tabIndex={-1} className="w-full py-2">
+                          {t("home.viewTour", "View Tour")}
+                        </Button>
                       </div>
                     </div>
-                  </Link>
-                );
-              });
+                  </div>
+                </Link>
+              ));
             })()}
           </div>
-        </div>
-
-        <div className="flex justify-center mt-12">
-          <Link to="/tours">
-            <Button variant="outline-gold" className="px-8 py-3 text-body-sm font-bold">
-              {t("home.exploreAllTours", "استكشف جميع البرامج والرحلات")} →
-            </Button>
-          </Link>
         </div>
       </section>
 
@@ -2720,7 +2289,7 @@ const Home = () => {
                     Haram - Giza – Egypt
                   </p>
                   <a 
-                    href="https://maps.app.goo.gl/oA84mQGwUsHWo4kt8" 
+                    href="https://maps.google.com/?q=5+Hussein+Said+St,+Old+Hadayk+El+Ahram,+Haram,+Giza,+Egypt" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-gold-400 hover:text-gold-300 transition-colors pt-2 group/link"
@@ -2747,26 +2316,17 @@ const Home = () => {
                   <span className="text-[10px] text-gold-400 font-bold uppercase tracking-widest block">02 / {t('contact.phoneLabel', 'Phone')}</span>
                   <h3 className="text-lg font-bold text-ivory-50 tracking-wide font-display">{t('home.contactPhone', 'Call Us')}</h3>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
-                    <a
-                      href="https://wa.me/20114940111"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-ivory-300 hover:text-gold-400 text-xs font-medium transition-colors py-1 px-2.5 rounded-lg bg-white/5 border border-white/5 hover:border-gold-500/30 hover:bg-gold-500/5"
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                      +20114940111
-                    </a>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                     <a
                       href="tel:+20233746643"
-                      className="inline-flex items-center gap-2 text-ivory-300 hover:text-gold-400 text-xs font-medium transition-colors py-1 px-2.5 rounded-lg bg-white/5 border border-white/5 hover:border-gold-500/30 hover:bg-gold-500/5"
+                      className="inline-flex items-center gap-2.5 text-ivory-300 hover:text-gold-400 text-sm font-medium transition-colors py-1 px-3 rounded-lg bg-white/5 border border-white/5 hover:border-gold-500/30 hover:bg-gold-500/5"
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                       02 33746643
                     </a>
                     <a
                       href="tel:+20233746654"
-                      className="inline-flex items-center gap-2 text-ivory-300 hover:text-gold-400 text-xs font-medium transition-colors py-1 px-2.5 rounded-lg bg-white/5 border border-white/5 hover:border-gold-500/30 hover:bg-gold-500/5"
+                      className="inline-flex items-center gap-2.5 text-ivory-300 hover:text-gold-400 text-sm font-medium transition-colors py-1 px-3 rounded-lg bg-white/5 border border-white/5 hover:border-gold-500/30 hover:bg-gold-500/5"
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                       02 33746654
@@ -3185,13 +2745,19 @@ const Home = () => {
                   >
                     {/* Tour image on top */}
                     <div className="h-[180px] w-full overflow-hidden">
-                      <img
-                        src={tour.images[0]}
-                        alt={t(`data.${tour.title}`, tour.title)}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                        decoding="async"
-                      />
+                      {tour.images[0] ? (
+                        <img
+                          src={tour.images[0]}
+                          alt={t(`data.${tour.title}`, tour.title)}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-obsidian-800 px-4 text-center text-sm text-ivory-300">
+                          {t('tour.imageUnavailable', 'No image has been added for this tour.')}
+                        </div>
+                      )}
                     </div>
 
                     {/* Tour name below image */}
