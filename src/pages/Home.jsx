@@ -647,7 +647,7 @@ const Home = () => {
     { id: 'greece', label: t('nav.greece', 'Greece'), img: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80' },
     { id: 'dubai', label: t('nav.dubai', 'Dubai'), img: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80' },
     { id: 'tunisia', label: t('nav.tunisia', 'Tunisia'), img: 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=800&q=80' },
-    { id: 'holyland', label: t('nav.holyland', 'Holy Land'), img: 'https://images.unsplash.com/photo-1544971587-b842c27f8c14?auto=format&fit=crop&w=800&q=80' },
+    { id: 'holyland', label: t('nav.holyland', 'Holy Land'), img: 'https://images.unsplash.com/photo-1548625361-186a8775f0a0?auto=format&fit=crop&w=800&q=80' },
   ];
 
   const slugify = (str) => str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
