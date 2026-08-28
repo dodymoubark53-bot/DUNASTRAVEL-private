@@ -2495,7 +2495,12 @@
     "includesTitle": "Inclui",
     "ctaTitle": "Quer Personalizar a sua Extensão?",
     "ctaDesc": "Os nossos especialistas podem adaptar a duração, categoria de hotel e passeios privados.",
-    "ctaBtn": "Personalizar Extensão"
+    "ctaBtn": "Personalizar Extensão",
+    "inc1": "3 noites de hospedagem em resort ou hotel de luxo",
+    "inc2": "Tudo incluído ou café da manhã conforme especificado",
+    "inc3": "Traslados privativos de/para aeroporto ou resort",
+    "inc4": "Excursões guiadas e passeios locais",
+    "inc5": "Suporte ao cliente 24 horas"
   },
   "extensions.tripsAvailable": "Passeios Disponíveis",
   "extensions.startingFrom": "A Partir De",
@@ -2587,5 +2592,10 @@
     "multiTag3": "📜 Gestão Integral de Vistos e Trâmites",
     "multiPrimaryCta": "Explorar Viagens Multipaíses ←",
     "multiSecondaryCta": "Solicitar Roteiro para Grupos"
+  },
+  "tailor": {
+    "destinationsSelected": "{{count}} destino(s) selecionado(s)",
+    "selectDestinationHint": "Selecione um ou mais destinos e continue.",
+    "unselect": "Desmarcar"
   }
 }

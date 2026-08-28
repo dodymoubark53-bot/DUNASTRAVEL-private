@@ -2495,7 +2495,12 @@
     "includesTitle": "Include",
     "ctaTitle": "Vuoi Personalizzare la tua Estensione?",
     "ctaDesc": "I nostri esperti possono adattare la durata, la categoria dell'hotel e le escursioni private.",
-    "ctaBtn": "Personalizza Estensione"
+    "ctaBtn": "Personalizza Estensione",
+    "inc1": "3 notti di soggiorno in resort o hotel di lusso",
+    "inc2": "All-inclusive o colazione come specificato",
+    "inc3": "Trasferimenti privati da/per aeroporto o resort",
+    "inc4": "Escursioni guidate e tour locali",
+    "inc5": "Assistenza clienti 24 ore su 24"
   },
   "extensions.tripsAvailable": "Escursioni Disponibili",
   "extensions.startingFrom": "A Partire Da",
@@ -2587,5 +2592,10 @@
     "multiTag3": "📜 Gestione Completa di Visti e Pratiche",
     "multiPrimaryCta": "Esplora i Viaggi Multipaese ←",
     "multiSecondaryCta": "Richiedi Itinerario per Gruppi"
+  },
+  "tailor": {
+    "destinationsSelected": "{{count}} destinazione/i selezionata/e",
+    "selectDestinationHint": "Seleziona una o più destinazioni, poi continua.",
+    "unselect": "Deseleziona"
   }
 }

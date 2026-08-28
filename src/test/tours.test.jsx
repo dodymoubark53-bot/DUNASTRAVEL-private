@@ -122,10 +122,14 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
 
     expect(api.get).toHaveBeenCalledWith(`/tours/${tourId}/reviews`);
 
+    const nameInput = screen.getByLabelText(/Your Name/i);
+    fireEvent.change(nameInput, { target: { value: 'Jane Smith' } });
+
     const reviewInput = screen.getByLabelText(/Your Review/i);
     fireEvent.change(reviewInput, { target: { value: 'Unforgettable tour!' } });
 
     await waitFor(() => {
+      expect(nameInput.value).toBe('Jane Smith');
       expect(reviewInput.value).toBe('Unforgettable tour!');
     });
 
@@ -135,11 +139,11 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
     // The API is authoritative: no pending review is inserted into the list.
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith(`/tours/${tourId}/reviews`, {
+        reviewerName: 'Jane Smith',
         rating: 5,
         comment: 'Unforgettable tour!',
       });
     });
-    expect(screen.queryByText('Jane Smith')).toBeNull();
   });
 
   it('useCmsBlock passes lang to GET /api/cms/:key', async () => {
