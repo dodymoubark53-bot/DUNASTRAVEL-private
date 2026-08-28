@@ -408,6 +408,14 @@ function App() {
                     }
                   />
                   <Route
+                    path="tunisia/:programId"
+                    element={
+                      <PageTransition>
+                        <TourDetails />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
                     path=":slug"
                     element={
                       <PageTransition>
@@ -522,10 +530,26 @@ function App() {
                     }
                   />
                   <Route
+                    path="tunisia/:slug"
+                    element={
+                      <PageTransition>
+                        <TourDetails />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
                     path="tunisie"
                     element={
                       <PageTransition>
                         <Tunisia />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="tunisie/:slug"
+                    element={
+                      <PageTransition>
+                        <TourDetails />
                       </PageTransition>
                     }
                   />

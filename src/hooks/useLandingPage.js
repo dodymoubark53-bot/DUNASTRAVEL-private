@@ -69,6 +69,20 @@ function getFallbackLandingPage(slug, locale) {
     };
   }
 
+  if (normSlug === 'tunisia' || normSlug === 'tunisie') {
+    return {
+      id: 'tunisia',
+      slug: 'tunisia',
+      type: 'DESTINATION',
+      title: locale === 'ar' ? 'تونس' : locale === 'es' ? 'Túnez' : locale === 'pt' ? 'Tunísia' : locale === 'it' ? 'Tunisia' : 'Tunisia',
+      subtitle: locale === 'ar' ? 'عبق قرطاج وسحر سيدي بوسعيد الأزرق' : 'Mediterranean Breeze & Carthage Legacies',
+      brief: locale === 'ar' ? 'تجوّل بين الأزقة البيضاء والزرقاء واكتشف الآثار الرومانية والواحات الساحرة.' : 'Discover Carthage, Sidi Bou Said, and the Mediterranean shores.',
+      description: locale === 'ar' ? 'استكشف المعالم التاريخية والرحلات الفاخرة في تونس.' : 'Explore historical landmarks and luxury tours in Tunisia.',
+      heroImageUrl: 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1920&q=80',
+      tours: matchedTours,
+    };
+  }
+
   if (matchedTours.length > 0) {
     return {
       id: normSlug,
@@ -80,6 +94,36 @@ function getFallbackLandingPage(slug, locale) {
       description: 'Discover unforgettable journeys.',
       heroImageUrl: matchedTours[0].images?.[0] || '',
       tours: matchedTours,
+    };
+  }
+
+  const tourMatch = staticTours.find(
+    (t) => t.slug === normSlug || t.id === normSlug || t.slug === slug || t.id === slug
+  );
+  if (tourMatch) {
+    const title = typeof tourMatch.title === 'object' ? (tourMatch.title[locale] || tourMatch.title.en || Object.values(tourMatch.title)[0]) : (tourMatch.title || '');
+    const price = Number(tourMatch.price || tourMatch.basePriceUsd || 0);
+    const images = Array.isArray(tourMatch.images) && tourMatch.images.length > 0 ? tourMatch.images : (tourMatch.heroImage ? [tourMatch.heroImage] : []);
+    const normalizedTour = {
+      ...tourMatch,
+      id: tourMatch.id || tourMatch.slug,
+      slug: tourMatch.slug,
+      title,
+      basePriceUsd: String(price),
+      currency: 'USD',
+      country: tourMatch.country || tourMatch.destination || 'Tunisia',
+      images,
+    };
+    return {
+      id: tourMatch.slug || tourMatch.id,
+      slug: tourMatch.slug || tourMatch.id,
+      type: 'TOUR',
+      title: title || 'Luxury Experience',
+      subtitle: 'Handpicked Luxury Tour',
+      brief: typeof tourMatch.overview === 'object' ? (tourMatch.overview[locale] || tourMatch.overview.en || '') : (tourMatch.overview || ''),
+      description: '',
+      heroImageUrl: images[0] || '',
+      tours: [normalizedTour],
     };
   }
 
