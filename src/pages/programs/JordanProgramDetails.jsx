@@ -376,7 +376,7 @@ export default function JordanProgramDetails() {
       `}</style>
 
       {/* Suggested Tours Strip */}
-      <SuggestedTours currentDestination="jordan" currentSlug={programSlug} />
+      <SuggestedTours currentDestination="jordan" currentSlug={targetSlug} />
     </div>
   );
 }
