@@ -26,6 +26,7 @@ import SuggestedTours from '../../components/tour/SuggestedTours';
 const TourDetails = () => {
   const { t, i18n } = useTranslation();
   const lang = i18n.language || 'en';
+  const { formatPrice } = useCurrency();
   const params = useParams();
   const rawSlug = params.slug || params['*'] || params.programId || 'complete-egypt-8d';
   const cleanSlug = String(rawSlug).replace(/^classic\/?/, '').trim();
