@@ -88,43 +88,61 @@ const HotelDetails = () => {
 
   const defaultRoomTypes = [
     {
+      id: 'single-room',
+      name: t('hotel.room.singleTitle', 'Single Room'),
+      price: 0,
+      capacity: '1 Guest',
+      bed: t('hotel.room.singleBed', '1 Single Bed'),
+      view: t('hotel.room.singleView', 'City / Garden View'),
+      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
+    },
+    {
       id: 'double-room',
       name: t('hotel.room.doubleTitle', 'Double Room'),
-      price: 85,
+      price: 0,
       capacity: '1–2 Guests',
       bed: t('hotel.room.doubleBed', '1 King Bed'),
       view: t('hotel.room.doubleView', 'Pyramids View'),
       image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
     },
     {
-      id: 'twin-room',
-      name: t('hotel.room.twinTitle', 'Twin Room'),
-      price: 85,
-      capacity: '2 Guests',
-      bed: t('hotel.room.twinBed', 'Double/Twin'),
-      view: t('hotel.room.twinView', 'Standard View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2026/02/Double-900x500.jpg',
-    },
-    {
       id: 'triple-room',
       name: t('hotel.room.tripleTitle', 'Triple Room'),
-      price: 110,
+      price: 0,
       capacity: '3 Guests',
       bed: t('hotel.room.tripleBed', 'Double/Twin'),
       view: t('hotel.room.tripleView', 'Standard View'),
       image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2026/02/Triple-900x500.jpg',
+    },
+    {
+      id: 'executive-suite',
+      name: t('hotel.room.suiteTitle', 'Executive Suite'),
+      price: 0,
+      capacity: '2–3 Guests',
+      bed: t('hotel.room.suiteBed', '1 King Bed + Lounge'),
+      view: t('hotel.room.suiteView', 'Panoramic Pyramids View'),
+      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
+    },
+    {
+      id: 'royal-pyramid-view-suite',
+      name: t('hotel.room.royalTitle', 'Royal Pyramid View Suite'),
+      price: 0,
+      capacity: '2–4 Guests',
+      bed: t('hotel.room.royalBed', 'Master King Bed + Royal Lounge'),
+      view: t('hotel.room.royalView', 'Front-Row Direct Pyramids View'),
+      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2026/02/Double-900x500.jpg',
     },
   ];
 
   const roomTypes = (apiHotel?.rooms && apiHotel.rooms.length > 0)
     ? apiHotel.rooms.map((r, idx) => ({
         id: r.slug,
-        name: r.name || defaultRoomTypes[idx % defaultRoomTypes.length]?.name || r.slug,
-        price: Number(r.ratePerNight) || defaultRoomTypes[idx % defaultRoomTypes.length]?.price || 85,
+        name: r.name || defaultRoomTypes.find((d) => d.id === r.slug)?.name || r.slug,
+        price: (r.ratePerNight !== undefined && r.ratePerNight !== null) ? Number(r.ratePerNight) : 0,
         capacity: `${r.maxOccupancy || 2} Guests`,
-        bed: r.description || defaultRoomTypes[idx % defaultRoomTypes.length]?.bed || '1 King Bed',
-        view: defaultRoomTypes[idx % defaultRoomTypes.length]?.view || 'Panoramic View',
-        image: defaultRoomTypes[idx % defaultRoomTypes.length]?.image || 'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
+        bed: r.description || defaultRoomTypes.find((d) => d.id === r.slug)?.bed || '1 King Bed',
+        view: defaultRoomTypes.find((d) => d.id === r.slug)?.view || 'Panoramic View',
+        image: defaultRoomTypes.find((d) => d.id === r.slug)?.image || 'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
       }))
     : defaultRoomTypes;
 

@@ -44,10 +44,24 @@ const RoomDetails = () => {
   const basePath = location.pathname.startsWith('/programs') ? '/programs' : '/services';
 
   const roomDataMap = {
+    'single-room': {
+      id: 'single-room',
+      name: t('hotel.room.singleTitle', 'Single Room'),
+      price: 0,
+      capacity: t('hotel.room.singleCapacity', '1 Guest'),
+      bed: t('hotel.room.singleBed', '1 Single Bed'),
+      view: t('hotel.room.singleView', 'City / Garden View'),
+      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
+      gallery: [
+        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
+        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0013.jpg',
+        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Tea-Tabel.jpg',
+      ],
+    },
     'double-room': {
       id: 'double-room',
       name: t('hotel.room.doubleTitle', 'Double Room'),
-      price: 85,
+      price: 0,
       capacity: t('hotel.room.doubleCapacity', '1–2 Guests'),
       bed: t('hotel.room.doubleBed', '1 King Bed'),
       view: t('hotel.room.doubleView', 'Pyramids View'),
@@ -61,26 +75,10 @@ const RoomDetails = () => {
         'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/View.jpg',
       ],
     },
-    'twin-room': {
-      id: 'twin-room',
-      name: t('hotel.room.twinTitle', 'Twin Room'),
-      price: 85,
-      capacity: t('hotel.room.twinCapacity', '2 Guests'),
-      bed: t('hotel.room.twinBed', 'Double/Twin'),
-      view: t('hotel.room.twinView', 'Standard View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2026/02/Double-900x500.jpg',
-      gallery: [
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2026/02/Double-900x500.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0009.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0006.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/TV-Unit.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Tea-Tabel.jpg',
-      ],
-    },
     'triple-room': {
       id: 'triple-room',
       name: t('hotel.room.tripleTitle', 'Triple Room'),
-      price: 110,
+      price: 0,
       capacity: t('hotel.room.tripleCapacity', '3 Guests'),
       bed: t('hotel.room.tripleBed', 'Double/Twin'),
       view: t('hotel.room.tripleView', 'Standard View'),
@@ -93,13 +91,41 @@ const RoomDetails = () => {
         'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Tea-Tabel.jpg',
       ],
     },
+    'executive-suite': {
+      id: 'executive-suite',
+      name: t('hotel.room.suiteTitle', 'Executive Suite'),
+      price: 0,
+      capacity: t('hotel.room.suiteCapacity', '2–3 Guests'),
+      bed: t('hotel.room.suiteBed', '1 King Bed + Lounge'),
+      view: t('hotel.room.suiteView', 'Panoramic Pyramids View'),
+      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
+      gallery: [
+        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
+        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0010.jpg',
+        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/View.jpg',
+      ],
+    },
+    'royal-pyramid-view-suite': {
+      id: 'royal-pyramid-view-suite',
+      name: t('hotel.room.royalTitle', 'Royal Pyramid View Suite'),
+      price: 0,
+      capacity: t('hotel.room.royalCapacity', '2–4 Guests'),
+      bed: t('hotel.room.royalBed', 'Master King Bed + Royal Lounge'),
+      view: t('hotel.room.royalView', 'Front-Row Direct Pyramids View'),
+      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2026/02/Double-900x500.jpg',
+      gallery: [
+        'https://www.solpyramid-egypt.com/wp-content/uploads/2026/02/Double-900x500.jpg',
+        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0013.jpg',
+        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/View.jpg',
+      ],
+    },
   };
 
   const apiRoom = apiHotel?.rooms?.find((r) => r.slug === roomSlug);
   const fallbackRoom = roomDataMap[roomSlug] || (apiRoom ? {
     id: apiRoom.slug,
     name: apiRoom.name || t('hotel.room.doubleTitle', 'Luxury Room'),
-    price: Number(apiRoom.ratePerNight) || 85,
+    price: (apiRoom.ratePerNight !== undefined && apiRoom.ratePerNight !== null) ? Number(apiRoom.ratePerNight) : 0,
     capacity: `${apiRoom.maxOccupancy || 2} Guests`,
     bed: apiRoom.description || t('hotel.room.doubleBed', '1 King Bed'),
     view: t('hotel.room.doubleView', 'Panoramic View'),
@@ -117,7 +143,7 @@ const RoomDetails = () => {
   const room = fallbackRoom ? {
     ...fallbackRoom,
     name: apiRoom?.name || fallbackRoom.name,
-    price: apiRoom?.ratePerNight ? Number(apiRoom.ratePerNight) : fallbackRoom.price,
+    price: (apiRoom?.ratePerNight !== undefined && apiRoom?.ratePerNight !== null) ? Number(apiRoom.ratePerNight) : fallbackRoom.price,
     capacity: apiRoom?.maxOccupancy ? `${apiRoom.maxOccupancy} Guests` : fallbackRoom.capacity,
   } : null;
 
@@ -193,18 +219,36 @@ const RoomDetails = () => {
     setBookingForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleBookingSubmit = (e) => {
+  const handleBookingSubmit = async (e) => {
     e.preventDefault();
     if (bookingForm.checkInDate && bookingForm.checkInDate < todayStr) return;
     setIsSending(true);
-    const subject = encodeURIComponent(`Booking Request: ${room.name} - Sol Pyramid Hotel`);
-    const bodyText = `New Booking Request Details:\n\nRoom Type: ${room.name}\nFull Name: ${bookingForm.fullName}\nEmail: ${bookingForm.email}\nPhone Number: ${bookingForm.phone}\nCheck-in Date: ${bookingForm.checkInDate}\nCheck-out Date: ${bookingForm.checkOutDate}\nNumber of Guests: ${bookingForm.guests}\nSpecial Requests: ${bookingForm.specialRequests || 'None'}\n\nPlease check availability and confirm.`;
-    const mailtoUrl = `mailto:info@solpyramid-egypt.com?subject=${subject}&body=${encodeURIComponent(bodyText)}`;
-    setTimeout(() => {
+    try {
+      const payload = {
+        fullName: bookingForm.fullName.trim(),
+        email: bookingForm.email.trim(),
+        phone: bookingForm.phone.trim(),
+        preferredLanguage: i18n.language || 'en',
+        destinations: ['Sol Pyramid Hotel - ' + room.name],
+        startDate: bookingForm.checkInDate || undefined,
+        adults: parseInt(bookingForm.guests, 10) || 1,
+        children: 0,
+        notes: `Hotel Room Reservation Request: ${room.name} (Sol Pyramid Hotel)\nCheck-in: ${bookingForm.checkInDate}\nCheck-out: ${bookingForm.checkOutDate}\nGuests: ${bookingForm.guests}\nBedding/Requests: ${bookingForm.specialRequests || 'Standard'}`,
+      };
+
+      const { default: api } = await import('../../utils/api');
+      await api.post('/inquiries', payload);
+      setIsSending(false);
+      setRequestSent(true);
+    } catch (err) {
+      console.warn('API submission fallback to mailto:', err);
+      const subject = encodeURIComponent(`Booking Request: ${room.name} - Sol Pyramid Hotel`);
+      const bodyText = `New Booking Request Details:\n\nRoom Type: ${room.name}\nFull Name: ${bookingForm.fullName}\nEmail: ${bookingForm.email}\nPhone Number: ${bookingForm.phone}\nCheck-in Date: ${bookingForm.checkInDate}\nCheck-out Date: ${bookingForm.checkOutDate}\nNumber of Guests: ${bookingForm.guests}\nSpecial Requests: ${bookingForm.specialRequests || 'None'}\n\nPlease check availability and confirm.`;
+      const mailtoUrl = `mailto:info@solpyramid-egypt.com?subject=${subject}&body=${encodeURIComponent(bodyText)}`;
       setIsSending(false);
       setRequestSent(true);
       window.location.href = mailtoUrl;
-    }, 1200);
+    }
   };
 
   const handleReviewSubmit = (e) => {

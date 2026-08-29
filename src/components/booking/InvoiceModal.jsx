@@ -45,9 +45,48 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
+  const [isPaying, setIsPaying] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
+
   const booking = invoiceData
     ? normalizeInvoiceResponse({ ...initialBooking, ...invoiceData })
     : normalizeInvoiceResponse(initialBooking);
+
+  const handlePayNow = async () => {
+    const bId = booking.id || booking.bookingId || initialBooking.id || initialBooking.bookingId;
+    if (!bId) {
+      setPaymentError(t('booking.noBookingId', 'Booking ID not available for checkout.'));
+      return;
+    }
+    setIsPaying(true);
+    setPaymentError('');
+    try {
+      const res = await api.post('/payments/initiate', { bookingId: bId });
+      const checkoutUrl =
+        res?.checkoutUrl ||
+        res?.sessionUrl ||
+        res?.url ||
+        res?.paymentUrl ||
+        res?.data?.sessionUrl ||
+        res?.data?.url;
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+      } else {
+        setPaymentError(
+          t('booking.paymentInitiated', 'Payment request processed. Please check your email or concierge status.')
+        );
+      }
+    } catch (err) {
+      console.error('Payment initiation error:', err);
+      setPaymentError(
+        err?.response?.data?.message ||
+          err?.message ||
+          t('booking.paymentError', 'Unable to initiate online payment session with gateway.')
+      );
+    } finally {
+      setIsPaying(false);
+    }
+  };
 
   const rawDate = booking.createdAt || booking.date || booking.issueDate;
   const d = rawDate ? new Date(rawDate) : new Date();
@@ -240,7 +279,7 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
 
           {/* Pricing & Financial Summary */}
           <div className="bg-gradient-to-br from-[rgba(201,162,39,0.08)] to-transparent border border-gold-500/30 rounded-xl p-5 print:bg-gray-100 print:border-gray-300">
-            <div className="flex items-baseline justify-between">
+            <div className="flex items-baseline justify-between mb-4">
               <div>
                 <span className="text-[11px] uppercase tracking-widest text-gold-400 print:text-gray-600 font-semibold block">
                   {t('booking.totalPrice', 'Grand Total Amount')}
@@ -255,6 +294,24 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
                   ? booking.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })
                   : booking.totalAmount || booking.totalAmountUsd || '0.00'}
               </span>
+            </div>
+
+            {/* Online Payment Integration: GeitPatin Checkout */}
+            <div className="pt-4 border-t border-gold-500/20 print:hidden flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={handlePayNow}
+                disabled={isPaying}
+                className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-gold-500 via-gold-400 to-gold-600 hover:from-gold-400 hover:to-gold-500 text-obsidian-950 font-bold text-sm tracking-wider uppercase shadow-[0_0_25px_rgba(201,162,39,0.35)] hover:shadow-[0_0_35px_rgba(201,162,39,0.5)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <FaShieldAlt className="text-obsidian-950" />
+                {isPaying ? t('booking.processingPayment', 'Initiating Secure Gateway...') : t('booking.payWithGeitPatin', 'Proceed to Online Payment (GeitPatin SSL)')}
+              </button>
+              {paymentError && (
+                <p className="text-xs text-red-400 text-center mt-1 bg-red-950/40 p-2 rounded-lg border border-red-500/20">
+                  {paymentError}
+                </p>
+              )}
             </div>
           </div>
 
