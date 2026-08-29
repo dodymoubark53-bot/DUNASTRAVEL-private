@@ -152,19 +152,8 @@ const TourDetails = () => {
 
           <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
             {tour.isFeatured && (
-              <span className="bg-gold-500 text-obsidian-900 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">
+              <span className="bg-gold-500 text-obsidian-900 text-xs font-bold uppercase tracking-wider px-3.5 py-1 rounded-full shadow-sm">
                 {t('tour.featured', 'Featured Experience')}
-              </span>
-            )}
-            {tour.market && (
-              <span className="bg-white/10 text-ivory-50 text-xs font-semibold px-3 py-1 rounded-full border border-white/10 flex items-center gap-1.5">
-                <span>{marketFlag(tour.market)}</span>
-                <span>{tour.market}</span>
-              </span>
-            )}
-            {tour.sourceCode && (
-              <span className="bg-gold-500/15 text-gold-400 text-xs font-mono font-semibold px-3 py-1 rounded-full border border-gold-500/30">
-                {tour.sourceCode}
               </span>
             )}
           </div>

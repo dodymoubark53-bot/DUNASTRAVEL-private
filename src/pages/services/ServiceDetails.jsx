@@ -16,7 +16,7 @@ import NotFound from '../NotFound';
 import BookingForm from '../../components/booking/BookingForm';
 import AdvancedBooking from '../../components/booking/AdvancedBooking';
 import { useCurrency } from '../../context/CurrencyContext';
-import SuggestedTours from '../../components/tour/SuggestedTours';
+import { services as staticServices } from '../../data/services';
 
 const RouteMap = lazy(() => import('../../components/tour/RouteMap'));
 const ReviewsMap = lazy(() => import('../../components/tour/ReviewsMap'));
@@ -27,7 +27,7 @@ const ServiceDetails = () => {
   const { category: urlCategory, slug } = useParams();
   const { services: apiServices, loading, error } = useServices(urlCategory);
   
-  const allServices = Array.isArray(apiServices) ? apiServices : [];
+  const allServices = [...(Array.isArray(apiServices) ? apiServices : []), ...staticServices];
   const service = allServices.find((s) => s.slug === slug) || allServices.find((s) => (urlCategory ? s.category === urlCategory : true) && s.slug === slug);
   const category = service ? service.category : urlCategory;
   const [activeImage, setActiveImage] = useState(null);

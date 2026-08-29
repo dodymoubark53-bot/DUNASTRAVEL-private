@@ -141,6 +141,10 @@ const BackendToursPage = lazyWithRetry(() => import("./pages/tours/BackendToursP
 const TourDetails = lazyWithRetry(() => import("./pages/tours/TourDetails"));
 const BlogDetails = lazyWithRetry(() => import("./pages/blogs/BlogDetails"));
 const ServiceDetails = lazyWithRetry(() => import("./pages/services/ServiceDetails"));
+const ReligiousTours = lazyWithRetry(() => import("./pages/programs/ReligiousTours"));
+const Honeymooners = lazyWithRetry(() => import("./pages/programs/Honeymooners"));
+const ExtensionTours = lazyWithRetry(() => import("./pages/programs/ExtensionTours"));
+const MultiCountryTours = lazyWithRetry(() => import("./pages/programs/MultiCountryTours"));
 const Transportation = lazyWithRetry(
   () => import("./pages/transportation/Transportation"),
 );
@@ -323,6 +327,22 @@ function App() {
                     }
                   />
                   <Route
+                    path="religious"
+                    element={
+                      <PageTransition>
+                        <ReligiousTours />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="religious/:slug"
+                    element={
+                      <PageTransition>
+                        <ServiceDetails />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
                     path=":category/:slug"
                     element={
                       <PageTransition>
@@ -348,13 +368,13 @@ function App() {
                       </PageTransition>
                     }
                   />
-                  <Route path="honeymooners" element={<PageTransition><BackendToursPage titleKey="programs.honeymoonersTitle" titleDefault="Honeymoon Tours" filters={{ category: 'Honeymoon' }} /></PageTransition>} />
+                  <Route path="honeymooners" element={<PageTransition><Honeymooners /></PageTransition>} />
                   <Route path="honeymooners/:id" element={<PageTransition><TourDetails /></PageTransition>} />
-                  <Route path="religious" element={<PageTransition><BackendToursPage titleKey="programs.religiousTitle" titleDefault="Religious Tours" filters={{ category: 'Religious' }} /></PageTransition>} />
+                  <Route path="religious" element={<PageTransition><ReligiousTours /></PageTransition>} />
                   <Route path="religious/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
-                  <Route path="multi-country" element={<PageTransition><BackendToursPage titleKey="programs.multiCountryTitle" titleDefault="Multi-Country Tours" filters={{ destination: 'Multi-Country' }} /></PageTransition>} />
+                  <Route path="multi-country" element={<PageTransition><MultiCountryTours /></PageTransition>} />
                   <Route path="multi-country/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
-                  <Route path="extension" element={<PageTransition><BackendToursPage titleKey="programs.extensionTitle" titleDefault="Extension Tours" filters={{ destination: 'Egypt' }} /></PageTransition>} />
+                  <Route path="extension" element={<PageTransition><ExtensionTours /></PageTransition>} />
                   <Route path="extension/:id" element={<PageTransition><TourDetails /></PageTransition>} />
                   <Route path="classic" element={<PageTransition><BackendToursPage titleKey="programs.classicTitle" titleDefault="Classic Tours" filters={{ destination: 'Egypt' }} /></PageTransition>} />
                   <Route path="classic/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
