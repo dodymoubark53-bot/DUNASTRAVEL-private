@@ -208,7 +208,11 @@ export default function LandingPageDetails({ destinationOnly = false, slug: slug
 
   const sections = readableSections(landingPage.sections);
   const sortedTours = Array.isArray(landingPage.tours)
-    ? [...landingPage.tours].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+    ? [...landingPage.tours].sort((a, b) => {
+        if (a.isFeatured && !b.isFeatured) return -1;
+        if (!a.isFeatured && b.isFeatured) return 1;
+        return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+      })
     : [];
 
   const config = DEST_FALLBACK_DATA[slug] || {};

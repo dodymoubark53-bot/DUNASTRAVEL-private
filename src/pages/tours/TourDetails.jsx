@@ -5,13 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   FaChevronRight, FaChevronLeft, FaClock, FaTag,
   FaMapMarkerAlt, FaBed, FaCheckCircle, FaUsers, FaStar,
-  FaGlobeAmericas, FaShieldAlt, FaCalendarAlt,
-  FaTimes, FaExternalLinkAlt
+  FaGlobeAmericas, FaShieldAlt,
+  FaTimes, FaExternalLinkAlt, FaHeart, FaRegHeart
 } from 'react-icons/fa';
 import { fadeInUp } from '../../animations/variants';
 import BookingForm from '../../components/booking/BookingForm';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useTour } from '../../hooks/useTour';
+import { useWishlist } from '../../hooks/useWishlist';
 import { trackEvent } from '../../utils/analytics';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import ErrorState from '../../components/ui/ErrorState';
@@ -38,6 +39,7 @@ const TourDetails = () => {
   const slug = cleanSlug;
 
   const { tour, loading, error, retry } = useTour(slug);
+  const { isFavorite, toggleFavorite } = useWishlist();
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -203,6 +205,17 @@ const TourDetails = () => {
               </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 group-hover:opacity-80 transition-opacity"></div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleFavorite(tour);
+              }}
+              aria-label="Toggle wishlist"
+              className="absolute top-6 right-6 rtl:right-auto rtl:left-6 z-20 w-11 h-11 rounded-full bg-obsidian-900/80 backdrop-blur-md flex items-center justify-center border border-gold-500/40 text-gold-500 hover:scale-110 transition-all shadow-lg cursor-pointer"
+            >
+              {isFavorite(tour.id || tour.slug) ? <FaHeart className="text-red-500 text-lg" /> : <FaRegHeart className="text-lg" />}
+            </button>
             <div className="absolute bottom-6 right-6 rtl:right-auto rtl:left-6 bg-obsidian-900/85 backdrop-blur-md px-5 py-2.5 rounded-full text-ivory-50 text-caption font-semibold border border-gold-500/30 flex items-center gap-2 shadow-lg">
               <FaExternalLinkAlt className="text-gold-400 text-xs" />
               <span>{t('tour.clickGallery', 'View Gallery')} ({gallery.length || 1})</span>
@@ -536,68 +549,6 @@ const TourDetails = () => {
               exclusionsTitle={t('tourDetail.excluded', 'What is Not Included')}
               excursionsTitle={t('tour.optionalExcursions', 'Optional Excursions')}
             />
-
-            <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-6">
-              <div className="mb-6">
-                <span className="text-caption text-gold-600 dark:text-gold-400 uppercase tracking-widest font-semibold block mb-2">
-                  {t('tour.essentialInfoBadge', 'LOGISTICS & POLICIES')}
-                </span>
-                <h2 className="text-display-lg text-obsidian-900 dark:text-ivory-50 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
-                  {t('tour.essentialInfoTitle', 'Important Tour Information')}
-                </h2>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {tour.departureInfo && (
-                  <div className="bg-white dark:bg-[#1a1a30] p-6 rounded-2xl border border-gold-500/15 shadow-sm">
-                    <div className="flex items-center gap-2 text-gold-600 dark:text-gold-400 font-semibold mb-3">
-                      <FaCalendarAlt />
-                      <h3 className="text-base uppercase tracking-wider">{t('tour.departures', 'Departure Information')}</h3>
-                    </div>
-                    <p className="text-body-sm text-obsidian-600 dark:text-ivory-300 leading-relaxed whitespace-pre-line">
-                      {resolveLocalizedText(tour.departureInfo, t, lang)}
-                    </p>
-                  </div>
-                )}
-
-                {tour.meetingPoint && (
-                  <div className="bg-white dark:bg-[#1a1a30] p-6 rounded-2xl border border-gold-500/15 shadow-sm">
-                    <div className="flex items-center gap-2 text-gold-600 dark:text-gold-400 font-semibold mb-3">
-                      <FaMapMarkerAlt />
-                      <h3 className="text-base uppercase tracking-wider">{t('tour.meetingPoint', 'Meeting Point & Pickup')}</h3>
-                    </div>
-                    <p className="text-body-sm text-obsidian-600 dark:text-ivory-300 leading-relaxed whitespace-pre-line">
-                      {resolveLocalizedText(tour.meetingPoint, t, lang)}
-                    </p>
-                  </div>
-                )}
-
-                {tour.cancellationPolicy && (
-                  <div className="bg-white dark:bg-[#1a1a30] p-6 rounded-2xl border border-gold-500/15 shadow-sm md:col-span-2">
-                    <div className="flex items-center gap-2 text-gold-600 dark:text-gold-400 font-semibold mb-3">
-                      <FaShieldAlt />
-                      <h3 className="text-base uppercase tracking-wider">{t('tour.cancellationPolicy', 'Cancellation Policy')}</h3>
-                    </div>
-                    <p className="text-body-sm text-obsidian-600 dark:text-ivory-300 leading-relaxed whitespace-pre-line">
-                      {resolveLocalizedText(tour.cancellationPolicy, t, lang)}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {Array.isArray(tour.tags) && tour.tags.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2 pt-4">
-                  <span className="text-caption text-obsidian-400 dark:text-ivory-400 uppercase tracking-wider flex items-center gap-1">
-                    <FaTag className="text-gold-500 text-xs" /> {t('tour.tags', 'Tags')}:
-                  </span>
-                  {tour.tags.map((tag, idx) => (
-                    <span key={idx} className="bg-gold-500/10 text-gold-700 dark:text-gold-300 text-xs px-3 py-1 rounded-full border border-gold-500/20 font-medium">
-                      #{resolveLocalizedText(tag, t, lang)}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </motion.div>
 
           </div>
 

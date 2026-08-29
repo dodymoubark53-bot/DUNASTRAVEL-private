@@ -17,8 +17,7 @@ import {
   FaTag,
   FaInfoCircle,
   FaUserCheck,
-  FaBuilding,
-  FaPercent
+  FaBuilding
 } from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
 import api from '../../utils/api';
@@ -67,8 +66,6 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
   const [showInvoice, setShowInvoice] = useState(false);
   const [error, setError] = useState('');
   const [pricePreview, setPricePreview] = useState(null);
-  const [promoCode, setPromoCode] = useState('');
-  const [promoMessage, setPromoMessage] = useState('');
   const [availabilities, setAvailabilities] = useState([]);
   const [availabilityStatus, setAvailabilityStatus] = useState('loading');
   const langRef = useRef(null);
@@ -227,16 +224,10 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
             adults: b.adults,
             children: b.children,
             infants: b.infants,
-            promoCode: promoCode.trim(),
             language: b.language,
           })
         );
         setPricePreview(data);
-        if (promoCode && data?.promoMessage) {
-          setPromoMessage(data.promoMessage);
-        } else {
-          setPromoMessage('');
-        }
       } catch {
         setPricePreview(null);
       }
@@ -251,7 +242,6 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
     b.children,
     b.infants,
     b.language,
-    promoCode,
     tab,
   ]);
 
@@ -304,7 +294,6 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
         address: b.address,
         city: b.city,
         country: b.country,
-        promoCode: promoCode.trim(),
         analyticsSessionId:
           typeof window !== 'undefined' ? localStorage.getItem('dunas_analytics_sid') : undefined,
         originInterfaceSlug:
@@ -961,32 +950,6 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
                   </div>
                 )}
 
-                {/* Promo Code Input */}
-                <div className="bg-[rgba(255,252,247,0.02)] border border-gold-500/20 rounded-xl p-3">
-                  <label className={labelClass}>
-                    <FaPercent size={10} className="text-gold-400" />
-                    {t('booking.promoCode', 'Voucher / Promotional Code')}
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="e.g. LUXURY2026"
-                      value={promoCode}
-                      onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                      className={`${inputClass} py-2 font-mono tracking-wider`}
-                    />
-                  </div>
-                  {promoMessage && (
-                    <p
-                      className={`text-[11px] mt-1 font-semibold ${
-                        pricePreview?.promoValid ? 'text-emerald-400' : 'text-red-400'
-                      }`}
-                    >
-                      {promoMessage}
-                    </p>
-                  )}
-                </div>
-
                 {/* Pricing Summary Breakdown Card */}
                 {pricePreview && (
                   <div className="bg-gradient-to-br from-[rgba(201,162,39,0.08)] to-transparent border border-gold-500/30 rounded-xl p-4 space-y-2">
@@ -1005,11 +968,6 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
                         <span className="text-display-sm text-gold-400 font-display font-bold">
                           ${pricePreview.totalAmountUsd}
                         </span>
-                        {pricePreview.promoValid && (
-                          <p className="text-[11px] text-emerald-400 font-mono line-through opacity-80">
-                            ${parseFloat(pricePreview.totalAmountUsd) + parseFloat(pricePreview.discountAmountUsd || 0)}
-                          </p>
-                        )}
                       </div>
                     </div>
 

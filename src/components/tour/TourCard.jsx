@@ -74,7 +74,7 @@ const TourCard = ({
           type="button"
           onClick={handleWishlistToggle}
           aria-label="Toggle wishlist"
-          className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-obsidian-900/70 backdrop-blur-md flex items-center justify-center border border-gold-500/40 text-gold-500 hover:scale-110 transition-all shadow-md"
+          className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-obsidian-900/70 backdrop-blur-md flex items-center justify-center border border-gold-500/40 text-gold-500 hover:scale-110 transition-all shadow-md cursor-pointer"
         >
           {fav ? <FaHeart className="text-red-500" size={15} /> : <FaRegHeart size={15} />}
         </button>
