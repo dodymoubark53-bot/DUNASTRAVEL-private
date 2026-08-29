@@ -2,12 +2,7 @@
  * analytics.js — First-party Visitor Event Tracking Client
  * Sends privacy-aware visitor events to POST /api/analytics/events
  */
-
-const rawApiUrl = import.meta.env.DEV
-  ? '/api'
-  : import.meta.env.VITE_API_URL || 'https://dunastravel-backend-seven.vercel.app/api';
-const normalizedApiUrl = String(rawApiUrl).replace(/\/+$/, '');
-const BASE_URL = normalizedApiUrl.endsWith('/api') ? normalizedApiUrl : `${normalizedApiUrl}/api`;
+import { resolveFullUrl } from './api';
 
 function getSessionId() {
   if (typeof window === 'undefined') return null;
@@ -63,7 +58,7 @@ export async function trackEvent(eventName, payload = {}) {
       properties: payload.properties,
     };
 
-    const url = `${BASE_URL}/analytics/events`;
+    const url = resolveFullUrl('/analytics/events');
 
     if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
       const blob = new Blob([JSON.stringify(body)], { type: 'application/json' });

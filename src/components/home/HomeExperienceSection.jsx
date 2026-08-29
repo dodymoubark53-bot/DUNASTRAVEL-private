@@ -9,8 +9,11 @@ import TourCard from "../tour/TourCard";
 import { useTours } from "../../hooks/useTours";
 import { useMedia } from "../../hooks/useMedia";
 import { useDestinations } from "../../hooks/useDestinations";
+import { useServices } from "../../hooks/useServices";
+import { transportation as fallbackTransportation } from "../../data/transportation";
 import useScrollAnimations from "../../hooks/useScrollAnimations";
 import { useCurrency } from "../../context/CurrencyContext";
+import api from "../../utils/api";
 import {
   resolveTourTitle,
   resolveTourDuration,
@@ -288,6 +291,13 @@ const HomeExperienceSection = () => {
     error: toursError,
   } = useTours({ limit: 100 });
   const allLiveTours = useMemo(() => Array.isArray(allLiveToursRaw) ? allLiveToursRaw : [], [allLiveToursRaw]);
+  const { services: rawTransportation = [], loading: transportLoading } = useServices('transportation');
+  const transportationList = useMemo(() => {
+    if (Array.isArray(rawTransportation) && rawTransportation.length > 0) {
+      return rawTransportation;
+    }
+    return fallbackTransportation;
+  }, [rawTransportation]);
   const {
     destinations: liveDestinationsRaw,
     loading: destinationsLoading,
@@ -452,13 +462,32 @@ const HomeExperienceSection = () => {
   };
   const todayStr = getTodayString();
 
-  const handleResSubmit = (e) => {
+  const handleResSubmit = async (e) => {
     e.preventDefault();
     if (resForm.date && resForm.date < todayStr) {
       return;
     }
     setResSuccess(true);
     setTimeout(() => setResSuccess(false), 5000);
+
+    try {
+      const selectedVehicle = transportationList.find((v) => v.id === resForm.vehicle);
+      const vehicleName = selectedVehicle?.name || resForm.vehicle || 'Standard Vehicle';
+      await api.post('/inquiries', {
+        fullName: resForm.name.trim(),
+        email: resForm.email.trim(),
+        phone: resForm.phone.trim(),
+        preferredLanguage: i18n.language || 'en',
+        destinations: ['Egypt', 'Transportation Transfer'],
+        startDate: resForm.date,
+        adults: parseInt(resForm.adults, 10) || 1,
+        children: parseInt(resForm.children, 10) || 0,
+        notes: `[VIP Chauffeur & Transfer Reservation]\nVehicle: ${vehicleName} (ID: ${resForm.vehicle})\nPickup Date: ${resForm.date} at ${resForm.time}\nPickup Location: ${resForm.pickup}\nDropoff Location: ${resForm.dropoff}`,
+      });
+    } catch (err) {
+      console.warn('Backend transfer inquiry submission warning:', err);
+    }
+
     setResForm({
       vehicle: "",
       date: "",
@@ -484,7 +513,17 @@ const HomeExperienceSection = () => {
   useScrollAnimations();
   const isRtl = i18n.dir() === 'rtl';
 
-  const filteredVehicles = [];
+  const filteredVehicles = useMemo(() => {
+    const list = transportationList || [];
+    if (vehicleFilter === "all") return list;
+    return list.filter((v) => {
+      const cat = (v.vehicleCategory || v.category || "").toLowerCase();
+      if (vehicleFilter === "bus") return cat === "bus" || cat.includes("bus");
+      if (vehicleFilter === "coaster") return cat === "coaster" || cat.includes("coaster") || cat.includes("mini");
+      if (vehicleFilter === "private") return cat === "private" || cat === "transfer" || Boolean(v.isPrivate);
+      return cat === vehicleFilter.toLowerCase();
+    });
+  }, [transportationList, vehicleFilter]);
 
   // Shared galleryImages and videos retrieved from useMedia hook
 
@@ -1372,8 +1411,8 @@ const HomeExperienceSection = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900 via-obsidian-900/40 to-transparent"></div>
 
                     <div className="absolute top-4 left-4 bg-gold-500 text-obsidian-900 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded shadow-md">
-                      {vehicle.category === 'bus' ? t('transportation.filter.buses', 'Buses') :
-                        vehicle.category === 'coaster' ? t('transportation.filter.coasters', 'Coaster Vehicles') :
+                      {(vehicle.vehicleCategory || vehicle.category) === 'bus' ? t('transportation.filter.buses', 'Buses') :
+                        (vehicle.vehicleCategory || vehicle.category) === 'coaster' ? t('transportation.filter.coasters', 'Coaster Vehicles') :
                           t('transportation.filter.private', 'Private Vehicles')}
                     </div>
 
@@ -1503,10 +1542,10 @@ const HomeExperienceSection = () => {
                       <option value="">
                         {t("home.chooseVehicle", "Choose a vehicle")}
                       </option>
-                      {allLiveTours.filter(t => t.category === 'transportation').map((v) => (
+                      {transportationList.map((v) => (
                         <option key={v.id} value={v.id}>
-                          {v.name} ({v.seats}{" "}
-                          {t("transportation.seatsCount", "Seats")}) - {formatPrice(v.pricePerDay)}/{t("transportation.day", "day")}
+                          {v.name} ({v.capacity || v.seats || 4}{" "}
+                          {t("transportation.seatsCount", "Seats")}) - {formatPrice(v.pricePerDay || v.pricePerTrip || v.basePriceUsd || 0)}/{t("transportation.day", "day")}
                         </option>
                       ))}
                     </select>

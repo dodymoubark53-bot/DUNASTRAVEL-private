@@ -27,6 +27,7 @@ function readDestinations(response) {
       name: item.title,
       image: item.heroImageUrl || null,
       toursCount,
+      tours: Array.isArray(item.tours) ? item.tours : [],
     };
   });
 }

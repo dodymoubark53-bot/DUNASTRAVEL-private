@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { FaCheck, FaMapMarkerAlt, FaUserFriends, FaExpandAlt, FaChevronLeft, FaChevronRight, FaTimes, FaImages, FaPlay, FaPause } from 'react-icons/fa';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import { useServices } from '../../hooks/useServices';
+import { transportation as fallbackTransportation } from '../../data/transportation';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import ErrorState from '../../components/ui/ErrorState';
 import TransportationForm from '../../components/booking/TransportationForm';
@@ -22,7 +23,13 @@ const Transportation = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   
-  const { services: transportationList, loading, error } = useServices('transportation');
+  const { services: rawTransportation = [], loading, error } = useServices('transportation');
+  const transportationList = useMemo(() => {
+    if (Array.isArray(rawTransportation) && rawTransportation.length > 0) {
+      return rawTransportation;
+    }
+    return fallbackTransportation;
+  }, [rawTransportation]);
 
   // Media and service cards are exclusively backed by the public catalog.
   const galleryImages = transportationList.map((service) => service.image).filter(Boolean);
@@ -38,13 +45,28 @@ const Transportation = () => {
 
   const filters = [
     { id: 'All', label: t('transportation.filter.all', 'All') },
-    ...Array.from(new Set(transportationList.map((service) => service.serviceType).filter(Boolean)))
-      .map((serviceType) => ({ id: serviceType, label: String(serviceType).replaceAll('_', ' ') })),
+    ...Array.from(
+      new Set(
+        transportationList
+          .map((service) => service.vehicleCategory || service.serviceType)
+          .filter(Boolean)
+      )
+    ).map((cat) => {
+      const lower = String(cat).toLowerCase();
+      let label = String(cat).replaceAll('_', ' ');
+      if (lower === 'bus') label = t('transportation.filter.buses', 'Buses');
+      else if (lower === 'coaster') label = t('transportation.filter.coasters', 'Coaster Vehicles');
+      else if (lower === 'private') label = t('transportation.filter.private', 'Private Vehicles');
+      return { id: cat, label };
+    }),
   ];
 
-  const filteredVehicles = transportationList.filter(vehicle => {
+  const filteredVehicles = transportationList.filter((vehicle) => {
     if (activeFilter === 'All') return true;
-    return vehicle.serviceType === activeFilter;
+    return (
+      (vehicle.vehicleCategory || '').toLowerCase() === activeFilter.toLowerCase() ||
+      vehicle.serviceType === activeFilter
+    );
   });
 
   const fleetFeatures = [...new Set(transportationList.flatMap((vehicle) => vehicle.features || []))];
@@ -162,15 +184,16 @@ const Transportation = () => {
               <div>
                 <div
                   onClick={() => handleReserveClick(vehicle.id)}
-                  className="block relative h-64 overflow-hidden cursor-pointer"
+                  className="block relative h-64 overflow-hidden cursor-pointer bg-obsidian-900"
                 >
-                  {vehicle.image ? (
-                    <img
-                      src={vehicle.image}
-                      alt={t(`data.${vehicle.name}`, vehicle.name)}
-                      className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
-                    />
-                  ) : null}
+                  <img
+                    src={vehicle.image || (String(vehicle.vehicleCategory).toLowerCase() === 'private' ? '/imgs/transportation/privte.jpeg' : String(vehicle.vehicleCategory).toLowerCase() === 'coaster' ? '/imgs/transportation/costar.jpeg' : '/imgs/transportation/bus1.jpeg')}
+                    alt={t(`data.${vehicle.name}`, vehicle.name)}
+                    className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
+                    onError={(e) => {
+                      e.currentTarget.src = '/imgs/transportation/bus1.jpeg';
+                    }}
+                  />
                   <div className="absolute top-4 left-4 bg-gold-500 text-obsidian-900 text-caption uppercase px-3 py-1 rounded-full shadow-md font-bold">
                     {String(vehicle.vehicleCategory || vehicle.serviceType).replaceAll('_', ' ')}
                   </div>

@@ -1,18 +1,45 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaPlus, FaMinus, FaCheckCircle, FaPaperPlane, FaGlobeAmericas, FaUser, FaFileInvoiceDollar, FaCalendarAlt, FaClock, FaStar } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  FaPlus,
+  FaMinus,
+  FaCheckCircle,
+  FaPaperPlane,
+  FaGlobeAmericas,
+  FaUser,
+  FaFileInvoiceDollar,
+  FaCalendarAlt,
+  FaClock,
+  FaStar,
+  FaChevronDown,
+  FaShieldAlt,
+  FaTag,
+  FaInfoCircle,
+  FaUserCheck,
+  FaBuilding,
+  FaPercent
+} from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
 import api from '../../utils/api';
 import { trackEvent } from '../../utils/analytics';
 import { useAuth } from '../../context/AuthContext';
 
-const inputClass = "w-full p-3 rounded-xl outline-none transition-all text-[14px] bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-[rgba(201,162,39,0.5)] focus:shadow-[0_0_20px_rgba(201,162,39,0.1)] [color-scheme:dark]";
-const labelClass = "block text-caption text-gold-500 font-medium mb-1 text-[12px] uppercase tracking-[1px]";
-const counterBtnClass = "w-8 h-8 rounded-full bg-[rgba(255,252,247,0.06)] text-gold-500 flex items-center justify-center hover:bg-gold-500 hover:text-obsidian-900 transition-all duration-200 border border-[rgba(201,162,39,0.15)] hover:border-gold-500";
-const tabClass = (active) => `flex-1 py-3 text-[13px] font-semibold uppercase tracking-[2px] transition-all duration-200 ${active ? 'text-gold-500 border-b-2 border-gold-500 bg-[rgba(201,162,39,0.06)]' : 'text-ivory-400 hover:text-ivory-300 border-b-2 border-transparent'}`;
-const omitEmptyFields = (payload) => Object.fromEntries(
-  Object.entries(payload).filter(([, value]) => value !== undefined && value !== null && value !== ''),
-);
+const inputClass =
+  'w-full px-3.5 py-3 rounded-xl bg-[rgba(255,252,247,0.03)] text-ivory-50 placeholder:text-ivory-400/40 border border-[rgba(201,162,39,0.18)] focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 focus:outline-none text-[13.5px] transition-all [color-scheme:dark]';
+
+const labelClass =
+  'block text-[11px] font-semibold text-gold-400 uppercase tracking-[1.2px] mb-1.5 flex items-center gap-1.5';
+
+const counterBtnClass =
+  'w-8 h-8 rounded-lg bg-gold-500/10 hover:bg-gold-500 text-gold-400 hover:text-obsidian-900 border border-gold-500/25 flex items-center justify-center transition-all duration-200 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-gold-500/10 disabled:hover:text-gold-400';
+
+const omitEmptyFields = (payload) =>
+  Object.fromEntries(
+    Object.entries(payload).filter(
+      ([, value]) => value !== undefined && value !== null && value !== ''
+    )
+  );
 
 const languages = [
   { value: 'es', flag: '🇪🇸', labelKey: 'languages.spanish', fallback: 'Spanish' },
@@ -29,7 +56,7 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
 
   useEffect(() => {
     trackEvent('booking_started', { tourSlug: tourTitle || tourId });
-  }, []);
+  }, [tourTitle, tourId]);
 
   const [tab, setTab] = useState('booking');
   const [status, setStatus] = useState('idle');
@@ -57,18 +84,42 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
   }, []);
 
   const today = new Date();
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(
+    today.getDate()
+  ).padStart(2, '0')}`;
 
   const [b, setB] = useState({
-    arrivalDate: todayStr, departureDate: '', arrivalTime: '', departureTime: '', language: user?.preferredLanguage || i18n.language || 'en', activityType: '',
-    adults: 1, children: 0, infants: 0,
-    fullName: user?.name || '', email: user?.email || '', phone: user?.phone || '',
-    invoiceType: 'PERSONAL', companyName: '', taxId: '', address: '', city: '', country: '',
-    notes: ''
+    arrivalDate: todayStr,
+    departureDate: '',
+    arrivalTime: '',
+    departureTime: '',
+    language: user?.preferredLanguage || i18n.language || 'en',
+    activityType: '',
+    adults: 1,
+    children: 0,
+    infants: 0,
+    fullName: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    invoiceType: 'PERSONAL',
+    companyName: '',
+    taxId: '',
+    address: '',
+    city: '',
+    country: '',
+    notes: '',
+    _showBilling: false,
   });
+
   const [passengerNames, setPassengerNames] = useState({});
 
-  const [inq, setInq] = useState({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '', language: user?.preferredLanguage || i18n.language || 'en', message: '' });
+  const [inq, setInq] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    language: user?.preferredLanguage || i18n.language || 'en',
+    message: '',
+  });
 
   useEffect(() => {
     let isMounted = true;
@@ -77,14 +128,15 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
     queueMicrotask(() => {
       if (isMounted) setAvailabilityStatus('loading');
     });
-    api.get(`/tours/${encodeURIComponent(availabilityKey)}/availability`)
+    api
+      .get(`/tours/${encodeURIComponent(availabilityKey)}/availability`)
       .then((response) => {
         if (!isMounted) return;
         const slots = Array.isArray(response?.availabilities)
           ? response.availabilities
           : Array.isArray(response?.data?.availabilities)
-            ? response.data.availabilities
-            : [];
+          ? response.data.availabilities
+          : [];
         setAvailabilities(slots);
         setAvailabilityStatus(slots.length > 0 ? 'ready' : 'empty');
         if (slots.length > 0) {
@@ -108,7 +160,7 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
   }, [tourId, tourSlug]);
 
   const selectedAvailability = availabilities.find(
-    (slot) => String(slot.date).slice(0, 10) === b.arrivalDate,
+    (slot) => String(slot.date).slice(0, 10) === b.arrivalDate
   );
 
   useEffect(() => {
@@ -116,14 +168,14 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
     let isMounted = true;
     queueMicrotask(() => {
       if (!isMounted) return;
-      setB(prev => ({
+      setB((prev) => ({
         ...prev,
         fullName: prev.fullName || user.name || '',
         email: prev.email || user.email || '',
         phone: prev.phone || user.phone || '',
         language: prev.language || user.preferredLanguage || i18n.language || 'en',
       }));
-      setInq(prev => ({
+      setInq((prev) => ({
         ...prev,
         name: prev.name || user.name || '',
         email: prev.email || user.email || '',
@@ -138,30 +190,47 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
 
   const updateB = (k, v) => {
     const num = ['adults', 'children', 'infants'];
-    setB(p => ({ ...p, [k]: num.includes(k) ? Math.max(0, parseInt(v) || 0) : v }));
+    setB((p) => ({ ...p, [k]: num.includes(k) ? Math.max(0, parseInt(v, 10) || 0) : v }));
   };
 
   const passengerFields = [
-    ...Array.from({ length: b.adults }, (_, i) => ({ type: 'Adult', num: i + 1, key: `adult_${i}` })),
-    ...Array.from({ length: b.children }, (_, i) => ({ type: 'Child', num: i + 1, key: `child_${i}` })),
-    ...Array.from({ length: b.infants }, (_, i) => ({ type: 'Infant', num: i + 1, key: `infant_${i}` })),
+    ...Array.from({ length: b.adults }, (_, i) => ({
+      type: 'Adult',
+      num: i + 1,
+      key: `adult_${i}`,
+      isLead: i === 0,
+    })),
+    ...Array.from({ length: b.children }, (_, i) => ({
+      type: 'Child',
+      num: i + 1,
+      key: `child_${i}`,
+      isLead: false,
+    })),
+    ...Array.from({ length: b.infants }, (_, i) => ({
+      type: 'Infant',
+      num: i + 1,
+      key: `infant_${i}`,
+      isLead: false,
+    })),
   ];
 
   useEffect(() => {
     if (!bookingTourKey || tab !== 'booking') return;
     const fetchPrice = async () => {
       try {
-        // Pricing calculation must NEVER rely on client-side math; always call POST /api/bookings/calculate
-        const data = await api.post('/bookings/calculate', omitEmptyFields({
-          tourId: bookingTourKey,
-          availabilityId: selectedAvailability?.id,
-          date: b.arrivalDate,
-          adults: b.adults,
-          children: b.children,
-          infants: b.infants,
-          promoCode: promoCode.trim(),
-          language: b.language,
-        }));
+        const data = await api.post(
+          '/bookings/calculate',
+          omitEmptyFields({
+            tourId: bookingTourKey,
+            availabilityId: selectedAvailability?.id,
+            date: b.arrivalDate,
+            adults: b.adults,
+            children: b.children,
+            infants: b.infants,
+            promoCode: promoCode.trim(),
+            language: b.language,
+          })
+        );
         setPricePreview(data);
         if (promoCode && data?.promoMessage) {
           setPromoMessage(data.promoMessage);
@@ -169,26 +238,22 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
           setPromoMessage('');
         }
       } catch {
-        // Never retain an estimate after its authoritative server preview
-        // could not be calculated for the current form state.
         setPricePreview(null);
       }
     };
-    const debounce = setTimeout(fetchPrice, 400);
+    const debounce = setTimeout(fetchPrice, 350);
     return () => clearTimeout(debounce);
-  }, [bookingTourKey, selectedAvailability?.id, b.arrivalDate, b.adults, b.children, b.infants, b.language, promoCode, tab]);
-
-  const handleValidatePromoCode = async () => {
-    if (!promoCode.trim()) return;
-    try {
-      const res = await api.post('/promotions/validate', { promoCode: promoCode.trim() });
-      if (res) {
-        setPromoMessage(res.message || t('booking.promoValid', 'Promotion code valid!'));
-      }
-    } catch (err) {
-      setPromoMessage(err.message || t('booking.promoInvalid', 'Invalid promo code'));
-    }
-  };
+  }, [
+    bookingTourKey,
+    selectedAvailability?.id,
+    b.arrivalDate,
+    b.adults,
+    b.children,
+    b.infants,
+    b.language,
+    promoCode,
+    tab,
+  ]);
 
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
@@ -201,7 +266,12 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
     }
     setTransportAlert(false);
     if (!selectedAvailability?.id) {
-      setError(t('booking.noAvailability', 'No bookable departure is available for this date. Please select another departure or send an inquiry.'));
+      setError(
+        t(
+          'booking.noAvailability',
+          'No bookable departure is available for this date. Please select another departure or send an inquiry.'
+        )
+      );
       return;
     }
     setStatus('submitting');
@@ -216,7 +286,9 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
         departureDate: b.departureDate,
         arrivalTime: b.arrivalTime,
         departureTime: b.departureTime,
-        language: ['en', 'ar', 'es', 'pt', 'it'].includes(b.language?.toLowerCase()) ? b.language.toLowerCase() : 'en',
+        language: ['en', 'ar', 'es', 'pt', 'it'].includes(b.language?.toLowerCase())
+          ? b.language.toLowerCase()
+          : 'en',
         activityType: b.activityType,
         adults: b.adults,
         children: b.children,
@@ -233,14 +305,14 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
         city: b.city,
         country: b.country,
         promoCode: promoCode.trim(),
-        analyticsSessionId: typeof window !== 'undefined' ? localStorage.getItem('dunas_analytics_sid') : undefined,
-        originInterfaceSlug: typeof window !== 'undefined' ? sessionStorage.getItem('dunas_origin_interface') : undefined,
+        analyticsSessionId:
+          typeof window !== 'undefined' ? localStorage.getItem('dunas_analytics_sid') : undefined,
+        originInterfaceSlug:
+          typeof window !== 'undefined' ? sessionStorage.getItem('dunas_origin_interface') : undefined,
       });
 
-      // api.post fetches CSRF token and sends it automatically
       const data = await api.post('/bookings', payload);
 
-      // Rule 2: Store returned 'guestToken' from POST /api/bookings into localStorage ('dunas_guest_token')
       const tokenToSave = data?.guestToken || data?.data?.guestToken;
       if (tokenToSave && typeof window !== 'undefined') {
         localStorage.setItem('dunas_guest_token', tokenToSave);
@@ -251,12 +323,14 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
         try {
           const readiness = await api.get('/payments/readiness');
           if (readiness?.enabled && readiness?.configured) {
-            const targetId = data.id || data.referenceCode;
-            const payData = await api.post('/payments/initiate', { bookingId: targetId });
-            const sessionUrl = payData?.sessionUrl || payData?.url;
-            if (sessionUrl) {
-              window.location.assign(sessionUrl);
-              return;
+            const targetId = data?.id || data?.data?.id;
+            if (targetId) {
+              const payData = await api.post('/payments/initiate', { bookingId: targetId });
+              const sessionUrl = payData?.sessionUrl || payData?.url;
+              if (sessionUrl) {
+                window.location.assign(sessionUrl);
+                return;
+              }
             }
           } else {
             bookingResultData.paymentUnavailable = true;
@@ -272,11 +346,17 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
       setBookingResult(bookingResultData);
       setStatus('success');
     } catch (err) {
-      // Rule 3: Handle 409 (Double booking) and 422 (Validation) errors gracefully with localized user alerts.
       if (err.status === 409) {
-        setError(t('booking.errorConflict', 'A booking conflict exists for the selected dates. Please adjust your itinerary.'));
+        setError(
+          t(
+            'booking.errorConflict',
+            'A booking conflict exists for the selected dates. Please adjust your itinerary.'
+          )
+        );
       } else if (err.status === 422) {
-        setError(t('booking.errorValidation', 'Please verify passenger and date information before proceeding.'));
+        setError(
+          t('booking.errorValidation', 'Please verify passenger and date information before proceeding.')
+        );
       } else {
         setError(err.message || 'Error processing request');
       }
@@ -293,7 +373,9 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
         fullName: inq.name,
         email: inq.email,
         phone: inq.phone,
-        preferredLanguage: ['en', 'ar', 'es', 'pt', 'it', 'fr', 'de'].includes(inq.language?.toLowerCase())
+        preferredLanguage: ['en', 'ar', 'es', 'pt', 'it', 'fr', 'de'].includes(
+          inq.language?.toLowerCase()
+        )
           ? inq.language.toLowerCase()
           : 'en',
         destinations: [tourTitle || tourId || 'Custom Experience'],
@@ -311,20 +393,39 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
   };
 
   return (
-    <div ref={langRef} className="bg-obsidian-900 text-ivory-50 rounded-2xl shadow-card border border-[rgba(201,162,39,0.15)] hover:shadow-[0_0_40px_rgba(201,162,39,0.15)] hover:border-[rgba(201,162,39,0.35)] hover:scale-[1.01] transition-all duration-300">
-      {status === 'success' && bookingResult ? (
-          <div className="flex flex-col items-center text-center py-12 px-6">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gold-500 to-gold-700 flex items-center justify-center mb-4 shadow-[0_0_25px_rgba(201,162,39,0.3)]">
-              <FaCheckCircle className="text-obsidian-900 text-xl" />
+    <div
+      ref={langRef}
+      className="bg-[#121118]/95 backdrop-blur-xl text-ivory-50 rounded-2xl shadow-[0_16px_50px_rgba(0,0,0,0.55)] border border-[rgba(201,162,39,0.22)] hover:border-gold-500/40 transition-all duration-300 overflow-hidden"
+    >
+      <AnimatePresence mode="wait">
+        {status === 'success' && bookingResult ? (
+          <motion.div
+            key="success-view"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="flex flex-col items-center text-center py-10 px-6"
+          >
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold-500 to-gold-700 flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(201,162,39,0.35)] ring-4 ring-gold-500/20">
+              <FaCheckCircle className="text-obsidian-900 text-2xl" />
             </div>
-            <h3 className="text-display-md text-ivory-50 mb-2 font-display">
-              {bookingResult.type === 'booking' ? t('booking.created', 'Booking Created') : t('booking.inquirySent', 'Inquiry Sent')}
+            <span className="text-[11px] font-mono text-gold-400 uppercase tracking-widest block mb-1">
+              Ref: #{bookingResult.referenceCode || bookingResult.id || 'CONFIRMED'}
+            </span>
+            <h3 className="text-display-sm text-ivory-50 mb-2 font-display">
+              {bookingResult.type === 'booking'
+                ? t('booking.created', 'Booking Created')
+                : t('booking.inquirySent', 'Inquiry Sent')}
             </h3>
-            <p className="text-body-sm text-ivory-400">
+            <p className="text-body-sm text-ivory-300 max-w-sm mx-auto leading-relaxed">
               {bookingResult.paymentUnavailable
-                ? t('payment.getPayInPending', 'Your booking is saved. Secure online payment will be available after GetPayIn activation; our team will contact you with the next step.')
-                : t('booking.successDesc', 'Our team will contact you within 24 hours.')}
+                ? t(
+                    'payment.getPayInPending',
+                    'Your reservation is securely created. An official GatePayIn payment invoice will be dispatched to your email.'
+                  )
+                : t('booking.successDesc', 'Our private travel concierge will reach out to you within 24 hours.')}
             </p>
+
             {bookingResult.type === 'booking' && bookingResult.invoiceNumber && (
               <button
                 type="button"
@@ -333,286 +434,700 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
                   e.stopPropagation();
                   setShowInvoice(true);
                 }}
-                className="mt-4 px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-700 text-obsidian-900 font-bold rounded-xl hover:scale-105 transition-all text-[13px] uppercase tracking-[1px] flex items-center gap-2 cursor-pointer"
+                className="mt-5 px-6 py-3 bg-gradient-to-r from-gold-500 via-gold-400 to-gold-600 text-obsidian-900 font-bold rounded-xl hover:shadow-[0_0_25px_rgba(245,166,35,0.4)] hover:scale-105 active:scale-95 transition-all text-[12px] uppercase tracking-[1.5px] flex items-center gap-2 cursor-pointer"
               >
-                <FaFileInvoiceDollar /> {t('booking.viewInvoice', 'View Invoice')}
+                <FaFileInvoiceDollar size={14} /> {t('booking.viewInvoice', 'Inspect Official Invoice')}
               </button>
             )}
+
             {transportChoice && (
-              <div className="mt-4 bg-[rgba(201,162,39,0.1)] border border-gold-500/30 rounded-xl px-5 py-3">
-                <p className="text-caption text-gold-500 text-[11px] uppercase tracking-[1px] mb-1">{t('booking.transport', 'Transport')}</p>
-                <p className="text-body-md text-ivory-50">{transportChoice === 'train' ? `🚄 ${t('tour.highSpeedTrain', 'High-Speed Train')}` : `🚌 ${t('tour.bus', 'Bus')} ${t('tour.viaGrandBazaar', 'via Grand Bazaar')}`}</p>
+              <div className="mt-4 bg-gold-500/10 border border-gold-500/30 rounded-xl px-4 py-2.5 text-start w-full">
+                <p className="text-[10px] text-gold-400 uppercase tracking-widest font-semibold mb-0.5">
+                  {t('booking.transport', 'Selected Transport')}
+                </p>
+                <p className="text-body-sm text-ivory-100 font-medium">
+                  {transportChoice === 'train'
+                    ? `🚄 ${t('tour.highSpeedTrain', 'High-Speed Luxury Rail')}`
+                    : `🚌 ${t('tour.bus', 'Panoramic Coach')} ${t('tour.viaGrandBazaar', 'via Grand Bazaar')}`}
+                </p>
               </div>
             )}
-          </div>
+          </motion.div>
         ) : (
-          <div>
-            <div className="px-5 pt-5 pb-3 border-b border-[rgba(201,162,39,0.1)]">
+          <div key="form-view">
+            {/* Header */}
+            <div className="px-5 pt-5 pb-3 border-b border-[rgba(201,162,39,0.12)] bg-gradient-to-b from-[rgba(201,162,39,0.06)] to-transparent">
               <div className="flex items-center gap-2.5 mb-1">
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gold-500 to-gold-700 flex items-center justify-center">
-                  <FaPaperPlane className="text-obsidian-900 text-[10px]" />
+                <div className="w-8 h-8 rounded-lg bg-gold-500/15 border border-gold-500/30 flex items-center justify-center text-gold-400">
+                  <FaPaperPlane className="text-[11px]" />
                 </div>
-                <h3 className="text-body-lg text-ivory-50 font-display font-semibold truncate">{t('booking.formTitle', 'Book Your Trip')}</h3>
+                <div className="min-w-0">
+                  <h3 className="text-body-lg text-ivory-50 font-display font-semibold truncate leading-tight">
+                    {t('booking.formTitle', 'Reserve Your Experience')}
+                  </h3>
+                  <p className="text-[11px] text-ivory-400 truncate mt-0.5">{tourTitle || 'Exclusive Itinerary'}</p>
+                </div>
               </div>
-              <p className="text-caption text-ivory-400 truncate pl-9">{tourTitle}</p>
             </div>
 
-            <div className="flex px-5 pt-3 pb-0 gap-0">
-              <button type="button" onClick={() => setTab('booking')} className={tabClass(tab === 'booking')}>{t('booking.tabBooking', 'Book Trip')}</button>
-              <button type="button" onClick={() => setTab('inquiry')} className={tabClass(tab === 'inquiry')}>{t('booking.tabInquiry', 'Inquiry')}</button>
+            {/* Tab Switcher */}
+            <div className="px-5 pt-3">
+              <div className="flex p-1 bg-[rgba(255,252,247,0.03)] rounded-xl border border-gold-500/15">
+                <button
+                  type="button"
+                  onClick={() => setTab('booking')}
+                  className={`flex-1 py-2 rounded-lg text-[12px] font-bold uppercase tracking-[1.5px] transition-all flex items-center justify-center gap-1.5 ${
+                    tab === 'booking'
+                      ? 'bg-gradient-to-r from-gold-500 to-gold-600 text-obsidian-900 shadow-[0_2px_10px_rgba(245,166,35,0.25)]'
+                      : 'text-ivory-400 hover:text-ivory-100'
+                  }`}
+                >
+                  <FaCalendarAlt size={11} /> {t('booking.tabBooking', 'Book Trip')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTab('inquiry')}
+                  className={`flex-1 py-2 rounded-lg text-[12px] font-bold uppercase tracking-[1.5px] transition-all flex items-center justify-center gap-1.5 ${
+                    tab === 'inquiry'
+                      ? 'bg-gradient-to-r from-gold-500 to-gold-600 text-obsidian-900 shadow-[0_2px_10px_rgba(245,166,35,0.25)]'
+                      : 'text-ivory-400 hover:text-ivory-100'
+                  }`}
+                >
+                  <FaPaperPlane size={10} /> {t('booking.tabInquiry', 'Inquiry')}
+                </button>
+              </div>
             </div>
 
             {error && (
               <div className="mx-5 mt-3 bg-red-500/15 border border-red-500/40 rounded-xl px-4 py-3 text-center">
-                <p className="text-body-sm text-red-400">{error}</p>
+                <p className="text-body-sm text-red-400 font-medium">{error}</p>
               </div>
             )}
 
             {tab === 'booking' ? (
-              <form onSubmit={handleBookingSubmit} className="px-5 py-4 space-y-3.5">
+              <form onSubmit={handleBookingSubmit} className="px-5 py-4 space-y-4">
+                {/* Dates Selection */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label htmlFor="arrival-date-input" className={labelClass}><FaCalendarAlt className="inline mr-1.5 text-gold-400" size={11} />{t('booking.arrivalDate', 'Arrival Date')}</label>
+                    <label htmlFor="arrival-date-input" className={labelClass}>
+                      <FaCalendarAlt className="text-gold-400" size={11} />
+                      {t('booking.arrivalDate', 'Arrival Date')}
+                    </label>
                     {availabilities.length > 0 ? (
-                      <select id="arrival-date-input" value={b.arrivalDate} onChange={e => updateB('arrivalDate', e.target.value)} required className={`${inputClass} appearance-none`}>
+                      <select
+                        id="arrival-date-input"
+                        value={b.arrivalDate}
+                        onChange={(e) => updateB('arrivalDate', e.target.value)}
+                        required
+                        className={`${inputClass} appearance-none font-mono text-[12.5px]`}
+                      >
                         {availabilities.map((slot) => {
                           const date = String(slot.date).slice(0, 10);
-                          return <option key={slot.id} value={date}>{date} ({slot.remainingSeats} {t('booking.seatsLeft', 'seats left')})</option>;
+                          return (
+                            <option key={slot.id} value={date} className="bg-[#1a1a2e] text-ivory-50">
+                              {date} ({slot.remainingSeats} {t('booking.seatsLeft', 'seats')})
+                            </option>
+                          );
                         })}
                       </select>
                     ) : (
-                      <input id="arrival-date-input" type="date" value={b.arrivalDate} min={todayStr} onChange={e => updateB('arrivalDate', e.target.value)} required className={inputClass} disabled={availabilityStatus === 'loading'} />
+                      <input
+                        id="arrival-date-input"
+                        type="date"
+                        value={b.arrivalDate}
+                        min={todayStr}
+                        onChange={(e) => updateB('arrivalDate', e.target.value)}
+                        required
+                        className={inputClass}
+                        disabled={availabilityStatus === 'loading'}
+                      />
                     )}
                   </div>
                   <div>
-                    <label htmlFor="departure-date-input" className={labelClass}><FaCalendarAlt className="inline mr-1.5 text-gold-400" size={11} />{t('booking.departureDate', 'Departure Date')}</label>
-                    <input id="departure-date-input" type="date" value={b.departureDate} min={b.arrivalDate || todayStr} onChange={e => updateB('departureDate', e.target.value)} required className={inputClass} />
+                    <label htmlFor="departure-date-input" className={labelClass}>
+                      <FaCalendarAlt className="text-gold-400" size={11} />
+                      {t('booking.departureDate', 'Departure Date')}
+                    </label>
+                    <input
+                      id="departure-date-input"
+                      type="date"
+                      value={b.departureDate}
+                      min={b.arrivalDate || todayStr}
+                      onChange={(e) => updateB('departureDate', e.target.value)}
+                      required
+                      className={inputClass}
+                    />
                   </div>
                 </div>
 
                 {(availabilityStatus === 'empty' || availabilityStatus === 'error') && (
-                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3">
-                    <p className="text-body-sm text-amber-300">
-                      {t('booking.noAvailability', 'No bookable departure is available right now. Please use the inquiry tab and our team will confirm the nearest date.')}
+                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-3.5 py-2.5 flex items-start gap-2">
+                    <FaInfoCircle className="text-amber-400 mt-0.5 flex-shrink-0" size={13} />
+                    <p className="text-[12px] text-amber-200 leading-snug">
+                      {t(
+                        'booking.noAvailability',
+                        'Scheduled group departures are limited. You may still submit; our team will lock in the closest private slot.'
+                      )}
                     </p>
                   </div>
                 )}
 
+                {/* Times */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label htmlFor="arrival-time-input" className={labelClass}><FaClock className="inline mr-1.5 text-gold-400" size={11} />{t('booking.arrivalTime', 'Arrival Time')}</label>
-                    <input id="arrival-time-input" type="time" value={b.arrivalTime} onChange={e => updateB('arrivalTime', e.target.value)} className={inputClass} />
+                    <label htmlFor="arrival-time-input" className={labelClass}>
+                      <FaClock className="text-gold-400" size={11} />
+                      {t('booking.arrivalTime', 'Arrival Time')}
+                    </label>
+                    <input
+                      id="arrival-time-input"
+                      type="time"
+                      value={b.arrivalTime}
+                      onChange={(e) => updateB('arrivalTime', e.target.value)}
+                      className={inputClass}
+                    />
                   </div>
                   <div>
-                    <label htmlFor="departure-time-input" className={labelClass}><FaClock className="inline mr-1.5 text-gold-400" size={11} />{t('booking.departureTime', 'Departure Time')}</label>
-                    <input id="departure-time-input" type="time" value={b.departureTime} onChange={e => updateB('departureTime', e.target.value)} className={inputClass} />
+                    <label htmlFor="departure-time-input" className={labelClass}>
+                      <FaClock className="text-gold-400" size={11} />
+                      {t('booking.departureTime', 'Departure Time')}
+                    </label>
+                    <input
+                      id="departure-time-input"
+                      type="time"
+                      value={b.departureTime}
+                      onChange={(e) => updateB('departureTime', e.target.value)}
+                      className={inputClass}
+                    />
                   </div>
                 </div>
 
-                <div className="relative">
-                  <label htmlFor="language-btn" className={labelClass}><FaGlobeAmericas className="inline mr-1.5 text-gold-400" size={11} />{t('booking.preferredLanguage', 'Language')}</label>
-                  <button id="language-btn" type="button" onClick={() => setLangOpen(langOpen === 'booking' ? null : 'booking')} className={`${inputClass} text-left flex items-center gap-2`}>
-                    {b.language ? (
-                      <>
-                        <span className="text-lg">{languages.find(l => l.value === b.language)?.flag}</span>
-                        <span>{t(languages.find(l => l.value === b.language)?.labelKey, languages.find(l => l.value === b.language)?.fallback)}</span>
-                      </>
-                    ) : (
-                      <span className="text-ivory-400">{t('booking.selectLanguage', 'Select...')}</span>
+                {/* Language & Activity Preferences */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="relative">
+                    <label htmlFor="language-btn" className={labelClass}>
+                      <FaGlobeAmericas className="text-gold-400" size={11} />
+                      {t('booking.preferredLanguage', 'Tour Language')}
+                    </label>
+                    <button
+                      id="language-btn"
+                      type="button"
+                      onClick={() => setLangOpen(langOpen === 'booking' ? null : 'booking')}
+                      className={`${inputClass} text-left flex items-center justify-between`}
+                    >
+                      {b.language ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-base">{languages.find((l) => l.value === b.language)?.flag}</span>
+                          <span className="text-ivory-100">
+                            {t(
+                              languages.find((l) => l.value === b.language)?.labelKey,
+                              languages.find((l) => l.value === b.language)?.fallback
+                            )}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-ivory-400">{t('booking.selectLanguage', 'Select...')}</span>
+                      )}
+                      <FaChevronDown size={10} className="text-gold-400" />
+                    </button>
+                    {langOpen === 'booking' && (
+                      <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-[#1a1a2e] border border-gold-500/30 rounded-xl overflow-hidden shadow-2xl backdrop-blur-lg">
+                        {languages.map((lang) => (
+                          <button
+                            key={lang.value}
+                            type="button"
+                            onClick={() => {
+                              updateB('language', lang.value);
+                              setLangOpen(null);
+                            }}
+                            className={`w-full text-left px-3.5 py-2.5 flex items-center gap-2.5 text-body-sm transition-colors hover:bg-gold-500/10 ${
+                              b.language === lang.value ? 'text-gold-400 bg-gold-500/15 font-semibold' : 'text-ivory-100'
+                            }`}
+                          >
+                            <span className="text-base">{lang.flag}</span>
+                            <span>{t(lang.labelKey, lang.fallback)}</span>
+                          </button>
+                        ))}
+                      </div>
                     )}
-                  </button>
-                  {langOpen === 'booking' && (
-                    <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-[#1a1a2e] border border-[rgba(201,162,39,0.15)] rounded-xl overflow-hidden shadow-xl">
-                      {languages.map(lang => (
-                        <button key={lang.value} type="button" onClick={() => { updateB('language', lang.value); setLangOpen(null); }} className={`w-full text-left px-4 py-3 flex items-center gap-2 text-body-md transition-colors hover:bg-[rgba(255,252,247,0.06)] ${b.language === lang.value ? 'text-gold-500 bg-[rgba(201,162,39,0.06)]' : 'text-ivory-50'}`}>
-                          <span className="text-lg">{lang.flag}</span>
-                          <span>{t(lang.labelKey, lang.fallback)}</span>
+                  </div>
+
+                  <div className="relative" ref={activityRef}>
+                    <label htmlFor="activity-btn" className={labelClass}>
+                      <FaStar className="text-gold-400" size={11} />
+                      {t('booking.activityType', 'Tier Category')}
+                    </label>
+                    <button
+                      id="activity-btn"
+                      type="button"
+                      onClick={() => setActivityOpen(!activityOpen)}
+                      className={`${inputClass} text-left flex items-center justify-between`}
+                    >
+                      {b.activityType ? (
+                        <span className="text-ivory-100">
+                          {b.activityType === 'standard'
+                            ? t('booking.standardCategory', 'Classic Luxury')
+                            : t('booking.premiumCategory', 'VIP Signature')}
+                        </span>
+                      ) : (
+                        <span className="text-ivory-400">{t('booking.selectActivity', 'Select Tier')}</span>
+                      )}
+                      <FaChevronDown size={10} className="text-gold-400" />
+                    </button>
+                    {activityOpen && (
+                      <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-[#1a1a2e] border border-gold-500/30 rounded-xl overflow-hidden shadow-2xl">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateB('activityType', 'standard');
+                            setActivityOpen(false);
+                          }}
+                          className={`w-full text-left px-3.5 py-2.5 text-body-sm transition-colors hover:bg-gold-500/10 ${
+                            b.activityType === 'standard' ? 'text-gold-400 bg-gold-500/15 font-semibold' : 'text-ivory-100'
+                          }`}
+                        >
+                          {t('booking.standardCategory', 'Classic Luxury')}
                         </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="relative" ref={activityRef}>
-                  <label htmlFor="activity-btn" className={labelClass}><FaStar className="inline mr-1.5 text-gold-400" size={11} />{t('booking.activityType', 'Type of Activity')}</label>
-                  <button id="activity-btn" type="button" onClick={() => setActivityOpen(!activityOpen)} className={`${inputClass} text-left flex items-center gap-2`}>
-                    {b.activityType ? (
-                      <span>{b.activityType === 'standard' ? t('booking.standardCategory', 'Standard Category') : t('booking.premiumCategory', 'Premium Category')}</span>
-                    ) : (
-                      <span className="text-ivory-400">{t('booking.selectActivity', 'Select...')}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateB('activityType', 'premium');
+                            setActivityOpen(false);
+                          }}
+                          className={`w-full text-left px-3.5 py-2.5 text-body-sm transition-colors hover:bg-gold-500/10 ${
+                            b.activityType === 'premium' ? 'text-gold-400 bg-gold-500/15 font-semibold' : 'text-ivory-100'
+                          }`}
+                        >
+                          {t('booking.premiumCategory', 'VIP Signature')}
+                        </button>
+                      </div>
                     )}
-                  </button>
-                  {activityOpen && (
-                    <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-[#1a1a2e] border border-[rgba(201,162,39,0.15)] rounded-xl overflow-hidden shadow-xl">
-                      <button type="button" onClick={() => { updateB('activityType', 'standard'); setActivityOpen(false); }} className={`w-full text-left px-4 py-3 flex items-center gap-2 text-body-md transition-colors hover:bg-[rgba(255,252,247,0.06)] ${b.activityType === 'standard' ? 'text-gold-500 bg-[rgba(201,162,39,0.06)]' : 'text-ivory-50'}`}>
-                        {t('booking.standardCategory', 'Standard Category')}
-                      </button>
-                      <button type="button" onClick={() => { updateB('activityType', 'premium'); setActivityOpen(false); }} className={`w-full text-left px-4 py-3 flex items-center gap-2 text-body-md transition-colors hover:bg-[rgba(255,252,247,0.06)] ${b.activityType === 'premium' ? 'text-gold-500 bg-[rgba(201,162,39,0.06)]' : 'text-ivory-50'}`}>
-                        {t('booking.premiumCategory', 'Premium Category')}
-                      </button>
-                    </div>
-                  )}
+                  </div>
                 </div>
 
+                {/* Passengers Selection */}
                 <div>
-                  <span className={labelClass}><FaUser className="inline mr-1.5 text-gold-400" size={11} />{t('booking.passengers', 'Passengers')}</span>
-                  <div className="grid grid-cols-3 gap-2">
+                  <span className={labelClass}>
+                    <FaUser className="text-gold-400" size={11} />
+                    {t('booking.passengers', 'Travelers Count')}
+                  </span>
+                  <div className="grid grid-cols-3 gap-2.5">
                     {[
-                      { k: 'adults', lbl: t('booking.adults', 'Adults'), min: 1 },
-                      { k: 'children', lbl: t('booking.children', 'Children'), min: 0 },
-                      { k: 'infants', lbl: t('booking.infants', 'Infants'), min: 0 },
-                    ].map(({ k, lbl, min }) => (
-                      <div key={k} className="bg-[rgba(255,252,247,0.03)] rounded-xl p-2.5 border border-[rgba(201,162,39,0.08)] text-center">
-                        <span className="block text-caption text-ivory-400 mb-1.5 text-[11px]">{lbl}</span>
+                      { k: 'adults', lbl: t('booking.adults', 'Adults'), min: 1, sub: '12+ yrs' },
+                      { k: 'children', lbl: t('booking.children', 'Children'), min: 0, sub: '2-11 yrs' },
+                      { k: 'infants', lbl: t('booking.infants', 'Infants'), min: 0, sub: '<2 yrs' },
+                    ].map(({ k, lbl, min, sub }) => (
+                      <div
+                        key={k}
+                        className="bg-[rgba(255,252,247,0.02)] rounded-xl p-2.5 border border-gold-500/15 text-center flex flex-col justify-between"
+                      >
+                        <div>
+                          <span className="block text-[11px] font-semibold text-ivory-200">{lbl}</span>
+                          <span className="block text-[9px] text-ivory-400 mb-1.5">{sub}</span>
+                        </div>
                         <div className="flex items-center justify-center gap-1.5">
-                          <button type="button" onClick={() => updateB(k, b[k] - 1)} disabled={b[k] <= min} aria-label={`Decrease ${lbl}`} className={`${counterBtnClass} w-7 h-7 disabled:opacity-30 disabled:cursor-not-allowed`}><FaMinus size={10} /></button>
-                          <span className="text-body-lg text-ivory-50 w-6 text-center font-semibold tabular-nums">{b[k]}</span>
-                          <button type="button" onClick={() => updateB(k, b[k] + 1)} aria-label={`Increase ${lbl}`} className={`${counterBtnClass} w-7 h-7`}><FaPlus size={10} /></button>
+                          <button
+                            type="button"
+                            onClick={() => updateB(k, b[k] - 1)}
+                            disabled={b[k] <= min}
+                            aria-label={`Decrease ${lbl}`}
+                            className={counterBtnClass}
+                          >
+                            <FaMinus size={9} />
+                          </button>
+                          <span className="text-body-md text-ivory-50 w-5 text-center font-bold tabular-nums">
+                            {b[k]}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => updateB(k, b[k] + 1)}
+                            aria-label={`Increase ${lbl}`}
+                            className={counterBtnClass}
+                          >
+                            <FaPlus size={9} />
+                          </button>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
 
+                {/* Transport Choice Alert if Selected */}
                 {transportChoice && (
-                  <div className="bg-[rgba(201,162,39,0.08)] border border-gold-500/20 rounded-xl px-4 py-3">
-                    <label className={labelClass}>{t('booking.transport', 'Transport')}</label>
-                    <p className="text-body-sm text-gold-300 flex items-center gap-2">
-                      <span>{transportChoice === 'train' ? `🚄 ${t('tour.highSpeedTrain', 'High-Speed Train')}` : `🚌 ${t('tour.bus', 'Bus')} ${t('tour.viaGrandBazaar', 'via Grand Bazaar')}`}</span>
-                      <span className="text-[10px] text-ivory-400">({t('booking.selected', 'selected')})</span>
-                    </p>
+                  <div className="bg-gold-500/10 border border-gold-500/25 rounded-xl px-3.5 py-2.5 flex items-center justify-between">
+                    <div>
+                      <label className="block text-[10px] text-gold-400 uppercase tracking-wider font-semibold">
+                        {t('booking.transport', 'Included Transport')}
+                      </label>
+                      <p className="text-body-sm text-ivory-100 font-medium">
+                        {transportChoice === 'train'
+                          ? `🚄 ${t('tour.highSpeedTrain', 'High-Speed Rail')}`
+                          : `🚌 ${t('tour.bus', 'Luxury Bus')} ${t('tour.viaGrandBazaar', 'via Grand Bazaar')}`}
+                      </p>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-gold-500/20 text-gold-400 font-bold uppercase">
+                      {t('booking.selected', 'Selected')}
+                    </span>
                   </div>
                 )}
 
+                {/* Passenger Names Fields */}
                 {passengerFields.length > 0 && (
-                  <div className="bg-[rgba(255,252,247,0.02)] rounded-xl p-3 border border-[rgba(201,162,39,0.08)]">
-                    <p className="text-caption text-gold-500 font-semibold mb-2 text-[11px] uppercase tracking-[1px]">{t('booking.passengerNames', 'Passenger Names')}</p>
+                  <div className="bg-[rgba(255,252,247,0.02)] rounded-xl p-3.5 border border-gold-500/15 space-y-2.5">
+                    <p className="text-[11px] font-semibold text-gold-400 uppercase tracking-widest flex items-center gap-1.5">
+                      <FaUserCheck size={12} />
+                      {t('booking.passengerNames', 'Guest Information')}
+                    </p>
                     <div className="space-y-2">
-                      {passengerFields.map(p => (
+                      {passengerFields.map((p) => (
                         <div key={p.key}>
-                          <label htmlFor={`passenger-name-${p.key}`} className="block text-caption text-ivory-400 text-[11px] mb-0.5">{p.type === 'Adult' ? '👤' : p.type === 'Child' ? '🧒' : '👶'} {t(`booking.${p.type.toLowerCase()}`, p.type)} {p.num}</label>
-                          <input id={`passenger-name-${p.key}`} type="text" placeholder={`${t('booking.fullNameOf', 'Name')}`} onChange={e => setPassengerNames(prev => ({ ...prev, [p.key]: e.target.value }))} className={`${inputClass} p-2.5 text-[13px]`} />
+                          <label
+                            htmlFor={`passenger-name-${p.key}`}
+                            className="block text-[10px] text-ivory-400 mb-1 flex items-center justify-between"
+                          >
+                            <span>
+                              {p.type === 'Adult' ? '👤' : p.type === 'Child' ? '🧒' : '👶'}{' '}
+                              {t(`booking.${p.type.toLowerCase()}`, p.type)} {p.num}
+                            </span>
+                            {p.isLead && (
+                              <span className="text-gold-400 text-[9px] uppercase tracking-wider font-semibold">
+                                {t('booking.leadTraveler', 'Lead Traveler')}
+                              </span>
+                            )}
+                          </label>
+                          <input
+                            id={`passenger-name-${p.key}`}
+                            type="text"
+                            placeholder={t('booking.fullNameOf', 'Full Passport Name')}
+                            onChange={(e) =>
+                              setPassengerNames((prev) => ({ ...prev, [p.key]: e.target.value }))
+                            }
+                            className={`${inputClass} py-2.5 text-[12.5px]`}
+                          />
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
 
+                {/* Primary Contact Information */}
                 <div className="space-y-3">
-                  <p className={labelClass}><FaUser className="inline mr-1.5 text-gold-400" size={11} />{t('booking.contactInfo', 'Contact')}</p>
-                  <label htmlFor="contact-fullname" className="sr-only">{t('booking.fullName', 'Full Name')}</label>
-                  <input id="contact-fullname" type="text" placeholder={t('booking.fullName', 'Full Name')} value={b.fullName} onChange={e => updateB('fullName', e.target.value)} required className={inputClass} />
+                  <span className={labelClass}>
+                    <FaUser className="text-gold-400" size={11} />
+                    {t('booking.contactInfo', 'Primary Contact')}
+                  </span>
+                  <input
+                    id="contact-fullname"
+                    type="text"
+                    placeholder={t('booking.fullName', 'Full Name')}
+                    value={b.fullName}
+                    onChange={(e) => updateB('fullName', e.target.value)}
+                    required
+                    className={inputClass}
+                  />
                   <div className="grid grid-cols-2 gap-3">
-                    <label htmlFor="contact-email" className="sr-only">{t('booking.email', 'Email')}</label>
-                    <input id="contact-email" type="email" placeholder={t('booking.email', 'Email')} value={b.email} onChange={e => updateB('email', e.target.value)} required className={inputClass} />
-                    <label htmlFor="contact-phone" className="sr-only">{t('booking.phone', 'Phone')}</label>
-                    <input id="contact-phone" type="tel" placeholder={t('booking.phone', 'Phone')} value={b.phone} onChange={e => updateB('phone', e.target.value)} required className={inputClass} />
+                    <input
+                      id="contact-email"
+                      type="email"
+                      placeholder={t('booking.email', 'Email Address')}
+                      value={b.email}
+                      onChange={(e) => updateB('email', e.target.value)}
+                      required
+                      className={inputClass}
+                    />
+                    <input
+                      id="contact-phone"
+                      type="tel"
+                      placeholder={t('booking.phone', 'Phone Number')}
+                      value={b.phone}
+                      onChange={(e) => updateB('phone', e.target.value)}
+                      required
+                      className={inputClass}
+                    />
                   </div>
                 </div>
 
+                {/* Billing Info Accordion */}
                 <div>
-                  <button type="button" onClick={() => updateB('_showBilling', !b._showBilling)} className={`${labelClass} w-full text-left flex items-center justify-between ${b._showBilling ? 'text-gold-500' : ''}`}>
-                    <span><FaFileInvoiceDollar className="inline mr-1.5 text-gold-400" size={11} />{t('booking.billingInfo', 'Billing')}</span>
-                    <span className="text-[10px]">{b._showBilling ? '▲' : '▼'}</span>
+                  <button
+                    type="button"
+                    onClick={() => updateB('_showBilling', !b._showBilling)}
+                    className="w-full py-2.5 px-3 bg-[rgba(255,252,247,0.02)] hover:bg-[rgba(255,252,247,0.05)] border border-gold-500/15 rounded-xl text-left flex items-center justify-between text-[11px] font-semibold text-gold-400 uppercase tracking-widest transition-all cursor-pointer"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <FaBuilding size={12} />
+                      {t('booking.billingInfo', 'Invoice / Billing Details')}
+                    </span>
+                    <FaChevronDown
+                      size={10}
+                      className={`text-gold-400 transition-transform duration-200 ${
+                        b._showBilling ? 'rotate-180' : ''
+                      }`}
+                    />
                   </button>
+
                   {b._showBilling && (
-                    <div className="mt-3 space-y-3 bg-[rgba(255,252,247,0.02)] rounded-xl p-3 border border-[rgba(201,162,39,0.08)]">
-                      <label htmlFor="invoice-type-select" className="sr-only">{t('booking.invoiceType', 'Invoice Type')}</label>
-                      <select id="invoice-type-select" value={b.invoiceType} onChange={e => updateB('invoiceType', e.target.value)} className={`${inputClass} appearance-none`}>
-                      <option value="PERSONAL">{t('booking.personal', 'Personal')}</option>
-                      <option value="COMPANY">{t('booking.company', 'Company')}</option>
+                    <div className="mt-2.5 space-y-3 bg-[rgba(255,252,247,0.02)] rounded-xl p-3.5 border border-gold-500/15">
+                      <select
+                        id="invoice-type-select"
+                        value={b.invoiceType}
+                        onChange={(e) => updateB('invoiceType', e.target.value)}
+                        className={`${inputClass} appearance-none`}
+                      >
+                        <option value="PERSONAL" className="bg-[#1a1a2e]">
+                          {t('booking.personal', 'Individual Invoice')}
+                        </option>
+                        <option value="COMPANY" className="bg-[#1a1a2e]">
+                          {t('booking.company', 'Corporate / Company Invoice')}
+                        </option>
                       </select>
                       {b.invoiceType === 'COMPANY' && (
-                        <>
-                          <label htmlFor="company-name-input" className="sr-only">{t('booking.companyName', 'Company Name')}</label>
-                          <input id="company-name-input" type="text" placeholder={t('booking.companyName', 'Company Name')} value={b.companyName} onChange={e => updateB('companyName', e.target.value)} className={inputClass} />
-                          <label htmlFor="tax-id-input" className="sr-only">{t('booking.taxId', 'Tax ID')}</label>
-                          <input id="tax-id-input" type="text" placeholder={t('booking.taxId', 'Tax ID')} value={b.taxId} onChange={e => updateB('taxId', e.target.value)} className={inputClass} />
-                        </>
+                        <div className="grid grid-cols-2 gap-2.5">
+                          <input
+                            id="company-name-input"
+                            type="text"
+                            placeholder={t('booking.companyName', 'Company Name')}
+                            value={b.companyName}
+                            onChange={(e) => updateB('companyName', e.target.value)}
+                            className={inputClass}
+                          />
+                          <input
+                            id="tax-id-input"
+                            type="text"
+                            placeholder={t('booking.taxId', 'Tax / VAT ID')}
+                            value={b.taxId}
+                            onChange={(e) => updateB('taxId', e.target.value)}
+                            className={inputClass}
+                          />
+                        </div>
                       )}
-                      <label htmlFor="address-input" className="sr-only">{t('booking.address', 'Address')}</label>
-                      <input id="address-input" type="text" placeholder={t('booking.address', 'Address')} value={b.address} onChange={e => updateB('address', e.target.value)} className={inputClass} />
-                      <div className="grid grid-cols-2 gap-3">
-                        <label htmlFor="city-input" className="sr-only">{t('booking.city', 'City')}</label>
-                        <input id="city-input" type="text" placeholder={t('booking.city', 'City')} value={b.city} onChange={e => updateB('city', e.target.value)} className={inputClass} />
-                        <label htmlFor="country-input" className="sr-only">{t('booking.country', 'Country')}</label>
-                        <input id="country-input" type="text" placeholder={t('booking.country', 'Country')} value={b.country} onChange={e => updateB('country', e.target.value)} className={inputClass} />
+                      <input
+                        id="address-input"
+                        type="text"
+                        placeholder={t('booking.address', 'Billing Street Address')}
+                        value={b.address}
+                        onChange={(e) => updateB('address', e.target.value)}
+                        className={inputClass}
+                      />
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <input
+                          id="city-input"
+                          type="text"
+                          placeholder={t('booking.city', 'City')}
+                          value={b.city}
+                          onChange={(e) => updateB('city', e.target.value)}
+                          className={inputClass}
+                        />
+                        <input
+                          id="country-input"
+                          type="text"
+                          placeholder={t('booking.country', 'Country')}
+                          value={b.country}
+                          onChange={(e) => updateB('country', e.target.value)}
+                          className={inputClass}
+                        />
                       </div>
                     </div>
                   )}
                 </div>
 
-                <label htmlFor="notes-textarea" className="sr-only">{t('booking.notesPlaceholder', 'Special requests...')}</label>
-                <textarea id="notes-textarea" placeholder={t('booking.notesPlaceholder', 'Special requests...')} value={b.notes} onChange={e => updateB('notes', e.target.value)} rows="2" className={`${inputClass} resize-none`} />
+                {/* Special Requests */}
+                <div>
+                  <label htmlFor="notes-textarea" className={labelClass}>
+                    {t('booking.specialRequests', 'Special Inquiries / Dietary / Notes')}
+                  </label>
+                  <textarea
+                    id="notes-textarea"
+                    placeholder={t(
+                      'booking.notesPlaceholder',
+                      'Flight details, dietary preferences, or private celebrations...'
+                    )}
+                    value={b.notes}
+                    onChange={(e) => updateB('notes', e.target.value)}
+                    rows="2"
+                    className={`${inputClass} resize-none`}
+                  />
+                </div>
 
+                {/* Transport Alert if required but missing */}
                 {transportAlert && (
                   <div className="bg-red-500/15 border border-red-500/40 rounded-xl px-4 py-3 text-center animate-pulse">
                     <p className="text-body-sm text-red-400 font-semibold">
-                      {t('booking.transportRequired', 'Please select a transport option (High-Speed Train or Bus) before booking.')}
+                      {t(
+                        'booking.transportRequired',
+                        'Please select a transport option (High-Speed Train or Bus) before booking.'
+                      )}
                     </p>
                   </div>
                 )}
 
-                <div className="bg-[rgba(201,162,39,0.08)] border border-[rgba(201,162,39,0.15)] rounded-xl p-3">
-                  <label className={labelClass}>{t('booking.promoCode', 'Promo Code')}</label>
+                {/* Promo Code Input */}
+                <div className="bg-[rgba(255,252,247,0.02)] border border-gold-500/20 rounded-xl p-3">
+                  <label className={labelClass}>
+                    <FaPercent size={10} className="text-gold-400" />
+                    {t('booking.promoCode', 'Voucher / Promotional Code')}
+                  </label>
                   <div className="flex gap-2">
-                    <input type="text" placeholder="Promo code..." value={promoCode} onChange={(e) => setPromoCode(e.target.value.toUpperCase())} className={inputClass} />
+                    <input
+                      type="text"
+                      placeholder="e.g. LUXURY2026"
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                      className={`${inputClass} py-2 font-mono tracking-wider`}
+                    />
                   </div>
                   {promoMessage && (
-                    <p className={`text-[11px] mt-1 font-semibold ${pricePreview?.promoValid ? 'text-sage-400' : 'text-red-400'}`}>
+                    <p
+                      className={`text-[11px] mt-1 font-semibold ${
+                        pricePreview?.promoValid ? 'text-emerald-400' : 'text-red-400'
+                      }`}
+                    >
                       {promoMessage}
                     </p>
                   )}
                 </div>
 
+                {/* Pricing Summary Breakdown Card */}
                 {pricePreview && (
-                  <div className="bg-[rgba(255,252,247,0.02)] border border-[rgba(201,162,39,0.15)] rounded-xl p-4">
-                    <p className="text-caption text-ivory-400 text-xs mb-1 uppercase tracking-widest">{t('booking.totalPrice', 'Total Estimated Price')}</p>
-                    <p className="text-display-sm text-gold-500 font-display">${pricePreview.totalAmountUsd}</p>
-                    {pricePreview.promoValid && (
-                      <p className="text-[11px] text-sage-400 mt-1 line-through opacity-70">
-                        ${parseFloat(pricePreview.totalAmountUsd) + parseFloat(pricePreview.discountAmountUsd)}
-                      </p>
-                    )}
+                  <div className="bg-gradient-to-br from-[rgba(201,162,39,0.08)] to-transparent border border-gold-500/30 rounded-xl p-4 space-y-2">
+                    <div className="flex items-center justify-between text-[11px] text-ivory-400">
+                      <span className="uppercase tracking-wider">
+                        {b.adults + b.children} {t('booking.passengers', 'Guest(s)')}
+                      </span>
+                      <span>{b.arrivalDate}</span>
+                    </div>
+
+                    <div className="flex items-baseline justify-between pt-1 border-t border-gold-500/15">
+                      <span className="text-[12px] font-semibold text-ivory-200 uppercase tracking-wider">
+                        {t('booking.totalPrice', 'Authoritative Total')}
+                      </span>
+                      <div className="text-right">
+                        <span className="text-display-sm text-gold-400 font-display font-bold">
+                          ${pricePreview.totalAmountUsd}
+                        </span>
+                        {pricePreview.promoValid && (
+                          <p className="text-[11px] text-emerald-400 font-mono line-through opacity-80">
+                            ${parseFloat(pricePreview.totalAmountUsd) + parseFloat(pricePreview.discountAmountUsd || 0)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 text-[10px] text-ivory-400/80 pt-1">
+                      <FaShieldAlt className="text-gold-400" size={10} />
+                      <span>{t('booking.gatePayInGuarantee', 'GatePayIn SSL Secured Checkout')}</span>
+                    </div>
                   </div>
                 )}
 
-                <button type="submit" disabled={status === 'submitting'} className="w-full py-3 bg-gradient-to-r from-gold-500 to-gold-700 text-obsidian-900 font-bold rounded-xl shadow-[0_0_25px_rgba(201,162,39,0.2)] hover:shadow-[0_0_35px_rgba(201,162,39,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-[13px] uppercase tracking-[1.5px] flex items-center justify-center gap-2">
-                  {status === 'submitting' ? <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-obsidian-900 border-t-transparent rounded-full animate-spin" />{t('common.sending', 'Sending...')}</span> : <><FaPaperPlane size={12} />{t('booking.sendInquiry', 'Book Now')}</>}
+                {/* Submit Action */}
+                <button
+                  type="submit"
+                  disabled={status === 'submitting'}
+                  className="w-full py-3.5 px-6 bg-gradient-to-r from-gold-500 via-gold-400 to-gold-600 text-obsidian-900 font-bold rounded-xl shadow-[0_4px_20px_rgba(245,166,35,0.3)] hover:shadow-[0_6px_30px_rgba(245,166,35,0.45)] hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-[13px] uppercase tracking-[1.5px] flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {status === 'submitting' ? (
+                    <span className="flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-obsidian-900 border-t-transparent rounded-full animate-spin" />
+                      {t('common.sending', 'Locking Experience...')}
+                    </span>
+                  ) : (
+                    <>
+                      <FaPaperPlane size={12} />
+                      {t('booking.sendInquiry', 'Confirm & Proceed to Payment')}
+                    </>
+                  )}
                 </button>
               </form>
             ) : (
+              /* Inquiry Form */
               <form onSubmit={handleInquirySubmit} className="px-5 py-4 space-y-3.5">
-                <p className="text-body-sm text-ivory-400">{t('booking.inquiryFormDesc', 'Have a question? Send us a message and we\'ll get back to you.')}</p>
+                <p className="text-body-sm text-ivory-300 leading-relaxed">
+                  {t(
+                    'booking.inquiryFormDesc',
+                    'Looking for bespoke adjustments, custom hotel upgrades, or private aircraft transfers? Share your wishes below.'
+                  )}
+                </p>
                 <div>
-                  <label htmlFor="inquiry-name" className={labelClass}>{t('booking.fullName', 'Full Name')}</label>
-                  <input id="inquiry-name" type="text" value={inq.name} onChange={e => setInq(p => ({ ...p, name: e.target.value }))} required className={inputClass} />
+                  <label htmlFor="inquiry-name" className={labelClass}>
+                    {t('booking.fullName', 'Full Name')}
+                  </label>
+                  <input
+                    id="inquiry-name"
+                    type="text"
+                    value={inq.name}
+                    onChange={(e) => setInq((p) => ({ ...p, name: e.target.value }))}
+                    required
+                    className={inputClass}
+                  />
                 </div>
                 <div>
-                  <label htmlFor="inquiry-email" className={labelClass}>{t('booking.email', 'Email')}</label>
-                  <input id="inquiry-email" type="email" value={inq.email} onChange={e => setInq(p => ({ ...p, email: e.target.value }))} required className={inputClass} />
+                  <label htmlFor="inquiry-email" className={labelClass}>
+                    {t('booking.email', 'Email Address')}
+                  </label>
+                  <input
+                    id="inquiry-email"
+                    type="email"
+                    value={inq.email}
+                    onChange={(e) => setInq((p) => ({ ...p, email: e.target.value }))}
+                    required
+                    className={inputClass}
+                  />
                 </div>
                 <div>
-                  <label htmlFor="inquiry-phone" className={labelClass}>{t('booking.phone', 'Phone')}</label>
-                  <input id="inquiry-phone" type="tel" value={inq.phone} onChange={e => setInq(p => ({ ...p, phone: e.target.value }))} required className={inputClass} />
+                  <label htmlFor="inquiry-phone" className={labelClass}>
+                    {t('booking.phone', 'Phone Number')}
+                  </label>
+                  <input
+                    id="inquiry-phone"
+                    type="tel"
+                    value={inq.phone}
+                    onChange={(e) => setInq((p) => ({ ...p, phone: e.target.value }))}
+                    required
+                    className={inputClass}
+                  />
                 </div>
                 <div className="relative">
-                  <label htmlFor="inquiry-lang" className={labelClass}><FaGlobeAmericas className="inline mr-1.5 text-gold-400" size={11} />{t('booking.preferredLanguage', 'Language')}</label>
-                  <button id="inquiry-lang" type="button" onClick={() => setLangOpen(langOpen === 'inquiry' ? null : 'inquiry')} className={`${inputClass} text-left flex items-center gap-2`}>
+                  <label htmlFor="inquiry-lang" className={labelClass}>
+                    <FaGlobeAmericas className="text-gold-400" size={11} />
+                    {t('booking.preferredLanguage', 'Preferred Response Language')}
+                  </label>
+                  <button
+                    id="inquiry-lang"
+                    type="button"
+                    onClick={() => setLangOpen(langOpen === 'inquiry' ? null : 'inquiry')}
+                    className={`${inputClass} text-left flex items-center justify-between`}
+                  >
                     {inq.language ? (
-                      <>
-                        <span className="text-lg">{languages.find(l => l.value === inq.language)?.flag}</span>
-                        <span>{t(languages.find(l => l.value === inq.language)?.labelKey, languages.find(l => l.value === inq.language)?.fallback)}</span>
-                      </>
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">{languages.find((l) => l.value === inq.language)?.flag}</span>
+                        <span className="text-ivory-100">
+                          {t(
+                            languages.find((l) => l.value === inq.language)?.labelKey,
+                            languages.find((l) => l.value === inq.language)?.fallback
+                          )}
+                        </span>
+                      </div>
                     ) : (
                       <span className="text-ivory-400">{t('booking.selectLanguage', 'Select...')}</span>
                     )}
+                    <FaChevronDown size={10} className="text-gold-400" />
                   </button>
                   {langOpen === 'inquiry' && (
-                    <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-[#1a1a2e] border border-[rgba(201,162,39,0.15)] rounded-xl overflow-hidden shadow-xl">
-                      {languages.map(lang => (
-                        <button key={lang.value} type="button" onClick={() => { setInq(p => ({ ...p, language: lang.value })); setLangOpen(null); }} className={`w-full text-left px-4 py-3 flex items-center gap-2 text-body-md transition-colors hover:bg-[rgba(255,252,247,0.06)] ${inq.language === lang.value ? 'text-gold-500 bg-[rgba(201,162,39,0.06)]' : 'text-ivory-50'}`}>
-                          <span className="text-lg">{lang.flag}</span>
+                    <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-[#1a1a2e] border border-gold-500/30 rounded-xl overflow-hidden shadow-2xl">
+                      {languages.map((lang) => (
+                        <button
+                          key={lang.value}
+                          type="button"
+                          onClick={() => {
+                            setInq((p) => ({ ...p, language: lang.value }));
+                            setLangOpen(null);
+                          }}
+                          className={`w-full text-left px-3.5 py-2.5 flex items-center gap-2.5 text-body-sm transition-colors hover:bg-gold-500/10 ${
+                            inq.language === lang.value ? 'text-gold-400 bg-gold-500/15 font-semibold' : 'text-ivory-100'
+                          }`}
+                        >
+                          <span className="text-base">{lang.flag}</span>
                           <span>{t(lang.labelKey, lang.fallback)}</span>
                         </button>
                       ))}
@@ -620,16 +1135,43 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
                   )}
                 </div>
                 <div>
-                  <label htmlFor="inquiry-msg" className={labelClass}>{t('booking.specialRequests', 'Message')}</label>
-                  <textarea id="inquiry-msg" placeholder={t('booking.inquiryPlaceholder', 'Your message...')} value={inq.message} onChange={e => setInq(p => ({ ...p, message: e.target.value }))} rows="4" className={`${inputClass} resize-none`} />
+                  <label htmlFor="inquiry-msg" className={labelClass}>
+                    {t('booking.specialRequests', 'Your Message / Requirements')}
+                  </label>
+                  <textarea
+                    id="inquiry-msg"
+                    placeholder={t(
+                      'booking.inquiryPlaceholder',
+                      'Describe your dream journey or custom itinerary requirements...'
+                    )}
+                    value={inq.message}
+                    onChange={(e) => setInq((p) => ({ ...p, message: e.target.value }))}
+                    rows="3"
+                    className={`${inputClass} resize-none`}
+                  />
                 </div>
-                <button type="submit" disabled={status === 'submitting'} className="w-full py-3 bg-gradient-to-r from-gold-500 to-gold-700 text-obsidian-900 font-bold rounded-xl shadow-[0_0_25px_rgba(201,162,39,0.2)] hover:shadow-[0_0_35px_rgba(201,162,39,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-[13px] uppercase tracking-[1.5px] flex items-center justify-center gap-2">
-                  {status === 'submitting' ? <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-obsidian-900 border-t-transparent rounded-full animate-spin" />{t('common.sending', 'Sending...')}</span> : <><FaPaperPlane size={12} />{t('booking.sendInquiry', 'Book Now')}</>}
+                <button
+                  type="submit"
+                  disabled={status === 'submitting'}
+                  className="w-full py-3.5 px-6 bg-gradient-to-r from-gold-500 via-gold-400 to-gold-600 text-obsidian-900 font-bold rounded-xl shadow-[0_4px_20px_rgba(245,166,35,0.3)] hover:shadow-[0_6px_30px_rgba(245,166,35,0.45)] hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-[13px] uppercase tracking-[1.5px] flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {status === 'submitting' ? (
+                    <span className="flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-obsidian-900 border-t-transparent rounded-full animate-spin" />
+                      {t('common.sending', 'Transmitting Inquiry...')}
+                    </span>
+                  ) : (
+                    <>
+                      <FaPaperPlane size={12} />
+                      {t('booking.sendInquiry', 'Transmit Custom Inquiry')}
+                    </>
+                  )}
                 </button>
               </form>
             )}
           </div>
         )}
+      </AnimatePresence>
 
       {showInvoice && bookingResult && (
         <InvoiceModal booking={bookingResult} onClose={() => setShowInvoice(false)} />

@@ -57,23 +57,34 @@ function transformHotelToService(hotel) {
 }
 
 function transformTransportToService(service) {
-  if (!service?.id || !service?.name || !service?.serviceType) {
+  if (!service?.id || !service?.name) {
     throw new Error('Invalid transportation service');
   }
-  const pricePerTrip = requireFiniteNumber(
-    service.basePriceUsd,
-    'basePriceUsd',
-    service.id,
-    { positive: true },
-  );
+  const rawPrice = service.basePriceUsd ?? service.pricePerDay ?? service.price ?? 0;
+  const parsedPrice = Number(rawPrice);
+  const pricePerTrip = Number.isFinite(parsedPrice) && parsedPrice >= 0 ? parsedPrice : 0;
+  const heroImage = service.heroImageUrl || service.image || service.heroImage || null;
+  const category = (service.vehicleCategory || service.category || 'bus').toLowerCase();
+
   return {
     ...service,
+    id: service.id,
+    name: service.name,
     category: 'transportation',
+    vehicleCategory: category,
+    vehicleType: service.vehicleType || service.name,
+    capacity: service.capacity ?? service.seats ?? (category === 'private' ? 4 : category === 'coaster' ? 24 : 50),
+    seats: service.capacity ?? service.seats ?? (category === 'private' ? 4 : category === 'coaster' ? 24 : 50),
+    doors: service.doors ?? (category === 'private' ? 4 : 2),
+    transmission: service.transmission || 'AUTO',
+    serviceType: service.serviceType || 'AIRPORT',
     slug: service.id,
     title: service.name,
-    location: String(service.serviceType).replaceAll('_', ' '),
-    images: service.heroImageUrl ? [service.heroImageUrl] : [],
-    image: service.heroImageUrl || null,
+    location: String(service.serviceType || 'VIP Transfer').replaceAll('_', ' '),
+    images: heroImage ? [heroImage] : [],
+    image: heroImage,
+    heroImage,
+    heroImageUrl: heroImage,
     price: pricePerTrip,
     pricePerTrip,
     pricePerDay: pricePerTrip,
@@ -81,9 +92,15 @@ function transformTransportToService(service) {
     highlights: [],
     included: [],
     excluded: [],
-    features: Array.isArray(service.features) ? service.features : [],
+    features: Array.isArray(service.features) && service.features.length > 0
+      ? service.features
+      : Array.isArray(service.featuresJsonb)
+        ? service.featuresJsonb
+        : [],
     shortDesc: service.description || '',
-    isActive: service.isActive === true,
+    description: service.description || '',
+    isActive: service.isActive !== false,
+    isPrivate: service.isPrivate !== undefined ? Boolean(service.isPrivate) : category === 'private',
   };
 }
 

@@ -4,20 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import { useDestinations } from '../../hooks/useDestinations';
-import { useTours } from '../../hooks/useTours';
 import TourCard from '../../components/tour/TourCard';
-
-const destinationSlugForTour = (tour) => {
-  const country = String(tour.country || tour.destination || '').trim().toLowerCase();
-  return country === 'united arab emirates' ? 'dubai' : country;
-};
 
 const Destinations = () => {
   const { t } = useTranslation();
   const { destinations, loading: destsLoading, error } = useDestinations();
-  const { tours: allToursList, loading: toursLoading } = useTours({ limit: 24 });
-  
-  const loading = destsLoading || toursLoading;
+  const loading = destsLoading;
 
   return <main className="min-h-screen bg-obsidian-50 pb-24">
     <Helmet>
@@ -69,9 +61,10 @@ const Destinations = () => {
       ) : (
         <div className="flex flex-col gap-24">
           {destinations.map((destination) => {
-            const destTours = allToursList.filter((tour) =>
-              destinationSlugForTour(tour) === destination.slug,
-            );
+            // The backend returns exactly the visible relations for this
+            // interface, so the cards and count can never be based on a
+            // truncated global catalogue or an inferred country name.
+            const destTours = destination.tours;
 
             return (
               <motion.article 

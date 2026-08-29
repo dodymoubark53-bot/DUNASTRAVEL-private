@@ -67,7 +67,7 @@ async function fetchCsrfToken() {
   // De-duplicate concurrent calls
   if (_csrfFetchPromise) return _csrfFetchPromise;
 
-  _csrfFetchPromise = fetch(`${BASE_URL}/auth/csrf`, {
+  _csrfFetchPromise = fetch(resolveFullUrl('/auth/csrf'), {
     method: 'GET',
     credentials: 'include',
   })
@@ -197,6 +197,19 @@ const isDevLogging = typeof process !== 'undefined' && process.env?.NODE_ENV ===
 // ── Core Request Function ─────────────────────────────────────────────────────
 const MUTATING_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'];
 
+export function resolveFullUrl(path = '') {
+  if (/^https?:\/\//i.test(path)) return path;
+  const base = BASE_URL;
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  if (/^https?:\/\//i.test(base)) {
+    return `${base}${cleanPath}`;
+  }
+  if (typeof window !== 'undefined' && window.location?.origin && window.location.origin !== 'null') {
+    return `${window.location.origin}${base}${cleanPath}`;
+  }
+  return `http://localhost:3000${base}${cleanPath}`;
+}
+
 /**
  * Makes an API request to the backend.
  *
@@ -238,7 +251,7 @@ export async function apiRequest(path, options = {}, { raw = false, _retry = fal
     }
   }
 
-  const url = `${BASE_URL}${path}`;
+  const url = resolveFullUrl(path);
   const startTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
 
   if (isDevLogging) {
@@ -283,7 +296,7 @@ export async function apiRequest(path, options = {}, { raw = false, _retry = fal
       _isRefreshing = true;
       try {
         const csrfToken = await fetchCsrfToken();
-        const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
+        const refreshRes = await fetch(resolveFullUrl('/auth/refresh'), {
           method: 'POST',
           credentials: 'include',
           headers: {

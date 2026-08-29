@@ -135,6 +135,7 @@ const Services = lazyWithRetry(() => import("./pages/Services"));
 const Contact = lazyWithRetry(() => import("./pages/Contact"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 const Destinations = lazyWithRetry(() => import("./pages/destinations/Destinations"));
+const Egipto = lazyWithRetry(() => import("./pages/destinations/Egipto"));
 const LandingPageDetails = lazyWithRetry(() => import("./pages/destinations/LandingPageDetails"));
 const BackendToursPage = lazyWithRetry(() => import("./pages/tours/BackendToursPage"));
 const TourDetails = lazyWithRetry(() => import("./pages/tours/TourDetails"));
@@ -373,6 +374,30 @@ function App() {
                     element={
                       <PageTransition>
                         <Destinations />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="egypt"
+                    element={
+                      <PageTransition>
+                        <Egipto />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="egito"
+                    element={
+                      <PageTransition>
+                        <Egipto />
+                      </PageTransition>
+                    }
+                  />
+                  <Route
+                    path="egipto"
+                    element={
+                      <PageTransition>
+                        <Egipto />
                       </PageTransition>
                     }
                   />

@@ -340,7 +340,6 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
                       <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('user.address', 'Address')}</dt><dd className="text-ivory-100 text-right">{profileValue(user?.address)}</dd></div>
                       <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('user.emergencyContact', 'Emergency Contact')}</dt><dd className="text-ivory-100 text-right">{profileValue(user?.emergencyContact)}</dd></div>
                       <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('user.marketingConsent', 'Marketing Updates')}</dt><dd className="text-ivory-100 text-right">{user?.marketingConsent ? t('common.enabled', 'Enabled') : t('common.disabled', 'Disabled')}</dd></div>
-                      <div className="flex justify-between gap-5"><dt className="text-ivory-400">{t('user.travelCompanions', 'Travel Companions')}</dt><dd className="text-ivory-100 text-right">{Array.isArray(user?.travelCompanions) ? user.travelCompanions.length : 0}</dd></div>
                     </dl>
                   </div>
                 </div>
@@ -375,7 +374,13 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
                             </span>
                             <h4 className="text-body-lg text-ivory-50 font-semibold">{b.tourTitle || b.tourName || 'Custom Luxury Tour'}</h4>
                           </div>
-                          <span className={`px-3 py-1 rounded-full text-[11px] uppercase tracking-[1px] font-bold self-start md:self-auto ${b.status === 'confirmed' ? 'bg-sage-500/15 text-sage-400 border border-sage-500/30' : 'bg-gold-500/15 text-gold-400 border border-gold-500/30'}`}>
+                          <span className={`px-3 py-1 rounded-full text-[11px] uppercase tracking-[1px] font-bold self-start md:self-auto ${
+                            ['confirmed', 'paid', 'completed'].includes(String(b.status).toLowerCase())
+                              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                              : ['cancelled', 'refunded'].includes(String(b.status).toLowerCase())
+                              ? 'bg-red-500/15 text-red-400 border border-red-500/30'
+                              : 'bg-gold-500/15 text-gold-400 border border-gold-500/30'
+                          }`}>
                             {b.status || 'PENDING'}
                           </span>
                         </div>

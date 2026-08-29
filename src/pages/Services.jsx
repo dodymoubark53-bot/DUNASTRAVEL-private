@@ -197,7 +197,13 @@ const Services = () => {
               return (
                 <Link
                   key={item.id}
-                  to={['hurghada-4d3n', 'sharm-4d3n', 'siwa-oasis-alexandria'].includes(item.slug) ? `/trips/${item.slug}` : `${prefix}/${item.category}/${item.slug}`}
+                  to={
+                    item.category === 'transportation'
+                      ? '/transportation'
+                      : ['hurghada-4d3n', 'sharm-4d3n', 'siwa-oasis-alexandria'].includes(item.slug)
+                      ? `/trips/${item.slug}`
+                      : `${prefix}/${item.category}/${item.slug}`
+                  }
                   className="group h-full flex flex-col cursor-pointer no-underline"
                 >
                   <motion.div
@@ -251,7 +257,6 @@ const Services = () => {
           </motion.div>
         )}
       </section>
-
     </div>
   );
 };

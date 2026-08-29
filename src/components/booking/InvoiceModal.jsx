@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { FaTimes, FaFileInvoiceDollar, FaPrint } from 'react-icons/fa';
+import { FaTimes, FaFileInvoiceDollar, FaPrint, FaShieldAlt, FaPlaneDeparture, FaUser, FaBuilding } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import api from '../../utils/api';
 import { normalizeInvoiceResponse } from '../../utils/invoice';
@@ -8,7 +8,7 @@ import { normalizeInvoiceResponse } from '../../utils/invoice';
 const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoiceNumber, onClose }) => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
-  
+
   const [invoiceData, setInvoiceData] = useState(null);
   const [loadingInvoice, setLoadingInvoice] = useState(false);
 
@@ -30,7 +30,9 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
       }
     };
     fetchInvoice();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [targetInvoiceNum]);
 
   useEffect(() => {
@@ -54,7 +56,8 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
 
   const passengerList = [];
   if (booking.passengerNames || booking.passengers) {
-    const names = typeof booking.passengerNames === 'object' ? booking.passengerNames : booking.passengers;
+    const names =
+      typeof booking.passengerNames === 'object' ? booking.passengerNames : booking.passengers;
     if (Array.isArray(names)) {
       names.forEach((passenger) => {
         const name = typeof passenger === 'string' ? passenger : passenger?.fullName;
@@ -70,8 +73,8 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
   const handlePrint = () => window.print();
 
   const modalContent = (
-    <div 
-      className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/70 backdrop-blur-md p-4"
+    <div
+      className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto"
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -79,156 +82,193 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
       }}
     >
       <div
-        className="relative bg-white text-gray-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl z-[100000]"
+        className="relative bg-[#16151f] text-ivory-50 border border-gold-500/30 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-[100000] print:bg-white print:text-black print:border-none print:shadow-none print:max-h-none print:overflow-visible"
         dir={isRtl ? 'rtl' : 'ltr'}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Print Button */}
-        <button
-          type="button"
-          onClick={handlePrint}
-          className="absolute top-4 left-12 z-10 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors print:hidden"
-        >
-          <FaPrint size={14} className="text-gray-600" />
-        </button>
+        {/* Actions Bar (Screen only) */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gold-500/20 bg-[rgba(255,252,247,0.02)] print:hidden">
+          <div className="flex items-center gap-2">
+            <FaFileInvoiceDollar className="text-gold-400" size={18} />
+            <span className="text-[12px] font-bold text-gold-400 uppercase tracking-widest">
+              {t('booking.officialVoucher', 'Official Booking Voucher')}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handlePrint}
+              className="px-3.5 py-1.5 rounded-lg bg-gold-500/10 hover:bg-gold-500 text-gold-400 hover:text-obsidian-900 border border-gold-500/30 transition-all text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
+            >
+              <FaPrint size={12} /> {t('common.print', 'Print / PDF')}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-8 h-8 rounded-lg bg-[rgba(255,252,247,0.05)] hover:bg-red-500/20 text-ivory-400 hover:text-red-400 border border-[rgba(255,252,247,0.1)] flex items-center justify-center transition-colors cursor-pointer"
+              aria-label="Close modal"
+            >
+              <FaTimes size={14} />
+            </button>
+          </div>
+        </div>
 
-        {/* Close Button */}
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute top-4 left-4 z-10 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors print:hidden"
-        >
-          <FaTimes size={14} className="text-gray-600" />
-        </button>
-
-        {/* Invoice Content */}
-        <div className="p-6 sm:p-8">
-          {/* Header */}
-          <div className="flex items-start justify-between border-b border-gray-200 pb-6 mb-6">
+        {/* Invoice Printable Body */}
+        <div className="p-6 sm:p-8 space-y-6 print:p-0">
+          {/* Brand & Reference Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gold-500/20 print:border-gray-300">
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <FaFileInvoiceDollar className="text-gold-600" size={20} />
-                <h2 className="text-xl font-bold text-gray-900">{t('booking.invoice', 'Invoice')}</h2>
-              </div>
+              <h1 className="text-2xl font-display font-bold text-gold-400 print:text-black tracking-wide">
+                DUNAS TRAVEL
+              </h1>
+              <p className="text-[11px] text-ivory-400 print:text-gray-500 uppercase tracking-[2px] mt-0.5">
+                {t('booking.luxuryTravel', 'Exclusive Luxury Journey & Concierge')}
+              </p>
+            </div>
+            <div className="sm:text-right">
               {booking.invoiceNumber && (
-                <p className="text-sm text-gray-500 mt-1">
-                  {t('booking.invoiceNumber', 'Invoice #')}: <span className="font-mono font-semibold text-gray-700">{booking.invoiceNumber}</span>
-                </p>
+                <span className="block text-[11px] font-mono text-gold-400 print:text-black uppercase tracking-wider font-semibold">
+                  Invoice #: {booking.invoiceNumber}
+                </span>
               )}
-            </div>
-            <div className="text-right">
-              <p className="text-lg font-bold text-gray-900">DUNAS TRAVEL</p>
-              <p className="text-xs text-gray-500">{t('booking.luxuryTravel', 'Luxury Travel Agency')}</p>
+              {booking.referenceCode && (
+                <span className="block text-[11px] font-mono text-ivory-400 print:text-gray-500 uppercase tracking-widest mt-0.5">
+                  Ref: #{booking.referenceCode}
+                </span>
+              )}
+              <span className="block text-[11px] text-ivory-400 print:text-gray-500 mt-1">
+                {d.toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })}
+              </span>
             </div>
           </div>
 
-          {/* Status & Date */}
-          <div className="flex items-center justify-between mb-6 text-sm">
-            <span className="text-gray-500">
-              {t('booking.date', 'Date')}: {d.toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-            </span>
-            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-              booking.status === 'confirmed' ? 'bg-green-100 text-green-700' :
-              booking.status === 'cancelled' ? 'bg-red-100 text-red-700' :
-              booking.status === 'completed' ? 'bg-blue-100 text-blue-700' :
-              'bg-yellow-100 text-yellow-700'
-            }`}>
-              {booking.status === 'pending' ? t('booking.pending', 'Pending') :
-               booking.status === 'confirmed' ? t('booking.confirmed', 'Confirmed') :
-               booking.status === 'cancelled' ? t('booking.cancelled', 'Cancelled') :
-               t('booking.completed', 'Completed')}
+          {/* Status Chip & Main Tour Banner */}
+          <div className="bg-[rgba(255,252,247,0.02)] border border-gold-500/20 rounded-xl p-4 print:bg-gray-50 print:border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <span className="text-[10px] uppercase tracking-widest text-gold-400 print:text-gray-500 font-semibold block mb-0.5">
+                {t('booking.tour', 'Reserved Itinerary')}
+              </span>
+              <h2 className="text-body-lg text-ivory-50 print:text-black font-semibold">
+                {booking.tourTitle || 'Bespoke Luxury Experience'}
+              </h2>
+            </div>
+            <span
+              className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider self-start sm:self-auto border ${
+                ['confirmed', 'paid', 'completed'].includes(String(booking.status).toLowerCase())
+                  ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30 print:text-green-700'
+                  : ['cancelled', 'refunded'].includes(String(booking.status).toLowerCase())
+                  ? 'bg-red-500/15 text-red-400 border-red-500/30 print:text-red-700'
+                  : 'bg-gold-500/15 text-gold-400 border-gold-500/30 print:text-amber-700'
+              }`}
+            >
+              {booking.status || 'PENDING'}
             </span>
           </div>
 
-          {/* Tour Info */}
-          {booking.tourTitle && (
-            <div className="bg-gray-50 rounded-xl p-4 mb-6">
-              <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">{t('booking.tour', 'Tour')}</p>
-              <p className="font-semibold text-gray-900">{booking.tourTitle}</p>
-            </div>
-          )}
-
-          {/* Billing Details */}
-          <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-800 mb-3 uppercase tracking-wider">{t('booking.billingInfo', 'Billing Details')}</h3>
-            <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-500">{t('booking.fullName', 'Name')}</span>
-                <span className="font-medium text-gray-800">{booking.fullName}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">{t('booking.email', 'Email')}</span>
-                <span className="font-medium text-gray-800">{booking.email}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">{t('booking.phone', 'Phone')}</span>
-                <span className="font-medium text-gray-800">{booking.phone}</span>
-              </div>
-              {booking.invoiceType === 'company' && (
-                <>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">{t('booking.companyName', 'Company')}</span>
-                    <span className="font-medium text-gray-800">{booking.companyName}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">{t('booking.taxId', 'Tax ID')}</span>
-                    <span className="font-medium text-gray-800">{booking.taxId}</span>
-                  </div>
-                </>
-              )}
-              {(booking.address || booking.city || booking.country) && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">{t('booking.address', 'Address')}</span>
-                  <span className="font-medium text-gray-800 text-right">
-                    {[booking.address, booking.city, booking.country].filter(Boolean).join(', ')}
-                  </span>
+          {/* Details 2-Column Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-body-sm">
+            {/* Traveler & Billing Information */}
+            <div className="bg-[rgba(255,252,247,0.02)] border border-gold-500/15 rounded-xl p-4 print:bg-transparent print:border-gray-200">
+              <h3 className="text-[11px] font-semibold text-gold-400 print:text-black uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <FaUser size={11} /> {t('booking.leadTraveler', 'Guest Details')}
+              </h3>
+              <dl className="space-y-2 text-[13px]">
+                <div className="flex justify-between gap-4">
+                  <dt className="text-ivory-400 print:text-gray-500">{t('booking.fullName', 'Lead Name')}</dt>
+                  <dd className="text-ivory-100 print:text-black font-medium text-right">{booking.fullName || '—'}</dd>
                 </div>
-              )}
+                <div className="flex justify-between gap-4">
+                  <dt className="text-ivory-400 print:text-gray-500">{t('booking.email', 'Email')}</dt>
+                  <dd className="text-ivory-100 print:text-black font-mono text-[12px] text-right">{booking.email || '—'}</dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-ivory-400 print:text-gray-500">{t('booking.phone', 'Phone')}</dt>
+                  <dd className="text-ivory-100 print:text-black text-right">{booking.phone || '—'}</dd>
+                </div>
+                {booking.invoiceType === 'COMPANY' && booking.companyName && (
+                  <div className="flex justify-between gap-4 pt-1 border-t border-gold-500/10">
+                    <dt className="text-ivory-400 print:text-gray-500">{t('booking.companyName', 'Company')}</dt>
+                    <dd className="text-ivory-100 print:text-black font-medium text-right">{booking.companyName}</dd>
+                  </div>
+                )}
+                {(booking.address || booking.city || booking.country) && (
+                  <div className="flex justify-between gap-4 pt-1 border-t border-gold-500/10">
+                    <dt className="text-ivory-400 print:text-gray-500">{t('booking.address', 'Address')}</dt>
+                    <dd className="text-ivory-100 print:text-black text-right">
+                      {[booking.address, booking.city, booking.country].filter(Boolean).join(', ')}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+
+            {/* Itinerary & Passenger Information */}
+            <div className="bg-[rgba(255,252,247,0.02)] border border-gold-500/15 rounded-xl p-4 print:bg-transparent print:border-gray-200">
+              <h3 className="text-[11px] font-semibold text-gold-400 print:text-black uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <FaPlaneDeparture size={11} /> {t('booking.tripDetails', 'Schedule & Party')}
+              </h3>
+              <dl className="space-y-2 text-[13px]">
+                <div className="flex justify-between gap-4">
+                  <dt className="text-ivory-400 print:text-gray-500">{t('booking.arrivalDate', 'Arrival Date')}</dt>
+                  <dd className="text-ivory-100 print:text-black font-medium text-right">{booking.arrivalDate || 'TBD'}</dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-ivory-400 print:text-gray-500">{t('booking.departureDate', 'Departure Date')}</dt>
+                  <dd className="text-ivory-100 print:text-black font-medium text-right">{booking.departureDate || 'TBD'}</dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-ivory-400 print:text-gray-500">{t('booking.passengers', 'Total Travelers')}</dt>
+                  <dd className="text-ivory-100 print:text-black font-medium text-right">
+                    {totalPax || booking.adults || 1} Guest(s)
+                  </dd>
+                </div>
+                {passengerList.length > 0 && (
+                  <div className="flex justify-between gap-4 pt-1 border-t border-gold-500/10">
+                    <dt className="text-ivory-400 print:text-gray-500">{t('booking.passengerNames', 'Party')}</dt>
+                    <dd className="text-ivory-100 print:text-black text-right max-w-[180px] truncate">
+                      {passengerList.join(', ')}
+                    </dd>
+                  </div>
+                )}
+              </dl>
             </div>
           </div>
 
-          {/* Trip Details */}
-          <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-800 mb-3 uppercase tracking-wider">{t('booking.tripDetails', 'Trip Details')}</h3>
-            <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-500">{t('booking.arrivalDate', 'Arrival')}</span>
-                <span className="font-medium text-gray-800">{booking.arrivalDate || '—'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">{t('booking.departureDate', 'Departure')}</span>
-                <span className="font-medium text-gray-800">{booking.departureDate || '—'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">{t('booking.passengers', 'Passengers')}</span>
-                <span className="font-medium text-gray-800">
-                  {booking.adults > 0 && `${booking.adults} ${t('booking.adults', 'Adults')}`}
-                  {booking.children > 0 && `, ${booking.children} ${t('booking.children', 'Children')}`}
-                  {booking.infants > 0 && `, ${booking.infants} ${t('booking.infants', 'Infants')}`}
+          {/* Pricing & Financial Summary */}
+          <div className="bg-gradient-to-br from-[rgba(201,162,39,0.08)] to-transparent border border-gold-500/30 rounded-xl p-5 print:bg-gray-100 print:border-gray-300">
+            <div className="flex items-baseline justify-between">
+              <div>
+                <span className="text-[11px] uppercase tracking-widest text-gold-400 print:text-gray-600 font-semibold block">
+                  {t('booking.totalPrice', 'Grand Total Amount')}
+                </span>
+                <span className="text-[10px] text-ivory-400 print:text-gray-500">
+                  {t('booking.allInclusiveTaxes', 'Inclusive of all curated luxury services & VAT')}
                 </span>
               </div>
-              {passengerList.length > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">{t('booking.passengerNames', 'Names')}</span>
-                  <span className="font-medium text-gray-800 text-right max-w-[200px]">{passengerList.join(', ')}</span>
-                </div>
-              )}
-              {booking.totalAmount > 0 && (
-                <div className="flex justify-between pt-2 border-t border-gray-200">
-                  <span className="font-semibold text-gray-700">{t('booking.totalAmount', 'Total Amount')}</span>
-                  <span className="font-bold text-lg text-gray-900">
-                    {booking.currency === 'EUR' ? '€' : '$'}{booking.totalAmount.toLocaleString()}
-                  </span>
-                </div>
-              )}
+              <span className="text-display-sm font-display font-bold text-gold-400 print:text-black">
+                {booking.currency === 'EUR' ? '€' : '$'}
+                {typeof booking.totalAmount === 'number'
+                  ? booking.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })
+                  : booking.totalAmount || booking.totalAmountUsd || '0.00'}
+              </span>
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="border-t border-gray-200 pt-6 text-center text-xs text-gray-400 space-y-1">
-            <p className="font-semibold text-gray-500">DUNAS TRAVEL</p>
-            <p>{t('booking.invoiceFooter', 'Thank you for choosing DUNAS TRAVEL. We look forward to providing you with an unforgettable experience.')}</p>
-            <p className="mt-2">{t('booking.invoiceNote', 'This is a booking confirmation invoice. Payment details will be sent separately.')}</p>
+          {/* Guarantee & Verification Seal */}
+          <div className="pt-4 border-t border-gold-500/15 text-center text-[11px] text-ivory-400 print:text-gray-500 space-y-1">
+            <p className="font-semibold text-gold-400/90 print:text-gray-700">
+              DUNAS TRAVEL • Cairo • Istanbul • Athens • Casablanca
+            </p>
+            <p>
+              {t(
+                'booking.invoiceFooter',
+                'Thank you for selecting Dunas Travel. Our 24/7 VIP Concierge is at your service.'
+              )}
+            </p>
           </div>
         </div>
       </div>

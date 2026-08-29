@@ -1144,13 +1144,12 @@
   "home.allVehicles": "الكل",
   "home.availableSafaris": "رحلات السفاري المتاحة",
   "home.award": "تجارب حائزة على جوائز",
-  "home.bookJourney": "احجز رحلتك",
-  "home.bookTransfer": "احجز تحويلك",
-  "home.bookTransferDesc": "املأ التفاصيل أدناه وسيؤكد مستخدمنا حجزك.",
+  "home.bookTransfer": "احجز وسيلة نقلك الخاصة",
+  "home.bookTransferDesc": "املأ التفاصيل أدناه وسيقوم فريقنا المتخصص بتأكيد حجزك فوراً.",
   "home.buses": "الحافلات",
   "home.childrenCount": "الأطفال (0-20)",
   "home.chooseVehicle": "اختر مركبة",
-  "home.coasters": "الوقايات",
+  "home.coasters": "مركبات كوستر",
   "home.contactSub": "تواصل معنا",
   "home.contactTitle": "نحن هنا للمساعدة",
   "home.ctaBrowse": "تصفح الجولات",
@@ -2597,5 +2596,6 @@
     "multiTag3": "📜 إدارة شاملة للتأشيرات والخدمات",
     "multiPrimaryCta": "استكشف الرحلات المجمعة ←",
     "multiSecondaryCta": "طلب برنامج مخصص للجموع"
-  }
+  },
+  "home.bookJourney": "احجز رحلتك"
 }
