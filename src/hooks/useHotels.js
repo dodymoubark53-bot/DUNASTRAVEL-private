@@ -52,3 +52,49 @@ export function useHotel(slug) {
     error,
   };
 }
+
+export function useHotels({ destinationSlug, limit = 24 } = {}) {
+  const { i18n } = useTranslation();
+  const [hotels, setHotels] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    const fetchHotels = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const queryParams = new URLSearchParams({
+          locale: supportedLocale(i18n.language),
+          limit: String(limit),
+        });
+        if (destinationSlug) {
+          queryParams.set('destinationSlug', destinationSlug);
+        }
+        const data = await api.get(`/hotels?${queryParams.toString()}`);
+        if (active) {
+          setHotels(Array.isArray(data) ? data : []);
+          setError(null);
+        }
+      } catch (err) {
+        if (active) {
+          setHotels([]);
+          setError(err);
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    void fetchHotels();
+    return () => {
+      active = false;
+    };
+  }, [destinationSlug, limit, i18n.language]);
+
+  return {
+    hotels,
+    loading,
+    error,
+  };
+}

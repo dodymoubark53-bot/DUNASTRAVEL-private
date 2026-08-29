@@ -25,7 +25,7 @@ const defaultAuthContext = {
   getUserBookings: missingAuthProvider,
 };
 
-const AuthContext = createContext(defaultAuthContext);
+export const AuthContext = createContext(defaultAuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);

@@ -7,6 +7,7 @@ import { useCmsBlock } from '../hooks/useCmsBlock';
 import { useMedia } from '../hooks/useMedia';
 import { useHotel } from '../hooks/useHotels';
 import ReviewsMap from '../components/tour/ReviewsMap';
+import { AuthContext } from '../context/AuthContext';
 import api from '../utils/api';
 
 vi.mock('react-i18next', () => ({
@@ -142,6 +143,43 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
         reviewerName: 'Jane Smith',
         rating: 5,
         comment: 'Unforgettable tour!',
+      });
+    });
+  });
+
+  it('ReviewsMap automatically uses authenticated user profile without requiring manual name input', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue({ data: [], ratingSummary: { averageRating: 5, totalReviews: 0 } });
+    vi.spyOn(api, 'post').mockResolvedValue({ success: true });
+
+    const tourId = 'grand-pyramids';
+    const mockAuthUser = { id: 'user-77', name: 'Karim Mostafa', email: 'karim@dunas.com' };
+
+    render(
+      <AuthContext.Provider value={{ user: mockAuthUser, isLoading: false }}>
+        <ReviewsMap tourId={tourId} />
+      </AuthContext.Provider>
+    );
+
+    // Verify authenticated user greeting is rendered
+    await waitFor(() => {
+      expect(screen.getByText('Karim Mostafa')).toBeDefined();
+    });
+
+    // Name input should NOT be required for authenticated user
+    expect(screen.queryByLabelText(/Your Name/i)).toBeNull();
+
+    // Fill comment and submit
+    const reviewInput = screen.getByLabelText(/Your Review/i);
+    fireEvent.change(reviewInput, { target: { value: 'Best luxury tour in Egypt!' } });
+
+    const formElement = reviewInput.closest('form');
+    fireEvent.submit(formElement);
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith(`/tours/${tourId}/reviews`, {
+        reviewerName: 'Karim Mostafa',
+        rating: 5,
+        comment: 'Best luxury tour in Egypt!',
       });
     });
   });
