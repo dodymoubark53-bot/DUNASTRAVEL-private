@@ -77,6 +77,8 @@ function mapTour(tour) {
     price,
     code: tour.id,
     highlights: Array.isArray(tour.highlights) ? tour.highlights : [],
+    isFeatured: Boolean(tour.isFeatured),
+    displayOrder: typeof tour.displayOrder === 'number' ? tour.displayOrder : 0,
   };
 }
 

@@ -78,6 +78,22 @@ const TourCard = ({
         >
           {fav ? <FaHeart className="text-red-500" size={15} /> : <FaRegHeart size={15} />}
         </button>
+
+        {Boolean(tour.isFeatured) && (
+          <div
+            className="absolute top-4 right-15 z-20 flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold text-obsidian-950 shadow-lg backdrop-blur-md select-none"
+            style={{
+              background: 'linear-gradient(135deg, #FFD700 0%, #F5A623 50%, #D4AF37 100%)',
+              border: '1px solid rgba(255, 255, 255, 0.6)',
+              boxShadow: '0 2px 10px rgba(245, 166, 35, 0.45)',
+            }}
+          >
+            <span className="text-xs leading-none">⭐</span>
+            <span className="text-[11px] font-extrabold tracking-wide uppercase">
+              {lang === 'ar' ? 'مميزة' : 'Featured'}
+            </span>
+          </div>
+        )}
         <div className="absolute top-4 left-4 z-10 bg-obsidian-900/80 backdrop-blur-md text-gold-500 text-caption px-4 py-1.5 rounded-full border border-gold-500/30 shadow-glass">
           {minPaxText ? `${minPaxText} · ` : ''}{durationLabel}
         </div>
