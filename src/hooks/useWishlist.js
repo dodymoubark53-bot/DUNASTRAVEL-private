@@ -151,7 +151,7 @@ export const useWishlist = () => {
     async (tourOrId) => {
       const normalized = normalizeTour(tourOrId);
       if (!normalized) return;
-      const targetKey = normalized.slug || normalized.id;
+      const targetKey = normalized.id || normalized.slug;
       if (!targetKey) return;
 
       const currentlyFav = favorites.some(
