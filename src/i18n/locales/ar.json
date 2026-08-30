@@ -2613,5 +2613,15 @@
   "reviews.rating4": "جيد جداً - رحلة رائعة وممتعة",
   "reviews.rating3": "جيد - تجربة مقبولة",
   "reviews.rating2": "مقبول - بحاجة لبعض التحسين",
-  "reviews.rating1": "ضعيف - لم تكن التجربة كما هو متوقع"
+  "reviews.rating1": "ضعيف - لم تكن التجربة كما هو متوقع",
+  "tailor.partnerCodeLabel": "كود الشريك / كود الإحالة والتعاقد السري (8 أرقام - اختياري)",
+  "tailor.verifyingPartner": "جاري التحقق الفوري من كود الشريك...",
+  "tailor.verifiedPartnerBadge": "شريك معتمد لدى دوناس ترافيل",
+  "tailor.verifiedPartnerDesc": "سيتم ربط طلبك مباشرة بمكتب كبار العملاء للشريك المتعاقد",
+  "tailor.unverifiedPartnerTitle": "كود الشريك غير مسجل",
+  "tailor.unverifiedPartnerBadge": "كود غير مسجل",
+  "tailor.unverifiedPartnerDesc": "لم يتم العثور على هذا الكود في عقود الشركاء النشطة. يمكنك المتابعة وإرسال الطلب وسيقوم مصممو الرحلات بمساعدتك.",
+  "tailor.partnerCodeNotFound": "رمز الشريك غير مسجل في شبكة الشركاء المعتمدين",
+  "tailor.partnerCodeCheckFailed": "تعذر التحقق من رمز الشريك حالياً",
+  "contactForms.iataUnverifiedBadge": "كود غير مسجل"
 }

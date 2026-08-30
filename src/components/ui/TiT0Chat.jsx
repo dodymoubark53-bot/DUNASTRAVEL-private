@@ -49,6 +49,13 @@ const TiT0Chat = () => {
       await new Promise(r => setTimeout(r, 1000));
 
       while (active) {
+        // Pause typing loop if user is on another browser tab
+        while (typeof document !== 'undefined' && document.hidden) {
+          await new Promise(r => setTimeout(r, 1000));
+          if (!active) break;
+        }
+        if (!active) break;
+
         const currentIdx = msgIdxRef.current;
         const target = messagesList[currentIdx % messagesList.length];
 

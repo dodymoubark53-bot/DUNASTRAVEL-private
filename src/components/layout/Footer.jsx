@@ -13,7 +13,10 @@ const Footer = () => {
   const { isOpen, setIsOpen } = useJaiderChat();
 
   useEffect(() => {
-    const handleScroll = () => setShowBackToTop(window.scrollY > 480);
+    const handleScroll = () => {
+      const isOver = window.scrollY > 480;
+      setShowBackToTop((prev) => (prev !== isOver ? isOver : prev));
+    };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -33,14 +36,6 @@ const Footer = () => {
       className="relative w-full text-white flex flex-col"
       style={{ background: 'linear-gradient(180deg, rgb(10,25,105) 0%, rgb(6,29,93) 50%, rgb(10,21,53) 100%)' }}
     >
-
-      {/* Brand & Socials + TiT0 */}
-      <style>{`
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-@keyframes blink{50%{opacity:0}}
-@keyframes dotSlideIn{from{opacity:0;transform:translateX(30px) scale(0.15)}to{opacity:1;transform:translateX(0) scale(1)}}
-@keyframes arrowBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-`}</style>
       <div className="relative z-10 w-full px-6 sm:px-12 lg:px-20 pt-8 sm:pt-10 lg:pt-12 flex flex-col sm:flex-row justify-between items-start gap-6">
         <div className="max-w-lg">
           <Link to="/" className="flex items-center mb-3">

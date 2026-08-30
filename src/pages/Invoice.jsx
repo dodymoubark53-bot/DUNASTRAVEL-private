@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { FaFileInvoiceDollar, FaSearch, FaTimes, FaPrint } from 'react-icons/fa';
 import api from '../utils/api';
 import { normalizeInvoiceResponse } from '../utils/invoice';
+import { redirectToPayLinkCheckout } from '../utils/paylink';
 
 const Invoice = () => {
   const { t, i18n } = useTranslation();
@@ -42,14 +43,14 @@ const Invoice = () => {
     setError('');
     try {
       const data = await api.post('/payments/initiate', { bookingId: booking.bookingId });
-      const url = data?.session?.url || data?.url;
+      const url = data?.url || data?.sessionUrl || data?.checkoutUrl || data?.session?.url;
       if (url) {
-        window.location.href = url;
+        redirectToPayLinkCheckout(url);
       } else {
         throw new Error('No payment URL returned');
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Unable to start payment session');
     } finally {
       setPaymentLoading(false);
     }

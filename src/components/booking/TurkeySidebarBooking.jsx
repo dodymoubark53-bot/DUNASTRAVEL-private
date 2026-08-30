@@ -20,6 +20,7 @@ import {
 } from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
 import api from '../../utils/api';
+import { redirectToPayLinkCheckout } from '../../utils/paylink';
 import { useAuth } from '../../context/AuthContext';
 
 const inputStyle =
@@ -233,7 +234,7 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
               const payData = await api.post('/payments/initiate', { bookingId: targetId });
               const sessionUrl = payData?.sessionUrl || payData?.url;
               if (sessionUrl) {
-                window.location.assign(sessionUrl);
+                redirectToPayLinkCheckout(sessionUrl);
                 return;
               }
             }

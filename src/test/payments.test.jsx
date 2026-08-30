@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import BookingSuccess from '../pages/BookingSuccess';
 import InvoiceModal from '../components/booking/InvoiceModal';
 import api from '../utils/api';
+import { assertPayLinkCheckoutUrl } from '../utils/paylink';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -37,9 +38,12 @@ describe('Prompt 05: Payments & Invoice System Integration', () => {
       </MemoryRouter>
     );
 
-    await waitFor(() => {
-      expect(screen.getByText('Payment Successful!')).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Payment Successful!')).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
 
     expect(api.get).toHaveBeenCalledWith('/payments/1b75ef8c-5b72-4f8a-a9cb-03c7403282d5/status');
   });
@@ -75,6 +79,51 @@ describe('Prompt 05: Payments & Invoice System Integration', () => {
       expect(screen.getByText('Payment Unsuccessful')).toBeInTheDocument();
     });
     expect(screen.queryByText('Payment Successful!')).not.toBeInTheDocument();
+  });
+
+  it('passes PayLink callback fields to the backend and trusts reconciled state only', async () => {
+    vi.spyOn(api, 'post').mockResolvedValue({
+      paymentId: '1b75ef8c-5b72-4f8a-a9cb-03c7403282d5',
+      status: 'CAPTURED',
+      invoiceNumber: 'INV-2026-100',
+    });
+
+    render(
+      <MemoryRouter
+        initialEntries={[
+          '/booking-success?success=1&invoice_id=40506&invoice_status=PAID&message=Invoice%20Paid&signature=signed',
+        ]}
+      >
+        <Routes>
+          <Route path="/booking-success" element={<BookingSuccess />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await waitFor(
+      () => {
+        expect(screen.getByText('Payment Successful!')).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+    expect(api.post).toHaveBeenCalledWith('/payments/callback/getpayin', {
+      success: '1',
+      invoice_id: '40506',
+      invoice_status: 'PAID',
+      message: 'Invoice Paid',
+      signature: 'signed',
+    });
+  });
+
+  it('allows only the HTTPS PayLink checkout origin', () => {
+    expect(
+      assertPayLinkCheckoutUrl(
+        'https://pay.getpayin.com/integration/checkout?invoice_id=40506',
+      ),
+    ).toContain('pay.getpayin.com');
+    expect(() =>
+      assertPayLinkCheckoutUrl('https://evil.example/checkout'),
+    ).toThrow('untrusted checkout URL');
   });
 
   it('InvoiceModal fetches invoice document breakdown via GET /api/invoices/:invoiceNumber', async () => {

@@ -14,6 +14,7 @@ import InvoiceModal from '../../components/booking/InvoiceModal';
 import TourCard from '../../components/tour/TourCard';
 import Button from '../../components/ui/Button';
 import api from '../../utils/api';
+import { useToast } from '../../context/ToastContext';
 
 const inputClass = "w-full p-3 rounded-xl outline-none transition-all text-[14px] bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-[rgba(201,162,39,0.5)] focus:shadow-[0_0_20px_rgba(201,162,39,0.1)] [color-scheme:dark]";
 const labelClass = "block text-caption text-gold-500 font-medium mb-1 text-[12px] uppercase tracking-[1px]";
@@ -21,6 +22,7 @@ const labelClass = "block text-caption text-gold-500 font-medium mb-1 text-[12px
 const UserDashboard = ({ initialTab = 'overview' }) => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const toast = useToast();
   const { user, logout, updateProfile, changePassword, getUserBookings } = useAuth();
   const { favorites, loading: loadingFavs } = useWishlist();
 
@@ -86,6 +88,7 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
     };
   }, [user, i18n.language]);
 
+  
   useEffect(() => {
     let isMounted = true;
     const fetchBookings = async () => {
@@ -157,11 +160,10 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
 
   const handleCancelBooking = async (refCode) => {
     if (!refCode) return;
-    if (!window.confirm(t('booking.confirmCancel', 'Are you sure you want to cancel this booking?'))) return;
-    
     setCancellingCode(refCode);
     try {
       await api.post(`/bookings/${encodeURIComponent(refCode)}/cancel`, {});
+      toast.success(t('booking.cancelSuccess', 'Booking cancelled successfully'));
       const tourBookings = (await getUserBookings()) || [];
       let transportBookings = [];
       try {
@@ -180,7 +182,7 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
       }
       setBookings([...tourBookings, ...transportBookings]);
     } catch (err) {
-      console.error('Cancellation error', err);
+      toast.error(err.message || t('common.errorOccurred', 'Failed to cancel booking'));
     } finally {
       setCancellingCode(null);
     }

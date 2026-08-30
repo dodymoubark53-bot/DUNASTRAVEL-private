@@ -216,9 +216,18 @@ const FallbackLoader = () => (
   </div>
 );
 
+const ScrollProgressBar = React.memo(function ScrollProgressBar() {
+  const { scrollYProgress } = useScroll();
+  return (
+    <motion.div
+      style={{ scaleX: scrollYProgress, transformOrigin: "0%", willChange: "transform" }}
+      className="fixed top-0 left-0 right-0 h-[3px] z-[9999] bg-gradient-to-r from-gold-500 via-gold-300 to-gold-500 pointer-events-none"
+    />
+  );
+});
+
 function App() {
   const location = useLocation();
-  const { scrollYProgress } = useScroll();
   const { i18n } = useTranslation();
 
   React.useEffect(() => {
@@ -234,10 +243,7 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <motion.div
-        style={{ scaleX: scrollYProgress, transformOrigin: "0%" }}
-        className="fixed top-0 left-0 right-0 h-[3px] z-[9999] bg-gradient-to-r from-gold-500 via-gold-300 to-gold-500 pointer-events-none"
-      />
+      <ScrollProgressBar />
 
       <Suspense fallback={<FallbackLoader />}>
         <AnimatePresence mode="wait">

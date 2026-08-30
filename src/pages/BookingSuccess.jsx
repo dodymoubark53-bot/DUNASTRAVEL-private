@@ -13,6 +13,11 @@ const BookingSuccess = () => {
   // Only the server-issued payment record UUID is a valid status resource.
   // Provider session IDs and booking references are different identifiers.
   const paymentId = searchParams.get('payment_id');
+  const callbackInvoiceId = searchParams.get('invoice_id');
+  const callbackSuccess = searchParams.get('success');
+  const callbackStatus = searchParams.get('invoice_status');
+  const callbackMessage = searchParams.get('message');
+  const callbackSignature = searchParams.get('signature');
   const bookingId = searchParams.get('booking_id') || searchParams.get('bookingId') || searchParams.get('referenceCode');
 
   const [paymentStatus, setPaymentStatus] = useState('loading'); // loading, SUCCEEDED, PENDING, FAILED
@@ -27,13 +32,28 @@ const BookingSuccess = () => {
     let timerId;
 
     const verifyStatus = async () => {
-      if (!paymentId) {
+      const hasSignedCallback = Boolean(
+        callbackInvoiceId &&
+          callbackSuccess !== null &&
+          callbackStatus &&
+          callbackMessage !== null &&
+          callbackSignature,
+      );
+      if (!paymentId && !hasSignedCallback) {
         if (isMounted) setPaymentStatus('FAILED');
         return;
       }
 
       try {
-        const res = await api.get(`/payments/${encodeURIComponent(paymentId)}/status`);
+        const res = paymentId
+          ? await api.get(`/payments/${encodeURIComponent(paymentId)}/status`)
+          : await api.post('/payments/callback/getpayin', {
+              success: callbackSuccess,
+              invoice_id: callbackInvoiceId,
+              invoice_status: callbackStatus,
+              message: callbackMessage,
+              signature: callbackSignature,
+            });
         const status = (res?.status || res?.paymentStatus || 'PENDING').toUpperCase();
         const invNum = res?.invoiceNumber || res?.invoice?.invoiceNumber;
 
@@ -49,7 +69,7 @@ const BookingSuccess = () => {
             setPaymentStatus('PENDING');
             if (pollCount < maxPolls) {
               pollCount++;
-              timerId = setTimeout(verifyStatus, 500);
+              timerId = setTimeout(verifyStatus, 1500);
             }
           } else {
             setPaymentStatus('FAILED');
@@ -67,7 +87,14 @@ const BookingSuccess = () => {
       isMounted = false;
       if (timerId) clearTimeout(timerId);
     };
-  }, [paymentId, bookingId]);
+  }, [
+    paymentId,
+    callbackInvoiceId,
+    callbackSuccess,
+    callbackStatus,
+    callbackMessage,
+    callbackSignature,
+  ]);
 
   return (
     <div className="min-h-screen bg-obsidian-900 flex items-center justify-center p-4 pt-28 font-body" dir={isRtl ? 'rtl' : 'ltr'}>

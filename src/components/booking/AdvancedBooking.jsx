@@ -21,6 +21,7 @@ import {
 } from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
 import api from '../../utils/api';
+import { redirectToPayLinkCheckout } from '../../utils/paylink';
 
 const inputStyle =
   'w-full px-3.5 py-3 rounded-xl bg-[rgba(255,252,247,0.03)] text-ivory-50 placeholder:text-ivory-400/40 border border-[rgba(201,162,39,0.18)] focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 focus:outline-none text-[13.5px] transition-all [color-scheme:dark]';
@@ -178,7 +179,7 @@ export default function AdvancedBooking({
                 const payData = await api.post('/payments/initiate', { bookingId: targetId });
                 const sessionUrl = payData?.sessionUrl || payData?.url;
                 if (sessionUrl) {
-                  window.location.assign(sessionUrl);
+                  redirectToPayLinkCheckout(sessionUrl);
                   return;
                 }
               }

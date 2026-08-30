@@ -4,13 +4,29 @@ const useScrollAnimations = () => {
   useEffect(() => {
     let ctx;
     let isReverted = false;
+    let scrollTriggerInstance = null;
+
+    // Check if user prefers reduced motion
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
 
     const initAnimations = async () => {
+      // Check if any matching elements exist before loading GSAP
+      const revealCount = document.querySelectorAll('.gsap-reveal').length;
+      const parallaxCount = document.querySelectorAll('.gsap-parallax').length;
+      const countCount = document.querySelectorAll('.gsap-count').length;
+
+      if (revealCount === 0 && parallaxCount === 0 && countCount === 0) {
+        return;
+      }
+
       const { gsap } = await import('gsap');
       const { ScrollTrigger } = await import('gsap/ScrollTrigger');
 
       if (isReverted) return;
 
+      scrollTriggerInstance = ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
       ctx = gsap.context(() => {
@@ -96,11 +112,9 @@ const useScrollAnimations = () => {
       isReverted = true;
       window.removeEventListener('load', scheduleInit);
       if (ctx) ctx.revert();
-      
-      // Dynamically clean up ScrollTrigger if it has been loaded
-      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
-        ScrollTrigger.getAll().forEach((t) => t.kill());
-      }).catch(() => {});
+      if (scrollTriggerInstance) {
+        scrollTriggerInstance.getAll().forEach((t) => t.kill());
+      }
     };
   }, []);
 };

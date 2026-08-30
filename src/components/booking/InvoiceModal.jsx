@@ -4,6 +4,7 @@ import { FaTimes, FaFileInvoiceDollar, FaPrint, FaShieldAlt, FaPlaneDeparture, F
 import { useTranslation } from 'react-i18next';
 import api from '../../utils/api';
 import { normalizeInvoiceResponse } from '../../utils/invoice';
+import { redirectToPayLinkCheckout } from '../../utils/paylink';
 
 const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoiceNumber, onClose }) => {
   const { t, i18n } = useTranslation();
@@ -70,7 +71,7 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
         res?.data?.sessionUrl ||
         res?.data?.url;
       if (checkoutUrl) {
-        window.location.href = checkoutUrl;
+        redirectToPayLinkCheckout(checkoutUrl);
       } else {
         setPaymentError(
           t('booking.paymentInitiated', 'Payment request processed. Please check your email or concierge status.')

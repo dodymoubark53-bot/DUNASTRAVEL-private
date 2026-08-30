@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { supportedLocale } from '../utils/locale';
@@ -17,18 +17,46 @@ const TailorTour = () => {
   const isRtl = i18n.dir() === 'rtl';
 
   const [step, setStep] = useState(1);
+  const DRAFT_STORAGE_KEY = 'dunas_tailor_tour_draft_v1';
+
+  // Read initial draft from localStorage safely
+  const getStoredDraft = () => {
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem(DRAFT_STORAGE_KEY) : null;
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const initialDraft = getStoredDraft();
+
   const [animationState, setAnimationState] = useState('parked-1'); // parked-1, parked-2, flying-forward, flying-backward
-  const [selectedDestinations, setSelectedDestinations] = useState([]);
+  const [selectedDestinations, setSelectedDestinations] = useState(
+    () => (Array.isArray(initialDraft?.selectedDestinations) ? initialDraft.selectedDestinations : [])
+  );
   const [destError, setDestError] = useState(false);
 
   // Traveler contact & info state
-  const [fullName, setFullName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [nationality, setNationality] = useState(user?.country || user?.nationality || '');
-  const [phone, setPhone] = useState(user?.phone || '');
-  const [travelDate, setTravelDate] = useState('');
+  const [fullName, setFullName] = useState(() => initialDraft?.fullName || user?.name || '');
+  const [email, setEmail] = useState(() => initialDraft?.email || user?.email || '');
+  const [nationality, setNationality] = useState(
+    () => initialDraft?.nationality || user?.country || user?.nationality || ''
+  );
+  const [phone, setPhone] = useState(() => initialDraft?.phone || user?.phone || '');
+  const [travelDate, setTravelDate] = useState(() => initialDraft?.travelDate || '');
   const [dateError, setDateError] = useState(false);
-  const [budget, setBudget] = useState('');
+  const [budget, setBudget] = useState(() => initialDraft?.budget || '');
+
+  // Partner / Secret Referral Code State
+  const [partnerCode, setPartnerCode] = useState(() => initialDraft?.partnerCode || '');
+  const [partnerVerificationState, setPartnerVerificationState] = useState('idle'); // 'idle' | 'verifying' | 'verified' | 'unverified'
+  const [verifiedPartnerCompany, setVerifiedPartnerCompany] = useState(null);
+  const [partnerVerificationError, setPartnerVerificationError] = useState('');
+  const partnerDebounceRef = useRef(null);
+  const [isDraftRestored, setIsDraftRestored] = useState(
+    () => Boolean(initialDraft && (initialDraft.fullName || initialDraft.email || initialDraft.phone || initialDraft.selectedDestinations?.length > 0 || initialDraft.partnerCode))
+  );
 
   useEffect(() => {
     if (!user) return undefined;
@@ -53,8 +81,10 @@ const TailorTour = () => {
   const todayStr = getTodayString();
 
   // Dynamic names & counts managed together to avoid setState in useEffect
-  const [passengerNames, setPassengerNames] = useState(['']); // initially 1 adult
-  const [specialRequests, setSpecialRequests] = useState('');
+  const [passengerNames, setPassengerNames] = useState(
+    () => (Array.isArray(initialDraft?.passengerNames) && initialDraft.passengerNames.length > 0 ? initialDraft.passengerNames : [''])
+  );
+  const [specialRequests, setSpecialRequests] = useState(() => initialDraft?.specialRequests || '');
 
   const resizeNames = (names, totalCount) => {
     const next = [...names];
@@ -68,9 +98,9 @@ const TailorTour = () => {
     return next;
   };
 
-  const [adults, _setAdults] = useState(1);
-  const [children, _setChildren] = useState(0);
-  const [infants, _setInfants] = useState(0);
+  const [adults, _setAdults] = useState(() => initialDraft?.adults || 1);
+  const [children, _setChildren] = useState(() => initialDraft?.children || 0);
+  const [infants, _setInfants] = useState(() => initialDraft?.infants || 0);
 
   const setAdults = (val) => {
     _setAdults(val);
@@ -91,6 +121,109 @@ const TailorTour = () => {
       next[index] = value;
       return next;
     });
+  };
+
+  // Auto-verify restored partner code on initial mount
+  useEffect(() => {
+    if (initialDraft?.partnerCode && initialDraft.partnerCode.length === 8) {
+      setPartnerVerificationState('verifying');
+      import('../utils/api').then(({ default: api }) => {
+        api.get(`/agencies/verify-partner/${initialDraft.partnerCode}`)
+          .then((res) => {
+            if (res.data?.valid && res.data?.company) {
+              setPartnerVerificationState('verified');
+              setVerifiedPartnerCompany(res.data.company);
+            } else {
+              setPartnerVerificationState('unverified');
+              setPartnerVerificationError(res.data?.message || '');
+            }
+          })
+          .catch((err) => {
+            setPartnerVerificationState('unverified');
+            setPartnerVerificationError(err?.response?.data?.message || '');
+          });
+      });
+    }
+  }, []);
+
+  // Auto-save draft to localStorage whenever fields change
+  useEffect(() => {
+    const hasContent =
+      selectedDestinations.length > 0 ||
+      Boolean(fullName.trim()) ||
+      Boolean(email.trim()) ||
+      Boolean(phone.trim()) ||
+      Boolean(nationality.trim()) ||
+      Boolean(travelDate) ||
+      Boolean(budget) ||
+      Boolean(specialRequests.trim()) ||
+      Boolean(partnerCode);
+
+    if (hasContent) {
+      const draft = {
+        selectedDestinations,
+        fullName,
+        email,
+        nationality,
+        phone,
+        travelDate,
+        budget,
+        adults,
+        children,
+        infants,
+        passengerNames,
+        specialRequests,
+        partnerCode,
+        updatedAt: new Date().toISOString(),
+      };
+      try {
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+      } catch {
+        // Ignore quota limits
+      }
+    }
+  }, [
+    selectedDestinations,
+    fullName,
+    email,
+    nationality,
+    phone,
+    travelDate,
+    budget,
+    adults,
+    children,
+    infants,
+    passengerNames,
+    specialRequests,
+    partnerCode,
+  ]);
+
+  // Clear draft action
+  const handleClearDraft = () => {
+    try {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+    setIsDraftRestored(false);
+    setSelectedDestinations([]);
+    setFullName(user?.name || '');
+    setEmail(user?.email || '');
+    setNationality(user?.country || user?.nationality || '');
+    setPhone(user?.phone || '');
+    setTravelDate('');
+    setDateError(false);
+    setBudget('');
+    setPartnerCode('');
+    setPartnerVerificationState('idle');
+    setVerifiedPartnerCompany(null);
+    setPartnerVerificationError('');
+    _setAdults(1);
+    _setChildren(0);
+    _setInfants(0);
+    setPassengerNames(['']);
+    setSpecialRequests('');
+    setStep(1);
   };
 
   // Scroll to top utility for Safari/iOS and generic cross-browser support
@@ -145,6 +278,49 @@ const TailorTour = () => {
     }
   };
 
+  const handlePartnerCodeChange = (e) => {
+    const rawVal = e.target.value;
+    const digitsOnly = String(rawVal).replace(/\D/g, '').slice(0, 8);
+    setPartnerCode(digitsOnly);
+
+    if (partnerDebounceRef.current) {
+      clearTimeout(partnerDebounceRef.current);
+    }
+
+    if (digitsOnly.length === 8) {
+      setPartnerVerificationState('verifying');
+      setPartnerVerificationError('');
+
+      partnerDebounceRef.current = setTimeout(async () => {
+        try {
+          const { default: api } = await import('../utils/api');
+          const res = await api.get(`/agencies/verify-partner/${digitsOnly}`);
+          if (res.data?.valid && res.data?.company) {
+            setPartnerVerificationState('verified');
+            setVerifiedPartnerCompany(res.data.company);
+            setPartnerVerificationError('');
+          } else {
+            setPartnerVerificationState('unverified');
+            setVerifiedPartnerCompany(null);
+            setPartnerVerificationError(
+              res.data?.message || t('tailor.partnerCodeNotFound', 'رمز الشريك غير مسجل في شبكة الشركاء المعتمدين')
+            );
+          }
+        } catch (err) {
+          setPartnerVerificationState('unverified');
+          setVerifiedPartnerCompany(null);
+          setPartnerVerificationError(
+            err?.response?.data?.message || err?.message || t('tailor.partnerCodeCheckFailed', 'تعذر التحقق من رمز الشريك')
+          );
+        }
+      }, 300);
+    } else {
+      setPartnerVerificationState('idle');
+      setVerifiedPartnerCompany(null);
+      setPartnerVerificationError('');
+    }
+  };
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -180,6 +356,10 @@ const TailorTour = () => {
         payload.budgetCurrency = 'USD';
       }
 
+      if (partnerCode && partnerCode.length === 8) {
+        payload.partnerCode = partnerCode;
+      }
+
       const { default: api } = await import('../utils/api');
       await api.post('/inquiries', payload);
 
@@ -189,7 +369,13 @@ const TailorTour = () => {
         duration: 7000,
       });
 
-      // Reset form
+      // Reset form & clear draft
+      try {
+        localStorage.removeItem(DRAFT_STORAGE_KEY);
+      } catch {
+        // ignore
+      }
+      setIsDraftRestored(false);
       setSelectedDestinations([]);
       setFullName('');
       setEmail('');
@@ -198,9 +384,15 @@ const TailorTour = () => {
       setTravelDate('');
       setDateError(false);
       setBudget('');
-      setAdults(1);
-      setChildren(0);
-      setInfants(0);
+      setPartnerCode('');
+      setPartnerVerificationState('idle');
+      setVerifiedPartnerCompany(null);
+      setPartnerVerificationError('');
+      _setAdults(1);
+      _setChildren(0);
+      _setInfants(0);
+      setPassengerNames(['']);
+      setSpecialRequests('');
       setStep(1);
       scrollToTop();
     } catch (err) {
@@ -611,9 +803,7 @@ const TailorTour = () => {
 
         .social-footer-3d ul li:hover a {
           transform: translate(12px, -12px);
-          box-shadow: -20px 20px 20px rgba(0, 0, 0, 0.15);
-        }
-      ` }} />
+          bo      ` }} />
 
       {/* Banner Section */}
       <section className="relative h-[40vh] pt-24 flex items-center justify-center overflow-hidden">
@@ -689,6 +879,33 @@ const TailorTour = () => {
 
           {/* Form Element */}
           <form onSubmit={handleSubmit} className="mt-8">
+            {isDraftRestored && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 bg-gradient-to-r from-gold-500/15 via-gold-500/5 to-gold-500/15 border border-gold-500/30 rounded-2xl flex items-center justify-between gap-3 text-xs shadow-xs"
+              >
+                <div className="flex items-center gap-2.5 text-obsidian-800">
+                  <span className="text-gold-600 text-base">💾</span>
+                  <span className="font-medium">
+                    {t('tailor.draftRestored', 'تم استعادة بيانات طلبك السابقة تلقائياً من جهازك.')}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleClearDraft}
+                  className="px-2.5 py-1 text-xs font-bold text-obsidian-600 hover:text-red-600 bg-white/80 border border-obsidian-900/10 rounded-lg hover:border-red-400/40 transition-all cursor-pointer"
+                >
+                  {t('tailor.clearDraft', 'مسح والبدء من جديد')}
+                </button>
+              </motion.div>
+            )}
+
+            <AnimatePresence mode="wait">�د')}
+                </button>
+              </motion.div>
+            )}
+
             <AnimatePresence mode="wait">
               {step === 1 && (
                 <motion.div
@@ -1002,6 +1219,107 @@ const TailorTour = () => {
                       </div>
                     </div>
                   )}
+
+                  {/* Partner / Secret Contract Code Section */}
+                  <div className="mb-6 p-5 bg-gradient-to-r from-obsidian-900/5 via-gold-500/5 to-obsidian-900/5 border border-gold-500/20 rounded-2xl">
+                    <div className="flex items-center justify-between mb-2">
+                      <label htmlFor="tailor-partner-code" className="font-semibold text-body-sm text-obsidian-800 flex items-center gap-2">
+                        <span className="text-gold-500 text-base">🏷️</span>
+                        {t('tailor.partnerCodeLabel', 'Contracted Partner / Secret Referral Code (8 Digits - Optional)')}
+                      </label>
+                      {partnerVerificationState === 'verifying' && (
+                        <span className="text-xs text-gold-600 dark:text-gold-400 flex items-center gap-1.5 animate-pulse font-mono font-medium">
+                          <span className="w-2 h-2 rounded-full bg-gold-500 animate-ping inline-block" />
+                          {t('tailor.verifyingPartner', 'Verifying partner code...')}
+                        </span>
+                      )}
+                      {partnerVerificationState === 'verified' && (
+                        <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                          ✓ {t('tailor.verifiedPartnerBadge', 'Contracted Partner')}
+                        </span>
+                      )}
+                      {partnerVerificationState === 'unverified' && (
+                        <span className="text-xs text-amber-600 font-bold flex items-center gap-1">
+                          ✕ {t('tailor.unverifiedPartnerBadge', 'كود غير مسجل')}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="relative">
+                      <input
+                        id="tailor-partner-code"
+                        type="text"
+                        value={partnerCode}
+                        onChange={handlePartnerCodeChange}
+                        maxLength={8}
+                        inputMode="numeric"
+                        placeholder="••••••••"
+                        className={`w-full p-4 bg-white border rounded-xl tracking-widest font-mono text-base outline-none transition-all ${
+                          partnerVerificationState === 'verified'
+                            ? '!border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.18)] bg-emerald-50/20'
+                            : partnerVerificationState === 'unverified'
+                              ? '!border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.15)] bg-amber-50/20'
+                              : 'border-obsidian-900/10 focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)]'
+                        }`}
+                      />
+                      {partnerVerificationState === 'verifying' && (
+                        <div className="absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                          <div className="w-5 h-5 border-2 border-gold-500 border-t-transparent rounded-full animate-spin" />
+                        </div>
+                      )}
+                      {partnerVerificationState === 'verified' && (
+                        <div className="absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none text-emerald-600 font-bold text-lg">
+                          ✓
+                        </div>
+                      )}
+                      {partnerVerificationState === 'unverified' && (
+                        <div className="absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none text-amber-600 font-bold text-base">
+                          ✕
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Verified Partner Card */}
+                    {partnerVerificationState === 'verified' && verifiedPartnerCompany && (
+                      <div className="mt-3 p-3.5 bg-gradient-to-r from-emerald-500/10 via-white to-gold-500/10 border border-emerald-500/30 rounded-xl shadow-xs">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-2.5">
+                            <span className="text-emerald-600 font-bold text-base leading-none mt-0.5">✓</span>
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-obsidian-900 text-sm">
+                                  {verifiedPartnerCompany.name}
+                                </span>
+                                <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase bg-gold-500/20 text-gold-700 border border-gold-500/40 rounded">
+                                  {verifiedPartnerCompany.tier || 'PLATINUM'} TIER
+                                </span>
+                              </div>
+                              <p className="text-xs text-obsidian-600 mt-1">
+                                {t('tailor.verifiedPartnerDesc', 'Request will be linked to contracted agency VIP desk')} • <span className="font-mono text-gold-600 font-bold">{verifiedPartnerCompany.referenceCode}</span>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Unverified Partner Note */}
+                    {partnerVerificationState === 'unverified' && (
+                      <div className="mt-3 p-3 bg-amber-50 border border-amber-400/40 rounded-xl text-xs text-amber-900">
+                        <div className="flex items-start gap-2">
+                          <span className="text-amber-600 font-bold text-base leading-none">ℹ️</span>
+                          <div>
+                            <span className="font-semibold block mb-0.5">
+                              {t('tailor.unverifiedPartnerTitle', 'Unregistered Partner Code')}
+                            </span>
+                            <p className="text-obsidian-600 text-[11.5px] leading-relaxed">
+                              {partnerVerificationError || t('tailor.unverifiedPartnerDesc', 'This code was not found in active partner contracts. You can still submit your inquiry normally, and our travel designers will assist you.')}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Special Requests */}
                   <div className="mb-8">

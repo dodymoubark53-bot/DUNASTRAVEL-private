@@ -2612,5 +2612,15 @@
   "reviews.rating4": "Very Good - Enjoyable Journey",
   "reviews.rating3": "Good - Met Expectations",
   "reviews.rating2": "Fair - Needs Improvement",
-  "reviews.rating1": "Poor - Disappointing Experience"
+  "reviews.rating1": "Poor - Disappointing Experience",
+  "tailor.partnerCodeLabel": "Contracted Partner / Secret Referral Code (8 Digits - Optional)",
+  "tailor.verifyingPartner": "Verifying partner code...",
+  "tailor.verifiedPartnerBadge": "Contracted Partner",
+  "tailor.verifiedPartnerDesc": "Request will be linked to contracted agency VIP desk",
+  "tailor.unverifiedPartnerTitle": "Unregistered Partner Code",
+  "tailor.unverifiedPartnerBadge": "Unregistered Code",
+  "tailor.unverifiedPartnerDesc": "This code was not found in active partner contracts. You can still submit your inquiry normally, and our travel designers will assist you.",
+  "tailor.partnerCodeNotFound": "Partner code not found in registered partner network",
+  "tailor.partnerCodeCheckFailed": "Unable to verify partner code right now",
+  "contactForms.iataUnverifiedBadge": "Unregistered Code"
 }

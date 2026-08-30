@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FaCheckCircle, FaExclamationCircle, FaInfoCircle, FaTimes } from 'react-icons/fa';
 
@@ -49,13 +49,16 @@ export const ToastProvider = ({ children }) => {
     showToast(message, { ...options, type: 'warning' });
   }, [showToast]);
 
-  const isRtl = typeof document !== 'undefined' && document.documentElement.dir === 'rtl';
+  const value = useMemo(
+    () => ({ showToast, success, error, info, warning }),
+    [showToast, success, error, info, warning]
+  );
 
   return (
-    <ToastContext.Provider value={{ showToast, success, error, info, warning }}>
+    <ToastContext.Provider value={value}>
       {children}
       <div
-        className={'fixed z-[9999] top-5 ' + (isRtl ? 'left-5' : 'right-5') + ' flex flex-col gap-3 max-w-sm sm:max-w-md w-full pointer-events-none p-4'}
+        className="fixed z-[9999] top-5 right-5 rtl:right-auto rtl:left-5 flex flex-col gap-3 max-w-sm sm:max-w-md w-full pointer-events-none p-4"
         aria-live="polite"
       >
         <AnimatePresence>

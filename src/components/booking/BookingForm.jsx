@@ -21,6 +21,7 @@ import {
 } from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
 import api from '../../utils/api';
+import { redirectToPayLinkCheckout } from '../../utils/paylink';
 import { trackEvent } from '../../utils/analytics';
 import { useAuth } from '../../context/AuthContext';
 
@@ -365,7 +366,7 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
               const payData = await api.post('/payments/initiate', { bookingId: targetId });
               const sessionUrl = payData?.sessionUrl || payData?.url;
               if (sessionUrl) {
-                window.location.assign(sessionUrl);
+                redirectToPayLinkCheckout(sessionUrl);
                 return;
               }
             }

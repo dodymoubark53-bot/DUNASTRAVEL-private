@@ -52,6 +52,12 @@ const ContactForms = () => {
   const [b2bSubmitError, setB2bSubmitError] = useState('');
   const [b2bErrors, setB2bErrors] = useState({});
 
+  // IATA / Partner Real-Time Verification States
+  const [iataVerificationState, setIataVerificationState] = useState('idle'); // 'idle' | 'verifying' | 'verified' | 'unverified'
+  const [verifiedCompany, setVerifiedCompany] = useState(null);
+  const [iataVerificationError, setIataVerificationError] = useState('');
+  const iataDebounceRef = useRef(null);
+
   // Drag and Drop Dragging States
   const [dragOverLicense, setDragOverLicense] = useState(false);
   const [dragOverTax, setDragOverTax] = useState(false);
@@ -152,9 +158,61 @@ const ContactForms = () => {
   // B2B Handlers
   const handleB2bChange = (e) => {
     const { name, value, type, checked } = e.target;
+    let nextValue = type === 'checkbox' ? checked : value;
+
+    if (name === 'iataNumber') {
+      // Strictly extract up to 8 digits
+      const digitsOnly = String(value).replace(/\D/g, '').slice(0, 8);
+      nextValue = digitsOnly;
+
+      if (iataDebounceRef.current) {
+        clearTimeout(iataDebounceRef.current);
+      }
+
+      if (digitsOnly.length === 8) {
+        setIataVerificationState('verifying');
+        setIataVerificationError('');
+
+        iataDebounceRef.current = setTimeout(async () => {
+          try {
+            const res = await api.get(`/agencies/verify-partner/${digitsOnly}`);
+            if (res.data?.valid && res.data?.company) {
+              setIataVerificationState('verified');
+              setVerifiedCompany(res.data.company);
+              setIataVerificationError('');
+
+              // Auto-fill company details if empty
+              setB2bForm((prev) => ({
+                ...prev,
+                agencyName: prev.agencyName || res.data.company.name || '',
+                website: prev.website || res.data.company.website || '',
+                address: prev.address || res.data.company.address || '',
+              }));
+            } else {
+              setIataVerificationState('unverified');
+              setVerifiedCompany(null);
+              setIataVerificationError(
+                res.data?.message || 'رقم الاعتماد غير مسجل في قاعدة بيانات الشركاء المتعاقدين'
+              );
+            }
+          } catch (err) {
+            setIataVerificationState('unverified');
+            setVerifiedCompany(null);
+            setIataVerificationError(
+              err?.response?.data?.message || err?.message || 'تعذر التحقق من رقم الاعتماد حالياً'
+            );
+          }
+        }, 300);
+      } else {
+        setIataVerificationState('idle');
+        setVerifiedCompany(null);
+        setIataVerificationError('');
+      }
+    }
+
     setB2bForm((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: nextValue,
     }));
     if (b2bErrors[name]) {
       setB2bErrors((prev) => ({ ...prev, [name]: false }));
@@ -1087,21 +1145,119 @@ const ContactForms = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="form-field-group">
-                        <label className="form-label">{t('contactForms.iata', 'IATA / TRUE / CLIA Number * (8 Digits Only)')}</label>
-                        <input
-                          type="text"
-                          name="iataNumber"
-                          value={b2bForm.iataNumber}
-                          onChange={handleB2bChange}
-                          className={`form-input ${b2bErrors.iataNumber ? 'error' : ''}`}
-                          placeholder={t('contactForms.iataPlaceholder', 'e.g. 12345678')}
-                          maxLength={8}
-                          required
-                        />
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="form-label mb-0">
+                            {t('contactForms.iata', 'IATA / TRUE / CLIA Number * (8 Digits Only)')}
+                          </label>
+                          {iataVerificationState === 'verifying' && (
+                            <span className="text-[10px] text-gold-400 flex items-center gap-1.5 animate-pulse font-mono">
+                              <span className="w-1.5 h-1.5 rounded-full bg-gold-400 animate-ping inline-block" />
+                              {t('contactForms.iataVerifying', 'جاري التحقق الفوري...')}
+                            </span>
+                          )}
+                          {iataVerificationState === 'verified' && (
+                            <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                              ✓ {t('contactForms.iataVerifiedBadge', 'شريك معتمد')}
+                            </span>
+                          )}
+                          {iataVerificationState === 'unverified' && (
+                            <span className="text-[10px] text-amber-400 font-semibold flex items-center gap-1">
+                              ✕ {t('contactForms.iataUnverifiedBadge', 'كود غير مسجل')}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="relative">
+                          <input
+                            type="text"
+                            name="iataNumber"
+                            value={b2bForm.iataNumber}
+                            onChange={handleB2bChange}
+                            className={`form-input tracking-widest font-mono ${
+                              b2bErrors.iataNumber
+                                ? 'error'
+                                : iataVerificationState === 'verified'
+                                  ? '!border-emerald-500/70 !bg-emerald-950/10 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                                  : iataVerificationState === 'unverified'
+                                    ? '!border-amber-500/70 !bg-amber-950/10 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
+                                    : ''
+                            }`}
+                            placeholder="••••••••"
+                            maxLength={8}
+                            inputMode="numeric"
+                            required
+                          />
+                          {iataVerificationState === 'verifying' && (
+                            <div className="absolute end-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                              <div className="w-4 h-4 border-2 border-gold-400 border-t-transparent rounded-full animate-spin" />
+                            </div>
+                          )}
+                          {iataVerificationState === 'verified' && (
+                            <div className="absolute end-3 top-1/2 -translate-y-1/2 pointer-events-none text-emerald-400 font-bold text-sm">
+                              ✓
+                            </div>
+                          )}
+                          {iataVerificationState === 'unverified' && (
+                            <div className="absolute end-3 top-1/2 -translate-y-1/2 pointer-events-none text-amber-400 font-bold text-sm">
+                              ✕
+                            </div>
+                          )}
+                        </div>
+
                         {b2bErrors.iataNumber && (
-                          <span className="text-red-500 text-xs mt-1 block">{t('contactForms.iataError', 'Must be exactly 8 numeric digits')}</span>
+                          <span className="text-red-500 text-xs mt-1 block">
+                            {t('contactForms.iataError', 'Must be exactly 8 numeric digits')}
+                          </span>
+                        )}
+
+                        {/* Verified Partner Card */}
+                        {iataVerificationState === 'verified' && verifiedCompany && (
+                          <div className="mt-2.5 p-3.5 bg-gradient-to-r from-emerald-950/40 via-[#0F1535] to-gold-950/20 border border-emerald-500/40 rounded-sm shadow-md">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-start gap-2">
+                                <span className="text-emerald-400 font-bold text-sm leading-none mt-0.5">✓</span>
+                                <div>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="font-bold text-emerald-300 text-xs tracking-wide">
+                                      {verifiedCompany.name}
+                                    </span>
+                                    <span className="px-1.5 py-0.5 text-[9px] font-bold tracking-wider uppercase bg-gold-500/20 text-gold-300 border border-gold-500/40 rounded-xs">
+                                      {verifiedCompany.tier || 'PLATINUM'} TIER
+                                    </span>
+                                  </div>
+                                  <p className="text-[11px] text-ivory-300/80 mt-1">
+                                    {t('contactForms.iataVerifiedDesc', 'تم التحقق من بيانات الشريك المعتمد بنجاح')} • <span className="font-mono text-gold-400 font-semibold">{verifiedCompany.referenceCode}</span>
+                                  </p>
+                                </div>
+                              </div>
+                              {verifiedCompany.commissionRate > 0 && (
+                                <div className="text-end flex-shrink-0">
+                                  <span className="text-[9px] text-muted-foreground uppercase block">العمولة المعتمدة</span>
+                                  <span className="text-xs font-bold text-gold-400">{verifiedCompany.commissionRate}%</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Unverified Warning Card */}
+                        {iataVerificationState === 'unverified' && (
+                          <div className="mt-2.5 p-3 bg-amber-950/30 border border-amber-500/40 rounded-sm text-xs text-amber-200">
+                            <div className="flex items-start gap-2">
+                              <span className="text-amber-400 font-bold text-sm leading-none">!</span>
+                              <div>
+                                <span className="font-semibold text-amber-300 block mb-0.5">
+                                  {t('contactForms.unverifiedTitle', 'رقم الاعتماد غير مسجل في شبكة الشركاء المعتمدين')}
+                                </span>
+                                <p className="text-ivory-300/80 text-[11px] leading-relaxed">
+                                  {iataVerificationError || t('contactForms.unverifiedDesc', 'هذا الرقم غير مسجل في عقود الشركاء الحالية لدينا. يمكنك إكمال النموذج وسيقوم فريق العلاقات التجارية بمراجعة بياناتكم والتواصل لإنشاء وتفعيل عقد الوكالة.')}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
                         )}
                       </div>
+
                       <div className="form-field-group">
                         <label className="form-label">{t('contactForms.officeAddress', 'Office Address *')}</label>
                         <input

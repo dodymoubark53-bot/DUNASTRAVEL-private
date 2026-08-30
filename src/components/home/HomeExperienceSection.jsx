@@ -14,10 +14,11 @@ import { transportation as fallbackTransportation } from "../../data/transportat
 import useScrollAnimations from "../../hooks/useScrollAnimations";
 import { useCurrency } from "../../context/CurrencyContext";
 import api from "../../utils/api";
-import { turkeyTours } from "../../data/turkeyTours";
-import { jordanTours } from "../../data/jordanTours";
-import { dubaiTours } from "../../data/dubaiTours";
-import { moroccoTours } from "../../data/moroccoTours";
+import {
+  homeTurkeyPreviewTours,
+  homeJordanPreviewTours,
+  homeDubaiPreviewTours,
+} from "../../data/homePreviewTours";
 import {
   resolveTourTitle,
   resolveTourDuration,
@@ -741,7 +742,7 @@ const HomeExperienceSection = () => {
         link: `/tours/${tourItem.slug || tourItem.id}`,
       }));
 
-    const turkeyFormatted = (turkeyTours || []).slice(0, 3).map((tourItem) => ({
+    const turkeyFormatted = (homeTurkeyPreviewTours || []).map((tourItem) => ({
       id: tourItem.id,
       slug: tourItem.slug || tourItem.id,
       title: resolveLocalizedText(tourItem.name || tourItem.title, t, lang),
@@ -755,7 +756,7 @@ const HomeExperienceSection = () => {
       link: `/programs/turkey/${tourItem.slug || tourItem.id}`,
     }));
 
-    const jordanFormatted = (jordanTours || []).slice(0, 2).map((tourItem) => ({
+    const jordanFormatted = (homeJordanPreviewTours || []).map((tourItem) => ({
       id: tourItem.id,
       slug: tourItem.slug || tourItem.id,
       title: resolveLocalizedText(tourItem.name || tourItem.title, t, lang),
@@ -769,7 +770,7 @@ const HomeExperienceSection = () => {
       link: `/programs/jordan/${tourItem.slug || tourItem.id}`,
     }));
 
-    const dubaiFormatted = (dubaiTours || []).slice(0, 2).map((tourItem) => ({
+    const dubaiFormatted = (homeDubaiPreviewTours || []).map((tourItem) => ({
       id: tourItem.id,
       slug: tourItem.slug || tourItem.id,
       title: resolveLocalizedText(tourItem.name || tourItem.title, t, lang),
@@ -2222,83 +2223,6 @@ const HomeExperienceSection = () => {
 
       {/* Photo Gallery */}
       <section className="py-10 bg-[#1E3A8A] overflow-hidden">
-        <style>
-          {`
-            @keyframes scrollStrip {
-              0%   { transform: translateX(0); }
-              100% { transform: translateX(-50%); }
-            }
-            @keyframes scrollStripRTL {
-              0%   { transform: translateX(0); }
-              100% { transform: translateX(50%); }
-            }
-            .gallery-strip:hover {
-              animation-play-state: paused;
-            }
-
-            @keyframes idleFloat {
-              0%, 100% { transform: translateY(0); }
-              50% { transform: translateY(-8px); }
-            }
-            
-            .animated-media-btn {
-              position: relative;
-              overflow: hidden;
-              display: inline-flex;
-              align-items: center;
-              justify-content: center;
-              animation: idleFloat 3s ease-in-out infinite;
-              transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-            }
-            
-            .animated-media-btn:hover {
-              animation-play-state: paused;
-              transform: scale(1.05) translateY(-4px);
-            }
-
-            .animated-media-btn:active {
-              transform: scale(0.98) translateY(0);
-              filter: brightness(0.9);
-            }
-
-            .animated-media-btn::before {
-              content: '';
-              position: absolute;
-              top: 0;
-              left: -150%;
-              width: 50%;
-              height: 100%;
-              background: linear-gradient(
-                to right,
-                rgba(255, 255, 255, 0) 0%,
-                rgba(255, 255, 255, 0.4) 50%,
-                rgba(255, 255, 255, 0) 100%
-              );
-              transform: skewX(-25deg);
-              transition: 0.75s;
-            }
-
-            .animated-media-btn:hover::before {
-              left: 150%;
-            }
-
-            .btn-images-glow {
-              box-shadow: 0 4px 20px rgba(236, 72, 153, 0.4);
-            }
-            
-            .btn-images-glow:hover {
-              box-shadow: 0 0 25px rgba(236, 72, 153, 0.8), 0 0 10px rgba(124, 58, 237, 0.5);
-            }
-
-            .btn-videos-glow {
-              box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
-            }
-            
-            .btn-videos-glow:hover {
-              box-shadow: 0 0 25px rgba(6, 182, 212, 0.8), 0 0 10px rgba(37, 99, 235, 0.5);
-            }
-          `}
-        </style>
         <div className="container mx-auto px-6 mb-8 text-center">
           <motion.span
             initial={{ opacity: 0, y: 20 }}
@@ -2633,36 +2557,6 @@ const HomeExperienceSection = () => {
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-primary-500/10 blur-[120px] pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-gold-500/5 blur-[100px] pointer-events-none" />
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
-        
-        {/* Custom Styles for animated rings */}
-        <style>
-          {`
-            @keyframes pulse-ring {
-              0% { transform: scale(0.95); opacity: 0; }
-              50% { opacity: 0.5; }
-              100% { transform: scale(1.4); opacity: 0; }
-            }
-            .animate-ring-slow {
-              animation: pulse-ring 3s cubic-bezier(0.215, 0.610, 0.355, 1) infinite;
-            }
-            .animate-ring-fast {
-              animation: pulse-ring 2s cubic-bezier(0.215, 0.610, 0.355, 1) infinite;
-            }
-            .glassmorphism-card {
-              background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
-              backdrop-filter: blur(20px);
-              -webkit-backdrop-filter: blur(20px);
-              border: 1px solid rgba(255, 255, 255, 0.05);
-            }
-            .glassmorphism-card:hover {
-              border-color: rgba(245, 166, 35, 0.3);
-              box-shadow: 0 0 30px rgba(245, 166, 35, 0.08);
-            }
-            .gold-text-glow {
-              text-shadow: 0 0 20px rgba(245, 166, 35, 0.2);
-            }
-          `}
-        </style>
 
         <div className="container mx-auto px-6 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-center max-w-6xl mx-auto">
@@ -2871,39 +2765,6 @@ const HomeExperienceSection = () => {
             <path d="M95 50L55 52L50 50L55 48Z" fill="#d4af37" />
           </svg>
         </div>
-
-        {/* Shimmer & Rotation Custom Styles */}
-        <style>
-          {`
-            @keyframes spin-slow {
-              from { transform: rotate(0deg); }
-              to { transform: rotate(360deg); }
-            }
-            .animate-spin-slow {
-              animation: spin-slow 150s linear infinite;
-            }
-            .dest-card-shimmer::after {
-              content: '';
-              position: absolute;
-              top: -50%;
-              left: -60%;
-              width: 30%;
-              height: 200%;
-              background: linear-gradient(
-                to right,
-                rgba(255, 255, 255, 0) 0%,
-                rgba(255, 255, 255, 0.15) 50%,
-                rgba(255, 255, 255, 0) 100%
-              );
-              transform: rotate(25deg);
-              transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-              pointer-events: none;
-            }
-            .group:hover .dest-card-shimmer::after {
-              left: 130%;
-            }
-          `}
-        </style>
 
         <div className="container mx-auto px-6 relative z-10">
           

@@ -15,7 +15,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollYRef = useRef(0);
+  const tickingRef = useRef(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -49,20 +50,27 @@ const Navbar = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setScrolled(currentScrollY > 50);
-      if (mobileMenuRef.current) {
-        setHeaderVisible(true);
-      } else if (currentScrollY > 100 && currentScrollY > lastScrollY) {
-        setHeaderVisible(false);
-      } else {
-        setHeaderVisible(true);
-      }
-      setLastScrollY(currentScrollY);
+      if (tickingRef.current) return;
+      tickingRef.current = true;
+      requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+        const isScrolled = currentScrollY > 50;
+        setScrolled((prev) => (prev !== isScrolled ? isScrolled : prev));
+
+        if (mobileMenuRef.current) {
+          setHeaderVisible((prev) => (!prev ? true : prev));
+        } else if (currentScrollY > 100 && currentScrollY > lastScrollYRef.current) {
+          setHeaderVisible((prev) => (prev ? false : prev));
+        } else {
+          setHeaderVisible((prev) => (!prev ? true : prev));
+        }
+        lastScrollYRef.current = currentScrollY;
+        tickingRef.current = false;
+      });
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
   useEffect(() => {
     if (mobileMenuOpen) {

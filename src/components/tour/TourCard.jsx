@@ -1,3 +1,4 @@
+import React, { memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -123,6 +124,9 @@ const TourCard = ({
             alt={`${title} — ${resolveLocalizedText(tour.destination, t, lang) || ''}`}
             className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-700 ease-out"
             loading="lazy"
+            decoding="async"
+            width="400"
+            height="240"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-obsidian-800 px-6 text-center text-sm text-ivory-300">
@@ -180,4 +184,4 @@ const TourCard = ({
   );
 };
 
-export default TourCard;
+export default memo(TourCard);
