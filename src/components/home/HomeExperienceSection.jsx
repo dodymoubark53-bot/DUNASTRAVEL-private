@@ -291,8 +291,6 @@ const buildInfiniteMarqueeList = (items, prefix = 'tour') => {
   return [
     ...base.map((tItem, i) => ({ ...tItem, isDuplicate: false, uKey: `${prefix}-set1-${tItem.id || tItem.slug || i}-${i}` })),
     ...base.map((tItem, i) => ({ ...tItem, isDuplicate: true, uKey: `${prefix}-set2-${tItem.id || tItem.slug || i}-${i}` })),
-    ...base.map((tItem, i) => ({ ...tItem, isDuplicate: true, uKey: `${prefix}-set3-${tItem.id || tItem.slug || i}-${i}` })),
-    ...base.map((tItem, i) => ({ ...tItem, isDuplicate: true, uKey: `${prefix}-set4-${tItem.id || tItem.slug || i}-${i}` })),
   ];
 };
 
@@ -1405,7 +1403,7 @@ const HomeExperienceSection = () => {
             style={{
               gap: "24px",
               paddingLeft: "24px",
-              animation: "tourMarquee 110s linear infinite",
+              animation: "tourMarquee 220s linear infinite",
             }}
             onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
             onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
@@ -1737,7 +1735,7 @@ const HomeExperienceSection = () => {
             style={{
               gap: "24px",
               paddingLeft: "24px",
-              animation: "tourMarquee 120s linear infinite",
+              animation: "tourMarquee 240s linear infinite",
             }}
             onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
             onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
@@ -1883,7 +1881,7 @@ const HomeExperienceSection = () => {
               style={{
                 gap: "20px",
                 paddingLeft: "20px",
-                animation: "tourMarquee 90s linear infinite",
+                animation: "tourMarquee 180s linear infinite",
               }}
               onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
               onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
@@ -2333,7 +2331,7 @@ const HomeExperienceSection = () => {
           <div
             className="flex w-max"
             style={{
-              animation: "tourMarquee 90s linear infinite",
+              animation: "tourMarquee 180s linear infinite",
               gap: "16px",
               paddingLeft: "16px",
             }}
@@ -2410,7 +2408,7 @@ const HomeExperienceSection = () => {
             <div className="flex gap-6 pb-4"
               style={{
                 width: 'max-content',
-                animation: `${isRtl ? 'marqueeVideoRTL' : 'marqueeVideo'} 40s linear infinite`,
+                animation: `${isRtl ? 'marqueeVideoRTL' : 'marqueeVideo'} 90s linear infinite`,
               }}
               onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
               onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
