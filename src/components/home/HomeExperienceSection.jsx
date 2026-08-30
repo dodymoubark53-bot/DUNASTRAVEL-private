@@ -364,6 +364,7 @@ const HomeExperienceSection = () => {
   } = useDestinations();
   const liveDestinations = useMemo(() => Array.isArray(liveDestinationsRaw) ? liveDestinationsRaw : [], [liveDestinationsRaw]);
   const liveDestinationCards = useMemo(() => {
+    const safeT = typeof t === 'function' ? t : (k, fallback) => (fallback || k);
     const rawList = liveDestinations.length > 0 ? liveDestinations : _destinationsData;
 
     const filtered = rawList.filter((d) => {
@@ -375,9 +376,9 @@ const HomeExperienceSection = () => {
       const slug = destination.slug || destination.id;
       return {
         id: slug,
-        name: destination.title || (destination.nameKey ? t(destination.nameKey) : destination.name) || slug,
-        description: destination.description || (destination.descKey ? t(destination.descKey) : destination.subtitle) || '',
-        subtitle: destination.subtitle || (destination.descKey ? t(destination.descKey) : '') || '',
+        name: destination.title || (destination.nameKey ? safeT(destination.nameKey) : destination.name) || slug,
+        description: destination.description || (destination.descKey ? safeT(destination.descKey) : destination.subtitle) || '',
+        subtitle: destination.subtitle || (destination.descKey ? safeT(destination.descKey) : '') || '',
         image: destination.heroImageUrl || destination.image,
         toursCount: destination.toursCount || 3,
         link: `/destinations/${slug}`,
@@ -388,9 +389,9 @@ const HomeExperienceSection = () => {
     if (!hasHolyLand) {
       cards.push({
         id: 'holyland',
-        name: t('nav.holyland', 'Holy Land'),
-        description: t('home.destHolyLandDesc', 'History, spirituality and eternal legacy'),
-        subtitle: t('home.destHolyLandDesc', 'History, spirituality and eternal legacy'),
+        name: safeT('nav.holyland', 'Holy Land'),
+        description: safeT('home.destHolyLandDesc', 'History, spirituality and eternal legacy'),
+        subtitle: safeT('home.destHolyLandDesc', 'History, spirituality and eternal legacy'),
         image: 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783024072/400a841d-18b7-4915-8483-f9a3346651cf_ocdouu.jpg',
         toursCount: 3,
         link: '/destinations/holyland',
@@ -414,6 +415,7 @@ const HomeExperienceSection = () => {
     return cards;
   }, [liveDestinations, t]);
   const livePackageCards = useMemo(() => {
+    const safeT = typeof t === 'function' ? t : (k, fallback) => (fallback || k);
     const definitions = [
       { id: 'classic-program', titleKey: 'egyptPackages.classic.name', fallbackTitle: 'Classic Egypt Program', link: '/programs/classic', categories: ['classic'] },
       { id: 'honeymooners', titleKey: 'egyptPackages.honeymooners.name', fallbackTitle: 'Honeymoon & Romantic Luxury', link: '/programs/honeymooners', categories: ['honeymoon'] },
@@ -431,7 +433,7 @@ const HomeExperienceSection = () => {
       return {
         ...definition,
         recordId: representative?.id || definition.id,
-        name: t(definition.titleKey, representative?.title || definition.fallbackTitle),
+        name: safeT(definition.titleKey, representative?.title || definition.fallbackTitle),
         desc: representative?.overview || representative?.description || '',
         image: representative?.heroImage || null,
         duration: representative?.duration || '',
