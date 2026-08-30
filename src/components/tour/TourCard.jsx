@@ -69,23 +69,25 @@ const TourCard = ({
       viewport={{ once: true, margin: '-50px' }}
     >
       {/* Image as Link */}
-      <Link to={detailUrl} className="block relative h-[240px] overflow-hidden">
+      <Link to={detailUrl} className="block relative h-[240px] overflow-hidden bg-obsidian-900">
+        {/* Wishlist Button - Top Right (LTR) / Top Left (RTL) */}
         <button
           type="button"
           onClick={handleWishlistToggle}
           aria-label="Toggle wishlist"
-          className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-obsidian-900/70 backdrop-blur-md flex items-center justify-center border border-gold-500/40 text-gold-500 hover:scale-110 transition-all shadow-md cursor-pointer"
+          className="absolute top-3.5 right-3.5 rtl:right-auto rtl:left-3.5 z-20 w-9 h-9 rounded-full bg-obsidian-900/80 backdrop-blur-md flex items-center justify-center border border-gold-500/40 text-gold-400 hover:scale-110 active:scale-95 transition-all shadow-md cursor-pointer"
         >
           {fav ? <FaHeart className="text-red-500" size={15} /> : <FaRegHeart size={15} />}
         </button>
 
+        {/* Featured Badge - Top Left (LTR) / Top Right (RTL) */}
         {Boolean(tour.isFeatured) && (
           <div
-            className="absolute top-4 right-15 z-20 flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold text-obsidian-950 shadow-lg backdrop-blur-md select-none"
+            className="absolute top-3.5 left-3.5 rtl:left-auto rtl:right-3.5 z-20 flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold text-obsidian-950 shadow-md backdrop-blur-md select-none"
             style={{
               background: 'linear-gradient(135deg, #FFD700 0%, #F5A623 50%, #D4AF37 100%)',
               border: '1px solid rgba(255, 255, 255, 0.6)',
-              boxShadow: '0 2px 10px rgba(245, 166, 35, 0.45)',
+              boxShadow: '0 2px 8px rgba(245, 166, 35, 0.35)',
             }}
           >
             <span className="text-xs leading-none">⭐</span>
@@ -94,18 +96,23 @@ const TourCard = ({
             </span>
           </div>
         )}
-        <div className="absolute top-4 left-4 z-10 bg-obsidian-900/80 backdrop-blur-md text-gold-500 text-caption px-4 py-1.5 rounded-full border border-gold-500/30 shadow-glass">
-          {minPaxText ? `${minPaxText} · ` : ''}{durationLabel}
-        </div>
 
-        {tour.badge && (
-          <div className="absolute top-4 right-4 z-10 bg-gold-500 text-obsidian-900 text-caption font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-md">
-            {resolveLocalizedText(tour.badge, t, lang)}
+        {/* Duration / Pax Badge - Positioned without overlapping Featured badge */}
+        {durationLabel && (
+          <div
+            className={`absolute z-10 bg-obsidian-950/85 backdrop-blur-md text-gold-400 text-[11px] font-medium px-3 py-1 rounded-full border border-gold-500/30 shadow-md ${
+              tour.isFeatured
+                ? 'bottom-3.5 left-3.5 rtl:left-auto rtl:right-3.5'
+                : 'top-3.5 left-3.5 rtl:left-auto rtl:right-3.5'
+            }`}
+          >
+            {minPaxText ? `${minPaxText} · ` : ''}{durationLabel}
           </div>
         )}
 
+        {/* Market Flag (if provided) */}
         {tour.market && (
-          <div className="absolute top-4 right-4 z-10 bg-obsidian-900/60 backdrop-blur-md text-base px-2.5 py-1 rounded-full border border-white/10 shadow-glass select-none">
+          <div className="absolute bottom-3.5 right-3.5 rtl:right-auto rtl:left-3.5 z-10 bg-obsidian-950/80 backdrop-blur-md text-sm px-2.5 py-0.5 rounded-full border border-gold-500/20 shadow-md select-none">
             {marketFlag(tour.market)}
           </div>
         )}
@@ -114,7 +121,7 @@ const TourCard = ({
           <img
             src={tourImage}
             alt={`${title} — ${resolveLocalizedText(tour.destination, t, lang) || ''}`}
-            className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700"
+            className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-700 ease-out"
             loading="lazy"
           />
         ) : (
@@ -123,30 +130,8 @@ const TourCard = ({
           </div>
         )}
 
-        {/* Hover Detail Card Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/95 via-obsidian-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-400 flex flex-col justify-end p-5 translate-y-4 group-hover:translate-y-0">
-          <span className="text-gold-400 text-caption uppercase tracking-widest font-semibold mb-1">
-            {codeText || resolveLocalizedText(tour.subtitle || tour.destination, t, lang)}
-          </span>
-          <h4 className="text-white text-display-sm font-semibold mb-2 line-clamp-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-            {title}
-          </h4>
-          <div className="flex items-center gap-3 mb-2">
-            {tourPrice !== null ? (
-              <span className="text-gold-400 text-caption font-bold">{formatPrice(tourPrice)}</span>
-            ) : null}
-            <span className="text-white/60 text-caption">|</span>
-            <span className="text-white/80 text-caption">
-              {durationLabel}
-            </span>
-          </div>
-          <p className="text-white/80 text-body-sm line-clamp-2 mb-2">
-            {overview}
-          </p>
-          <span className="text-gold-400 text-caption font-semibold tracking-wider uppercase flex items-center gap-1">
-            {t('tourCard.viewDetails', 'View Details')} <span className="rtl-flip">&rarr;</span>
-          </span>
-        </div>
+        {/* Subtle Luxury Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950/60 via-transparent to-black/20 pointer-events-none group-hover:opacity-40 transition-opacity duration-300" />
       </Link>
 
       {/* Content */}

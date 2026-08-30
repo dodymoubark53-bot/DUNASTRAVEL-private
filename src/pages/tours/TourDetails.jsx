@@ -152,14 +152,6 @@ const TourDetails = () => {
             <span className="text-ivory-300 truncate max-w-[200px] sm:max-w-none">{title}</span>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
-            {tour.isFeatured && (
-              <span className="bg-gold-500 text-obsidian-900 text-xs font-bold uppercase tracking-wider px-3.5 py-1 rounded-full shadow-sm">
-                {t('tour.featured', 'Featured Experience')}
-              </span>
-            )}
-          </div>
-
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
