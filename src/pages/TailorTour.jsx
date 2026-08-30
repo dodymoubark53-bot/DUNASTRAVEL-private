@@ -901,11 +901,6 @@ const TailorTour = () => {
               </motion.div>
             )}
 
-            <AnimatePresence mode="wait">ŠØ¯')}
-                </button>
-              </motion.div>
-            )}
-
             <AnimatePresence mode="wait">
               {step === 1 && (
                 <motion.div
