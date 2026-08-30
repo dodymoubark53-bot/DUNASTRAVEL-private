@@ -641,44 +641,44 @@ const HomeExperienceSection = () => {
     const seen = new Set();
 
     // 1. Add canonical backend tours from package cards
-    Object.values(packagesToursMap || {}).flat().filter(Boolean).forEach(t => {
-      const link = t.link || `${t.linkBase || '/tours'}/${t.slug || t.id}`;
+    Object.values(packagesToursMap || {}).flat().filter(Boolean).forEach(tourItem => {
+      const link = tourItem.link || `${tourItem.linkBase || '/tours'}/${tourItem.slug || tourItem.id}`;
       if (!seen.has(link)) {
         seen.add(link);
         combined.push({
-          ...t,
+          ...tourItem,
           link,
-          title: resolveTourTitle(t, t, lang),
-          duration: resolveTourDuration(t, t, lang),
-          overview: resolveTourOverview(t, t, lang) || t.description || '',
-          badge: t.badge || (t.destination ? t(`nav.${t.destination}`, t.destination) : null),
-          images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || t.image || '/imgs/egyothero.png'],
+          title: resolveTourTitle(tourItem, t, lang),
+          duration: resolveTourDuration(tourItem, t, lang),
+          overview: resolveTourOverview(tourItem, t, lang) || tourItem.description || '',
+          badge: tourItem.badge || (tourItem.destination ? (typeof t === 'function' ? t(`nav.${tourItem.destination}`, tourItem.destination) : tourItem.destination) : null),
+          images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : [tourItem.heroImage || tourItem.image || '/imgs/egyothero.png'],
         });
       }
     });
 
     // 2. Add rich curated package tours
-    defaultPackageTours.forEach(t => {
-      if (!seen.has(t.link)) {
-        seen.add(t.link);
-        combined.push(t);
+    defaultPackageTours.forEach(tourItem => {
+      if (!seen.has(tourItem.link)) {
+        seen.add(tourItem.link);
+        combined.push(tourItem);
       }
     });
 
     // 3. Fallback to allLiveTours if combined is still empty
     if (combined.length === 0 && Array.isArray(allLiveTours)) {
-      allLiveTours.forEach(t => {
-        const link = `/tours/${t.slug || t.id}`;
+      allLiveTours.forEach(tourItem => {
+        const link = `/tours/${tourItem.slug || tourItem.id}`;
         if (!seen.has(link)) {
           seen.add(link);
           combined.push({
-            ...t,
+            ...tourItem,
             link,
-            title: resolveTourTitle(t, t, lang),
-            duration: resolveTourDuration(t, t, lang),
-            overview: t.overview || t.description || '',
-            badge: t.destination ? t(`nav.${t.destination}`, t.destination) : null,
-            images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || t.image || '/imgs/egyothero.png'],
+            title: resolveTourTitle(tourItem, t, lang),
+            duration: resolveTourDuration(tourItem, t, lang),
+            overview: tourItem.overview || tourItem.description || '',
+            badge: tourItem.destination ? (typeof t === 'function' ? t(`nav.${tourItem.destination}`, tourItem.destination) : tourItem.destination) : null,
+            images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : [tourItem.heroImage || tourItem.image || '/imgs/egyothero.png'],
           });
         }
       });
@@ -689,70 +689,70 @@ const HomeExperienceSection = () => {
 
   const destinationToursForMarquee = useMemo(() => {
     const egyptTours = (allLiveTours || [])
-      .filter((t) => t && (t.destination === 'egypt' || String(t.country || '').toLowerCase() === 'egypt'))
+      .filter((tourItem) => tourItem && (tourItem.destination === 'egypt' || String(tourItem.country || '').toLowerCase() === 'egypt'))
       .slice(0, 3)
-      .map((t) => ({
-        ...t,
-        id: t.id || t.slug,
-        title: resolveTourTitle(t, t, lang),
-        duration: resolveTourDuration(t, t, lang),
+      .map((tourItem) => ({
+        ...tourItem,
+        id: tourItem.id || tourItem.slug,
+        title: resolveTourTitle(tourItem, t, lang),
+        duration: resolveTourDuration(tourItem, t, lang),
         destination: 'egypt',
-        images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || t.image || '/imgs/egyothero.png'],
-        link: `/tours/${t.slug || t.id}`,
+        images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : [tourItem.heroImage || tourItem.image || '/imgs/egyothero.png'],
+        link: `/tours/${tourItem.slug || tourItem.id}`,
       }));
 
-    const turkeyFormatted = (turkeyTours || []).slice(0, 3).map((t) => ({
-      id: t.id,
-      slug: t.slug || t.id,
-      title: resolveLocalizedText(t.name || t.title, t, lang),
-      duration: resolveLocalizedText(t.duration, t, lang),
-      overview: resolveLocalizedText(t.overview, t, lang),
+    const turkeyFormatted = (turkeyTours || []).slice(0, 3).map((tourItem) => ({
+      id: tourItem.id,
+      slug: tourItem.slug || tourItem.id,
+      title: resolveLocalizedText(tourItem.name || tourItem.title, t, lang),
+      duration: resolveLocalizedText(tourItem.duration, t, lang),
+      overview: resolveLocalizedText(tourItem.overview, t, lang),
       destination: 'turkey',
-      price: t.price || 0,
+      price: tourItem.price || 0,
       rating: 4.9,
       reviewCount: 45,
-      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : ['https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=800&q=80'],
-      link: `/programs/turkey/${t.slug || t.id}`,
+      images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : ['https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=800&q=80'],
+      link: `/programs/turkey/${tourItem.slug || tourItem.id}`,
     }));
 
-    const jordanFormatted = (jordanTours || []).slice(0, 2).map((t) => ({
-      id: t.id,
-      slug: t.slug || t.id,
-      title: resolveLocalizedText(t.name || t.title, t, lang),
-      duration: resolveLocalizedText(t.duration, t, lang),
-      overview: resolveLocalizedText(t.overview, t, lang),
+    const jordanFormatted = (jordanTours || []).slice(0, 2).map((tourItem) => ({
+      id: tourItem.id,
+      slug: tourItem.slug || tourItem.id,
+      title: resolveLocalizedText(tourItem.name || tourItem.title, t, lang),
+      duration: resolveLocalizedText(tourItem.duration, t, lang),
+      overview: resolveLocalizedText(tourItem.overview, t, lang),
       destination: 'jordan',
-      price: t.price || 0,
+      price: tourItem.price || 0,
       rating: 4.95,
       reviewCount: 38,
-      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : ['https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg'],
-      link: `/programs/jordan/${t.slug || t.id}`,
+      images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : ['https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg'],
+      link: `/programs/jordan/${tourItem.slug || tourItem.id}`,
     }));
 
-    const dubaiFormatted = (dubaiTours || []).slice(0, 2).map((t) => ({
-      id: t.id,
-      slug: t.slug || t.id,
-      title: resolveLocalizedText(t.name || t.title, t, lang),
-      duration: resolveLocalizedText(t.duration, t, lang),
-      overview: resolveLocalizedText(t.overview, t, lang),
+    const dubaiFormatted = (dubaiTours || []).slice(0, 2).map((tourItem) => ({
+      id: tourItem.id,
+      slug: tourItem.slug || tourItem.id,
+      title: resolveLocalizedText(tourItem.name || tourItem.title, t, lang),
+      duration: resolveLocalizedText(tourItem.duration, t, lang),
+      overview: resolveLocalizedText(tourItem.overview, t, lang),
       destination: 'dubai',
-      price: t.price || 0,
+      price: tourItem.price || 0,
       rating: 4.88,
       reviewCount: 52,
-      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : ['https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80'],
-      link: `/programs/dubai/${t.slug || t.id}`,
+      images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : ['https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80'],
+      link: `/programs/dubai/${tourItem.slug || tourItem.id}`,
     }));
 
     const otherDestTours = (allLiveTours || [])
-      .filter((t) => t && ['morocco', 'greece', 'tunisia'].includes(t.destination))
-      .map((t) => ({
-        ...t,
-        id: t.id || t.slug,
-        title: resolveTourTitle(t, t, lang),
-        duration: resolveTourDuration(t, t, lang),
-        destination: t.destination,
-        images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || t.image || '/imgs/egyothero.png'],
-        link: `/tours/${t.slug || t.id}`,
+      .filter((tourItem) => tourItem && ['morocco', 'greece', 'tunisia'].includes(tourItem.destination))
+      .map((tourItem) => ({
+        ...tourItem,
+        id: tourItem.id || tourItem.slug,
+        title: resolveTourTitle(tourItem, t, lang),
+        duration: resolveTourDuration(tourItem, t, lang),
+        destination: tourItem.destination,
+        images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : [tourItem.heroImage || tourItem.image || '/imgs/egyothero.png'],
+        link: `/tours/${tourItem.slug || tourItem.id}`,
       }));
 
     const combined = [
@@ -815,7 +815,7 @@ const HomeExperienceSection = () => {
       return result;
     }
 
-    const filtered = allLiveTours.filter((t) => t.destination === destId);
+    const filtered = allLiveTours.filter((tour) => tour.destination === destId);
     filtered.forEach((tour) => addTour(tour, "/tours"));
     return result;
   };
@@ -824,7 +824,7 @@ const HomeExperienceSection = () => {
 
   const handleSearch = () => {
     if (searchTour) {
-      const found = destTours.find((t) => t.id === searchTour);
+      const found = destTours.find((tour) => tour.id === searchTour);
       if (found) { window.location.href = found.url; return; }
     }
     if (searchDest && searchDest !== "all") {
@@ -1079,8 +1079,8 @@ const HomeExperienceSection = () => {
                     <option value="" className="text-obsidian-900 dark:text-ivory-100 dark:bg-obsidian-800">
                       {searchDest === "all" ? t('home.selectDestFirst', 'Select a destination first') : t('home.searchAllTours', 'All Tours')}
                     </option>
-                    {searchDest && searchDest !== "all" && destTours.map((t) => (
-                      <option key={t.id} value={t.id} className="text-obsidian-900 dark:text-ivory-100 dark:bg-obsidian-800">{t.label}</option>
+                    {searchDest && searchDest !== "all" && destTours.map((item) => (
+                      <option key={item.id} value={item.id} className="text-obsidian-900 dark:text-ivory-100 dark:bg-obsidian-800">{item.label}</option>
                     ))}
                   </select>
                 </div>
