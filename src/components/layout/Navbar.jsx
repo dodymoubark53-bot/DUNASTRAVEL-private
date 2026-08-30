@@ -112,13 +112,12 @@ const Navbar = () => {
       dropdown: [
         { name: t('nav.egypt'), path: '/destinations/egypt' },
         { name: t('nav.turkey'), path: '/destinations/turkey' },
+        { name: t('nav.dubai'), path: '/destinations/dubai' },
         { name: t('nav.jordan'), path: '/destinations/jordan' },
         { name: t('nav.morocco'), path: '/destinations/morocco' },
-        { name: t('nav.greece'), path: '/destinations/greece' },
-        { name: t('nav.dubai'), path: '/destinations/dubai' },
         { name: t('nav.tunisia'), path: '/destinations/tunisia' },
-        { name: t('nav.multiCountry', { defaultValue: 'Multi-Country Tours' }), path: '/programs/multi-country' },
-        { name: t('nav.religious', { defaultValue: 'Religious Tours' }), path: '/programs/religious' },
+        { name: t('nav.greece'), path: '/destinations/greece' },
+        { name: t('nav.holyland', { defaultValue: 'Holy Land' }), path: '/destinations/holyland' },
       ]
     },
     { name: t('nav.about'), path: '/about' },

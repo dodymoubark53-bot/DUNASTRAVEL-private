@@ -58,16 +58,16 @@ const _destinationsData = [
     image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_600,c_fill/v1783024003/d34eeca3-6bc8-4a19-aa18-bf13404bb11b_n0f8zn.jpg",
   },
   {
-    id: "greece",
-    nameKey: "nav.greece",
-    descKey: "home.destGreeceDesc",
-    image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_600,c_fill/v1783024053/66dc2b5e-f90d-424f-b9a7-4164b52f4e5a_eoqd3p.jpg",
-  },
-  {
     id: "tunisia",
     nameKey: "nav.tunisia",
     descKey: "home.destTunisiaDesc",
     image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_600,c_fill/v1783024062/071f261a-2ab6-48b5-a370-c47ad7889be3_immde1.jpg",
+  },
+  {
+    id: "greece",
+    nameKey: "nav.greece",
+    descKey: "home.destGreeceDesc",
+    image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_600,c_fill/v1783024053/66dc2b5e-f90d-424f-b9a7-4164b52f4e5a_eoqd3p.jpg",
   },
   {
     id: "holy-land",
@@ -194,6 +194,17 @@ const _newDestinationsList = [
     link: "/destinations/turkey"
   },
   {
+    id: "dubai",
+    nameAr: "دبي",
+    nameEn: "Dubai",
+    tagAr: "واحة المستقبل والرفاهية المطلقة",
+    tagEn: "SKY-HIGH LUXURY & SAND DUNES",
+    descAr: "ناطحات سحاب تعانق السماء، وتجارب تسوق فاخرة، وصحراء ذهبية لا تنام.",
+    descEn: "Futuristic skylines, ultra-luxury retreats, and golden desert dunes that never sleep.",
+    image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026772/14_z5msnu.jpg",
+    link: "/destinations/dubai"
+  },
+  {
     id: "jordan",
     nameAr: "الأردن",
     nameEn: "Jordan",
@@ -216,28 +227,6 @@ const _newDestinationsList = [
     link: "/destinations/morocco"
   },
   {
-    id: "greece",
-    nameAr: "اليونان",
-    nameEn: "Greece",
-    tagAr: "أساطير بحر إيجة وجزر سانتوريني",
-    tagEn: "SANTORINI DOMES & GREEK MYTHS",
-    descAr: "قباب زرقاء ممتدة مع الأفق، ومياه فيروزية تحكي قصص الفلاسفة والآلهة.",
-    descEn: "Blue domes meeting the infinite horizon, and turquoise waters whispering ancient myths.",
-    image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026772/12_fukk6b.jpg",
-    link: "/destinations/greece"
-  },
-  {
-    id: "dubai",
-    nameAr: "دبي",
-    nameEn: "Dubai",
-    tagAr: "واحة المستقبل والرفاهية المطلقة",
-    tagEn: "SKY-HIGH LUXURY & SAND DUNES",
-    descAr: "ناطحات سحاب تعانق السماء، وتجارب تسوق فاخرة، وصحراء ذهبية لا تنام.",
-    descEn: "Futuristic skylines, ultra-luxury retreats, and golden desert dunes that never sleep.",
-    image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026772/14_z5msnu.jpg",
-    link: "/destinations/dubai"
-  },
-  {
     id: "tunisia",
     nameAr: "تونس",
     nameEn: "Tunisia",
@@ -247,6 +236,17 @@ const _newDestinationsList = [
     descEn: "Mediterranean breezes caressing whitewashed walls and the ancient columns of Carthage.",
     image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026772/15_rrczuy.jpg",
     link: "/destinations/tunisia"
+  },
+  {
+    id: "greece",
+    nameAr: "اليونان",
+    nameEn: "Greece",
+    tagAr: "أساطير بحر إيجة وجزر سانتوريني",
+    tagEn: "SANTORINI DOMES & GREEK MYTHS",
+    descAr: "قباب زرقاء ممتدة مع الأفق، ومياه فيروزية تحكي قصص الفلاسفة والآلهة.",
+    descEn: "Blue domes meeting the infinite horizon, and turquoise waters whispering ancient myths.",
+    image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026772/12_fukk6b.jpg",
+    link: "/destinations/greece"
   },
   {
     id: "holyland",
@@ -363,15 +363,56 @@ const HomeExperienceSection = () => {
     error: destinationsError,
   } = useDestinations();
   const liveDestinations = useMemo(() => Array.isArray(liveDestinationsRaw) ? liveDestinationsRaw : [], [liveDestinationsRaw]);
-  const liveDestinationCards = useMemo(() => liveDestinations.map((destination) => ({
-    id: destination.slug,
-    name: destination.title,
-    description: destination.description || destination.subtitle || '',
-    subtitle: destination.subtitle || '',
-    image: destination.heroImageUrl,
-    toursCount: destination.toursCount,
-    link: `/destinations/${destination.slug}`,
-  })), [liveDestinations]);
+  const liveDestinationCards = useMemo(() => {
+    const rawList = liveDestinations.length > 0 ? liveDestinations : _destinationsData;
+
+    const filtered = rawList.filter((d) => {
+      const slug = String(d.slug || d.id || '').toLowerCase();
+      return slug !== 'multi-country' && slug !== 'religious' && slug !== 'religious-tours' && slug !== 'multi-country-tours';
+    });
+
+    const cards = filtered.map((destination) => {
+      const slug = destination.slug || destination.id;
+      return {
+        id: slug,
+        name: destination.title || (destination.nameKey ? t(destination.nameKey) : destination.name) || slug,
+        description: destination.description || (destination.descKey ? t(destination.descKey) : destination.subtitle) || '',
+        subtitle: destination.subtitle || (destination.descKey ? t(destination.descKey) : '') || '',
+        image: destination.heroImageUrl || destination.image,
+        toursCount: destination.toursCount || 3,
+        link: `/destinations/${slug}`,
+      };
+    });
+
+    const hasHolyLand = cards.some((c) => c.id === 'holyland' || c.id === 'holy-land');
+    if (!hasHolyLand) {
+      cards.push({
+        id: 'holyland',
+        name: t('nav.holyland', 'Holy Land'),
+        description: t('home.destHolyLandDesc', 'History, spirituality and eternal legacy'),
+        subtitle: t('home.destHolyLandDesc', 'History, spirituality and eternal legacy'),
+        image: 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783024072/400a841d-18b7-4915-8483-f9a3346651cf_ocdouu.jpg',
+        toursCount: 3,
+        link: '/destinations/holyland',
+      });
+    }
+
+    const destOrderMap = {
+      'egypt': 1,
+      'turkey': 2,
+      'dubai': 3,
+      'jordan': 4,
+      'morocco': 5,
+      'tunisia': 6,
+      'greece': 7,
+      'holyland': 8,
+      'holy-land': 8
+    };
+
+    cards.sort((a, b) => (destOrderMap[a.id] || 99) - (destOrderMap[b.id] || 99));
+
+    return cards;
+  }, [liveDestinations, t]);
   const livePackageCards = useMemo(() => {
     const definitions = [
       { id: 'classic-program', titleKey: 'egyptPackages.classic.name', fallbackTitle: 'Classic Egypt Program', link: '/programs/classic', categories: ['classic'] },
@@ -650,7 +691,6 @@ const HomeExperienceSection = () => {
           link,
           title: resolveTourTitle(tourItem, t, lang),
           duration: resolveTourDuration(tourItem, t, lang),
-          overview: resolveTourOverview(tourItem, t, lang) || tourItem.description || '',
           badge: tourItem.badge || (tourItem.destination ? (typeof t === 'function' ? t(`nav.${tourItem.destination}`, tourItem.destination) : tourItem.destination) : null),
           images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : [tourItem.heroImage || tourItem.image || '/imgs/egyothero.png'],
         });
@@ -1323,7 +1363,7 @@ const HomeExperienceSection = () => {
                     </div>
                   )}
                   <div
-                    className="absolute inset-0 bg-obsidian-900/60 transition-colors duration-500 group-hover:bg-obsidian-900/40"
+                    className="absolute inset-0 bg-obsidian-900/35 transition-colors duration-500 group-hover:bg-obsidian-900/15"
                   ></div>
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
                     <h3 className="text-display-lg text-ivory-50 mb-2">
@@ -2924,8 +2964,8 @@ const HomeExperienceSection = () => {
                     style={{ backgroundImage: `url('${item.image}')` }}
                   />
                   
-                  {/* Strong Dark Gradient Overlay for Readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-950/65 to-obsidian-950/10 transition-all duration-500" />
+                  {/* Clear & Vivid Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950/85 via-obsidian-950/30 to-transparent transition-all duration-500" />
                   
                   {/* Golden Lighting Leak */}
                   <div className="absolute inset-0 bg-gold-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />

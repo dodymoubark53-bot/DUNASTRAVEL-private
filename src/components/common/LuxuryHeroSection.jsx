@@ -56,19 +56,19 @@ export default function LuxuryHeroSection({
           transition={{ duration: 10, ease: 'easeOut', repeat: Infinity, repeatType: 'reverse' }}
           src={bgImage}
           alt={title}
-          className="w-full h-full object-cover object-center filter brightness-[0.85]"
+          className="w-full h-full object-cover object-center filter brightness-105 contrast-[1.05]"
           loading="eager"
         />
 
-        {/* Gradient Layer: Top shadow, center dark glow, bottom obsidian fade */}
+        {/* Gradient Layer: Lightened overlay for maximum image clarity and text legibility */}
         <div
           className="absolute inset-0 z-10"
           style={{
             background: `linear-gradient(
               to bottom,
-              rgba(6, 13, 26, 0.55) 0%,
-              rgba(6, 13, 26, 0.70) 50%,
-              rgba(6, 13, 26, 0.95) 100%
+              rgba(6, 13, 26, 0.25) 0%,
+              rgba(6, 13, 26, 0.45) 50%,
+              rgba(6, 13, 26, 0.82) 100%
             )`
           }}
         />
