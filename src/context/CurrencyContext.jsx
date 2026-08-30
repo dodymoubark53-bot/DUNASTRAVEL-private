@@ -32,7 +32,7 @@ export const CurrencyProvider = ({ children }) => {
           setEurRate(eur);
         }
       } catch (err) {
-        console.error('Failed to fetch currency rates', err);
+        console.warn('Failed to fetch currency rates, using default fallback (0.92):', err?.message || err);
       }
     };
     fetchRate();
