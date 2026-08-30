@@ -10,26 +10,23 @@ function readDestinations(response) {
       ? response.items
       : Array.isArray(response?.data)
         ? response.data
-        : null;
-  if (!items) {
-    throw new Error('Invalid canonical destinations response');
-  }
+        : [];
   return items.map((item) => {
-    if (!item?.id || !item.slug || typeof item.title !== 'string') {
-      throw new Error('Invalid destination catalog item');
-    }
-    const toursCount = Number(item.toursCount);
-    if (!Number.isInteger(toursCount) || toursCount < 0) {
-      throw new Error(`Invalid destination tours count for ${item.slug}`);
-    }
+    if (!item || typeof item !== 'object') return null;
+    const slug = item.slug || item.id;
+    if (!slug) return null;
+    const toursCount = Number(item.toursCount || (Array.isArray(item.tours) ? item.tours.length : 0));
     return {
       ...item,
-      name: item.title,
-      image: item.heroImageUrl || null,
-      toursCount,
+      id: item.id || slug,
+      slug,
+      title: item.title || item.name || slug,
+      name: item.title || item.name || slug,
+      image: item.heroImageUrl || item.image || null,
+      toursCount: Number.isFinite(toursCount) ? Math.max(0, Math.round(toursCount)) : 0,
       tours: Array.isArray(item.tours) ? item.tours : [],
     };
-  });
+  }).filter(Boolean);
 }
 
 const destinationsCache = new Map();
@@ -40,17 +37,17 @@ export function useDestinations() {
   const { i18n } = useTranslation();
   const lang = supportedLocale(i18n.language);
   const cacheKey = lang;
-  const [destinations, setDestinations] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [destinations, setDestinations] = useState(() => {
+    const cached = destinationsCache.get(cacheKey);
+    return cached?.data || [];
+  });
+  const [loading, setLoading] = useState(() => !destinationsCache.has(cacheKey));
   const [error, setError] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
     const fetchDestinations = async () => {
       try {
-        await Promise.resolve();
-
-        // 1. Serve from in-memory cache if fresh
         const cached = destinationsCache.get(cacheKey);
         if (cached && Date.now() - cached.timestamp < DESTINATIONS_CACHE_TTL_MS) {
           if (isMounted) {
@@ -60,10 +57,11 @@ export function useDestinations() {
           return;
         }
 
-        setLoading(true);
+        if (!cached) {
+          setLoading(true);
+        }
         setError(null);
 
-        // 2. Deduplicate concurrent requests
         let request = pendingDestinationsRequests.get(cacheKey);
         if (!request) {
           request = api
@@ -83,8 +81,10 @@ export function useDestinations() {
         }
       } catch (requestError) {
         if (isMounted) {
-          setError(requestError);
-          setDestinations([]);
+          const fallback = destinationsCache.get(cacheKey);
+          if (!fallback) {
+            setError(requestError);
+          }
         }
       } finally {
         if (isMounted) setLoading(false);
@@ -103,7 +103,7 @@ export function useDestinations() {
     retry: () => {
       destinationsCache.delete(cacheKey);
       setLoading(true);
-    }
+    },
   };
 }
 

@@ -96,6 +96,12 @@ export const JaiderChatProvider = ({ children }) => {
 
   const [leadFormState, setLeadFormState] = useState({ required: false, fields: [] });
   const [handoffState, setHandoffState] = useState({ requested: false, status: null });
+  const [personas, setPersonas] = useState([]);
+  const [isInChatBookingEnabled, setIsInChatBookingEnabled] = useState(true);
+  const [selectedPersona, setSelectedPersona] = useState(() => {
+    if (typeof window === 'undefined') return 'luxury_concierge';
+    return localStorage.getItem('jaider_selected_persona') || 'luxury_concierge';
+  });
   const abortControllerRef = useRef(null);
 
   const detectLanguage = (text) => {
@@ -107,6 +113,59 @@ export const JaiderChatProvider = ({ children }) => {
     return 'en';
   };
 
+  // Fetch active AI Personas and Chat Config
+  const fetchChatConfigAndPersonas = useCallback(async (lang) => {
+    try {
+      const [personasRes, configRes] = await Promise.all([
+        api.get(`/ai/chat/personas?locale=${lang || 'en'}`).catch(() => null),
+        api.get(`/ai/chat/config?locale=${lang || 'en'}`).catch(() => null),
+      ]);
+
+      if (Array.isArray(personasRes)) {
+        setPersonas(personasRes);
+      } else if (configRes && Array.isArray(configRes.personas)) {
+        setPersonas(configRes.personas);
+      }
+
+      if (configRes && typeof configRes.isInChatBookingEnabled === 'boolean') {
+        setIsInChatBookingEnabled(configRes.isInChatBookingEnabled);
+      }
+    } catch (err) {
+      console.warn('Could not fetch AI personas or config:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
+    fetchChatConfigAndPersonas(activeLang);
+  }, [i18n.language, fetchChatConfigAndPersonas]);
+
+  const changePersona = (personaCode) => {
+    if (!personaCode || personaCode === selectedPersona) return;
+    setSelectedPersona(personaCode);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('jaider_selected_persona', personaCode);
+    }
+
+    const matched = personas.find((p) => p.code === personaCode);
+    const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
+    const isAr = activeLang === 'ar';
+
+    let switchGreeting = isAr
+      ? `تم تبديل أسلوب المرشد إلى: **${matched?.name || personaCode}** ${matched?.icon || '✨'}\n${matched?.tagline || ''}\nكيف يمكنني مساعدتك الآن؟`
+      : `GuideR Concierge style switched to: **${matched?.name || personaCode}** ${matched?.icon || '✨'}\n${matched?.tagline || ''}\nHow may I assist you with this perspective?`;
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: `persona-switch-${Date.now()}`,
+        sender: 'jaider',
+        text: switchGreeting,
+        timestamp: new Date(),
+      },
+    ]);
+  };
+
   // Restore previous chat history from backend on initial mount
   const restoreConversationHistory = useCallback(async (currentSessionId) => {
     if (!currentSessionId) return;
@@ -115,17 +174,24 @@ export const JaiderChatProvider = ({ children }) => {
       const data = res;
       if (data && data.messages && data.messages.length > 0) {
         setConversationId(data.conversationId);
-        const mapped = data.messages.map((m) => ({
-          id: m.id,
-          sender: m.role === 'user' ? 'user' : (m.role === 'staff' ? 'staff' : 'jaider'),
-          text: m.content,
-          structuredContent: m.structuredContent,
-          timestamp: new Date(m.createdAt),
-          tours: m.tours,
-          sources: m.sources,
-          proposal: m.structuredContent?.proposal || null,
-          comparison: m.structuredContent?.comparison || null,
-        }));
+        const mapped = data.messages.map((m) => {
+          const rawTours = Array.isArray(m.tours) ? m.tours : (Array.isArray(m.structuredContent?.tours) ? m.structuredContent.tours : []);
+          const cleanTours = rawTours.filter((t) => t && typeof t === 'object' && t.title);
+
+          return {
+            id: m.id,
+            sender: m.role === 'user' ? 'user' : (m.role === 'staff' ? 'staff' : 'jaider'),
+            text: m.content,
+            structuredContent: m.structuredContent,
+            timestamp: new Date(m.createdAt),
+            tours: cleanTours,
+            destinations: m.destinations || m.structuredContent?.destinations || [],
+            sources: m.sources,
+            proposal: m.proposal || m.structuredContent?.proposal || null,
+            comparison: m.comparison || m.structuredContent?.comparison || null,
+            booking: m.structuredContent?.type === 'booking_confirmation' ? m.structuredContent.booking : null,
+          };
+        });
         setMessages(mapped);
         if (data.status === 'HANDED_OFF' || data.status === 'HUMAN_ACTIVE') {
           setHandoffState({ requested: true, status: data.status });
@@ -208,6 +274,7 @@ export const JaiderChatProvider = ({ children }) => {
         message: text,
         sessionId,
         locale: i18n.language,
+        personaCode: selectedPersona,
         pageContext: {
           pathname: typeof window !== 'undefined' ? window.location.pathname : '/'
         }
@@ -220,8 +287,9 @@ export const JaiderChatProvider = ({ children }) => {
 
       const assistantText = data?.message?.content || data?.text;
       if (!assistantText) throw new Error('GuideR returned an invalid response');
-      const tours = data?.recommendations?.tours || [];
-      const destinations = data?.recommendations?.destinations || [];
+      const rawTours = data?.recommendations?.tours || data?.message?.structuredContent?.tours || [];
+      const tours = (Array.isArray(rawTours) ? rawTours : []).filter((t) => t && typeof t === 'object' && t.title);
+      const destinations = data?.recommendations?.destinations || data?.message?.structuredContent?.destinations || [];
       const proposal = data?.recommendations?.proposal || data?.message?.structuredContent?.proposal || null;
       const comparison = data?.recommendations?.comparison || data?.message?.structuredContent?.comparison || null;
       const sources = data?.sources || [];
@@ -274,6 +342,55 @@ export const JaiderChatProvider = ({ children }) => {
       setIsTyping(false);
       setIsStreaming(false);
       abortControllerRef.current = null;
+    }
+  };
+
+  const bookTourInChat = async (bookingPayload) => {
+    try {
+      setIsTyping(true);
+      const res = await api.post('/ai/chat/book', {
+        sessionId,
+        locale: i18n.language,
+        ...bookingPayload,
+      });
+
+      if (res && res.referenceCode) {
+        const isAr = i18n.language.startsWith('ar');
+        const confirmationMsg = {
+          id: `booking-conf-${Date.now()}`,
+          sender: 'jaider',
+          text: isAr
+            ? `🎉 تم تأكيد طلب حجزك بنجاح برقم مرجعي: **${res.referenceCode}**`
+            : `🎉 Booking reservation confirmed with Reference: **${res.referenceCode}**`,
+          timestamp: new Date(),
+          booking: res,
+          structuredContent: {
+            type: 'booking_confirmation',
+            booking: res,
+          },
+        };
+
+        setMessages((prev) => [...prev, confirmationMsg]);
+        return { success: true, booking: res };
+      }
+      return { success: false, error: 'Unexpected response from booking engine' };
+    } catch (err) {
+      console.error('In-chat booking failed:', err);
+      const errorText = i18n.language.startsWith('ar')
+        ? 'عذراً، حدث خطأ أثناء إتمام الحجز. يرجى مراجعة البيانات والمحاولة مجدداً أو التواصل مع خدمة العملاء.'
+        : 'Sorry, an error occurred while processing your booking. Please try again or reach out to customer support.';
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `booking-err-${Date.now()}`,
+          sender: 'jaider',
+          text: errorText,
+          timestamp: new Date(),
+        },
+      ]);
+      return { success: false, error: err.message };
+    } finally {
+      setIsTyping(false);
     }
   };
 
@@ -395,6 +512,11 @@ export const JaiderChatProvider = ({ children }) => {
         loadingKnowledge: false,
         suggestions: getSuggestions(),
         detectLanguage,
+        personas,
+        selectedPersona,
+        changePersona,
+        bookTourInChat,
+        isInChatBookingEnabled,
       }}
     >
       {children}

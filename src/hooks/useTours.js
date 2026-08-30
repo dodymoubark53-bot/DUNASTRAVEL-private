@@ -52,30 +52,32 @@ function readMeta(response, itemCount = 0) {
 }
 
 function mapTour(tour) {
-  if (!tour?.id || !tour?.slug || !tour?.title) {
-    throw new Error('Invalid tour catalog item');
-  }
-  const price = Number(tour.basePriceUsd);
-  if (!Number.isFinite(price) || price < 0) {
-    throw new Error(`Invalid tour price for ${tour.slug}`);
-  }
-  const images = tour.heroImage ? [tour.heroImage] : [];
+  if (!tour || typeof tour !== 'object') return null;
+  const id = tour.id || tour._id || tour.slug;
+  if (!id) return null;
+  const slug = tour.slug || id;
+  const title = tour.title || tour.name || 'Luxury Tour';
+  const price = Number(tour.basePriceUsd ?? tour.price ?? 0);
+  const images = Array.isArray(tour.images) && tour.images.length > 0
+    ? tour.images
+    : (tour.heroImage ? [tour.heroImage] : (tour.image ? [tour.image] : []));
 
-  const country = String(tour.country || '').toLowerCase();
-  const destination = country === 'united arab emirates' ? 'dubai' : country;
+  const country = String(tour.country || tour.destination || '').toLowerCase();
+  const destination = country === 'united arab emirates' ? 'dubai' : (country || 'egypt');
 
   return {
     ...tour,
-    id: tour.id,
-    slug: tour.slug,
-    title: tour.title,
-    overview: typeof tour.overview === 'string' ? tour.overview : '',
+    id,
+    slug,
+    title,
+    overview: typeof tour.overview === 'string' ? tour.overview : (tour.description || ''),
     duration: typeof tour.duration === 'string' ? tour.duration : '',
     destination,
     images,
-    raw: { price, type: tour.category || '' },
-    price,
-    code: tour.id,
+    heroImage: tour.heroImage || images[0] || '/imgs/egyothero.png',
+    raw: { price: Number.isFinite(price) ? price : 0, type: tour.category || '' },
+    price: Number.isFinite(price) ? price : 0,
+    code: id,
     highlights: Array.isArray(tour.highlights) ? tour.highlights : [],
     isFeatured: Boolean(tour.isFeatured),
     displayOrder: typeof tour.displayOrder === 'number' ? tour.displayOrder : 0,
@@ -87,7 +89,10 @@ export function useTours(filters = {}) {
   const lang = supportedLocale(i18n.language);
   const filterKey = JSON.stringify(filters);
   const cacheKey = `${lang}:${filterKey}`;
-  const [tours, setTours] = useState([]);
+  const [tours, setTours] = useState(() => {
+    const cached = toursCache.get(cacheKey);
+    return cached?.data || [];
+  });
   const [meta, setMeta] = useState({
     total: 0,
     page: 1,
@@ -96,7 +101,7 @@ export function useTours(filters = {}) {
     hasNextPage: false,
     hasPrevPage: false,
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !toursCache.has(cacheKey));
   const [error, setError] = useState(null);
   const [reloadNonce, setReloadNonce] = useState(0);
 
@@ -105,7 +110,6 @@ export function useTours(filters = {}) {
     const currentFilters = JSON.parse(filterKey);
     const fetchTours = async () => {
       try {
-        await Promise.resolve();
         const fresh = toursCache.get(cacheKey);
         if (fresh && Date.now() - fresh.timestamp < CACHE_TTL_MS) {
           if (isMounted) {
@@ -115,9 +119,13 @@ export function useTours(filters = {}) {
           }
           return;
         }
-        setLoading(true);
+        
+        // Stale-while-revalidate: keep existing tours instead of clearing to []
+        if (!fresh) {
+          setLoading(true);
+        }
         setError(null);
-        setTours([]);
+
         let request = pendingRequests.get(cacheKey);
         if (!request) {
           const params = new URLSearchParams({ lang });
@@ -129,7 +137,7 @@ export function useTours(filters = {}) {
           request = api
             .get(`/tours?${params.toString()}`)
             .then((response) => {
-              const items = readTours(response).map(mapTour);
+              const items = readTours(response).map(mapTour).filter(Boolean);
               const responseMeta = readMeta(response, items.length);
               const payload = { data: items, meta: responseMeta };
               toursCache.set(cacheKey, { ...payload, timestamp: Date.now() });
@@ -145,8 +153,11 @@ export function useTours(filters = {}) {
         }
       } catch (requestError) {
         if (isMounted) {
-          setTours([]);
-          setError(requestError);
+          // If network error, only clear if we had nothing cached
+          const fallback = toursCache.get(cacheKey);
+          if (!fallback) {
+            setError(requestError);
+          }
         }
       } finally {
         if (isMounted) setLoading(false);

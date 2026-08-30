@@ -118,6 +118,39 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
     message: '',
   });
 
+  // Restore booking intent if user was redirected to login
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const rawIntent = sessionStorage.getItem('dunas_pending_booking_intent');
+      if (rawIntent) {
+        const intent = JSON.parse(rawIntent);
+        const isMatch =
+          intent?.tourId === bookingTourKey ||
+          intent?.tourSlug === tourSlug ||
+          intent?.tourTitle === tourTitle;
+
+        if (isMatch) {
+          if (intent.b) {
+            setB((prev) => ({
+              ...prev,
+              ...intent.b,
+              fullName: user?.name || intent.b.fullName || prev.fullName,
+              email: user?.email || intent.b.email || prev.email,
+              phone: user?.phone || intent.b.phone || prev.phone,
+            }));
+          }
+          if (intent.passengerNames) {
+            setPassengerNames(intent.passengerNames);
+          }
+          sessionStorage.removeItem('dunas_pending_booking_intent');
+        }
+      }
+    } catch {
+      sessionStorage.removeItem('dunas_pending_booking_intent');
+    }
+  }, [bookingTourKey, tourSlug, tourTitle, user]);
+
   useEffect(() => {
     let isMounted = true;
     const availabilityKey = tourSlug || tourId;
@@ -248,6 +281,26 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Require authentication before submitting booking
+    if (!user) {
+      if (typeof window !== 'undefined') {
+        const draftIntent = {
+          tourId: bookingTourKey,
+          tourSlug,
+          tourTitle,
+          transportChoice,
+          b,
+          passengerNames,
+          timestamp: Date.now(),
+        };
+        sessionStorage.setItem('dunas_pending_booking_intent', JSON.stringify(draftIntent));
+        const redirectUrl = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+        window.location.assign(redirectUrl);
+      }
+      return;
+    }
+
     if (requireTransportChoice && !transportChoice) {
       setTransportAlert(true);
       const el = document.getElementById('transport-selector');
@@ -301,11 +354,6 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
       });
 
       const data = await api.post('/bookings', payload);
-
-      const tokenToSave = data?.guestToken || data?.data?.guestToken;
-      if (tokenToSave && typeof window !== 'undefined') {
-        localStorage.setItem('dunas_guest_token', tokenToSave);
-      }
 
       const bookingResultData = { ...data, type: 'booking' };
       if ((data?.id || data?.referenceCode) && data?.paymentRequired !== false) {
@@ -989,6 +1037,11 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
                       <span className="w-4 h-4 border-2 border-obsidian-900 border-t-transparent rounded-full animate-spin" />
                       {t('common.sending', 'Locking Experience...')}
                     </span>
+                  ) : !user ? (
+                    <>
+                      <FaUserCheck size={13} />
+                      {t('booking.signInToBook', 'Sign in & Confirm Booking')}
+                    </>
                   ) : (
                     <>
                       <FaPaperPlane size={12} />

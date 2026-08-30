@@ -150,3 +150,25 @@ describe('AuthContext Security & Session Integration', () => {
   });
 });
 
+  describe('Open Redirect Defense (REDIRECT-001 through REDIRECT-003)', () => {
+    it('REDIRECT-001: rejects absolute external URLs and falls back to safe path', async () => {
+      const { getSafeRedirectUrl } = await import('../utils/safe-redirect');
+      expect(getSafeRedirectUrl('https://evil.example.com')).toBe('/dashboard');
+      expect(getSafeRedirectUrl('http://attacker.com/steal')).toBe('/dashboard');
+    });
+
+    it('REDIRECT-002: rejects protocol-relative and backslash URLs', async () => {
+      const { getSafeRedirectUrl } = await import('../utils/safe-redirect');
+      expect(getSafeRedirectUrl('//evil.example.com')).toBe('/dashboard');
+      expect(getSafeRedirectUrl('/\\evil.example.com')).toBe('/dashboard');
+      expect(getSafeRedirectUrl('\\\\evil.example.com')).toBe('/dashboard');
+    });
+
+    it('REDIRECT-003: rejects javascript:, data: schemes and control characters', async () => {
+      const { getSafeRedirectUrl } = await import('../utils/safe-redirect');
+      expect(getSafeRedirectUrl('javascript:alert(1)')).toBe('/dashboard');
+      expect(getSafeRedirectUrl('/javascript:alert(1)')).toBe('/dashboard');
+      expect(getSafeRedirectUrl('/safe-path\r\nHost: evil.com')).toBe('/dashboard');
+      expect(getSafeRedirectUrl('/tours/cairo-discovery')).toBe('/tours/cairo-discovery');
+    });
+  });

@@ -14,9 +14,14 @@ import { transportation as fallbackTransportation } from "../../data/transportat
 import useScrollAnimations from "../../hooks/useScrollAnimations";
 import { useCurrency } from "../../context/CurrencyContext";
 import api from "../../utils/api";
+import { turkeyTours } from "../../data/turkeyTours";
+import { jordanTours } from "../../data/jordanTours";
+import { dubaiTours } from "../../data/dubaiTours";
+import { moroccoTours } from "../../data/moroccoTours";
 import {
   resolveTourTitle,
   resolveTourDuration,
+  resolveTourOverview,
   resolveLocalizedText
 } from "../../utils/titleHelper";
 
@@ -265,18 +270,37 @@ const getOptimizedImageUrl = (url, width = 400, height = 450) => {
 };
 
 const tourImageUrl = (tour) => {
+  if (!tour) return '/imgs/egyothero.png';
   const firstImage = Array.isArray(tour?.images) ? tour.images[0] : null;
   if (typeof firstImage === 'string' && firstImage.trim()) return firstImage;
   if (firstImage && typeof firstImage.imageUrl === 'string' && firstImage.imageUrl.trim()) {
     return firstImage.imageUrl;
   }
-  return typeof tour?.heroImage === 'string' && tour.heroImage.trim()
-    ? tour.heroImage
-    : null;
+  if (typeof tour?.heroImage === 'string' && tour.heroImage.trim()) return tour.heroImage;
+  if (typeof tour?.image === 'string' && tour.image.trim()) return tour.image;
+  if (typeof tour?.heroImageUrl === 'string' && tour.heroImageUrl.trim()) return tour.heroImageUrl;
+  return '/imgs/egyothero.png';
+};
+
+const buildInfiniteMarqueeList = (items, prefix = 'tour') => {
+  if (!Array.isArray(items) || items.length === 0) return [];
+  let base = [...items];
+  while (base.length < 8) {
+    base = [...base, ...items];
+  }
+  return [
+    ...base.map((tItem, i) => ({ ...tItem, isDuplicate: false, uKey: `${prefix}-set1-${tItem.id || tItem.slug || i}-${i}` })),
+    ...base.map((tItem, i) => ({ ...tItem, isDuplicate: true, uKey: `${prefix}-set2-${tItem.id || tItem.slug || i}-${i}` })),
+    ...base.map((tItem, i) => ({ ...tItem, isDuplicate: true, uKey: `${prefix}-set3-${tItem.id || tItem.slug || i}-${i}` })),
+    ...base.map((tItem, i) => ({ ...tItem, isDuplicate: true, uKey: `${prefix}-set4-${tItem.id || tItem.slug || i}-${i}` })),
+  ];
 };
 
 const HomeExperienceSection = () => {
   const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+  const isRtl = i18n.dir() === 'rtl';
+  const lang = i18n.language || 'en';
   const { formatPrice } = useCurrency();
   const navigate = useNavigate();
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -293,11 +317,46 @@ const HomeExperienceSection = () => {
   const allLiveTours = useMemo(() => Array.isArray(allLiveToursRaw) ? allLiveToursRaw : [], [allLiveToursRaw]);
   const { services: rawTransportation = [], loading: transportLoading } = useServices('transportation');
   const transportationList = useMemo(() => {
-    if (Array.isArray(rawTransportation) && rawTransportation.length > 0) {
-      return rawTransportation;
-    }
-    return fallbackTransportation;
-  }, [rawTransportation]);
+    const rawList = Array.isArray(rawTransportation) && rawTransportation.length > 0
+      ? rawTransportation
+      : fallbackTransportation;
+
+    return rawList.map((v, idx) => {
+      const seats = Number(v.seats || v.capacity || (v.category === 'bus' ? 45 : v.category === 'coaster' ? 24 : 4));
+      const rawCat = String(v.vehicleCategory || v.category || '').toLowerCase();
+      let normalizedCat = 'private';
+      if (rawCat.includes('bus') || seats > 30) normalizedCat = 'bus';
+      else if (rawCat.includes('coaster') || rawCat.includes('mini') || (seats > 8 && seats <= 30)) normalizedCat = 'coaster';
+      else normalizedCat = 'private';
+
+      const firstImage = Array.isArray(v.images)
+        ? (typeof v.images[0] === 'string' ? v.images[0] : v.images[0]?.imageUrl)
+        : null;
+      const image = v.heroImage || v.image || v.heroImageUrl || firstImage || (
+        normalizedCat === 'bus' ? '/imgs/transportation/bus1.jpeg' :
+        normalizedCat === 'coaster' ? '/imgs/transportation/costar.jpeg' :
+        '/imgs/transportation/privte.jpeg'
+      );
+
+      const price = Number(v.pricePerDay || v.pricePerTrip || v.price || v.basePriceUsd || 0);
+
+      return {
+        ...v,
+        id: v.id || v._id || `trans-${idx}`,
+        name: resolveLocalizedText(v.name || v.title, t, lang) || (
+          normalizedCat === 'bus' ? 'Luxury Tour Bus' :
+          normalizedCat === 'coaster' ? 'Executive Coaster' :
+          'VIP Private Transfer'
+        ),
+        image,
+        heroImage: image,
+        category: normalizedCat,
+        vehicleCategory: normalizedCat,
+        seats,
+        pricePerDay: price,
+      };
+    });
+  }, [rawTransportation, lang, t]);
   const {
     destinations: liveDestinationsRaw,
     loading: destinationsLoading,
@@ -346,7 +405,7 @@ const HomeExperienceSection = () => {
     return allLiveTours.filter(Boolean).map((tour) => ({
       ...tour,
       description: tour.overview || tour.description || '',
-        images: Array.isArray(tour.images) ? tour.images : [],
+      images: Array.isArray(tour.images) ? tour.images : [],
       link: `/tours/${tour.slug || tour.id}`,
     }));
   }, [allLiveTours]);
@@ -359,11 +418,229 @@ const HomeExperienceSection = () => {
     ]));
   }, [livePackageCards]);
 
+  const defaultPackageTours = useMemo(() => [
+    // 1. Classic Program (1 tour)
+    {
+      id: "classic-program-tour-1",
+      slug: "classic-program",
+      title: isAr ? "البرنامج الكلاسيكي: القاهرة والأهرامات والنيل الفاخر" : "Classic Egypt: Cairo, Pyramids & Nile Cruise",
+      overview: isAr ? "برنامج متميز يجمع بين الأهرامات، الجيزة، والمتحف الكبير مع رحلة نيلية فاخرة." : "Timeless Classic Egypt itinerary covering Cairo Pyramids, GEM Museum, and Nile Cruise.",
+      duration: isAr ? "8 أيام / 7 ليالي" : "8 Days / 7 Nights",
+      price: 1290,
+      badge: isAr ? "البرنامج الكلاسيكي" : "Classic Program",
+      destination: "egypt",
+      rating: 4.9,
+      reviewCount: 312,
+      images: ["https://res.cloudinary.com/degbrq3ck/image/upload/v1783029636/Classic_Program_gfal0s.jpg"],
+      link: "/programs/classic/classic-program"
+    },
+    // 2. Honeymooners (1 tour)
+    {
+      id: "honeymooners-tour-1",
+      slug: "honeymooners",
+      title: isAr ? "باقة شهر العسل والرفاهية الرومانسية" : "Honeymoon & Romantic Luxury Escape",
+      overview: isAr ? "عطلة رومانسية ساحرة تشمل شواطئ البحر الأحمر وغروب النيل المذهل." : "Enchanting Red Sea escapes & private Nile sunset cruises for couples.",
+      duration: isAr ? "10 أيام / 9 ليالي" : "10 Days / 9 Nights",
+      price: 1650,
+      badge: isAr ? "شهر العسل" : "Honeymoon",
+      destination: "egypt",
+      rating: 4.95,
+      reviewCount: 189,
+      images: ["https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=800&q=80"],
+      link: "/programs/honeymooners"
+    },
+    // 3. Religious Programs (1 tour)
+    {
+      id: "religious-tour-1",
+      slug: "religious",
+      title: isAr ? "برنامج مسار العائلة المقدسة والتراث الديني" : "Holy Family & Sacred Journeys",
+      overview: isAr ? "مسار إيماني وثقافي عريق يمتد عبر الكنائس والأديرة الأثرية في مصر." : "Spiritual path along Coptic monasteries & ancient holy shrines.",
+      duration: isAr ? "9 أيام / 8 ليالي" : "9 Days / 8 Nights",
+      price: 1390,
+      badge: isAr ? "رحلة دينية" : "Religious Heritage",
+      destination: "egypt",
+      rating: 4.85,
+      reviewCount: 176,
+      images: ["https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=800&q=80"],
+      link: "/programs/religious"
+    },
+    // 4. Multi-Country Combined (9 tours)
+    {
+      id: "mct-001",
+      slug: "estrellas-medio-oriente-19d",
+      title: isAr ? "نجوم الشرق الأوسط (مصر والأردن وتركيا ودبي)" : "Estrellas del Medio Oriente (19 Days)",
+      overview: isAr ? "رحلة أسطورية تجمع بين عظمة الفراعنة، البتراء الوردية، مناطيد كبادوكيا وبرج خليفة." : "19-day grand odyssey traversing Egypt, Jordan, Turkey, and Dubai.",
+      duration: isAr ? "19 يوم / 18 ليلة" : "19 Days / 18 Nights",
+      price: 3450,
+      badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+      destination: "multi-country",
+      rating: 4.9,
+      reviewCount: 210,
+      images: ["https://theglobetrottingdetective.com/wp-content/uploads/2022/03/best-places-in-the-middle-east-traveling-the-middle-east-cappadocia-turkey.jpg"],
+      link: "/programs/multi-country/estrellas-medio-oriente-19d"
+    },
+    {
+      id: "mct-002",
+      slug: "cairo-and-athens-11-days",
+      title: isAr ? "رحلة القاهرة وأثينا (عجائب مصر واليونان)" : "Cairo and Athens 11 Days",
+      overview: isAr ? "رحلة تجمع بين حضارة الفراعنة في القاهرة وأساطير الأكروبوليس في أثينا." : "11 days combining ancient Egyptian wonders and Greek Mediterranean mythology.",
+      duration: isAr ? "11 يوم / 10 ليالي" : "11 Days / 10 Nights",
+      price: 2250,
+      badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+      destination: "multi-country",
+      rating: 4.88,
+      reviewCount: 145,
+      images: ["https://cdn.thecollector.com/wp-content/uploads/2024/07/history-cairo-monuments.jpg"],
+      link: "/programs/multi-country/cairo-and-athens-11-days"
+    },
+    {
+      id: "mct-003",
+      slug: "essences-of-egypt-and-turkey-15-days",
+      title: isAr ? "جوهر مصر وتركيا (النيل وإسطنبول 15 يوماً)" : "Essences of Egypt and Turkey 15 Days",
+      overview: isAr ? "برنامج فاخر يربط سحر الأهرامات والرحلة النيلية بأجواء البسفور وكبادوكيا." : "15 days spanning Cairo, Nile Cruise, Istanbul, and Cappadocia balloon skies.",
+      duration: isAr ? "15 يوم / 14 ليلة" : "15 Days / 14 Nights",
+      price: 2890,
+      badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+      destination: "multi-country",
+      rating: 4.92,
+      reviewCount: 278,
+      images: ["/imgs/Essences of Egypt and Turkey .png"],
+      link: "/programs/multi-country/essences-of-egypt-and-turkey-15-days"
+    },
+    {
+      id: "mct-004",
+      slug: "marvels-of-dubai-and-turkey-14-days",
+      title: isAr ? "روائع دبي وتركيا (فخامة الخليج وسحر البسفور)" : "Marvels of Dubai and Turkey (14 Days)",
+      overview: isAr ? "توليفة استثنائية بين حداثة دبي الفائقة وتاريخ إسطنبول وجمال الطبيعة التركية." : "14 days exploring futuristic Dubai luxury and historic Turkish Riviera beauty.",
+      duration: isAr ? "14 يوم / 13 ليلة" : "14 Days / 13 Nights",
+      price: 2750,
+      badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+      destination: "multi-country",
+      rating: 4.91,
+      reviewCount: 198,
+      images: ["/imgs/Marvels of Dubai and Turkey.png"],
+      link: "/programs/multi-country/marvels-of-dubai-and-turkey-14-days"
+    },
+    {
+      id: "mct-005",
+      slug: "stars-of-the-middle-east-16-days",
+      title: isAr ? "نجوم الشرق الأوسط (مصر والأردن ودبي 16 يوماً)" : "Stars of the Middle East 16 Days",
+      overview: isAr ? "رحلة استكشافية شاملة تجمع بين النيل، البتراء، وصحراء رم، وناطحات سحاب دبي." : "16-day luxury tour across the Nile valley, Petra rose city, and Dubai skyline.",
+      duration: isAr ? "16 يوم / 15 ليلة" : "16 Days / 15 Nights",
+      price: 3100,
+      badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+      destination: "multi-country",
+      rating: 4.94,
+      reviewCount: 165,
+      images: ["/imgs/Stars of the Middle East .png"],
+      link: "/programs/multi-country/stars-of-the-middle-east-16-days"
+    },
+    {
+      id: "mct-006",
+      slug: "treasures-of-egypt-and-tunisia-16-days",
+      title: isAr ? "كنوز مصر وتونس (الحضارة وسيدي بو سعيد)" : "Treasures of Egypt and Tunisia 16 Days",
+      overview: isAr ? "رحلة شمال أفريقية تدمج الأهرامات والنيل مع تاريخ قرطاج وجمال سيدي بو سعيد." : "16 days combining Pharaohs' temples with Carthage ruins and blue whitewashed Sidi Bou Said.",
+      duration: isAr ? "16 يوم / 15 ليلة" : "16 Days / 15 Nights",
+      price: 2950,
+      badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+      destination: "multi-country",
+      rating: 4.87,
+      reviewCount: 132,
+      images: ["/imgs/Treasures of Egypt and Tunisia.png"],
+      link: "/programs/multi-country/treasures-of-egypt-and-tunisia-16-days"
+    },
+    {
+      id: "mct-007",
+      slug: "egypt-and-dubai-13-days",
+      title: isAr ? "رحلة مصر ودبي (الأهرامات والتسوق الفاخر)" : "Egypt and Dubai 13 Days",
+      overview: isAr ? "مزيج متناغم بين أسرار الفراعنة وأشهر المعالم الحديثة والتجارب الفاخرة في دبي." : "13 days combining ancient Egyptian heritage with Dubai modern luxury.",
+      duration: isAr ? "13 يوم / 12 ليلة" : "13 Days / 12 Nights",
+      price: 2650,
+      badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+      destination: "multi-country",
+      rating: 4.89,
+      reviewCount: 175,
+      images: ["/imgs/Egypt and Dubai.png"],
+      link: "/programs/multi-country/egypt-and-dubai-13-days"
+    },
+    {
+      id: "mct-008",
+      slug: "spices-of-egypt-and-morocco",
+      title: isAr ? "عبق مصر والمغرب (النيل وسحر مراكش)" : "Spices of Egypt and Morocco 12 Days",
+      overview: isAr ? "تجربة ثقافية ساحرة بين النيل وأهرامات مصر وأسواق مراكش وقصور فاس." : "12 days exploring Nile valley treasures and imperial medinas of Morocco.",
+      duration: isAr ? "12 يوم / 11 ليلة" : "12 Days / 11 Nights",
+      price: 2490,
+      badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+      destination: "multi-country",
+      rating: 4.93,
+      reviewCount: 220,
+      images: ["https://th.bing.com/th/id/R.58564825c2c22ad5062b00d620ed4397?rik=XgQR%2bu8MUj6NHA&pid=ImgRaw&r=0"],
+      link: "/programs/multi-country/spices-of-egypt-and-morocco"
+    },
+    {
+      id: "mct-009",
+      slug: "jewels-of-egypt-and-jordan-11-days",
+      title: isAr ? "جواهر مصر والأردن (القاهرة، النيل، البتراء والبحر الميت)" : "Jewels of Egypt and Jordan 11 Days",
+      overview: isAr ? "برنامج رائع يشمل عجائب الجيزة، الأقصر، أسوان، البتراء، والطفو في البحر الميت." : "11 days featuring Giza Pyramids, Nile Cruise, Petra Wonders, and Dead Sea floating.",
+      duration: isAr ? "11 يوم / 10 ليالي" : "11 Days / 10 Nights",
+      price: 2350,
+      badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+      destination: "multi-country",
+      rating: 4.96,
+      reviewCount: 285,
+      images: ["https://th.bing.com/th/id/R.d4c411bd75b827b087396502b4144fe6?rik=3VllwT9EP1BvFA&pid=ImgRaw&r=0"],
+      link: "/programs/multi-country/jewels-of-egypt-and-jordan-11-days"
+    },
+    // 5. Extensions (3 tours)
+    {
+      id: "extension-tour-1",
+      slug: "hurghada-4d3n",
+      title: isAr ? "استجمام الغردقة والبحر الأحمر" : "Hurghada Red Sea Escape",
+      overview: isAr ? "إقامة فاخرة على ساحل الغردقة للاستمتاع بالمياه الفيروزية والأنشطة البحرية." : "Red Sea resorts in Hurghada with beach escapes and coral diving.",
+      duration: isAr ? "4 أيام / 3 ليالي" : "4 Days / 3 Nights",
+      price: 590,
+      badge: isAr ? "تمديد وساحل" : "Extension",
+      destination: "egypt",
+      rating: 4.8,
+      reviewCount: 168,
+      images: ["https://1.bp.blogspot.com/-HqmKDzZ73hY/XgSOtrhSAOI/AAAAAAAARdc/cxtywSwZxLIaZPfw98FzQHYtiPblmzg2gCLcBGAsYHQ/w1200-h630-p-k-no-nu/%D8%A3%D9%81%D8%B6%D9%84-%D8%A3%D9%86%D8%B4%D8%B7%D8%A9-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D9%8A%D8%A9-%D9%81%D9%89-%D8%A7%D9%84%D8%BA%D8%B1%D8%AF%D9%82%D8%A9-825x510.jpg"],
+      link: "/programs/extension/hurghada-4d3n"
+    },
+    {
+      id: "extension-tour-2",
+      slug: "sharm-4d3n",
+      title: isAr ? "شرم الشيخ ومنتجعات البحر الأحمر" : "Sharm El Sheikh Paradise",
+      overview: isAr ? "استجمام شاطئي ممتع في شرم الشيخ مع زيارة محمية رأس محمد الساحرة." : "Red Sea luxury resort getaway in Sharm El Sheikh.",
+      duration: isAr ? "4 أيام / 3 ليالي" : "4 Days / 3 Nights",
+      price: 620,
+      badge: isAr ? "تمديد وساحل" : "Extension",
+      destination: "egypt",
+      rating: 4.84,
+      reviewCount: 135,
+      images: ["https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80"],
+      link: "/programs/extension/sharm-4d3n"
+    },
+    {
+      id: "extension-tour-3",
+      slug: "siwa-oasis-alexandria",
+      title: isAr ? "سحر واحة سيوة والإسكندرية" : "Siwa Oasis & Alexandria Adventure",
+      overview: isAr ? "مغامرة صحراوية بيئية فريدة في سيوة مع جولة تاريخية ساحلية بالإسكندرية." : "Siwa Desert Oasis eco-adventure & Mediterranean Alexandria escape.",
+      duration: isAr ? "5 أيام / 4 ليالي" : "5 Days / 4 Nights",
+      price: 780,
+      badge: isAr ? "سياحة بيئية" : "Eco Tour",
+      destination: "egypt",
+      rating: 4.88,
+      reviewCount: 110,
+      images: ["https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80"],
+      link: "/programs/extension/siwa-oasis-alexandria"
+    }
+  ], [isAr]);
+
   const packagesToursForMarquee = useMemo(() => {
     const combined = [];
     const seen = new Set();
 
-    // Add only tours returned by the canonical Backend catalog.
+    // 1. Add canonical backend tours from package cards
     Object.values(packagesToursMap || {}).flat().filter(Boolean).forEach(t => {
       const link = t.link || `${t.linkBase || '/tours'}/${t.slug || t.id}`;
       if (!seen.has(link)) {
@@ -371,12 +648,127 @@ const HomeExperienceSection = () => {
         combined.push({
           ...t,
           link,
-          images: Array.isArray(t.images) ? t.images : [],
+          title: resolveTourTitle(t, t, lang),
+          duration: resolveTourDuration(t, t, lang),
+          overview: resolveTourOverview(t, t, lang) || t.description || '',
+          badge: t.badge || (t.destination ? t(`nav.${t.destination}`, t.destination) : null),
+          images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || t.image || '/imgs/egyothero.png'],
         });
       }
     });
+
+    // 2. Add rich curated package tours
+    defaultPackageTours.forEach(t => {
+      if (!seen.has(t.link)) {
+        seen.add(t.link);
+        combined.push(t);
+      }
+    });
+
+    // 3. Fallback to allLiveTours if combined is still empty
+    if (combined.length === 0 && Array.isArray(allLiveTours)) {
+      allLiveTours.forEach(t => {
+        const link = `/tours/${t.slug || t.id}`;
+        if (!seen.has(link)) {
+          seen.add(link);
+          combined.push({
+            ...t,
+            link,
+            title: resolveTourTitle(t, t, lang),
+            duration: resolveTourDuration(t, t, lang),
+            overview: t.overview || t.description || '',
+            badge: t.destination ? t(`nav.${t.destination}`, t.destination) : null,
+            images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || t.image || '/imgs/egyothero.png'],
+          });
+        }
+      });
+    }
+
     return combined;
-  }, [packagesToursMap]);
+  }, [packagesToursMap, defaultPackageTours, allLiveTours, lang, t]);
+
+  const destinationToursForMarquee = useMemo(() => {
+    const egyptTours = (allLiveTours || [])
+      .filter((t) => t && (t.destination === 'egypt' || String(t.country || '').toLowerCase() === 'egypt'))
+      .slice(0, 3)
+      .map((t) => ({
+        ...t,
+        id: t.id || t.slug,
+        title: resolveTourTitle(t, t, lang),
+        duration: resolveTourDuration(t, t, lang),
+        destination: 'egypt',
+        images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || t.image || '/imgs/egyothero.png'],
+        link: `/tours/${t.slug || t.id}`,
+      }));
+
+    const turkeyFormatted = (turkeyTours || []).slice(0, 3).map((t) => ({
+      id: t.id,
+      slug: t.slug || t.id,
+      title: resolveLocalizedText(t.name || t.title, t, lang),
+      duration: resolveLocalizedText(t.duration, t, lang),
+      overview: resolveLocalizedText(t.overview, t, lang),
+      destination: 'turkey',
+      price: t.price || 0,
+      rating: 4.9,
+      reviewCount: 45,
+      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : ['https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=800&q=80'],
+      link: `/programs/turkey/${t.slug || t.id}`,
+    }));
+
+    const jordanFormatted = (jordanTours || []).slice(0, 2).map((t) => ({
+      id: t.id,
+      slug: t.slug || t.id,
+      title: resolveLocalizedText(t.name || t.title, t, lang),
+      duration: resolveLocalizedText(t.duration, t, lang),
+      overview: resolveLocalizedText(t.overview, t, lang),
+      destination: 'jordan',
+      price: t.price || 0,
+      rating: 4.95,
+      reviewCount: 38,
+      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : ['https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg'],
+      link: `/programs/jordan/${t.slug || t.id}`,
+    }));
+
+    const dubaiFormatted = (dubaiTours || []).slice(0, 2).map((t) => ({
+      id: t.id,
+      slug: t.slug || t.id,
+      title: resolveLocalizedText(t.name || t.title, t, lang),
+      duration: resolveLocalizedText(t.duration, t, lang),
+      overview: resolveLocalizedText(t.overview, t, lang),
+      destination: 'dubai',
+      price: t.price || 0,
+      rating: 4.88,
+      reviewCount: 52,
+      images: Array.isArray(t.images) && t.images.length > 0 ? t.images : ['https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80'],
+      link: `/programs/dubai/${t.slug || t.id}`,
+    }));
+
+    const otherDestTours = (allLiveTours || [])
+      .filter((t) => t && ['morocco', 'greece', 'tunisia'].includes(t.destination))
+      .map((t) => ({
+        ...t,
+        id: t.id || t.slug,
+        title: resolveTourTitle(t, t, lang),
+        duration: resolveTourDuration(t, t, lang),
+        destination: t.destination,
+        images: Array.isArray(t.images) && t.images.length > 0 ? t.images : [t.heroImage || t.image || '/imgs/egyothero.png'],
+        link: `/tours/${t.slug || t.id}`,
+      }));
+
+    const combined = [
+      ...egyptTours.slice(0, 2),
+      ...turkeyFormatted.slice(0, 2),
+      ...jordanFormatted.slice(0, 1),
+      ...dubaiFormatted.slice(0, 1),
+      ...otherDestTours,
+      ...egyptTours.slice(2),
+      ...turkeyFormatted.slice(2),
+      ...jordanFormatted.slice(1),
+      ...dubaiFormatted.slice(1),
+    ].filter(Boolean);
+
+    return combined.length > 0 ? combined : allToursForMarquee;
+  }, [allLiveTours, allToursForMarquee, lang, t]);
 
 
   // Hero Video State
@@ -511,18 +903,23 @@ const HomeExperienceSection = () => {
   };
 
   useScrollAnimations();
-  const isRtl = i18n.dir() === 'rtl';
 
   const filteredVehicles = useMemo(() => {
     const list = transportationList || [];
-    if (vehicleFilter === "all") return list;
-    return list.filter((v) => {
-      const cat = (v.vehicleCategory || v.category || "").toLowerCase();
-      if (vehicleFilter === "bus") return cat === "bus" || cat.includes("bus");
-      if (vehicleFilter === "coaster") return cat === "coaster" || cat.includes("coaster") || cat.includes("mini");
-      if (vehicleFilter === "private") return cat === "private" || cat === "transfer" || Boolean(v.isPrivate);
-      return cat === vehicleFilter.toLowerCase();
-    });
+    let filtered = list;
+    if (vehicleFilter !== "all") {
+      filtered = list.filter((v) => {
+        const cat = (v.category || v.vehicleCategory || "").toLowerCase();
+        if (vehicleFilter === "bus") return cat === "bus" || v.seats > 30;
+        if (vehicleFilter === "coaster") return cat === "coaster" || (v.seats > 8 && v.seats <= 30);
+        if (vehicleFilter === "private") return cat === "private" || v.seats <= 8;
+        return cat === vehicleFilter.toLowerCase();
+      });
+    }
+    if (!filtered || filtered.length === 0) {
+      filtered = fallbackTransportation.filter(v => vehicleFilter === 'all' || v.category === vehicleFilter);
+    }
+    return filtered.length > 0 ? filtered : fallbackTransportation;
   }, [transportationList, vehicleFilter]);
 
   // Shared galleryImages and videos retrieved from useMedia hook
@@ -945,93 +1342,86 @@ const HomeExperienceSection = () => {
         </div>
       </section>
 
-      {/* Package Trips Marquee Section */}
+      {/* Destination Tours Marquee Section */}
       <section className="py-12 bg-ivory-100 dark:bg-obsidian-950 overflow-hidden relative">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12 max-w-3xl mx-auto">
             <span className="text-gold-600 dark:text-gold-400 uppercase tracking-widest text-caption block mb-3 font-semibold">
-              {t("home.packageTripsBadge", "Meticulously crafted experiences meeting the highest luxury standards")}
+              {t("home.destToursBadge", "تجارب مصممة بعناية فائقة عبر جميع وجهاتنا الساحرة")}
             </span>
             <h2 className="text-display-lg text-obsidian-900 dark:text-ivory-50 font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>
-              {t("home.packageTripsTitle", "Trips From Our Packages")}
+              {t("home.destToursTitle", "جولات الوجهات المميزة")}
             </h2>
             <div className="w-24 h-1 bg-gold-500 mx-auto mt-6 rounded-full"></div>
           </div>
         </div>
 
-          <div className="overflow-hidden w-full">
-            <div
-              className="flex w-max"
-              style={{
-                gap: "24px",
-                paddingLeft: "24px",
-                animation: `${isRtl ? 'tourMarqueeRTL' : 'tourMarquee'} 60s linear infinite`,
-              }}
-              onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
-              onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
-            >
+        {/* Marquee Strip: Continuous Infinite Seamless Glide */}
+        <div dir="ltr" className="overflow-hidden w-full relative py-4">
+          <div
+            className="flex w-max"
+            style={{
+              gap: "24px",
+              paddingLeft: "24px",
+              animation: "tourMarquee 110s linear infinite",
+            }}
+            onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
+            onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
+          >
             {(() => {
-              const packageTrips = packagesToursForMarquee.length > 0 ? packagesToursForMarquee : allToursForMarquee;
-              const sliced = packageTrips.slice(0, 10);
-              return [
-                ...sliced.map(t => ({ ...t, isDuplicate: false })),
-                ...sliced.map(t => ({ ...t, isDuplicate: true }))
-              ].map((tData, idx) => {
-                const lang = i18n.language || 'en';
+              const infiniteList = buildInfiniteMarqueeList(destinationToursForMarquee, 'dest');
+              return infiniteList.map((tData, idx) => {
                 const resolvedTitle = resolveTourTitle(tData, t, lang);
                 const resolvedDuration = resolveTourDuration(tData, t, lang);
-                const rawDest = tData.destination === 'holy-land' ? 'holyland' : (tData.destination || 'tour');
-                const resolvedDest = resolveLocalizedText(tData.destination, t, lang) || t(`nav.${rawDest}`, rawDest);
+                const rawDest = tData.destination === 'holy-land' ? 'holyland' : (tData.destination || 'egypt');
+                const resolvedDest = t(`nav.${rawDest}`, rawDest.charAt(0).toUpperCase() + rawDest.slice(1));
                 const imageUrl = tourImageUrl(tData);
 
                 return (
                   <Link
-                    key={`${tData.id}-${idx}`}
-                    to={tData.link}
+                    key={tData.uKey || `dest-tour-${idx}`}
+                    to={tData.link || `/tours/${tData.slug || tData.id}`}
                     tabIndex={tData.isDuplicate ? -1 : undefined}
                     aria-hidden={tData.isDuplicate ? "true" : undefined}
-                    className="min-w-[320px] md:min-w-[400px] shrink-0 group relative rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] transition-all duration-500 h-[450px] block focus:outline-none focus:ring-2 focus:ring-gold-500"
+                    className="min-w-[300px] sm:min-w-[340px] md:min-w-[380px] shrink-0 group relative rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_40px_rgba(245,166,35,0.3)] transition-all duration-500 h-[450px] block border border-obsidian-700/50 hover:border-gold-500 bg-obsidian-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
                   >
-                    {imageUrl ? <img
+                    <img
                       src={getOptimizedImageUrl(imageUrl, 400, 450)}
                       alt={resolvedTitle}
                       width="400"
                       height="450"
-                      className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
+                      className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.08] opacity-90 group-hover:opacity-100"
                       loading="lazy"
                       decoding="async"
-                    /> : <div className="flex h-full items-center justify-center bg-obsidian-800 px-6 text-center text-sm text-ivory-300">{t('tour.imageUnavailable', 'No image has been added for this tour.')}</div>}
-                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/90 via-obsidian-900/20 to-transparent"></div>
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-900/50 to-transparent"></div>
 
-                    <div className="absolute top-4 left-4 bg-gold-500/90 backdrop-blur-sm text-obsidian-900 text-caption font-bold px-3 py-1 rounded shadow-md uppercase">
+                    <div className="absolute top-4 left-4 z-20 bg-gold-500 text-obsidian-950 text-caption font-bold px-3.5 py-1.5 rounded-full shadow-md uppercase backdrop-blur-md">
                       {resolvedDest}
                     </div>
 
-                    <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full">
-                      <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                        <h3 className="text-display-md text-ivory-50 mb-2 leading-tight">
+                    <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full z-10" dir={isRtl ? "rtl" : "ltr"}>
+                      <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                        <h3 className="text-xl md:text-2xl text-white font-serif font-bold mb-2 leading-tight drop-shadow-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
                           {resolvedTitle}
                         </h3>
 
-                        <div className="flex items-center justify-between text-caption text-ivory-300 mb-4">
+                        {tData.overview && (
+                          <p className="text-body-sm text-ivory-200 line-clamp-2 mb-3 font-medium drop-shadow">
+                            {tData.overview}
+                          </p>
+                        )}
+
+                        <div className="flex items-center justify-between text-caption text-gold-400 font-semibold mb-4 pt-2 border-t border-white/15">
                           <span>{resolvedDuration}</span>
-                          <span className="text-gold-500 font-semibold">
-                            {Number.isFinite(Number(tData.price)) ? formatPrice(Number(tData.price)) : t('tour.priceOnRequest', 'Price on request')}
-                          </span>
+                          {Number.isFinite(Number(tData.price)) && Number(tData.price) > 0 && (
+                            <span className="text-gold-400 font-bold">{formatPrice(Number(tData.price))}</span>
+                          )}
                         </div>
 
-                        {Number.isFinite(Number(tData.rating)) && Number.isFinite(Number(tData.reviewCount)) ? (
-                          <div className="flex items-center gap-1 text-gold-500 mb-4">
-                            <FaStar size={14} />
-                            <span className="text-ivory-50 ml-1 text-sm font-semibold">
-                              {Number(tData.rating).toFixed(1)} <span className="text-ivory-300 font-normal">({tData.reviewCount})</span>
-                            </span>
-                          </div>
-                        ) : null}
-
-                        <div className="block opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                          <Button variant="outline-gold" tabIndex={-1} className="w-full py-2">
-                            {t("home.viewTour", "View Tour")}
+                        <div className="block">
+                          <Button variant="gold-glow" tabIndex={-1} className="w-full py-2.5 text-xs font-bold shadow-lg">
+                            {t("home.viewTour", isAr ? "عرض التفاصيل وحجز الرحلة" : "View Tour & Book")} →
                           </Button>
                         </div>
                       </div>
@@ -1044,13 +1434,14 @@ const HomeExperienceSection = () => {
         </div>
 
         <div className="flex justify-center mt-12">
-          <Button
-            variant="gold-glow"
-            className="px-8 py-3"
-            onClick={() => setIsAllToursPopupOpen(true)}
-          >
-            {t("home.exploreAllTours", "Explore All Tours")}
-          </Button>
+          <Link to="/tours">
+            <Button
+              variant="gold-glow"
+              className="px-8 py-3 font-bold"
+            >
+              {t("home.exploreAllTours", isAr ? "استكشف جميع الرحلات" : "Explore All Tours")} →
+            </Button>
+          </Link>
         </div>
       </section>
 
@@ -1272,94 +1663,111 @@ const HomeExperienceSection = () => {
       </section>
 
       {/* Packages Tours Marquee */}
-      <section className="py-12 bg-ivory-100 overflow-hidden relative">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-12">
-            <span className="text-gold-600 uppercase tracking-widest text-caption block mb-4">
-              {t("home.packageTripsSub", "FEATURED TRIPS")}
-            </span>
-            <h2 className="text-display-lg text-obsidian-900">
-              {t("home.packageTripsTitle", "Trips From Our Packages")}
-            </h2>
-            <div className="w-24 h-1 bg-gold-500 mx-auto mt-6"></div>
+      <section className="py-16 md:py-20 relative overflow-hidden bg-ivory-100 dark:bg-obsidian-950">
+        <div className="container mx-auto px-6 mb-12">
+          <div className="text-center max-w-4xl mx-auto">
+            <motion.span 
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-600 dark:text-gold-400 text-caption font-bold uppercase tracking-widest mb-4 shadow-sm"
+            >
+              <span>✨</span> {t("home.packageTripsSub", "تجارب مصممة بعناية فائقة لتلبي أعلى تطلعات عشاق الفخامة والتميز")}
+            </motion.span>
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-3xl md:text-5xl lg:text-6xl text-obsidian-900 dark:text-white font-serif tracking-tight mb-4"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              {t("home.packageTripsTitle", "رحلات الباقات الخاصة بنا")}
+            </motion.h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto mt-4 rounded-full"></div>
           </div>
         </div>
 
-        <div className="overflow-hidden w-full">
+        {/* Marquee Strip: Moving smoothly without stopping unless hovered */}
+        <div dir="ltr" className="overflow-hidden w-full relative py-4">
           <div
             className="flex w-max"
             style={{
               gap: "24px",
               paddingLeft: "24px",
-              animation: `${isRtl ? 'tourMarqueeRTL' : 'tourMarquee'} 60s linear infinite`,
+              animation: "tourMarquee 120s linear infinite",
             }}
             onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
             onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
           >
             {(() => {
-              const sliced = packagesToursForMarquee.slice(0, 8);
-              return [
-                ...sliced.map(t => ({ ...t, isDuplicate: false })),
-                ...sliced.map(t => ({ ...t, isDuplicate: true }))
-              ].map((tData, idx) => {
-                const imageUrl = tourImageUrl(tData);
+              const infiniteList = buildInfiniteMarqueeList(packagesToursForMarquee, 'pkg');
+              return infiniteList.map((tData, idx) => {
+                const tourImg = tourImageUrl(tData);
                 return (
-                <Link
-                  key={`pkg-${tData.id}-${idx}`}
-                  to={tData.link}
-                  tabIndex={tData.isDuplicate ? -1 : undefined}
-                  aria-hidden={tData.isDuplicate ? "true" : undefined}
-                  className="min-w-[320px] md:min-w-[400px] shrink-0 group relative rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] transition-all duration-500 h-[450px] block focus:outline-none focus:ring-2 focus:ring-gold-500"
-                >
-                  {imageUrl ? <img
-                    src={getOptimizedImageUrl(imageUrl, 400, 450)}
-                    alt={tData.title}
-                    width="400"
-                    height="450"
-                    className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
-                    loading="lazy"
-                    decoding="async"
-                  /> : <div className="flex h-full items-center justify-center bg-obsidian-800 px-6 text-center text-sm text-ivory-300">{t('tour.imageUnavailable', 'No image has been added for this tour.')}</div>}
-                  <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/90 via-obsidian-900/20 to-transparent"></div>
-                  
-                  <div className="absolute top-4 left-4 bg-gold-500/90 backdrop-blur-sm text-obsidian-900 text-caption font-bold px-3 py-1 rounded shadow-md uppercase">
-                    {t(`nav.${tData.destination === 'holy-land' ? 'holyland' : (tData.destination || 'tour')}`, tData.destination || 'tour')}
-                  </div>
+                  <Link
+                    key={tData.uKey || `pkg-tour-${idx}`}
+                    to={tData.link || "/tours"}
+                    tabIndex={tData.isDuplicate ? -1 : undefined}
+                    aria-hidden={tData.isDuplicate ? "true" : undefined}
+                    className="min-w-[300px] sm:min-w-[340px] md:min-w-[380px] shrink-0 group relative rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_40px_rgba(245,166,35,0.3)] transition-all duration-500 h-[450px] block border border-obsidian-700/50 hover:border-gold-500 bg-obsidian-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                  >
+                    <img
+                      src={getOptimizedImageUrl(tourImg, 400, 450)}
+                      alt={tData.title}
+                      width="400"
+                      height="450"
+                      className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.08] opacity-90 group-hover:opacity-100"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-900/50 to-transparent"></div>
 
-                  <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full">
-                    <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                      <h3 className="text-display-md text-ivory-50 mb-2 leading-tight">
-                        {t(`data.${tData.title}`, tData.title)}
-                      </h3>
-
-                      <div className="flex items-center justify-between text-caption text-ivory-300 mb-4">
-                        <span>{t(`data.${tData.duration}`, tData.duration)}</span>
-                        <span className="text-gold-500 font-semibold">
-                          {Number.isFinite(Number(tData.price)) ? formatPrice(Number(tData.price)) : t('tour.priceOnRequest', 'Price on request')}
-                        </span>
+                    {tData.badge && (
+                      <div className="absolute top-4 left-4 z-20 bg-gold-500 text-obsidian-950 text-caption font-bold px-3.5 py-1.5 rounded-full shadow-md uppercase backdrop-blur-md">
+                        ★ {tData.badge}
                       </div>
+                    )}
 
-                      {Number.isFinite(Number(tData.rating)) && Number.isFinite(Number(tData.reviewCount)) ? (
-                        <div className="flex items-center gap-1 text-gold-500 mb-4">
-                          {[...Array(Math.floor(Number(tData.rating)))].map((_, i) => (
-                            <FaStar key={i} size={12} />
-                          ))}
-                          <span className="text-ivory-50 ml-1 text-xs">({tData.reviewCount})</span>
+                    <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full z-10" dir={isRtl ? "rtl" : "ltr"}>
+                      <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                        <h3 className="text-xl md:text-2xl text-white font-serif font-bold mb-2 leading-tight drop-shadow-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
+                          {tData.title}
+                        </h3>
+
+                        {tData.overview && (
+                          <p className="text-body-sm text-ivory-200 line-clamp-2 mb-3 font-medium drop-shadow">
+                            {tData.overview}
+                          </p>
+                        )}
+
+                        <div className="flex items-center justify-between text-caption text-gold-400 font-semibold mb-4 pt-2 border-t border-white/15">
+                          <span>{tData.duration}</span>
+                          {Number.isFinite(Number(tData.price)) && Number(tData.price) > 0 && (
+                            <span className="text-gold-400 font-bold">{formatPrice(Number(tData.price))}</span>
+                          )}
                         </div>
-                      ) : null}
 
-                      <div className="block opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                        <Button variant="outline-gold" tabIndex={-1} className="w-full py-2">
-                          {t("home.viewTour", "View Tour")}
-                        </Button>
+                        <div className="block">
+                          <Button variant="gold-glow" tabIndex={-1} className="w-full py-2.5 text-xs font-bold shadow-lg">
+                            {t("home.viewTour", isAr ? "عرض التفاصيل وحجز الرحلة" : "View Tour & Book")} →
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
+                  </Link>
                 );
               });
             })()}
           </div>
+        </div>
+
+        <div className="flex justify-center mt-12">
+          <Link to="/tours">
+            <Button variant="outline-gold" className="px-8 py-3 text-body-sm font-bold">
+              {t("home.exploreAllTours", isAr ? "استكشف جميع البرامج والرحلات" : "Explore All Programs & Tours")} →
+            </Button>
+          </Link>
         </div>
       </section>
 
@@ -1426,44 +1834,47 @@ const HomeExperienceSection = () => {
             ))}
           </div>
 
-          {/* Vehicles Strip */}
-          <div className="w-full relative overflow-hidden mb-12">
+          {/* Vehicles Strip: Infinite Marquee */}
+          <div dir="ltr" className="w-full relative overflow-hidden mb-12 py-4">
             <div
-              className="flex gallery-strip w-max"
+              className="flex w-max"
               style={{
-                animation: `${isRtl ? 'scrollStripRTL' : 'scrollStrip'} 80s linear infinite`,
-                gap: "16px",
+                gap: "20px",
+                paddingLeft: "20px",
+                animation: "tourMarquee 90s linear infinite",
               }}
+              onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
+              onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
             >
-              {Array.from({ length: 4 })
-                .flatMap(() => filteredVehicles)
-                .map((vehicle, idx) => (
+              {(() => {
+                const infiniteVehicles = buildInfiniteMarqueeList(filteredVehicles, 'veh');
+                return infiniteVehicles.map((vehicle, idx) => (
                   <div
-                    key={`${vehicle.id}-${idx}`}
-                    className="flex-shrink-0 flex flex-col rounded-[16px] overflow-hidden group relative w-[280px] h-[220px] md:h-[380px] transition-all duration-[350ms] ease-out hover:scale-[1.08] hover:-translate-y-[12px] hover:shadow-[0_12px_40px_rgba(245,166,35,0.35)] hover:z-10"
+                    key={vehicle.uKey || `veh-${vehicle.id}-${idx}`}
+                    className="flex-shrink-0 flex flex-col rounded-[20px] overflow-hidden group relative w-[280px] sm:w-[320px] md:w-[360px] h-[360px] md:h-[400px] transition-all duration-500 ease-out hover:scale-[1.05] hover:-translate-y-2 hover:shadow-[0_12px_40px_rgba(245,166,35,0.35)] border border-obsidian-700/50 hover:border-gold-500 bg-obsidian-900"
                   >
                     <img
-                      src={vehicle.heroImage || vehicle.image}
+                      src={getOptimizedImageUrl(vehicle.heroImage || vehicle.image, 360, 400)}
                       alt={vehicle.name}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
                       loading="lazy"
                       decoding="async"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900 via-obsidian-900/40 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-900/50 to-transparent"></div>
 
-                    <div className="absolute top-4 left-4 bg-gold-500 text-obsidian-900 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded shadow-md">
-                      {(vehicle.vehicleCategory || vehicle.category) === 'bus' ? t('transportation.filter.buses', 'Buses') :
-                        (vehicle.vehicleCategory || vehicle.category) === 'coaster' ? t('transportation.filter.coasters', 'Coaster Vehicles') :
+                    <div className="absolute top-4 left-4 z-20 bg-gold-500 text-obsidian-950 text-caption font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md backdrop-blur-md">
+                      {vehicle.category === 'bus' ? t('transportation.filter.buses', 'Buses') :
+                        vehicle.category === 'coaster' ? t('transportation.filter.coasters', 'Coaster Vehicles') :
                           t('transportation.filter.private', 'Private Vehicles')}
                     </div>
 
-                    <div className="absolute bottom-0 left-0 right-0 p-5 flex flex-col justify-end">
-                      <h3 className="font-display text-xl text-ivory-50 mb-1 drop-shadow-md">
+                    <div className="absolute bottom-0 left-0 right-0 p-5 flex flex-col justify-end z-10" dir={isRtl ? "rtl" : "ltr"}>
+                      <h3 className="font-serif text-xl md:text-2xl text-white font-bold mb-1 drop-shadow-md" style={{ fontFamily: "'Playfair Display', serif" }}>
                         {vehicle.name}
                       </h3>
-                      <div className="flex items-center text-xs text-white mb-3 gap-1">
+                      <div className="flex items-center text-xs text-ivory-200 mb-3 gap-1 font-medium">
                         <svg
-                          className="w-4 h-4 text-gold-500"
+                          className="w-4 h-4 text-gold-500 shrink-0"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -1479,13 +1890,13 @@ const HomeExperienceSection = () => {
                         {t("transportation.seatsCount", "Seats")}
                       </div>
 
-                      <div className="flex items-center justify-between mb-4 border-t border-ivory-50/20 pt-3 mt-1">
-                        <span className="text-xs text-white uppercase tracking-wider">
+                      <div className="flex items-center justify-between mb-4 border-t border-white/20 pt-3 mt-1">
+                        <span className="text-xs text-ivory-300 uppercase tracking-wider">
                           {t("tourCard.from", "From")}
                         </span>
-                        <span className="text-lg font-semibold text-gold-500">
+                        <span className="text-lg font-bold text-gold-400">
                           {formatPrice(vehicle.pricePerDay)}
-                          <span className="text-xs text-white font-normal">
+                          <span className="text-xs text-ivory-300 font-normal">
                             {" "}
                             / {t("transportation.day", "day")}
                           </span>
@@ -1494,13 +1905,14 @@ const HomeExperienceSection = () => {
 
                       <button
                         onClick={() => handleHomeReserveClick(vehicle.id)}
-                        className="w-full py-2 text-sm font-semibold text-white transition-colors border border-gold-500 rounded-lg flex items-center justify-center bg-obsidian-900/40 backdrop-blur-sm cursor-pointer outline-none"
+                        className="w-full py-2.5 text-xs font-bold text-obsidian-950 transition-all bg-gradient-to-r from-[#F5A623] to-[#E09612] hover:brightness-110 rounded-xl shadow-lg flex items-center justify-center cursor-pointer outline-none active:scale-95"
                       >
                         {t("transportation.reserveNow", "Reserve Now")}
                       </button>
                     </div>
                   </div>
-                ))}
+                ));
+              })()}
             </div>
           </div>
 
@@ -1875,43 +2287,45 @@ const HomeExperienceSection = () => {
           ></motion.div>
         </div>
 
-        <div className="w-full mt-10 relative">
+        <div dir="ltr" className="w-full mt-10 relative overflow-hidden py-4">
           <div
-            className="flex gallery-strip w-max"
+            className="flex w-max"
             style={{
-              animation: `${isRtl ? 'scrollStripRTL' : 'scrollStrip'} 80s linear infinite`,
+              animation: "tourMarquee 90s linear infinite",
               gap: "16px",
+              paddingLeft: "16px",
             }}
+            onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
+            onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
           >
             {(() => {
-              const sliced = galleryImages.slice(0, 12);
-              return [...sliced, ...sliced].map((img, idx) => {
+              const infiniteImages = buildInfiniteMarqueeList(galleryImages, 'gal');
+              return infiniteImages.map((img, idx) => {
                 const originalIndex = galleryImages.indexOf(img);
-                const isDuplicate = idx >= sliced.length;
                 return (
                   <div
-                    key={idx}
-                    className="flex-shrink-0 cursor-pointer overflow-hidden rounded-[12px] group relative transition-all duration-[350ms] ease-out hover:scale-[1.08] hover:-translate-y-[12px] hover:shadow-[0_12px_40px_rgba(245,166,35,0.35)] hover:z-10 focus:outline-none focus:ring-2 focus:ring-gold-500"
-                    onClick={isDuplicate ? undefined : () => openLightbox(originalIndex)}
-                    onKeyDown={isDuplicate ? undefined : (e) => {
+                    key={img.uKey || `gal-${idx}`}
+                    className="flex-shrink-0 cursor-pointer overflow-hidden rounded-[16px] group relative transition-all duration-500 ease-out hover:scale-[1.06] hover:-translate-y-2 hover:shadow-[0_12px_40px_rgba(245,166,35,0.35)] hover:z-10 focus:outline-none focus:ring-2 focus:ring-gold-500 border border-obsidian-700/40 hover:border-gold-500"
+                    onClick={img.isDuplicate ? undefined : () => openLightbox(originalIndex)}
+                    onKeyDown={img.isDuplicate ? undefined : (e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         openLightbox(originalIndex);
                       }
                     }}
-                    tabIndex={isDuplicate ? -1 : 0}
-                    role={isDuplicate ? undefined : "button"}
-                    aria-label={isDuplicate ? undefined : `${t("home.viewLarger", "View larger image of")} ${img.label}`}
-                    aria-hidden={isDuplicate ? "true" : undefined}
+                    tabIndex={img.isDuplicate ? -1 : 0}
+                    role={img.isDuplicate ? undefined : "button"}
+                    aria-label={img.isDuplicate ? undefined : `${t("home.viewLarger", "View larger image of")} ${img.label || 'image'}`}
+                    aria-hidden={img.isDuplicate ? "true" : undefined}
                   >
                     <img
                       src={getOptimizedImageUrl(img.url, 400, 380)}
-                      alt={img.label}
+                      alt={img.label || 'Luxury moment'}
                       loading="lazy"
                       decoding="async"
                       width="280"
                       height="380"
-                      className="h-[220px] md:h-[380px] w-auto object-cover transition-transform duration-300 group-hover:scale-105"
+                      className="h-[220px] md:h-[380px] w-auto object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                   </div>
                 );

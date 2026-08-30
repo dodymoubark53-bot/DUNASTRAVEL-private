@@ -7,9 +7,11 @@ import { FaPlane, FaWhatsapp, FaPhone, FaFacebookF, FaInstagram } from 'react-ic
 import Button from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
 import { useDestinations } from '../hooks/useDestinations';
+import { useToast } from '../context/ToastContext';
 
 const TailorTour = () => {
   const { t, i18n } = useTranslation();
+  const toast = useToast();
   const { user } = useAuth();
   const { destinations: publishedDestinations } = useDestinations();
   const isRtl = i18n.dir() === 'rtl';
@@ -181,7 +183,12 @@ const TailorTour = () => {
       const { default: api } = await import('../utils/api');
       await api.post('/inquiries', payload);
 
-      alert(t('tailor.successAlert', 'Your request has been submitted successfully! We will contact you soon.'));
+      const successMessage = t('tailor.successAlert', 'Your request has been submitted successfully! A luxury travel designer will contact you soon.');
+      toast?.success?.(successMessage, {
+        title: t('tailor.successTitle', 'Bespoke Request Confirmed'),
+        duration: 7000,
+      });
+
       // Reset form
       setSelectedDestinations([]);
       setFullName('');
@@ -198,7 +205,10 @@ const TailorTour = () => {
       scrollToTop();
     } catch (err) {
       console.error('Inquiry submission failed:', err);
-      alert(t('tailor.errorAlert', 'Failed to submit inquiry. Please try again.'));
+      const errorMessage = t('tailor.errorAlert', 'Failed to submit inquiry. Please check your details and try again.');
+      toast?.error?.(errorMessage, {
+        title: t('tailor.errorTitle', 'Submission Error'),
+      });
     } finally {
       setIsSubmitting(false);
     }

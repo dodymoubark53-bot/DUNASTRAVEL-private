@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -5,9 +6,14 @@ import { FaPhone, FaWhatsapp } from 'react-icons/fa';
 import { staggerContainer, fadeInUp } from '../animations/variants';
 import Button from '../components/ui/Button';
 import ContactForms from '../components/contact/ContactForms';
+import { useToast } from '../context/ToastContext';
+import FormFeedback from '../components/ui/FormFeedback';
 
 const Contact = () => {
   const { t, i18n } = useTranslation();
+  const toast = useToast();
+  const [feedback, setFeedback] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   return (
     <div className="w-full bg-obsidian-50 pb-24">
       <Helmet>
@@ -101,8 +107,17 @@ const Contact = () => {
           {/* Form */}
           <div className="lg:w-1/2 p-12">
             <h3 className="text-display-md text-obsidian-900 mb-6">{t('contact.sendMessage', 'Send us a message')}</h3>
+            
+            {feedback && (
+              <div className="mb-6">
+                <FormFeedback type={feedback.type} message={feedback.message} />
+              </div>
+            )}
+
             <form className="flex flex-col gap-6" onSubmit={async (e) => {
               e.preventDefault();
+              setFeedback(null);
+              setIsSubmitting(true);
               const form = e.target;
               const firstName = form.firstName.value;
               const lastName = form.lastName.value;
@@ -122,11 +137,17 @@ const Contact = () => {
                   locale: String(i18n.language || 'en').toLowerCase().split('-')[0],
                 };
                 await api.post('/contact', payload);
-                alert(t('contact.success', 'Your message has been sent successfully.'));
+                const successMsg = t('contact.success', 'Your message has been sent successfully. Our concierge will contact you shortly.');
+                setFeedback({ type: 'success', message: successMsg });
+                toast?.success?.(successMsg, { title: t('contact.successTitle', 'Message Received') });
                 form.reset();
               } catch (err) {
                 console.error(err);
-                alert(t('contact.error', 'There was an error sending your message.'));
+                const errorMsg = t('contact.error', 'There was an error sending your message. Please try again.');
+                setFeedback({ type: 'error', message: errorMsg });
+                toast?.error?.(errorMsg, { title: t('contact.errorTitle', 'Submission Error') });
+              } finally {
+                setIsSubmitting(false);
               }
             }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -136,7 +157,16 @@ const Contact = () => {
               <input name="email" type="email" placeholder={t('contact.emailPlaceholder', 'Email Address')} required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
               <input name="phone" type="tel" placeholder={t('contact.phonePlaceholder', 'Phone Number')} className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors" />
               <textarea name="message" placeholder={t('contact.messagePlaceholder', 'How can we help you craft your perfect journey?')} rows="5" required className="w-full p-4 border border-gray-200 rounded-lg focus:border-gold-500 outline-none transition-colors resize-none"></textarea>
-              <Button type="submit" variant="gold-glow" className="self-start px-8">{t('contact.sendBtn', 'Send Message')}</Button>
+              <Button type="submit" variant="gold-glow" className="self-start px-8" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-obsidian-900 border-t-transparent rounded-full animate-spin"></span>
+                    {t('common.sending', 'Sending...')}
+                  </span>
+                ) : (
+                  t('contact.sendBtn', 'Send Message')
+                )}
+              </Button>
             </form>
           </div>
 

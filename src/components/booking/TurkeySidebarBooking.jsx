@@ -15,10 +15,12 @@ import {
   FaBus,
   FaCheckCircle,
   FaBuilding,
-  FaMapMarkerAlt
+  FaMapMarkerAlt,
+  FaUserCheck
 } from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
 import api from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
 
 const inputStyle =
   'w-full p-3 rounded-xl outline-none transition-all text-[14px] bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-[rgba(201,162,39,0.5)] focus:shadow-[0_0_20px_rgba(201,162,39,0.1)] [color-scheme:dark]';
@@ -46,6 +48,7 @@ const LANGUAGES = [
 
 export default function TurkeySidebarBooking({ tourTitle, transportChoice, requireTransportChoice }) {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [tab, setTab] = useState('booking'); // 'booking' | 'inquiry'
   const [submitStatus, setSubmitStatus] = useState('idle'); // 'idle' | 'submitting' | 'success'
   const [openDropdown, setOpenDropdown] = useState(null); // 'booking' | 'inquiry' | null
@@ -82,9 +85,9 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
     adults: 1,
     children: 0,
     infants: 0,
-    fullName: '',
-    email: '',
-    phone: '',
+    fullName: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
     invoiceType: 'PERSONAL',
     companyName: '',
     taxId: '',
@@ -97,10 +100,38 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
 
   const [passengerNames, setPassengerNames] = useState({});
 
+  // Restore booking intent if user was redirected to login
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const rawIntent = sessionStorage.getItem('dunas_pending_booking_intent');
+      if (rawIntent) {
+        const intent = JSON.parse(rawIntent);
+        if (intent?.tourTitle === tourTitle || intent?.tourId === tourTitle) {
+          if (intent.b) {
+            setBookingForm((prev) => ({
+              ...prev,
+              ...intent.b,
+              fullName: user?.name || intent.b.fullName || prev.fullName,
+              email: user?.email || intent.b.email || prev.email,
+              phone: user?.phone || intent.b.phone || prev.phone,
+            }));
+          }
+          if (intent.passengerNames) {
+            setPassengerNames(intent.passengerNames);
+          }
+          sessionStorage.removeItem('dunas_pending_booking_intent');
+        }
+      }
+    } catch {
+      sessionStorage.removeItem('dunas_pending_booking_intent');
+    }
+  }, [tourTitle, user]);
+
   const [inquiryForm, setInquiryForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
     language: '',
     message: ''
   });
@@ -134,6 +165,25 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
+
+    // Require authentication before submitting booking
+    if (!user) {
+      if (typeof window !== 'undefined') {
+        const draftIntent = {
+          tourId: tourTitle,
+          tourTitle,
+          transportChoice,
+          b: bookingForm,
+          passengerNames,
+          timestamp: Date.now(),
+        };
+        sessionStorage.setItem('dunas_pending_booking_intent', JSON.stringify(draftIntent));
+        const redirectUrl = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+        window.location.assign(redirectUrl);
+      }
+      return;
+    }
+
     if (requireTransportChoice && !transportChoice) {
       setShowTransportError(true);
       const el = document.getElementById('transport-selector');
@@ -172,11 +222,6 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
       };
 
       const data = await api.post('/bookings', payload);
-
-      const tokenToSave = data?.guestToken || data?.data?.guestToken;
-      if (tokenToSave && typeof window !== 'undefined') {
-        localStorage.setItem('dunas_guest_token', tokenToSave);
-      }
 
       const bookingResultData = { ...data, type: 'booking' };
       if ((data?.id || data?.referenceCode) && data?.paymentRequired !== false) {
@@ -751,6 +796,11 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
                     <span className="w-4 h-4 border-2 border-obsidian-900 border-t-transparent rounded-full animate-spin" />
                     {t('common.sending', 'Sending...')}
                   </span>
+                ) : !user ? (
+                  <>
+                    <FaUserCheck size={13} />
+                    {t('booking.signInToBook', 'Sign in & Book')}
+                  </>
                 ) : (
                   <>
                     <FaBookmark size={12} />

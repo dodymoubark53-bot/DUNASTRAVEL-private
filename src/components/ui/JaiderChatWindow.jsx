@@ -18,6 +18,13 @@ import {
   FaStopCircle,
   FaBalanceScale,
   FaSlidersH,
+  FaBolt,
+  FaCalendarAlt,
+  FaUsers,
+  FaCreditCard,
+  FaWhatsapp,
+  FaCheck,
+  FaSuitcaseRolling,
 } from 'react-icons/fa';
 import { useJaiderChat } from '../../context/JaiderChatContext';
 
@@ -38,6 +45,11 @@ const JaiderChatWindow = () => {
     suggestions,
     leadFormState,
     submitLead,
+    personas,
+    selectedPersona,
+    changePersona,
+    bookTourInChat,
+    isInChatBookingEnabled,
   } = useJaiderChat();
 
   const [input, setInput] = useState('');
@@ -50,6 +62,23 @@ const JaiderChatWindow = () => {
   const [activeFeedbackModal, setActiveFeedbackModal] = useState(null); // msgId for negative feedback
   const [feedbackComment, setFeedbackComment] = useState('');
   const [feedbackCategory, setFeedbackCategory] = useState('INCORRECT_INFO');
+
+  // In-Chat Booking Modal State
+  const [bookingModalOpen, setBookingModalOpen] = useState(false);
+  const [selectedTourForBooking, setSelectedTourForBooking] = useState(null);
+  const [bookingArrivalDate, setBookingArrivalDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 7);
+    return d.toISOString().split('T')[0];
+  });
+  const [bookingAdults, setBookingAdults] = useState(2);
+  const [bookingChildren, setBookingChildren] = useState(0);
+  const [bookingFullName, setBookingFullName] = useState('');
+  const [bookingEmail, setBookingEmail] = useState('');
+  const [bookingPhone, setBookingPhone] = useState('');
+  const [bookingNationality, setBookingNationality] = useState('');
+  const [bookingNotes, setBookingNotes] = useState('');
+  const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -77,12 +106,16 @@ const JaiderChatWindow = () => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && isOpen) {
-        setIsOpen(false);
+        if (bookingModalOpen) {
+          setBookingModalOpen(false);
+        } else {
+          setIsOpen(false);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, setIsOpen]);
+  }, [isOpen, setIsOpen, bookingModalOpen]);
 
   const handleSend = () => {
     if (!input.trim() || isTyping) return;
@@ -100,6 +133,34 @@ const JaiderChatWindow = () => {
   const handleNavigateToTour = (publicUrl) => {
     if (publicUrl) {
       navigate(publicUrl);
+    }
+  };
+
+  const handleOpenBookingModal = (tour) => {
+    setSelectedTourForBooking(tour);
+    setBookingModalOpen(true);
+  };
+
+  const handleConfirmBooking = async (e) => {
+    e.preventDefault();
+    if (!bookingFullName.trim() || !bookingEmail.trim() || !bookingArrivalDate) return;
+
+    setIsSubmittingBooking(true);
+    const result = await bookTourInChat({
+      tourId: selectedTourForBooking.id || selectedTourForBooking.slug,
+      arrivalDate: bookingArrivalDate,
+      adults: bookingAdults,
+      children: bookingChildren,
+      fullName: bookingFullName.trim(),
+      email: bookingEmail.trim(),
+      phone: bookingPhone.trim(),
+      nationality: bookingNationality.trim(),
+      notes: bookingNotes.trim(),
+    });
+
+    setIsSubmittingBooking(false);
+    if (result && result.success) {
+      setBookingModalOpen(false);
     }
   };
 
@@ -210,9 +271,36 @@ const JaiderChatWindow = () => {
               </div>
             </div>
 
+            {/* Persona / Vibe Switcher Bar */}
+            {personas && personas.length > 0 && (
+              <div className="bg-slate-900/90 px-3 py-1.5 border-b border-gold-500/20 flex items-center gap-1.5 overflow-x-auto no-scrollbar select-none">
+                <span className="text-[9px] text-gold-400 font-bold uppercase tracking-wider shrink-0 me-1">
+                  {isRtl ? 'الأسلوب:' : 'Style:'}
+                </span>
+                {personas.map((p) => {
+                  const isActive = selectedPersona === p.code;
+                  return (
+                    <button
+                      key={p.code}
+                      onClick={() => changePersona(p.code)}
+                      title={p.tagline}
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0 transition-all flex items-center gap-1 border ${
+                        isActive
+                          ? 'bg-gradient-to-r from-gold-600/30 to-gold-500/20 text-gold-300 border-gold-500/60 shadow-[0_0_8px_rgba(212,175,55,0.3)]'
+                          : 'bg-slate-800/60 text-slate-400 border-slate-700/60 hover:text-slate-200 hover:border-slate-600'
+                      }`}
+                    >
+                      <span>{p.icon}</span>
+                      <span>{p.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Message Area */}
             <div
-              className="flex-1 p-4 overflow-y-auto space-y-4 scroll-smooth focus:outline-none"
+              className="flex-1 p-4 overflow-y-auto space-y-4 scroll-smooth focus:outline-none relative"
               tabIndex={0}
               aria-live="polite"
             >
@@ -397,39 +485,109 @@ const JaiderChatWindow = () => {
                             </div>
 
                             {/* Proposal CTA Actions */}
-                            <div className="flex gap-2 pt-2 border-t border-gold-500/20">
+                            <div className="flex flex-col sm:flex-row gap-2 pt-2 border-t border-gold-500/20">
                               <button
                                 onClick={() => {
                                   navigate('/tailor-a-tour');
                                   setIsOpen(false);
                                 }}
-                                className="flex-1 py-2 bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian-950 font-bold text-xs rounded-xl hover:brightness-110 transition-all text-center shadow-md"
+                                className="flex-1 py-2.5 px-3 bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian-950 font-bold text-xs rounded-xl hover:brightness-110 transition-all text-center shadow-md flex items-center justify-center gap-1.5"
                               >
-                                {t('jaider.customizeTrip', 'Customize This Trip →')}
+                                <span>{isRtl ? 'تخصيص هذا البرنامج الفاخر' : t('jaider.customizeTrip', 'Customize This Trip')}</span>
+                                <span className={isRtl ? 'rotate-180' : ''}>→</span>
                               </button>
                             </div>
                           </div>
                         )}
 
+                        {/* Booking Confirmation Card */}
+                        {msg.booking && (
+                          <div className="bg-gradient-to-br from-slate-900 via-obsidian-950 to-slate-900 border-2 border-gold-500/60 p-4 rounded-2xl shadow-xl flex flex-col gap-3 my-1">
+                            <div className="flex items-center justify-between border-b border-gold-500/30 pb-2.5">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                                  <FaCheck size={12} />
+                                </div>
+                                <div>
+                                  <span className="text-[10px] uppercase font-bold text-gold-400 tracking-wider">
+                                    {isRtl ? 'تأكيد الحجز الفاخر' : 'Luxury Reservation Confirmed'}
+                                  </span>
+                                  <h4 className="text-xs sm:text-sm font-extrabold text-white">{msg.booking.tourTitle}</h4>
+                                </div>
+                              </div>
+                              <span className="px-2.5 py-1 rounded-lg bg-gold-500/20 border border-gold-500/40 text-gold-300 font-mono font-bold text-xs">
+                                {msg.booking.referenceCode}
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2 text-xs bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+                              <div>
+                                <span className="text-slate-400 text-[10px] block">{isRtl ? 'تاريخ الوصول:' : 'Arrival Date:'}</span>
+                                <span className="font-bold text-slate-200">{msg.booking.arrivalDate}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 text-[10px] block">{isRtl ? 'عدد الضيوف:' : 'Guests:'}</span>
+                                <span className="font-bold text-slate-200">{msg.booking.adults} {isRtl ? 'بالغين' : 'Adults'}{msg.booking.children > 0 ? ` + ${msg.booking.children} ${isRtl ? 'أطفال' : 'Kids'}` : ''}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 text-[10px] block">{isRtl ? 'المبلغ الإجمالي:' : 'Total Amount:'}</span>
+                                <span className="font-extrabold text-emerald-400 text-xs sm:text-sm">${msg.booking.totalAmount} {msg.booking.currency || 'USD'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 text-[10px] block">{isRtl ? 'حالة الحجز:' : 'Status:'}</span>
+                                <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300">
+                                  {isRtl ? 'قيد التأكيد والدفع' : 'Pending Confirmation'}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                              <button
+                                onClick={() => {
+                                  navigate(msg.booking.checkoutUrl || `/booking-success?ref=${msg.booking.referenceCode}`);
+                                  setIsOpen(false);
+                                }}
+                                className="flex-1 py-2 px-3 bg-gradient-to-r from-gold-600 to-gold-400 hover:brightness-110 text-obsidian-950 font-bold text-xs rounded-xl shadow-md text-center transition-all flex items-center justify-center gap-1.5"
+                              >
+                                <FaCreditCard size={11} />
+                                <span>{isRtl ? 'عرض تفاصيل الحجز والسداد ←' : 'Proceed to Payment / View Details →'}</span>
+                              </button>
+                              <a
+                                href={`https://wa.me/201000000000?text=${encodeURIComponent(isRtl ? `مرحباً، أود متابعة حجزي رقم ${msg.booking.referenceCode}` : `Hello, I would like to follow up on my booking ${msg.booking.referenceCode}`)}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="py-2 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5"
+                              >
+                                <FaWhatsapp size={12} />
+                                <span>{isRtl ? 'واتساب' : 'WhatsApp'}</span>
+                              </a>
+                            </div>
+                          </div>
+                        )}
+
                         {/* Grounded Tour Recommendation Cards */}
-                        {msg.tours && msg.tours.length > 0 && (
+                        {msg.tours && msg.tours.filter((tItem) => tItem && typeof tItem === 'object' && tItem.title).length > 0 && (
                           <div className="flex flex-col gap-2.5 pt-1">
                             <span className="text-[11px] font-bold uppercase tracking-wider text-gold-400 flex items-center gap-1.5">
                               <FaTag size={10} />
                               {t('jaider.verifiedTours', 'Verified Catalog Tours:')}
                             </span>
-                            {msg.tours.map((tItem) => (
+                            {msg.tours.filter((tItem) => tItem && typeof tItem === 'object' && tItem.title).map((tItem) => (
                               <div
-                                key={tItem.id}
+                                key={tItem.id || tItem.slug}
                                 onClick={() => handleNavigateToTour(tItem.publicUrl)}
                                 className="flex flex-col bg-slate-900/95 hover:bg-slate-800/95 p-3 rounded-2xl border border-gold-500/30 hover:border-gold-400 transition-all shadow-md group cursor-pointer"
                               >
                                 <div className="flex gap-3">
                                   <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-slate-800 relative">
                                     <img
-                                      src={tItem.image || '/imgs/tito-mascot.webp'}
+                                      src={tItem.image || 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=800&q=80'}
                                       alt={tItem.title}
                                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                      onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=800&q=80';
+                                      }}
                                     />
                                   </div>
                                   <div className="flex flex-col justify-between min-w-0 flex-1 py-0.5">
@@ -439,23 +597,47 @@ const JaiderChatWindow = () => {
                                       </h4>
                                       <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5 truncate">
                                         <FaMapMarkerAlt size={9} className="text-gold-400 shrink-0" />
-                                        {tItem.destination}
+                                        {tItem.destination || 'Egypt'}
                                       </p>
                                     </div>
-                                    <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-800">
+                                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-800 gap-1.5">
                                       <span className="text-xs font-bold text-gold-400">
-                                        ${tItem.price} {tItem.currency}
+                                        ${tItem.price || 1490} {tItem.currency || 'USD'}
                                       </span>
-                                      <span className="text-[10px] bg-gold-500/20 text-gold-300 font-bold px-2 py-0.5 rounded-md group-hover:bg-gold-500 group-hover:text-slate-950 transition-all">
-                                        {t('jaider.viewTour', 'View Tour →')}
-                                      </span>
+                                      <div className="flex items-center gap-1">
+                                        {isInChatBookingEnabled && (
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleOpenBookingModal(tItem);
+                                            }}
+                                            className="text-[10px] bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian-950 font-extrabold px-2.5 py-1 rounded-md hover:brightness-110 shadow-xs transition-all flex items-center gap-1"
+                                          >
+                                            <FaBolt size={8} />
+                                            <span>{isRtl ? 'احجز الآن' : 'Book Now'}</span>
+                                          </button>
+                                        )}
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleNavigateToTour(tItem.publicUrl);
+                                          }}
+                                          className={`text-[10px] ${
+                                            isInChatBookingEnabled
+                                              ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+                                              : 'bg-gold-500/20 text-gold-300 hover:bg-gold-500 hover:text-slate-950'
+                                          } font-bold px-2.5 py-1 rounded-md border border-slate-700 transition-all`}
+                                        >
+                                          {t('jaider.viewTour', 'Details →')}
+                                        </button>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
 
-                                {t.matchReasons && t.matchReasons.length > 0 && (
+                                {tItem.matchReasons && tItem.matchReasons.length > 0 && (
                                   <div className="mt-2 pt-2 border-t border-slate-800/80 flex flex-col gap-1">
-                                    {t.matchReasons.map((reason, rIdx) => (
+                                    {tItem.matchReasons.map((reason, rIdx) => (
                                       <div key={rIdx} className="text-[10px] text-slate-300 flex items-center gap-1.5">
                                         <FaCheckCircle size={9} className="text-emerald-400 shrink-0" />
                                         <span>{reason}</span>
@@ -670,6 +852,202 @@ const JaiderChatWindow = () => {
                 </div>
               )}
             </div>
+
+            {/* In-Chat Booking Modal Overlay */}
+            {bookingModalOpen && selectedTourForBooking && (
+              <div className="absolute inset-0 z-50 bg-slate-950/95 backdrop-blur-md p-4 flex flex-col justify-between overflow-y-auto animate-in fade-in zoom-in-95">
+                <div className="flex items-center justify-between border-b border-gold-500/20 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-8 h-8 rounded-full bg-gold-500/20 text-gold-400 flex items-center justify-center font-bold">
+                      <FaSuitcaseRolling size={14} />
+                    </span>
+                    <div>
+                      <h4 className="font-bold text-sm text-gold-300">
+                        {isRtl ? 'حجز مباشر وفوري للرحلة' : 'Instant In-Chat Booking'}
+                      </h4>
+                      <p className="text-[10px] text-slate-400 truncate max-w-[240px]">
+                        {selectedTourForBooking.title}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setBookingModalOpen(false)}
+                    className="p-1.5 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white"
+                  >
+                    <FaTimes size={14} />
+                  </button>
+                </div>
+
+                <form onSubmit={handleConfirmBooking} className="flex flex-col gap-3 my-2 text-xs">
+                  {/* Date and Guests Row */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
+                        <FaCalendarAlt size={9} />
+                        {isRtl ? 'تاريخ الوصول *' : 'Arrival Date *'}
+                      </label>
+                      <input
+                        type="date"
+                        required
+                        value={bookingArrivalDate}
+                        onChange={(e) => setBookingArrivalDate(e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:border-gold-400 focus:outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
+                        <FaUsers size={9} />
+                        {isRtl ? 'البالغين *' : 'Adults (12+) *'}
+                      </label>
+                      <div className="flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2 py-1 justify-between">
+                        <button
+                          type="button"
+                          onClick={() => setBookingAdults((a) => Math.max(1, a - 1))}
+                          className="w-6 h-6 rounded bg-slate-800 text-slate-200 font-bold hover:bg-slate-700"
+                        >
+                          -
+                        </button>
+                        <span className="font-bold text-gold-400">{bookingAdults}</span>
+                        <button
+                          type="button"
+                          onClick={() => setBookingAdults((a) => a + 1)}
+                          className="w-6 h-6 rounded bg-slate-800 text-slate-200 font-bold hover:bg-slate-700"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Children & Nationality Row */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase">
+                        {isRtl ? 'الأطفال (أقل من 12)' : 'Children (under 12)'}
+                      </label>
+                      <div className="flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2 py-1 justify-between">
+                        <button
+                          type="button"
+                          onClick={() => setBookingChildren((c) => Math.max(0, c - 1))}
+                          className="w-6 h-6 rounded bg-slate-800 text-slate-200 font-bold hover:bg-slate-700"
+                        >
+                          -
+                        </button>
+                        <span className="font-bold text-slate-200">{bookingChildren}</span>
+                        <button
+                          type="button"
+                          onClick={() => setBookingChildren((c) => c + 1)}
+                          className="w-6 h-6 rounded bg-slate-800 text-slate-200 font-bold hover:bg-slate-700"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase">
+                        {isRtl ? 'الجنسية / الدولة' : 'Nationality'}
+                      </label>
+                      <input
+                        type="text"
+                        placeholder={isRtl ? 'مصر / السعودية / US...' : 'Country of residence'}
+                        value={bookingNationality}
+                        onChange={(e) => setBookingNationality(e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:border-gold-400 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Lead Traveler Contact Details */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase">
+                      {isRtl ? 'الاسم الكامل *' : 'Full Name *'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder={isRtl ? 'اسم المسافر الرئيسي' : 'Lead Traveler Full Name'}
+                      value={bookingFullName}
+                      onChange={(e) => setBookingFullName(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-xl px-3 py-1.5 text-xs focus:border-gold-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase">
+                        {isRtl ? 'البريد الإلكتروني *' : 'Email Address *'}
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="name@domain.com"
+                        value={bookingEmail}
+                        onChange={(e) => setBookingEmail(e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:border-gold-400 focus:outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase">
+                        {isRtl ? 'رقم الواتساب / الهاتف' : 'WhatsApp / Phone'}
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="+20..."
+                        value={bookingPhone}
+                        onChange={(e) => setBookingPhone(e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:border-gold-400 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase">
+                      {isRtl ? 'طلبات خاصة / ملاحظات' : 'Special Requests & Notes'}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder={isRtl ? 'كابينة متصلة، متطلبات طعام خاصة...' : 'Dietary requests, bed preferences...'}
+                      value={bookingNotes}
+                      onChange={(e) => setBookingNotes(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-xl px-3 py-1.5 text-xs focus:border-gold-400 focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Total Price Calculation Summary */}
+                  <div className="bg-slate-900/90 border border-gold-500/30 rounded-xl p-3 flex items-center justify-between mt-1">
+                    <div>
+                      <span className="text-[10px] text-slate-400 block">{isRtl ? 'الإجمالي المقدر:' : 'Estimated Total:'}</span>
+                      <span className="text-xs text-slate-300 font-medium">
+                        ({bookingAdults} {isRtl ? 'بالغين' : 'Adults'}{bookingChildren > 0 ? ` + ${bookingChildren} ${isRtl ? 'أطفال' : 'Kids'}` : ''})
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-base font-extrabold text-gold-400">
+                        ${(bookingAdults * (selectedTourForBooking.price || 1490) + bookingChildren * ((selectedTourForBooking.price || 1490) * 0.5))} {selectedTourForBooking.currency || 'USD'}
+                      </span>
+                      <span className="text-[9px] text-emerald-400 block font-semibold">
+                        {isRtl ? '✓ تأكيد فوري مع فاتورة رسمية' : '✓ Instant reservation with invoice'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmittingBooking}
+                    className="w-full py-2.5 bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian-950 font-extrabold text-xs rounded-xl hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-2 mt-1"
+                  >
+                    {isSubmittingBooking ? (
+                      <span>{isRtl ? 'جاري إنشاء الحجز...' : 'Confirming Reservation...'}</span>
+                    ) : (
+                      <>
+                        <FaBolt size={12} />
+                        <span>{isRtl ? 'تأكيد الحجز المباشر الآن' : 'Confirm & Complete Reservation'}</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+              </div>
+            )}
           </motion.div>
         </div>
       )}

@@ -5,12 +5,15 @@ import { Helmet } from 'react-helmet-async';
 import { FaEye, FaEyeSlash, FaUserCircle, FaEnvelope, FaLock } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button';
+import { getSafeRedirectUrl } from '../../utils/safe-redirect';
 
 const Login = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/dashboard';
+  const searchParams = new URLSearchParams(location.search);
+  const redirectQuery = searchParams.get('redirect');
+  const from = getSafeRedirectUrl(redirectQuery || location.state?.from?.pathname, '/dashboard');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

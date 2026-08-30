@@ -465,19 +465,21 @@ html[data-scroll-locked] {
   transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* ── Buttons ────────────────────────────────────────────────────── */
-button,
+/* ── Interactive Elements & Buttons (Optimized GPU transitions) ─────────────────── */
 .btn,
+.luxury-btn,
+button.btn-glow,
 a.bg-primary-500,
 a.bg-gold-500 {
-  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.25s ease, border-color 0.25s ease;
 }
-button:not(.currency-btn):hover,
-.btn:not(.currency-btn):hover,
+.btn:hover,
+.luxury-btn:hover,
+button.btn-glow:hover,
 a.bg-primary-500:hover,
 a.bg-gold-500:hover {
-  transform: scale(1.03);
-  box-shadow: 0 0 20px rgba(245, 166, 35, 0.3) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(245, 166, 35, 0.3);
 }
 
 /* ── Navbar Links ───────────────────────────────────────────────── */

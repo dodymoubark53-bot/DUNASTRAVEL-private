@@ -10,10 +10,21 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
+let mockAuthUser = null;
+
+vi.mock('../context/AuthContext', () => ({
+  useAuth: () => ({
+    user: mockAuthUser,
+  }),
+}));
+
 describe('Prompt 04: Booking Engine & Customer Inquiries Integration', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    mockAuthUser = null;
+    sessionStorage.clear();
     localStorage.clear();
+    vi.spyOn(api, 'post').mockResolvedValue({});
     vi.spyOn(api, 'get').mockResolvedValue({
       availabilities: [
         {
@@ -111,11 +122,48 @@ describe('Prompt 04: Booking Engine & Customer Inquiries Integration', () => {
     });
   });
 
-  it('stores guestToken into localStorage (dunas_guest_token) upon successful booking creation', async () => {
+  it('saves draft booking intent to sessionStorage and redirects when unauthenticated (AUTH-002)', async () => {
+    mockAuthUser = null;
+    const assignSpy = vi.fn();
+    delete window.location;
+    window.location = { pathname: '/tours/cairo-discovery', search: '', assign: assignSpy };
+
+    const { container } = render(<BookingForm tourId="tour-1" tourSlug="cairo-discovery" tourTitle="Cairo Discovery" />);
+
+    await waitFor(() => {
+      expect(container.querySelector('#arrival-date-input')?.tagName).toBe('SELECT');
+    });
+
+    const arrivalInput = container.querySelector('#arrival-date-input');
+    const fullNameInput = container.querySelector('#contact-fullname');
+    const emailInput = container.querySelector('#contact-email');
+    const phoneInput = container.querySelector('#contact-phone');
+
+    fireEvent.change(arrivalInput, { target: { value: '2027-05-10' } });
+    fireEvent.change(fullNameInput, { target: { value: 'Robert Miller' } });
+    fireEvent.change(emailInput, { target: { value: 'robert@dunas.com' } });
+    fireEvent.change(phoneInput, { target: { value: '+1987654321' } });
+
+    const form = container.querySelector('form');
+    await act(async () => {
+      fireEvent.submit(form);
+    });
+
+    const savedDraft = sessionStorage.getItem('dunas_pending_booking_intent');
+    expect(savedDraft).not.toBeNull();
+    const parsedDraft = JSON.parse(savedDraft);
+    expect(parsedDraft.tourId).toBe('cairo-discovery');
+    expect(parsedDraft.b.fullName).toBe('Robert Miller');
+    expect(assignSpy).toHaveBeenCalledWith(expect.stringContaining('/login?redirect='));
+    expect(api.post).not.toHaveBeenCalledWith('/bookings', expect.anything());
+  });
+
+  it('submits authenticated booking when user is logged in (BOOK-001)', async () => {
+    mockAuthUser = { id: 'usr-1', name: 'Robert Miller', email: 'robert@dunas.com', phone: '+1987654321' };
     const mockBookingResponse = {
       id: 'bk-100',
       referenceCode: 'BK-DUNAS-100',
-      guestToken: 'gt_secret_token_12345',
+      guestToken: null,
     };
     vi.spyOn(api, 'post').mockImplementation((path) => {
       if (path === '/bookings/calculate') return Promise.resolve({ totalAmountUsd: '1500.00' });
@@ -146,10 +194,6 @@ describe('Prompt 04: Booking Engine & Customer Inquiries Integration', () => {
       fireEvent.submit(form);
     });
 
-    await waitFor(() => {
-      expect(localStorage.getItem('dunas_guest_token')).toBe('gt_secret_token_12345');
-    });
-
     expect(api.post).toHaveBeenCalledWith('/bookings', expect.objectContaining({
       tourId: 'tour-1',
       availabilityId: 'availability-2027-05-10',
@@ -163,6 +207,7 @@ describe('Prompt 04: Booking Engine & Customer Inquiries Integration', () => {
   });
 
   it('handles 409 conflict and 422 validation errors with localized alert messages', async () => {
+    mockAuthUser = { id: 'usr-1', name: 'Robert Miller', email: 'robert@dunas.com', phone: '+1987654321' };
     vi.spyOn(api, 'post').mockImplementation((path) => {
       if (path === '/bookings/calculate') return Promise.resolve({ totalAmountUsd: '1500.00' });
       if (path === '/bookings') {

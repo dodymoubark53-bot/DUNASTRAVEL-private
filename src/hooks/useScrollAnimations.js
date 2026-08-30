@@ -19,17 +19,19 @@ const useScrollAnimations = () => {
           const children = section.children;
           gsap.fromTo(
             children,
-            { y: 60, opacity: 0 },
+            { y: 40, opacity: 0 },
             {
               y: 0,
               opacity: 1,
-              duration: 0.8,
-              stagger: 0.15,
-              ease: 'power3.out',
+              duration: 0.6,
+              stagger: 0.1,
+              ease: 'power2.out',
+              force3D: true,
+              clearProps: 'transform',
               scrollTrigger: {
                 trigger: section,
-                start: 'top 85%',
-                toggleActions: 'play none none reverse',
+                start: 'top 90%',
+                once: true,
               },
             }
           );
@@ -38,13 +40,14 @@ const useScrollAnimations = () => {
         const parallaxEls = document.querySelectorAll('.gsap-parallax');
         parallaxEls.forEach((el) => {
           gsap.to(el, {
-            yPercent: -20,
+            yPercent: -15,
             ease: 'none',
+            force3D: true,
             scrollTrigger: {
               trigger: el,
               start: 'top bottom',
               end: 'bottom top',
-              scrub: true,
+              scrub: 1,
             },
           });
         });
@@ -56,18 +59,18 @@ const useScrollAnimations = () => {
           
           ScrollTrigger.create({
             trigger: counter,
-            start: 'top 85%',
+            start: 'top 90%',
+            once: true,
             onEnter: () => {
               gsap.to(obj, {
                 value: target,
-                duration: 2,
+                duration: 1.8,
                 ease: 'power2.out',
                 onUpdate: () => {
                   counter.textContent = Math.round(obj.value);
                 },
               });
             },
-            once: true,
           });
         });
       });

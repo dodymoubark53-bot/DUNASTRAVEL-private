@@ -8,6 +8,7 @@ import './index.css'
 import { AuthProvider } from './context/AuthContext'
 import { CurrencyProvider } from './context/CurrencyContext'
 import { ThemeProvider } from './context/ThemeContext'
+import { ToastProvider } from './context/ToastContext'
 
 // Auto-recover if browser tries to load old chunk after a new deployment
 window.addEventListener('vite:preloadError', (event) => {
@@ -43,7 +44,9 @@ function Root() {
           <CurrencyProvider>
             <ThemeProvider>
               <AuthProvider>
-                <App />
+                <ToastProvider>
+                  <App />
+                </ToastProvider>
               </AuthProvider>
             </ThemeProvider>
           </CurrencyProvider>
