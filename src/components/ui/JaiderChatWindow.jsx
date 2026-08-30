@@ -271,33 +271,6 @@ const JaiderChatWindow = () => {
               </div>
             </div>
 
-            {/* Persona / Vibe Switcher Bar */}
-            {personas && personas.length > 0 && (
-              <div className="bg-slate-900/90 px-3 py-1.5 border-b border-gold-500/20 flex items-center gap-1.5 overflow-x-auto no-scrollbar select-none">
-                <span className="text-[9px] text-gold-400 font-bold uppercase tracking-wider shrink-0 me-1">
-                  {isRtl ? 'الأسلوب:' : 'Style:'}
-                </span>
-                {personas.map((p) => {
-                  const isActive = selectedPersona === p.code;
-                  return (
-                    <button
-                      key={p.code}
-                      onClick={() => changePersona(p.code)}
-                      title={p.tagline}
-                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0 transition-all flex items-center gap-1 border ${
-                        isActive
-                          ? 'bg-gradient-to-r from-gold-600/30 to-gold-500/20 text-gold-300 border-gold-500/60 shadow-[0_0_8px_rgba(212,175,55,0.3)]'
-                          : 'bg-slate-800/60 text-slate-400 border-slate-700/60 hover:text-slate-200 hover:border-slate-600'
-                      }`}
-                    >
-                      <span>{p.icon}</span>
-                      <span>{p.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
             {/* Message Area */}
             <div
               className="flex-1 p-4 overflow-y-auto space-y-4 scroll-smooth focus:outline-none relative"

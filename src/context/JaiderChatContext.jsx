@@ -127,6 +127,10 @@ export const JaiderChatProvider = ({ children }) => {
         setPersonas(configRes.personas);
       }
 
+      if (configRes && configRes.salesPersonality) {
+        setSelectedPersona(configRes.salesPersonality);
+      }
+
       if (configRes && typeof configRes.isInChatBookingEnabled === 'boolean') {
         setIsInChatBookingEnabled(configRes.isInChatBookingEnabled);
       }
@@ -146,24 +150,6 @@ export const JaiderChatProvider = ({ children }) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('jaider_selected_persona', personaCode);
     }
-
-    const matched = personas.find((p) => p.code === personaCode);
-    const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
-    const isAr = activeLang === 'ar';
-
-    let switchGreeting = isAr
-      ? `تم تبديل أسلوب المرشد إلى: **${matched?.name || personaCode}** ${matched?.icon || '✨'}\n${matched?.tagline || ''}\nكيف يمكنني مساعدتك الآن؟`
-      : `GuideR Concierge style switched to: **${matched?.name || personaCode}** ${matched?.icon || '✨'}\n${matched?.tagline || ''}\nHow may I assist you with this perspective?`;
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: `persona-switch-${Date.now()}`,
-        sender: 'jaider',
-        text: switchGreeting,
-        timestamp: new Date(),
-      },
-    ]);
   };
 
   // Restore previous chat history from backend on initial mount
