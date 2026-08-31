@@ -74,7 +74,7 @@ const _destinationsData = [
     id: "holy-land",
     nameKey: "nav.holyland",
     descKey: "home.destHolyLandDesc",
-    image: "/images/holy-land.webp",
+    image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_600,c_fill/v1783024072/400a841d-18b7-4915-8483-f9a3346651cf_ocdouu.jpg",
   },
 ];
 
@@ -129,7 +129,7 @@ const _packagesData = [
     tag2Key: "egyptPackages.religious.tag2",
     tag3Key: "egyptPackages.religious.tag3",
     price: 1390,
-    image: "/images/holy-land.webp",
+    image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026771/5_upvijm.jpg",
     link: "/programs/religious",
     featured: false,
   },
@@ -257,7 +257,7 @@ const _newDestinationsList = [
     tagEn: "FAITH, HISTORY & SACRED PATHWAYS",
     descAr: "معالم روحية وتاريخية خالدة تروي قصص الأنبياء والحضارات المتعاقبة.",
     descEn: "Sacred spires and ancient pathways whispering stories of faith and human history.",
-    image: "/images/holy-land.webp",
+    image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026771/5_upvijm.jpg",
     link: "/destinations/holyland"
   }
 ];
@@ -391,7 +391,7 @@ const HomeExperienceSection = () => {
         name: safeT('nav.holyland', 'Holy Land'),
         description: safeT('home.destHolyLandDesc', 'History, spirituality and eternal legacy'),
         subtitle: safeT('home.destHolyLandDesc', 'History, spirituality and eternal legacy'),
-        image: '/images/holy-land.webp',
+        image: 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783024072/400a841d-18b7-4915-8483-f9a3346651cf_ocdouu.jpg',
         toursCount: 3,
         link: '/destinations/holyland',
       });
@@ -1404,7 +1404,7 @@ const HomeExperienceSection = () => {
             style={{
               gap: "24px",
               paddingLeft: "24px",
-              animation: "tourMarquee 65s linear infinite",
+              animation: "tourMarquee 220s linear infinite",
             }}
             onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
             onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
@@ -1736,7 +1736,7 @@ const HomeExperienceSection = () => {
             style={{
               gap: "24px",
               paddingLeft: "24px",
-              animation: "tourMarquee 65s linear infinite",
+              animation: "tourMarquee 240s linear infinite",
             }}
             onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
             onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
@@ -1882,7 +1882,7 @@ const HomeExperienceSection = () => {
               style={{
                 gap: "20px",
                 paddingLeft: "20px",
-                animation: "tourMarquee 65s linear infinite",
+                animation: "tourMarquee 180s linear infinite",
               }}
               onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
               onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
@@ -2255,7 +2255,7 @@ const HomeExperienceSection = () => {
           <div
             className="flex w-max"
             style={{
-              animation: "tourMarquee 65s linear infinite",
+              animation: "tourMarquee 180s linear infinite",
               gap: "16px",
               paddingLeft: "16px",
             }}
@@ -2332,7 +2332,7 @@ const HomeExperienceSection = () => {
             <div className="flex gap-6 pb-4"
               style={{
                 width: 'max-content',
-                animation: `${isRtl ? 'marqueeVideoRTL' : 'marqueeVideo'} 65s linear infinite`,
+                animation: `${isRtl ? 'marqueeVideoRTL' : 'marqueeVideo'} 90s linear infinite`,
               }}
               onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
               onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
