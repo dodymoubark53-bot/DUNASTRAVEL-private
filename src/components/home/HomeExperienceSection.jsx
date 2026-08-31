@@ -2874,7 +2874,7 @@ const HomeExperienceSection = () => {
         className="relative py-20 lg:py-28 bg-obsidian-900 bg-fixed bg-cover bg-center"
         style={{
           backgroundImage:
-            "url('https://res.cloudinary.com/u7xf91gp/image/upload/v1787814402/dunas-travel/catalog/e65312449de0ca0f69ae47812d981065cc48095b50e634ad16cb4a4d7e3ae65b.webp')",
+            "url('https://res.cloudinary.com/u7xf91gp/image/upload/v1787814393/dunas-travel/catalog/30220e12459b5d974a167d56024e5403d2f5e9c8ec82006eaa849e42e640b042.webp')",
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900 via-obsidian-900/60 to-transparent"></div>
