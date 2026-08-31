@@ -74,7 +74,7 @@ const _destinationsData = [
     id: "holy-land",
     nameKey: "nav.holyland",
     descKey: "home.destHolyLandDesc",
-    image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_600,c_fill/v1783024072/400a841d-18b7-4915-8483-f9a3346651cf_ocdouu.jpg",
+    image: "/images/holy-land.webp",
   },
 ];
 
@@ -129,7 +129,7 @@ const _packagesData = [
     tag2Key: "egyptPackages.religious.tag2",
     tag3Key: "egyptPackages.religious.tag3",
     price: 1390,
-    image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026771/5_upvijm.jpg",
+    image: "/images/holy-land.webp",
     link: "/programs/religious",
     featured: false,
   },
@@ -257,7 +257,7 @@ const _newDestinationsList = [
     tagEn: "FAITH, HISTORY & SACRED PATHWAYS",
     descAr: "معالم روحية وتاريخية خالدة تروي قصص الأنبياء والحضارات المتعاقبة.",
     descEn: "Sacred spires and ancient pathways whispering stories of faith and human history.",
-    image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783024072/400a841d-18b7-4915-8483-f9a3346651cf_ocdouu.jpg",
+    image: "/images/holy-land.webp",
     link: "/destinations/holyland"
   }
 ];
@@ -391,7 +391,7 @@ const HomeExperienceSection = () => {
         name: safeT('nav.holyland', 'Holy Land'),
         description: safeT('home.destHolyLandDesc', 'History, spirituality and eternal legacy'),
         subtitle: safeT('home.destHolyLandDesc', 'History, spirituality and eternal legacy'),
-        image: 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783024072/400a841d-18b7-4915-8483-f9a3346651cf_ocdouu.jpg',
+        image: '/images/holy-land.webp',
         toursCount: 3,
         link: '/destinations/holyland',
       });

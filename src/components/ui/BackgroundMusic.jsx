@@ -108,11 +108,18 @@ const BackgroundMusic = () => {
     }
   }, []);
 
-  // Autoplay on Home Page upon scrolling or user interaction
+  // Autoplay on Home Page upon mount, scrolling, or user interaction
   useEffect(() => {
     if (isHomePage) {
       const explicitlyPaused = sessionStorage.getItem('userExplicitlyPaused') === 'true';
       if (explicitlyPaused) return;
+
+      // Immediate attempt on mount
+      const mountTimer = setTimeout(() => {
+        if (!isPlayingRef.current) {
+          playMusic();
+        }
+      }, 400);
 
       const triggerPlayOnScroll = () => {
         const currentlyPaused = sessionStorage.getItem('userExplicitlyPaused') === 'true';
@@ -143,6 +150,7 @@ const BackgroundMusic = () => {
       }
 
       return () => {
+        clearTimeout(mountTimer);
         cleanupListeners();
       };
     }
@@ -227,7 +235,7 @@ const BackgroundMusic = () => {
           id="webflow-bg-music-iframe"
           width="1"
           height="1"
-          src={`https://www.youtube.com/embed/${DEFAULT_YOUTUBE_ID}?enablejsapi=1&version=3&loop=1&playlist=${DEFAULT_YOUTUBE_ID}&controls=0&showinfo=0&rel=0&autoplay=0`}
+          src={`https://www.youtube.com/embed/${DEFAULT_YOUTUBE_ID}?enablejsapi=1&version=3&loop=1&playlist=${DEFAULT_YOUTUBE_ID}&controls=0&showinfo=0&rel=0&autoplay=1`}
           frameBorder="0"
           allow="autoplay"
           title="Background Music"
