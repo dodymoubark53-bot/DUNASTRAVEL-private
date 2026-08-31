@@ -319,7 +319,7 @@ const TailorTour = () => {
     }
 
     // 2. Email
-    const emailRegex = /^[^s@]+@[^s@]+.[^s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !email.trim()) {
       errs.email = t('tailor.errorEmailRequired', 'البريد الإلكتروني مطلوب لتأكيد الحجز والتواصل');
     } else if (!emailRegex.test(email.trim())) {
@@ -333,7 +333,7 @@ const TailorTour = () => {
 
     // 4. Phone
     const phoneClean = phone ? phone.trim() : '';
-    const phoneRegex = /^[\d\s\-+()]{7,25}$/;
+    const phoneRegex = /^[0-9+\-\s()]{7,25}$/;
     if (!phoneClean) {
       errs.phone = t('tailor.errorPhoneRequired', 'رقم الهاتف مطلوب لتنسيق الرحلة (واتساب أو اتصال)');
     } else if (!phoneRegex.test(phoneClean)) {
