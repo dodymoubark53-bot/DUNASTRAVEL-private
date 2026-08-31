@@ -257,7 +257,7 @@ const _newDestinationsList = [
     tagEn: "FAITH, HISTORY & SACRED PATHWAYS",
     descAr: "معالم روحية وتاريخية خالدة تروي قصص الأنبياء والحضارات المتعاقبة.",
     descEn: "Sacred spires and ancient pathways whispering stories of faith and human history.",
-    image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026771/5_upvijm.jpg",
+    image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783024072/400a841d-18b7-4915-8483-f9a3346651cf_ocdouu.jpg",
     link: "/destinations/holyland"
   }
 ];
