@@ -1033,9 +1033,15 @@ const HomeExperienceSection = () => {
       </Helmet>
 
       {/* Hero Section */}
-      <section className="relative w-full aspect-video flex items-center justify-center overflow-hidden bg-black mt-[104px] sm:mt-[108px] lg:mt-[124px]">
-        {/* Video Background */}
-        <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
+      <section className="relative w-full aspect-video min-h-[360px] sm:min-h-[480px] md:min-h-[560px] flex items-center justify-center overflow-hidden bg-obsidian-950 mt-[104px] sm:mt-[108px] lg:mt-[124px]">
+        {/* Video Background with Guaranteed Fallback */}
+        <div className="absolute inset-0 z-0 flex items-center justify-center bg-obsidian-950">
+          <img
+            src="https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg"
+            alt="Dunas Travel Luxury"
+            className="absolute inset-0 w-full h-full object-cover filter brightness-[0.9]"
+            loading="eager"
+          />
           <video
             ref={videoRef}
             autoPlay
@@ -1044,15 +1050,15 @@ const HomeExperienceSection = () => {
             playsInline
             preload="auto"
             fetchPriority="high"
-            poster="/imgs/hero-poster.webp"
-            className="w-full h-full object-contain"
+            poster="https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg"
+            className="relative z-10 w-full h-full object-cover"
             width="1440"
             height="812"
           >
+            <source src="https://res.cloudinary.com/degbrq3ck/video/upload/Somos_Dunas_Travel_Group__480P_SD_gxfsxm.mp4" type="video/mp4" />
             <source src="/imgs/hero.webm" type="video/webm" />
-            <source src="/imgs/hero.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-obsidian-900/50 pointer-events-none"></div>
+          <div className="absolute inset-0 z-10 bg-gradient-to-t from-obsidian-950/80 via-obsidian-950/20 to-transparent pointer-events-none"></div>
         </div>
         {/* Sound Toggle */}
         <button

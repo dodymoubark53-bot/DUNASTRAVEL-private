@@ -49,12 +49,15 @@ export default function LuxuryHeroSection({
   return (
     <section className="relative w-full min-h-[580px] md:min-h-[680px] flex items-center justify-center overflow-hidden bg-obsidian-950 text-ivory-50 select-none">
       {/* Background Image Container with Cinematic Zoom & Multi-layer Overlay */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
+      <div className="absolute inset-0 z-0 overflow-hidden bg-obsidian-950">
         <motion.img
           initial={{ scale: 1.15 }}
           animate={{ scale: 1 }}
           transition={{ duration: 10, ease: 'easeOut', repeat: Infinity, repeatType: 'reverse' }}
-          src={bgImage}
+          src={bgImage || 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg'}
+          onError={(e) => {
+            e.currentTarget.src = 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg';
+          }}
           alt={title}
           className="w-full h-full object-cover object-center filter brightness-105 contrast-[1.05]"
           loading="eager"
