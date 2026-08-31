@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { FaCheck, FaMapMarkerAlt, FaUserFriends, FaExpandAlt, FaChevronLeft, FaChevronRight, FaTimes, FaImages, FaPlay, FaPause } from 'react-icons/fa';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import { useServices } from '../../hooks/useServices';
-import { transportation as fallbackTransportation } from '../../data/transportation';
+import { transportation as fallbackTransportation, transportationGallery } from '../../data/transportation';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import ErrorState from '../../components/ui/ErrorState';
 import TransportationForm from '../../components/booking/TransportationForm';
@@ -31,8 +31,8 @@ const Transportation = () => {
     return fallbackTransportation;
   }, [rawTransportation]);
 
-  // Media and service cards are exclusively backed by the public catalog.
-  const galleryImages = transportationList.map((service) => service.image).filter(Boolean);
+  // Gallery marquee images
+  const galleryImages = transportationGallery;
 
   // Autoplay slider effect
   useEffect(() => {
