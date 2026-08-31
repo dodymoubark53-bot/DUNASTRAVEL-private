@@ -76,7 +76,11 @@ const BackgroundMusic = () => {
     }
     if (isPlayingRef.current) {
       pauseMusic();
+      sessionStorage.removeItem('userManualPlayNonHome');
     } else {
+      if (!isHomePage) {
+        sessionStorage.setItem('userManualPlayNonHome', 'true');
+      }
       playMusic();
     }
   };
@@ -93,7 +97,7 @@ const BackgroundMusic = () => {
           width: '1',
           videoId: DEFAULT_YOUTUBE_ID,
           playerVars: {
-            autoplay: 1,
+            autoplay: 0,
             controls: 0,
             loop: 1,
             playlist: DEFAULT_YOUTUBE_ID,
@@ -190,6 +194,12 @@ const BackgroundMusic = () => {
         clearTimeout(mountTimer);
         cleanupListeners();
       };
+    } else {
+      // Non-home page: pause music unless manually started by user on non-home page
+      const manualNonHomePlay = sessionStorage.getItem('userManualPlayNonHome') === 'true';
+      if (!manualNonHomePlay && isPlayingRef.current) {
+        pauseMusic();
+      }
     }
   }, [isHomePage]);
 
