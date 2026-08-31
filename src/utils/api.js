@@ -18,7 +18,7 @@ const rawApiUrl = import.meta.env.DEV
   : import.meta.env.VITE_API_URL ||
     'https://dunastravel-backend-seven.vercel.app/api';
 const normalizedApiUrl = String(rawApiUrl).replace(/\/+$/, '');
-const BASE_URL = normalizedApiUrl.endsWith('/api') ? normalizedApiUrl : `${normalizedApiUrl}/api`;
+export const BASE_URL = normalizedApiUrl.endsWith('/api') ? normalizedApiUrl : `${normalizedApiUrl}/api`;
 
 // ── CSRF Token Cache ──────────────────────────────────────────────────────────
 let _csrfToken = null;

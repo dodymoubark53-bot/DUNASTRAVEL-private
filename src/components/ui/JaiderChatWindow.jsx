@@ -320,10 +320,44 @@ const JaiderChatWindow = () => {
                               ? 'bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-950 font-medium rounded-tr-none'
                               : isStaff
                               ? 'bg-slate-900/90 text-slate-100 border border-gold-500/40 rounded-tl-none'
+                              : msg.isError
+                              ? 'bg-rose-950/40 text-rose-200 border border-rose-500/40 rounded-tl-none'
                               : 'bg-slate-900/80 text-slate-200 border border-slate-800 rounded-tl-none'
                           }`}
                         >
-                          <p className="whitespace-pre-wrap">{msg.text}</p>
+                          <p className="whitespace-pre-wrap">
+                            {msg.text}
+                            {msg.isStreaming && (
+                              <span className="inline-block w-1.5 h-3.5 bg-gold-400 animate-pulse ml-1 align-middle" />
+                            )}
+                          </p>
+
+                          {msg.isError && (
+                            <div className="mt-3 flex flex-wrap gap-2 pt-2.5 border-t border-rose-500/30">
+                              {msg.failedMessageText && (
+                                <button
+                                  onClick={() => sendMessage(msg.failedMessageText)}
+                                  className="px-3 py-1.5 bg-gold-500/20 hover:bg-gold-500 hover:text-obsidian-950 text-gold-300 font-bold text-xs rounded-xl border border-gold-500/40 transition-all flex items-center gap-1.5"
+                                >
+                                  <FaRedoAlt size={10} />
+                                  <span>{isRtl ? 'إعادة المحاولة' : 'Retry'}</span>
+                                </button>
+                              )}
+                              <a
+                                href={`https://wa.me/201149401111?text=${encodeURIComponent(
+                                  isRtl
+                                    ? 'مرحباً دوناس ترافيل، أود المساعدة من مستشار السفر بخصوص رحلتي.'
+                                    : 'Hello Dunas Travel, I would like assistance from a senior travel specialist.'
+                                )}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 font-bold text-xs rounded-xl border border-emerald-500/40 transition-all flex items-center gap-1.5"
+                              >
+                                <FaWhatsapp size={12} />
+                                <span>{isRtl ? 'تواصل عبر واتساب' : 'Chat on WhatsApp'}</span>
+                              </a>
+                            </div>
+                          )}
                         </div>
 
                         {/* Structured Tour Comparison Card */}
@@ -526,7 +560,7 @@ const JaiderChatWindow = () => {
                                 <span>{isRtl ? 'عرض تفاصيل الحجز والسداد ←' : 'Proceed to Payment / View Details →'}</span>
                               </button>
                               <a
-                                href={`https://wa.me/201000000000?text=${encodeURIComponent(isRtl ? `مرحباً، أود متابعة حجزي رقم ${msg.booking.referenceCode}` : `Hello, I would like to follow up on my booking ${msg.booking.referenceCode}`)}`}
+                                href={`https://wa.me/201149401111?text=${encodeURIComponent(isRtl ? `مرحباً، أود متابعة حجزي رقم ${msg.booking.referenceCode}` : `Hello, I would like to follow up on my booking ${msg.booking.referenceCode}`)}`}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="py-2 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5"

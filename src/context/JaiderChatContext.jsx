@@ -240,90 +240,263 @@ export const JaiderChatProvider = ({ children }) => {
     setIsStreaming(false);
   };
 
-  // Send message
+  // Send message with real SSE streaming + progressive tokens + cancellation + fallback
   const sendMessage = async (text) => {
-    if (!text.trim()) return;
+    if (!text || !text.trim()) return;
+    const cleanText = text.trim();
 
     const userMsg = {
       id: `msg-${Date.now()}-user`,
       sender: 'user',
-      text,
-      timestamp: new Date()
+      text: cleanText,
+      timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMsg]);
+    setMessages((prev) => [...prev, userMsg]);
     setIsTyping(true);
-    abortControllerRef.current = new AbortController();
+    setIsStreaming(true);
+
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    const botMsgId = `msg-${Date.now()}-jaider`;
+    const initialBotMsg = {
+      id: botMsgId,
+      sender: 'jaider',
+      text: '',
+      timestamp: new Date(),
+      tours: [],
+      destinations: [],
+      sources: [],
+      suggestedReplies: [],
+      isStreaming: true,
+    };
+
+    // Add empty placeholder for progressive streaming
+    setMessages((prev) => [...prev, initialBotMsg]);
+
+    const activeLang = i18n.language || 'en';
+    const baseUrl = api.defaults?.baseURL || (typeof window !== 'undefined' ? '/api' : 'https://dunastravel-backend-seven.vercel.app/api');
+    const streamUrl = `${String(baseUrl).replace(/\/+$/, '')}/ai/chat/stream`;
+
+    let streamSucceeded = false;
+    let accumulatedText = '';
 
     try {
-      const response = await api.post('/ai/chat/message', {
-        message: text,
-        sessionId,
-        locale: i18n.language,
-        personaCode: selectedPersona,
-        pageContext: {
-          pathname: typeof window !== 'undefined' ? window.location.pathname : '/'
-        }
-      }, {
-        signal: abortControllerRef.current.signal
+      const response = await fetch(streamUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: cleanText,
+          sessionId,
+          locale: activeLang,
+          personaCode: selectedPersona,
+          pageContext: {
+            pathname: typeof window !== 'undefined' ? window.location.pathname : '/',
+          },
+        }),
+        signal: abortController.signal,
       });
 
-      const data = response;
-      if (data?.conversationId) setConversationId(data.conversationId);
-
-      const assistantText = data?.message?.content || data?.text;
-      if (!assistantText) throw new Error('GuideR returned an invalid response');
-      const rawTours = data?.recommendations?.tours || data?.message?.structuredContent?.tours || [];
-      const tours = (Array.isArray(rawTours) ? rawTours : []).filter((t) => t && typeof t === 'object' && t.title);
-      const destinations = data?.recommendations?.destinations || data?.message?.structuredContent?.destinations || [];
-      const proposal = data?.recommendations?.proposal || data?.message?.structuredContent?.proposal || null;
-      const comparison = data?.recommendations?.comparison || data?.message?.structuredContent?.comparison || null;
-      const sources = data?.sources || [];
-      const suggestedReplies = data?.suggestedReplies || [];
-
-      if (data?.leadCapture?.required) {
-        setLeadFormState({ required: true, fields: data.leadCapture.fields });
+      if (!response.ok) {
+        throw new Error(`Stream HTTP error ${response.status}`);
       }
 
-      if (data?.handoff?.requested) {
-        setHandoffState({ requested: true, status: data.handoff.status });
+      if (!response.body) {
+        throw new Error('ReadableStream not supported');
       }
 
-      setMessages(prev => [
-        ...prev,
-        {
-          id: data?.message?.id || `msg-${Date.now()}-jaider`,
-          sender: 'jaider',
-          text: assistantText,
-          timestamp: new Date(),
-          tours,
-          destinations,
-          proposal,
-          comparison,
-          sources,
-          suggestedReplies,
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let buffer = '';
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const blocks = buffer.split('\n\n');
+        buffer = blocks.pop() || '';
+
+        for (const block of blocks) {
+          if (!block.trim()) continue;
+          let eventType = 'message';
+          let dataStr = '';
+
+          const lines = block.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('event: ')) {
+              eventType = line.slice(7).trim();
+            } else if (line.startsWith('data: ')) {
+              dataStr = line.slice(6).trim();
+            }
+          }
+
+          if (!dataStr) continue;
+
+          try {
+            const parsedData = JSON.parse(dataStr);
+
+            if (eventType === 'token' && parsedData.delta) {
+              streamSucceeded = true;
+              accumulatedText += parsedData.delta;
+              setMessages((prev) =>
+                prev.map((m) => (m.id === botMsgId ? { ...m, text: accumulatedText, isStreaming: true } : m)),
+              );
+            } else if (eventType === 'structured') {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === botMsgId
+                    ? {
+                        ...m,
+                        proposal: parsedData.proposal || m.proposal,
+                        comparison: parsedData.comparison || m.comparison,
+                        tours: parsedData.tours || m.tours,
+                      }
+                    : m,
+                ),
+              );
+            } else if (eventType === 'complete') {
+              streamSucceeded = true;
+              if (parsedData.conversationId) {
+                setConversationId(parsedData.conversationId);
+              }
+              const finalText = parsedData.message?.content || parsedData.text || accumulatedText;
+              const rawTours =
+                parsedData.recommendations?.tours || parsedData.message?.structuredContent?.tours || [];
+              const cleanTours = (Array.isArray(rawTours) ? rawTours : []).filter(
+                (t) => t && typeof t === 'object' && t.title,
+              );
+              const destinations =
+                parsedData.recommendations?.destinations ||
+                parsedData.message?.structuredContent?.destinations ||
+                [];
+              const proposal =
+                parsedData.recommendations?.proposal ||
+                parsedData.message?.structuredContent?.proposal ||
+                null;
+              const comparison =
+                parsedData.recommendations?.comparison ||
+                parsedData.message?.structuredContent?.comparison ||
+                null;
+              const sources = parsedData.sources || [];
+              const suggestedReplies = parsedData.suggestedReplies || [];
+
+              if (parsedData.leadCapture?.required) {
+                setLeadFormState({ required: true, fields: parsedData.leadCapture.fields });
+              }
+              if (parsedData.handoff?.requested) {
+                setHandoffState({ requested: true, status: parsedData.handoff.status });
+              }
+
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === botMsgId
+                    ? {
+                        ...m,
+                        id: parsedData.message?.id || botMsgId,
+                        text: finalText,
+                        tours: cleanTours,
+                        destinations,
+                        proposal,
+                        comparison,
+                        sources,
+                        suggestedReplies,
+                        isStreaming: false,
+                        isError: false,
+                      }
+                    : m,
+                ),
+              );
+            } else if (eventType === 'error') {
+              throw new Error(parsedData.message || 'Stream processing failed');
+            }
+          } catch (jsonErr) {
+            // ignore non-json SSE frames
+          }
         }
-      ]);
+      }
     } catch (err) {
-      if (err?.name === 'CanceledError' || err?.message === 'canceled') {
+      if (err.name === 'AbortError' || err.name === 'CanceledError' || err.message === 'canceled') {
+        // User aborted: keep what was streamed
+        setMessages((prev) =>
+          prev.map((m) => (m.id === botMsgId ? { ...m, isStreaming: false } : m)),
+        );
         return;
       }
-      console.warn("GuideR backend call failed:", err);
 
-      const userLang = detectLanguage(text);
-      const replyText = userLang === 'ar'
-        ? 'خدمة GuideR غير متاحة حاليًا. لم يتم إنشاء رد بديل؛ يرجى المحاولة مرة أخرى أو التواصل مع فريق الرحلات.'
-        : 'GuideR is currently unavailable. No substitute answer was generated; please try again or contact our travel team.';
+      // If stream didn't produce tokens, fallback to standard POST /ai/chat/message
+      if (!streamSucceeded || !accumulatedText) {
+        console.warn('GuideR SSE streaming failed, falling back to message endpoint:', err);
+        try {
+          const response = await api.post('/ai/chat/message', {
+            message: cleanText,
+            sessionId,
+            locale: activeLang,
+            personaCode: selectedPersona,
+            pageContext: {
+              pathname: typeof window !== 'undefined' ? window.location.pathname : '/',
+            },
+          });
 
-      setMessages(prev => [
-        ...prev,
-        {
-          id: `msg-${Date.now()}-jaider`,
-          sender: 'jaider',
-          text: replyText,
-          timestamp: new Date(),
+          const data = response;
+          if (data?.conversationId) setConversationId(data.conversationId);
+          const assistantText = data?.message?.content || data?.text;
+          const rawTours = data?.recommendations?.tours || data?.message?.structuredContent?.tours || [];
+          const cleanTours = (Array.isArray(rawTours) ? rawTours : []).filter(
+            (t) => t && typeof t === 'object' && t.title,
+          );
+
+          if (data?.leadCapture?.required) {
+            setLeadFormState({ required: true, fields: data.leadCapture.fields });
+          }
+          if (data?.handoff?.requested) {
+            setHandoffState({ requested: true, status: data.handoff.status });
+          }
+
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === botMsgId
+                ? {
+                    ...m,
+                    id: data?.message?.id || botMsgId,
+                    text: assistantText,
+                    tours: cleanTours,
+                    destinations: data?.recommendations?.destinations || [],
+                    proposal: data?.recommendations?.proposal || null,
+                    comparison: data?.recommendations?.comparison || null,
+                    sources: data?.sources || [],
+                    suggestedReplies: data?.suggestedReplies || [],
+                    isStreaming: false,
+                    isError: false,
+                  }
+                : m,
+            ),
+          );
+        } catch (fallbackErr) {
+          console.error('GuideR standard message call also failed:', fallbackErr);
+          const isAr = (activeLang || '').startsWith('ar');
+          const replyText = isAr
+            ? 'عذراً، خدمة مستشار السفر الذكي غير متاحة حالياً. يرجى المحاولة مرة أخرى أو التواصل مباشرة مع فريق خدمة العملاء.'
+            : 'GuideR travel concierge is temporarily unavailable. Please try again or reach out to our senior travel advisors directly.';
+
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === botMsgId
+                ? {
+                    ...m,
+                    text: replyText,
+                    isError: true,
+                    failedMessageText: cleanText,
+                    isStreaming: false,
+                  }
+                : m,
+            ),
+          );
         }
-      ]);
+      }
     } finally {
       setIsTyping(false);
       setIsStreaming(false);
@@ -341,7 +514,7 @@ export const JaiderChatProvider = ({ children }) => {
       });
 
       if (res && res.referenceCode) {
-        const isAr = i18n.language.startsWith('ar');
+        const isAr = (i18n.language || '').startsWith('ar');
         const confirmationMsg = {
           id: `booking-conf-${Date.now()}`,
           sender: 'jaider',
@@ -362,7 +535,8 @@ export const JaiderChatProvider = ({ children }) => {
       return { success: false, error: 'Unexpected response from booking engine' };
     } catch (err) {
       console.error('In-chat booking failed:', err);
-      const errorText = i18n.language.startsWith('ar')
+      const isAr = (i18n.language || '').startsWith('ar');
+      const errorText = isAr
         ? 'عذراً، حدث خطأ أثناء إتمام الحجز. يرجى مراجعة البيانات والمحاولة مجدداً أو التواصل مع خدمة العملاء.'
         : 'Sorry, an error occurred while processing your booking. Please try again or reach out to customer support.';
       setMessages((prev) => [
@@ -372,6 +546,7 @@ export const JaiderChatProvider = ({ children }) => {
           sender: 'jaider',
           text: errorText,
           timestamp: new Date(),
+          isError: true,
         },
       ]);
       return { success: false, error: err.message };

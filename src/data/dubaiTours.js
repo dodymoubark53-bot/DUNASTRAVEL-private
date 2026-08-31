@@ -199,7 +199,7 @@ export const dubaiTours = [
       "summerDates": "01 May – 30 Sep"
     },
     "overview": {
-      "ar": "أفضل برنامج توقف في دبي لمدة قصيرة. استمتع بجولة سفاري في ا��صحراء مع العشاء الشرقي والعروض الترفيهية، وأقم في فندق من فئتك المختارة.",
+      "ar": "أفضل برنامج توقف في دبي لمدة قصيرة. استمتع بجولة سفاري في الصحراء مع العشاء الشرقي والعروض الترفيهية، وأقم في فندق من فئتك المختارة.",
       "en": "The perfect short stopover program in Dubai. Enjoy a desert safari with oriental dinner and entertainment shows, staying at your chosen hotel category.",
       "es": "El programa de escala perfecto en Dubái. Disfruta de un safari por el desierto con cena oriental y espectáculos, alojándote en la categoría de hotel que elijas.",
       "pt": "O programa de escala perfeito no Dubai. Desfrute de um safari no deserto com jantar oriental e espetáculos, hospedando-se na categoria de hotel que escolher.",
