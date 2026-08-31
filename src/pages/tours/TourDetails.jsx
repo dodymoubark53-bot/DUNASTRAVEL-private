@@ -35,8 +35,7 @@ const TourDetails = () => {
   const lang = i18n.language || 'en';
   const params = useParams();
   const rawSlug = params.slug || params.programId || params.id || params['*'];
-  const cleanSlug = rawSlug ? String(rawSlug).replace(/^classic\/?/, '').trim() : '';
-  const slug = cleanSlug;
+  const slug = rawSlug ? String(rawSlug).split('/').filter(Boolean).pop().trim() : '';
 
   const { tour, loading, error, retry } = useTour(slug);
   const { isFavorite, toggleFavorite } = useWishlist();
