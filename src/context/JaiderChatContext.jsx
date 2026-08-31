@@ -26,46 +26,40 @@ const _FALLBACK_MESSAGES = {
 
 const SUGGESTIONS = {
   en: [
-    "Recommend top Nile Cruise packages",
-    "Compare Egypt Classic and Historic Egypt",
-    "Design a 10-day custom luxury Egypt tour",
-    "What payment methods & deposit rules apply?",
-    "What is your cancellation & refund policy?"
+    "Recommend top 5-star Nile Cruise packages",
+    "Curate a 7-day luxury Cairo & Luxor itinerary",
+    "Design a bespoke family tour in Egypt",
+    "Compare Nile Dahabiya vs Grand Nile Cruiser"
   ],
   es: [
-    "Recomienda paquetes de Crucero por el Nilo",
-    "Compara Egipto Clásico e Histórico",
-    "Diseña un tour personalizado de 10 días en Egipto",
-    "¿Qué métodos de pago y anticipos aplican?",
-    "¿Cuál es su política de cancelación y reembolso?"
+    "Recomienda los mejores cruceros 5 estrellas por el Nilo",
+    "Diseña un itinerario de lujo de 7 días en El Cairo y Luxor",
+    "Organiza un viaje familiar exclusivo en Egipto",
+    "Compara Dahabiya privada vs Crucero de lujo por el Nilo"
   ],
   pt: [
-    "Recomende os melhores cruzeiros no Nilo",
-    "Compare Egito Clássico e Egito Histórico",
-    "Planeje um roteiro de luxo de 10 dias no Egito",
-    "Quais métodos de pagamento e sinal são aceitos?",
-    "Qual é a política de cancelamento e reembolso?"
+    "Recomende os melhores cruzeiros 5 estrelas no Nilo",
+    "Planeje um roteiro de luxo de 7 dias no Cairo e Luxor",
+    "Crie uma viagem personalizada para a família no Egito",
+    "Compare Dahabiya privativa vs Cruzeiro de luxo no Nilo"
   ],
   it: [
-    "Consigliami le migliori crociere sul Nilo",
-    "Confronta Egitto Classico ed Egitto Storico",
-    "Pianifica un tour di lusso su misura di 10 giorni",
-    "Quali metodi di pagamento e acconti accettate?",
-    "Qual è la vostra politica di cancellazione?"
+    "Consigliami le migliori crociere 5 stelle sul Nilo",
+    "Pianifica un tour di lusso di 7 giorni tra Il Cairo e Luxor",
+    "Organizza un viaggio su misura per famiglie in Egitto",
+    "Confronta Dahabiya privata vs Crociera di lusso sul Nilo"
   ],
   ar: [
-    "اقترح علي أفضل رحلات النايل كروز الفاخرة",
-    "قارن بين رحلة مصر الكلاسيكية ومصر التاريخية",
-    "صمم لي برنامج سياحي خاص 10 أيام في مصر",
-    "ما هي طرق الدفع وشروط الإيداع المعتمدة؟",
-    "ما هي سياسة الإلغاء والاسترداد المعتمدة؟"
+    "اقترح علي أفضل رحلات النايل كروز الفاخرة 5 نجوم",
+    "صمم لي برنامج سياحي 7 أيام بين القاهرة والأقصر",
+    "صمم رحلة عائلية فاخرة مخصصة في مصر",
+    "ما الفرق بين الإبحار بالدهبية النيلية الفاخرة والكروز الكبير؟"
   ],
   'ar-eg': [
-    "عايز أحسن رحلة نايل كروز فاخرة في مصر",
-    "قارن بين الرحلة الكلاسيكية والتاريخية",
-    "صمملي برنامج 10 أيام مخصص لعيلتي",
-    "إيه طرق الدفع ونسبة المقدم المطلوبة؟",
-    "إيه سياسة الإلغاء واسترداد الفلوس؟"
+    "عايز أحسن رحلة نايل كروز فاخرة 5 نجوم في مصر",
+    "صمملي برنامج 7 أيام ممتع وفخم في القاهرة والأقصر",
+    "عايز رحلة عائلية مميزة ومريحة لكل العيلة",
+    "إيه الفرق بين الدهبية النيلية الخاصة والكروز العادي؟"
   ]
 };
 
@@ -103,6 +97,7 @@ export const JaiderChatProvider = ({ children }) => {
     return localStorage.getItem('jaider_selected_persona') || 'luxury_concierge';
   });
   const abortControllerRef = useRef(null);
+  const isSendingRef = useRef(false);
 
   const detectLanguage = (text) => {
     if (!text) return 'en';
@@ -242,8 +237,9 @@ export const JaiderChatProvider = ({ children }) => {
 
   // Send message with real SSE streaming + progressive tokens + cancellation + fallback
   const sendMessage = async (text) => {
-    if (!text || !text.trim()) return;
+    if (!text || !text.trim() || isSendingRef.current) return;
     const cleanText = text.trim();
+    isSendingRef.current = true;
 
     const userMsg = {
       id: `msg-${Date.now()}-user`,
@@ -501,6 +497,7 @@ export const JaiderChatProvider = ({ children }) => {
       setIsTyping(false);
       setIsStreaming(false);
       abortControllerRef.current = null;
+      isSendingRef.current = false;
     }
   };
 
