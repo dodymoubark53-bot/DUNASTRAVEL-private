@@ -315,22 +315,35 @@ const JaiderChatWindow = () => {
                         )}
 
                         <div
-                          className={`p-3.5 rounded-2xl text-xs sm:text-[13px] leading-relaxed shadow-sm ${
+                          className={`p-3.5 rounded-2xl text-xs sm:text-[13px] leading-relaxed shadow-sm transition-all ${
                             isUser
-                              ? 'bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-950 font-medium rounded-tr-none'
+                              ? 'bg-amber-500 text-slate-950 font-extrabold rounded-tr-none shadow-md px-4 py-2.5'
                               : isStaff
-                              ? 'bg-slate-900/90 text-slate-100 border border-gold-500/40 rounded-tl-none'
+                              ? 'bg-slate-900/90 text-slate-100 border border-amber-500/40 rounded-tl-none'
                               : msg.isError
                               ? 'bg-rose-950/40 text-rose-200 border border-rose-500/40 rounded-tl-none'
-                              : 'bg-slate-900/80 text-slate-200 border border-slate-800 rounded-tl-none'
+                              : 'bg-slate-900/90 text-slate-200 border border-slate-800 rounded-tl-none'
                           }`}
                         >
-                          <p className="whitespace-pre-wrap">
-                            {msg.text}
-                            {msg.isStreaming && (
-                              <span className="inline-block w-1.5 h-3.5 bg-gold-400 animate-pulse ml-1 align-middle" />
-                            )}
-                          </p>
+                          {msg.text ? (
+                            <p className="whitespace-pre-wrap">
+                              {msg.text}
+                              {msg.isStreaming && (
+                                <span className="inline-block w-1.5 h-3.5 bg-amber-400 animate-pulse ml-1 align-middle" />
+                              )}
+                            </p>
+                          ) : msg.isStreaming ? (
+                            <div className="flex items-center gap-2 py-0.5">
+                              <span className="flex gap-1 items-center">
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+                              </span>
+                              <span className="text-[11px] font-bold text-amber-300">
+                                {isRtl ? 'جاري تحضير الرد والتفاصيل الفاخرة...' : 'Curating personalized luxury details...'}
+                              </span>
+                            </div>
+                          ) : null}
 
                           {msg.isError && (
                             <div className="mt-3 flex flex-wrap gap-2 pt-2.5 border-t border-rose-500/30">
@@ -706,22 +719,25 @@ const JaiderChatWindow = () => {
                 })}
               </AnimatePresence>
 
-              {isTyping && (
+              {isTyping && !messages.some((m) => m.sender === 'jaider' && m.isStreaming) && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="flex gap-2.5 max-w-[80%] self-start"
                 >
-                  <img
-                    src="/imgs/tito-mascot.webp"
-                    alt="GuideR"
-                    className="w-7 h-7 object-contain bg-white/10 rounded-full p-0.5 border border-gold-400/30 shrink-0 self-end mb-1"
-                  />
-                  <div className="p-3 bg-slate-900/90 border border-slate-800 rounded-2xl rounded-tl-none flex items-center gap-2 text-xs text-gold-300">
-                    <span className="w-1.5 h-1.5 bg-gold-400 rounded-full animate-pulse"></span>
-                    <span className="w-1.5 h-1.5 bg-gold-400 rounded-full animate-pulse delay-100"></span>
-                    <span className="w-1.5 h-1.5 bg-gold-400 rounded-full animate-pulse delay-200"></span>
-                    <span className="text-[11px] text-slate-400 ml-1">
+                  <div className="w-7 h-7 rounded-full bg-slate-900 border border-amber-500/30 p-0.5 shrink-0 self-end mb-1 flex items-center justify-center">
+                    <img
+                      src="/imgs/tito-mascot.webp"
+                      alt="GuideR"
+                      className="w-full h-full object-contain"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                  </div>
+                  <div className="p-3 bg-slate-900/90 border border-slate-800 rounded-2xl rounded-tl-none flex items-center gap-2 text-xs text-amber-300">
+                    <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse"></span>
+                    <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse delay-100"></span>
+                    <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse delay-200"></span>
+                    <span className="text-[11px] text-slate-300 ml-1 font-medium">
                       {t('jaider.searching', 'GuideR is searching catalog...')}
                     </span>
                   </div>
@@ -819,7 +835,7 @@ const JaiderChatWindow = () => {
             )}
 
             {/* Input Footer */}
-            <div className="p-3 bg-obsidian-950 border-t border-gold-500/20 flex flex-col gap-2">
+            <div className="p-3 bg-slate-950 border-t border-amber-500/20 flex flex-col gap-2">
               <div className="flex items-center gap-2">
                 <input
                   ref={inputRef}
@@ -827,20 +843,20 @@ const JaiderChatWindow = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleInputKeyDown}
-                  placeholder={t('jaider.placeholder', 'Ask GuideR about tours, cruises, or custom trips...')}
-                  className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-gold-400/50 shadow-inner"
+                  placeholder={isRtl ? 'اكتب استفسارك أو اطلب تصميم رحلة مخصصة...' : t('jaider.placeholder', 'Ask GuideR about tours, cruises, or custom trips...')}
+                  className="flex-1 bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs sm:text-[13px] text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-amber-500/80 focus:ring-1 focus:ring-amber-500/40 shadow-inner"
                 />
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() || isTyping}
-                  className={`p-2.5 rounded-xl flex items-center justify-center transition-all ${
+                  className={`p-3 rounded-xl flex items-center justify-center transition-all ${
                     input.trim() && !isTyping
-                      ? 'bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian-950 shadow-md hover:brightness-110'
-                      : 'bg-slate-800 text-slate-600 cursor-not-allowed'
+                      ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md font-bold cursor-pointer'
+                      : 'bg-slate-800 text-slate-500 cursor-not-allowed'
                   }`}
                   aria-label={t('jaider.send', 'Send')}
                 >
-                  <FaPaperPlane size={13} className={isRtl ? 'rotate-180' : ''} />
+                  <FaPaperPlane size={14} className={isRtl ? 'rotate-180' : ''} />
                 </button>
               </div>
 

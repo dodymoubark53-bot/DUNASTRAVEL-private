@@ -552,12 +552,102 @@ const TailorTour = () => {
 
   const isFlying = animationState === 'flying-forward' || animationState === 'flying-backward';
 
-  const destinations = publishedDestinations
-    .map((destination) => ({
-      id: destination.slug,
-      name: destination.title || destination.name,
-      img: destination.heroImageUrl || destination.image || 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026771/8_mpyvu4.jpg',
-    }));
+const DEFAULT_DESTINATIONS = [
+  {
+    id: 'egypt',
+    nameAr: 'مصر (القاهرة، الأهرامات والنيل)',
+    nameEn: 'Egypt (Cairo, Pyramids & Nile)',
+    nameEs: 'Egipto (El Cairo y Nilo)',
+    namePt: 'Egito (Cairo e Nilo)',
+    nameIt: 'Egitto (Cairo e Nilo)',
+    img: 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026771/8_mpyvu4.jpg',
+    flag: '🇪🇬',
+  },
+  {
+    id: 'turkey',
+    nameAr: 'تركيا (إسطنبول وكابادوكيا)',
+    nameEn: 'Turkey (Istanbul & Cappadocia)',
+    nameEs: 'Turquía (Estambul y Capadocia)',
+    namePt: 'Turquia (Istambul e Capadócia)',
+    nameIt: 'Turchia (Istanbul e Cappadocia)',
+    img: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=800&q=80',
+    flag: '🇹🇷',
+  },
+  {
+    id: 'jordan',
+    nameAr: 'الأردن (البتراء والبحر الميت)',
+    nameEn: 'Jordan (Petra & Dead Sea)',
+    nameEs: 'Jordania (Petra y Mar Muerto)',
+    namePt: 'Jordânia (Petra e Mar Morto)',
+    nameIt: 'Giordania (Petra e Mar Morto)',
+    img: 'https://images.unsplash.com/photo-1579606032822-e42718e24483?auto=format&fit=crop&w=800&q=80',
+    flag: '🇯🇴',
+  },
+  {
+    id: 'dubai',
+    nameAr: 'دبي والإمارات الفاخرة',
+    nameEn: 'Dubai & UAE Luxury',
+    nameEs: 'Dubái y Emiratos de Lujo',
+    namePt: 'Dubai e Emirados Árabes',
+    nameIt: 'Dubai ed Emirati Arabi',
+    img: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80',
+    flag: '🇦🇪',
+  },
+  {
+    id: 'morocco',
+    nameAr: 'المغرب (مراكش والمدن العتيقة)',
+    nameEn: 'Morocco (Marrakech & Imperial Cities)',
+    nameEs: 'Marruecos (Marrakech)',
+    namePt: 'Marrocos (Marrakech)',
+    nameIt: 'Marocco (Marrakech)',
+    img: 'https://images.unsplash.com/photo-1539020140153-e479b8c22e70?auto=format&fit=crop&w=800&q=80',
+    flag: '🇲🇦',
+  },
+  {
+    id: 'greece',
+    nameAr: 'اليونان (أثينا وسانتوريني)',
+    nameEn: 'Greece (Athens & Santorini)',
+    nameEs: 'Grecia (Atenas y Santorini)',
+    namePt: 'Grécia (Atenas e Santorini)',
+    nameIt: 'Grecia (Atene e Santorini)',
+    img: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=800&q=80',
+    flag: '🇬🇷',
+  },
+  {
+    id: 'tunisia',
+    nameAr: 'تونس (الصحراء والواحات)',
+    nameEn: 'Tunisia (Heritage & Oasis)',
+    nameEs: 'Túnez (Patrimonio y Desierto)',
+    namePt: 'Tunísia (História e Deserto)',
+    nameIt: 'Tunisia (Oasi e Sahara)',
+    img: 'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=800&q=80',
+    flag: '🇹🇳',
+  },
+  {
+    id: 'multi-country',
+    nameAr: 'برامج سياحية مشتركة (متعددة الوجهات)',
+    nameEn: 'Multi-Country Combined Grand Tours',
+    nameEs: 'Grandes Tours Multipaís Combinados',
+    namePt: 'Grandes Roteiros Multi-Países',
+    nameIt: 'Grandi Tour Combinati Multi-Paese',
+    img: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80',
+    flag: '🌍',
+  },
+];
+
+  const langKey = (i18n.language || 'en').toLowerCase().split('-')[0];
+  const destinations = (publishedDestinations && publishedDestinations.length > 0)
+    ? publishedDestinations.map((destination) => ({
+        id: destination.slug || destination.id,
+        name: destination.title || destination.name,
+        img: destination.heroImageUrl || destination.image || 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026771/8_mpyvu4.jpg',
+      }))
+    : DEFAULT_DESTINATIONS.map((d) => ({
+        id: d.id,
+        name: d[`name${langKey === 'ar' ? 'Ar' : langKey === 'es' ? 'Es' : langKey === 'pt' ? 'Pt' : langKey === 'it' ? 'It' : 'En'}`] || d.nameEn,
+        img: d.img,
+        flag: d.flag,
+      }));
 
   const totalPassengers = adults + children + infants;
 
@@ -1041,7 +1131,7 @@ const TailorTour = () => {
                     {t('tailor.step1Title', 'Where would you like to travel? (You can choose more than one)')}
                   </h3>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 mb-8">
                     {destinations.map((dest) => {
                       const isSelected = selectedDestinations.includes(dest.id);
                       return (
@@ -1051,26 +1141,29 @@ const TailorTour = () => {
                           onClick={() => handleDestinationToggle(dest.id)}
                           aria-pressed={isSelected}
                           aria-label={`${isSelected ? t('tailor.unselect', 'Unselect') : t('home.select', 'Select')} ${dest.name}`}
-                          className={`relative h-[200px] rounded-xl overflow-hidden cursor-pointer group border-2 bg-transparent p-0 text-left transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-gold-500/40 ${
+                          className={`relative h-[220px] rounded-2xl overflow-hidden cursor-pointer group border-2 bg-slate-900 p-0 text-left transition-all duration-300 transform hover:-translate-y-1 ${
                             isSelected
-                              ? 'border-gold-500 shadow-gold ring-2 ring-gold-500/40'
-                              : 'border-obsidian-900/10 hover:border-gold-500/70 hover:shadow-gold'
+                              ? 'border-amber-500 shadow-xl ring-2 ring-amber-500/50 scale-[1.02]'
+                              : 'border-obsidian-900/10 hover:border-amber-500/70 hover:shadow-lg'
                           }`}
                         >
                           <img
                             src={dest.img}
                             alt={dest.name}
                             draggable="false"
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.88] group-hover:brightness-100"
                           />
-                          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-obsidian-900/80 via-obsidian-900/20 to-transparent flex items-end justify-center p-4">
-                            <span className="text-ivory-50 font-bold text-lg drop-shadow-md text-center">
+                          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent flex flex-col justify-end p-4">
+                            {dest.flag && (
+                              <span className="text-xl mb-1 drop-shadow">{dest.flag}</span>
+                            )}
+                            <span className="text-white font-extrabold text-base leading-snug drop-shadow-md">
                               {dest.name}
                             </span>
                           </div>
                           {isSelected && (
                             <span
-                              className="pointer-events-none absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-gold-500 text-xl font-bold text-obsidian-900 shadow-lg"
+                              className="pointer-events-none absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-amber-500 text-slate-950 font-black shadow-lg text-sm"
                               aria-hidden="true"
                             >
                               ✓
@@ -1558,50 +1651,46 @@ const TailorTour = () => {
           </form>
 
           {/* Social Footer */}
-          <div className="social-footer-3d">
-            <p className="text-body-md text-obsidian-500 font-semibold mb-4">
+          <div className="mt-12 p-6 rounded-2xl bg-white border border-obsidian-900/10 shadow-sm text-center">
+            <p className="text-sm font-bold text-obsidian-800 mb-4">
               {t('tailor.socialFooterDesc', 'Need immediate assistance? Contact us via one of the following channels:')}
             </p>
-            <ul>
-              <li className="ts-whatsapp">
-                <a
-                  href="https://wa.me/201004146843"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="WhatsApp"
-                  aria-label="Contact us on WhatsApp"
-                >
-                  <FaWhatsapp />
-                </a>
-              </li>
-              <li className="ts-phone">
-                <a href="tel:+20233746643" title={t('contact.phoneLabel', 'Phone')} aria-label="Call us">
-                  <FaPhone />
-                </a>
-              </li>
-              <li className="ts-facebook">
-                <a
-                  href="https://www.facebook.com/share/1BnRWtoUdo/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Facebook"
-                  aria-label="Visit our Facebook page"
-                >
-                  <FaFacebookF />
-                </a>
-              </li>
-              <li className="ts-instagram">
-                <a
-                  href="https://www.instagram.com/dunas_travel?igsh=bWkyb2FhY2hoNnNo"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Instagram"
-                  aria-label="Visit our Instagram page"
-                >
-                  <FaInstagram />
-                </a>
-              </li>
-            </ul>
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <a
+                href="https://wa.me/201004146843"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 border border-emerald-500/30 text-xs font-bold transition-all shadow-xs hover:scale-105"
+              >
+                <FaWhatsapp size={16} />
+                <span>WhatsApp</span>
+              </a>
+              <a
+                href="tel:+20233746643"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 border border-amber-500/30 text-xs font-bold transition-all shadow-xs hover:scale-105"
+              >
+                <FaPhone size={14} />
+                <span>+20 2 33746643</span>
+              </a>
+              <a
+                href="https://www.facebook.com/share/1BnRWtoUdo/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 border border-blue-500/30 text-xs font-bold transition-all shadow-xs hover:scale-105"
+              >
+                <FaFacebookF size={14} />
+                <span>Facebook</span>
+              </a>
+              <a
+                href="https://www.instagram.com/dunas_travel?igsh=bWkyb2FhY2hoNnNo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-pink-500/10 hover:bg-pink-500/20 text-pink-600 border border-pink-500/30 text-xs font-bold transition-all shadow-xs hover:scale-105"
+              >
+                <FaInstagram size={14} />
+                <span>Instagram</span>
+              </a>
+            </div>
           </div>
         </div>
       </section>
