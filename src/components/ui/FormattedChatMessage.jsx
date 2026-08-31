@@ -65,11 +65,11 @@ const FormattedChatMessage = ({ text, isStreaming = false }) => {
   if (!text && !isStreaming) return null;
 
   // Split by double newline to handle paragraphs and blocks
-  const blocks = (text || '').split(/\n\n+/);
+  const rawBlocks = (text || '').split(/\n\n+/);
 
   return (
     <div className="space-y-2.5 text-xs sm:text-[13px] leading-relaxed text-slate-100 font-sans">
-      {blocks.map((block, bIdx) => {
+      {rawBlocks.map((block, bIdx) => {
         const lines = block.split('\n');
 
         // Check if block is a bulleted list
@@ -112,29 +112,30 @@ const FormattedChatMessage = ({ text, isStreaming = false }) => {
           );
         }
 
-        // Check if block is a heading (### Heading)
-        if (block.startsWith('### ') || block.startsWith('## ') || block.startsWith('# ')) {
-          const cleanHeading = block.replace(/^#+\s+/, '');
-          return (
-            <h4
-              key={bIdx}
-              className="text-xs sm:text-sm font-bold text-gold-300 border-b border-gold-500/20 pb-1 mt-2 mb-1"
-            >
-              {renderInlineFormatted(cleanHeading)}
-            </h4>
-          );
-        }
-
-        // Standard Paragraph with potential single line-breaks
+        // Mixed block: render line by line if there are headings
         return (
-          <p key={bIdx} className="break-words">
-            {lines.map((line, lIdx) => (
-              <React.Fragment key={lIdx}>
-                {renderInlineFormatted(line)}
-                {lIdx < lines.length - 1 && <br />}
-              </React.Fragment>
-            ))}
-          </p>
+          <div key={bIdx} className="space-y-1">
+            {lines.map((line, lIdx) => {
+              const trimmed = line.trim();
+              if (trimmed.startsWith('### ') || trimmed.startsWith('## ') || trimmed.startsWith('# ')) {
+                const cleanHeading = trimmed.replace(/^#+\s+/, '');
+                return (
+                  <h4
+                    key={lIdx}
+                    className="text-xs sm:text-sm font-bold text-gold-300 border-b border-gold-500/20 pb-1 mt-2 mb-1"
+                  >
+                    {renderInlineFormatted(cleanHeading)}
+                  </h4>
+                );
+              }
+              if (!trimmed) return null;
+              return (
+                <p key={lIdx} className="break-words">
+                  {renderInlineFormatted(line)}
+                </p>
+              );
+            })}
+          </div>
         );
       })}
 
