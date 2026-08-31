@@ -165,7 +165,7 @@ export function useServices(category = null) {
               items = readItems(await api.get(`/hotels?locale=${lang}`), 'hotels')
                 .map(transformHotelToService);
             } else if (category === 'transportation') {
-              items = readItems(await api.get('/transportation/services'), 'transportation')
+              items = readItems(await api.get(`/transportation/services?locale=${lang}`), 'transportation')
                 .map(transformTransportToService);
             } else if (category) {
               const params = new URLSearchParams({ lang, category, limit: '30' });
@@ -174,7 +174,7 @@ export function useServices(category = null) {
             } else {
               const [hotelsResult, transportResult] = await Promise.allSettled([
                 api.get(`/hotels?locale=${lang}`),
-                api.get('/transportation/services'),
+                api.get(`/transportation/services?locale=${lang}`),
               ]);
               const hotels = hotelsResult.status === 'fulfilled'
                 ? readItems(hotelsResult.value, 'hotels').map(transformHotelToService)
