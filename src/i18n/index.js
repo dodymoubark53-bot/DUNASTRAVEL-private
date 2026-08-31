@@ -2,13 +2,21 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
+import ar from './locales/ar.json';
+import en from './locales/en.json';
+import es from './locales/es.json';
+import it from './locales/it.json';
+import pt from './locales/pt.json';
+
 const supportedLngs = ['en', 'ar', 'es', 'pt', 'it'];
 
-const localeModules = import.meta.glob('./locales/*.json', { eager: false });
-
-i18n.use(LanguageDetector).use(initReactI18next);
-
-let initPromise = null;
+const resources = {
+  ar: { translation: ar },
+  en: { translation: en },
+  es: { translation: es },
+  it: { translation: it },
+  pt: { translation: pt },
+};
 
 const getDefaultLng = () => {
   try {
@@ -24,17 +32,17 @@ const getDefaultLng = () => {
   return supportedLngs.includes(navLng) ? navLng : 'en';
 };
 
+i18n.use(LanguageDetector).use(initReactI18next);
+
+let initPromise = null;
+
 export const initI18n = async () => {
   if (initPromise) return initPromise;
   initPromise = (async () => {
     try {
       const lng = getDefaultLng();
-      const loader = localeModules[`./locales/${lng}.json`] || localeModules['./locales/en.json'];
-      const mod = loader ? await loader() : { default: {} };
       await i18n.init({
-        resources: {
-          [lng]: { translation: mod.default || {} },
-        },
+        resources,
         fallbackLng: 'en',
         lng,
         interpolation: { escapeValue: false },
@@ -42,33 +50,9 @@ export const initI18n = async () => {
       });
     } catch (err) {
       console.warn('initI18n fallback triggered:', err);
-      try {
-        await i18n.init({
-          fallbackLng: 'en',
-          lng: 'en',
-          interpolation: { escapeValue: false },
-          keySeparator: false,
-        });
-      } catch {
-        // ignore
-      }
     }
   })();
   return initPromise;
-};
-
-const origChangeLanguage = i18n.changeLanguage.bind(i18n);
-i18n.changeLanguage = async (lng, callback) => {
-  try {
-    if (!i18n.hasResourceBundle(lng, 'translation')) {
-      const mod = await localeModules[`./locales/${lng}.json`]();
-      i18n.addResourceBundle(lng, 'translation', mod.default);
-    }
-    return origChangeLanguage(lng, callback);
-  } catch (err) {
-    console.error('Failed to load locale:', lng, err);
-    return origChangeLanguage('en', callback);
-  }
 };
 
 export default i18n;

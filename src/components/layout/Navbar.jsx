@@ -41,6 +41,8 @@ const Navbar = () => {
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
     localStorage.setItem('i18nextLng', lng);
+    document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lng;
     setLangDropdownOpen(false);
   };
 
@@ -534,16 +536,40 @@ const Navbar = () => {
                   ✈ {t('nav.tailorMade', 'Tailor Your Tour')}
                 </Link>
 
-                {/* Mobile Theme Toggle */}
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-obsidian-100 dark:border-obsidian-700">
-                  <span className="text-obsidian-400 dark:text-ivory-500 text-xs font-semibold tracking-wider uppercase">{t('nav.theme', 'Theme')}</span>
-                  <button
-                    onClick={toggleTheme}
-                    className="w-10 h-10 rounded-full border border-obsidian-200 dark:border-obsidian-600 flex items-center justify-center bg-white dark:bg-obsidian-800 hover:bg-obsidian-50 dark:hover:bg-obsidian-700 transition-all"
-                    aria-label="Toggle theme"
-                  >
-                    {theme === 'dark' ? <FaSun className="text-amber-500" size={16} /> : <FaMoon className="text-indigo-600" size={16} />}
-                  </button>
+                {/* Mobile Language & Theme Controls */}
+                <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-obsidian-100 dark:border-obsidian-700">
+                  <div className="flex items-center justify-between">
+                    <span className="text-obsidian-400 dark:text-ivory-500 text-xs font-semibold tracking-wider uppercase">{t('nav.theme', 'Theme')}</span>
+                    <button
+                      onClick={toggleTheme}
+                      className="w-10 h-10 rounded-full border border-obsidian-200 dark:border-obsidian-600 flex items-center justify-center bg-white dark:bg-obsidian-800 hover:bg-obsidian-50 dark:hover:bg-obsidian-700 transition-all"
+                      aria-label="Toggle theme"
+                    >
+                      {theme === 'dark' ? <FaSun className="text-amber-500" size={16} /> : <FaMoon className="text-indigo-600" size={16} />}
+                    </button>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <span className="text-obsidian-400 dark:text-ivory-500 text-xs font-semibold tracking-wider uppercase">{t('nav.language', 'Language')}</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {activeLanguages.map((lang) => (
+                        <button
+                          key={lang.code}
+                          onClick={() => {
+                            changeLanguage(lang.code);
+                            setMobileMenuOpen(false);
+                          }}
+                          className={`px-3 py-1.5 text-xs font-bold rounded-xl border transition-all flex items-center gap-1.5 ${
+                            i18n.language === lang.code
+                              ? 'bg-amber-500 text-white border-amber-500 shadow-md'
+                              : 'bg-white dark:bg-obsidian-800 text-obsidian-700 dark:text-ivory-200 border-obsidian-200 dark:border-obsidian-600 hover:border-amber-500'
+                          }`}
+                        >
+                          <span>{lang.flag}</span>
+                          <span>{lang.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                   {user ? (

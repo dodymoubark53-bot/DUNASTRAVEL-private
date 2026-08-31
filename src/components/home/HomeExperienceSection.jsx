@@ -30,49 +30,49 @@ import {
 const _destinationsData = [
   {
     id: "egypt",
-    nameKey: "nav.egypt",
+    nameKey: "home.destEgypt",
     descKey: "home.destEgyptDesc",
     image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_600,c_fill/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg",
   },
   {
     id: "turkey",
-    nameKey: "nav.turkey",
+    nameKey: "home.destTurkey",
     descKey: "home.destTurkeyDesc",
     image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_600,c_fill/v1783023877/2ec72126-709b-4c8d-8f7b-a592d212cc3b_czpoig.jpg",
   },
   {
     id: "dubai",
-    nameKey: "nav.dubai",
+    nameKey: "home.destDubai",
     descKey: "home.destDubaiDesc",
     image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_600,c_fill/v1783023865/80f6f47a-4938-4684-aaf1-b1e61d44dab6_n8vdtl.jpg",
   },
   {
     id: "jordan",
-    nameKey: "nav.jordan",
+    nameKey: "home.destJordan",
     descKey: "home.destJordanDesc",
     image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_600,c_fill/v1783023927/dad14822-455c-419c-8627-32b3daebef90_akfw3l.jpg",
   },
   {
     id: "morocco",
-    nameKey: "nav.morocco",
+    nameKey: "home.destMorocco",
     descKey: "home.destMoroccoDesc",
     image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_600,c_fill/v1783024003/d34eeca3-6bc8-4a19-aa18-bf13404bb11b_n0f8zn.jpg",
   },
   {
     id: "tunisia",
-    nameKey: "nav.tunisia",
+    nameKey: "home.destTunisia",
     descKey: "home.destTunisiaDesc",
     image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_600,c_fill/v1783024062/071f261a-2ab6-48b5-a370-c47ad7889be3_immde1.jpg",
   },
   {
     id: "greece",
-    nameKey: "nav.greece",
+    nameKey: "home.destGreece",
     descKey: "home.destGreeceDesc",
     image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_600,c_fill/v1783024053/66dc2b5e-f90d-424f-b9a7-4164b52f4e5a_eoqd3p.jpg",
   },
   {
     id: "holy-land",
-    nameKey: "nav.holyland",
+    nameKey: "home.destHolyLand",
     descKey: "home.destHolyLandDesc",
     image: "/images/holy-land.webp",
   },
@@ -364,6 +364,7 @@ const HomeExperienceSection = () => {
   const liveDestinations = useMemo(() => Array.isArray(liveDestinationsRaw) ? liveDestinationsRaw : [], [liveDestinationsRaw]);
   const liveDestinationCards = useMemo(() => {
     const safeT = typeof t === 'function' ? t : (k, fallback) => (fallback || k);
+    const lang = i18n?.language || 'en';
     const rawList = liveDestinations.length > 0 ? liveDestinations : _destinationsData;
 
     const filtered = rawList.filter((d) => {
@@ -371,13 +372,49 @@ const HomeExperienceSection = () => {
       return slug !== 'multi-country' && slug !== 'religious' && slug !== 'religious-tours' && slug !== 'multi-country-tours';
     });
 
+    const DEST_I18N_KEYS = {
+      egypt: { nameKey: 'home.destEgypt', descKey: 'home.destEgyptDesc' },
+      turkey: { nameKey: 'home.destTurkey', descKey: 'home.destTurkeyDesc' },
+      dubai: { nameKey: 'home.destDubai', descKey: 'home.destDubaiDesc' },
+      jordan: { nameKey: 'home.destJordan', descKey: 'home.destJordanDesc' },
+      morocco: { nameKey: 'home.destMorocco', descKey: 'home.destMoroccoDesc' },
+      greece: { nameKey: 'home.destGreece', descKey: 'home.destGreeceDesc' },
+      tunisia: { nameKey: 'home.destTunisia', descKey: 'home.destTunisiaDesc' },
+      holyland: { nameKey: 'home.destHolyLand', descKey: 'home.destHolyLandDesc' },
+      'holy-land': { nameKey: 'home.destHolyLand', descKey: 'home.destHolyLandDesc' },
+    };
+
     const cards = filtered.map((destination) => {
-      const slug = destination.slug || destination.id;
+      const slug = String(destination.slug || destination.id || '').toLowerCase();
+      const keys = DEST_I18N_KEYS[slug];
+
+      let name = '';
+      if (keys && safeT(keys.nameKey) !== keys.nameKey) {
+        name = safeT(keys.nameKey);
+      } else {
+        let rawTitle = destination.title || destination.name;
+        if (!rawTitle && destination.nameKey) {
+          rawTitle = safeT(destination.nameKey);
+        }
+        name = resolveLocalizedText(rawTitle || slug, safeT, lang);
+      }
+
+      let subtitle = '';
+      if (keys && safeT(keys.descKey) !== keys.descKey) {
+        subtitle = safeT(keys.descKey);
+      } else {
+        let rawSub = destination.subtitle || destination.description;
+        if (!rawSub && destination.descKey) {
+          rawSub = safeT(destination.descKey);
+        }
+        subtitle = resolveLocalizedText(rawSub || '', safeT, lang);
+      }
+
       return {
         id: slug,
-        name: destination.title || (destination.nameKey ? safeT(destination.nameKey) : destination.name) || slug,
-        description: destination.description || (destination.descKey ? safeT(destination.descKey) : destination.subtitle) || '',
-        subtitle: destination.subtitle || (destination.descKey ? safeT(destination.descKey) : '') || '',
+        name: name || slug,
+        description: subtitle || '',
+        subtitle: subtitle || '',
         image: destination.heroImageUrl || destination.image,
         toursCount: destination.toursCount || 3,
         link: `/destinations/${slug}`,
@@ -388,9 +425,9 @@ const HomeExperienceSection = () => {
     if (!hasHolyLand) {
       cards.push({
         id: 'holyland',
-        name: safeT('nav.holyland', 'Holy Land'),
-        description: safeT('home.destHolyLandDesc', 'History, spirituality and eternal legacy'),
-        subtitle: safeT('home.destHolyLandDesc', 'History, spirituality and eternal legacy'),
+        name: safeT('home.destHolyLand', 'Holy Land'),
+        description: safeT('home.destHolyLandDesc', 'History, spirituality and eternal legacy.'),
+        subtitle: safeT('home.destHolyLandDesc', 'History, spirituality and eternal legacy.'),
         image: '/images/holy-land.webp',
         toursCount: 3,
         link: '/destinations/holyland',
@@ -412,7 +449,7 @@ const HomeExperienceSection = () => {
     cards.sort((a, b) => (destOrderMap[a.id] || 99) - (destOrderMap[b.id] || 99));
 
     return cards;
-  }, [liveDestinations, t]);
+  }, [liveDestinations, t, i18n?.language]);
   const livePackageCards = useMemo(() => {
     const safeT = typeof t === 'function' ? t : (k, fallback) => (fallback || k);
     const definitions = [
