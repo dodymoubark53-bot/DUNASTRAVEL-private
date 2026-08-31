@@ -47,6 +47,17 @@ const TailorTour = () => {
   const [travelDate, setTravelDate] = useState(() => initialDraft?.travelDate || '');
   const [dateError, setDateError] = useState(false);
   const [budget, setBudget] = useState(() => initialDraft?.budget || '');
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  const clearFieldError = (field) => {
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
 
   // Partner / Secret Referral Code State
   const [partnerCode, setPartnerCode] = useState(() => initialDraft?.partnerCode || '');
@@ -271,11 +282,83 @@ const TailorTour = () => {
   const handleDateChange = (e) => {
     const val = e.target.value;
     setTravelDate(val);
+    clearFieldError('travelDate');
     if (val && val < todayStr) {
       setDateError(true);
     } else {
       setDateError(false);
     }
+  };
+
+  const parseBudgetAmount = (val) => {
+    if (!val) return undefined;
+    const clean = String(val).trim();
+    if (clean === '1000-2000') return 1500;
+    if (clean === '2000-3000') return 2500;
+    if (clean === '3000+') return 3000;
+    if (clean.includes('-')) {
+      const parts = clean
+        .split('-')
+        .map((p) => parseFloat(p.replace(/[^0-9.]/g, '')))
+        .filter((n) => Number.isFinite(n));
+      if (parts.length >= 2) return Math.round((parts[0] + parts[1]) / 2);
+      if (parts.length === 1) return parts[0];
+    }
+    const num = parseFloat(clean.replace(/[^0-9.]/g, ''));
+    return Number.isFinite(num) && num > 0 && num <= 10_000_000 ? num : undefined;
+  };
+
+  const validateStep2 = () => {
+    const errs = {};
+
+    // 1. Full Name
+    if (!fullName || !fullName.trim()) {
+      errs.fullName = t('tailor.errorFullNameRequired', 'الاسم الكامل مطلوب (كما هو موضح في جواز السفر)');
+    } else if (fullName.trim().length < 2) {
+      errs.fullName = t('tailor.errorFullNameShort', 'يجب أن يتكون الاسم من حرفين على الأقل');
+    }
+
+    // 2. Email
+    const emailRegex = /^[^s@]+@[^s@]+.[^s@]+$/;
+    if (!email || !email.trim()) {
+      errs.email = t('tailor.errorEmailRequired', 'البريد الإلكتروني مطلوب لتأكيد الحجز والتواصل');
+    } else if (!emailRegex.test(email.trim())) {
+      errs.email = t('tailor.errorEmailInvalid', 'يرجى إدخال بريد إلكتروني صحيح (مثال: name@example.com)');
+    }
+
+    // 3. Nationality
+    if (!nationality || !nationality.trim()) {
+      errs.nationality = t('tailor.errorNationalityRequired', 'يرجى اختيار الجنسية');
+    }
+
+    // 4. Phone
+    const phoneClean = phone ? phone.trim() : '';
+    const phoneRegex = /^[\d\s\-+()]{7,25}$/;
+    if (!phoneClean) {
+      errs.phone = t('tailor.errorPhoneRequired', 'رقم الهاتف مطلوب لتنسيق الرحلة (واتساب أو اتصال)');
+    } else if (!phoneRegex.test(phoneClean)) {
+      errs.phone = t('tailor.errorPhoneInvalid', 'رقم الهاتف غير صالح (يجب أن يحتوي على أرقام ورمز الدولة)');
+    }
+
+    // 5. Travel Date
+    if (!travelDate) {
+      errs.travelDate = t('tailor.errorDateRequired', 'يرجى تحديد تاريخ السفر المتوقع');
+    } else if (travelDate < todayStr) {
+      errs.travelDate = t('tailor.errorPastDate', 'تاريخ السفر يجب أن يكون في المستقبل');
+    }
+
+    // 6. Budget
+    if (!budget) {
+      errs.budget = t('tailor.errorBudgetRequired', 'يرجى اختيار الميزانية التقريبية للشخص الواحد');
+    }
+
+    // 7. Adults
+    if (!adults || adults < 1) {
+      errs.adults = t('tailor.errorAdultsMin', 'يجب أن يكون هناك بالغ واحد على الأقل (+12 سنة)');
+    }
+
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const handlePartnerCodeChange = (e) => {
@@ -325,19 +408,53 @@ const TailorTour = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Prevent form submission if dates are in the past
-    if (travelDate && travelDate < todayStr) {
-      setDateError(true);
+
+    // Comprehensive Step 2 validation
+    if (!validateStep2()) {
+      toast?.error?.(
+        isRtl
+          ? 'يرجى مراجعة الحقول المطلوبة باللون الأحمر واستكمال البيانات المطلوبة.'
+          : 'Please review the highlighted required fields and complete your details.',
+        {
+          title: isRtl ? 'حقول إلزامية ناقصة' : 'Incomplete Form',
+          duration: 6000,
+        }
+      );
+
+      // Smooth scroll to the first erroneous input
+      setTimeout(() => {
+        const firstErrorInput = document.querySelector('.border-red-500, input:invalid, select:invalid');
+        if (firstErrorInput) {
+          firstErrorInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstErrorInput.focus();
+        }
+      }, 100);
       return;
     }
 
     try {
       setIsSubmitting(true);
-      
+
+      // Assemble structured customer notes with nationality and passenger names
+      const notesParts = [];
+      if (nationality && nationality.trim()) {
+        notesParts.push(`الجنسية: ${nationality.trim()}`);
+      }
+      const validPassengerNames = passengerNames.map((n) => n?.trim()).filter(Boolean);
+      if (validPassengerNames.length > 0) {
+        notesParts.push(`أسماء المسافرين: ${validPassengerNames.join(', ')}`);
+      }
+      if (specialRequests && specialRequests.trim()) {
+        notesParts.push(`طلبات خاصة: ${specialRequests.trim()}`);
+      }
+      const combinedNotes = notesParts.join(' | ') || undefined;
+
+      const parsedBudget = parseBudgetAmount(budget);
+
       const payload = {
-        fullName,
-        email,
-        phone,
+        fullName: fullName.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
         preferredLanguage: (() => {
           const language = String(i18n.language || 'en').toLowerCase().split('-')[0];
           return ['en', 'es', 'fr', 'de', 'it', 'ar', 'pt'].includes(language)
@@ -346,26 +463,19 @@ const TailorTour = () => {
         })(),
         destinations: selectedDestinations.length > 0 ? selectedDestinations : ['Custom Experience'],
         startDate: travelDate || undefined,
-        adults: adults || 1,
-        children: (children || 0) + (infants || 0),
-        notes: specialRequests || undefined,
+        adults: Number(adults) || 1,
+        children: Number(children || 0) + Number(infants || 0),
+        notes: combinedNotes,
+        ...(parsedBudget ? { budgetAmount: parsedBudget, budgetCurrency: 'USD' } : {}),
+        ...(partnerCode && partnerCode.length === 8 ? { partnerCode } : {}),
       };
-
-      if (budget) {
-        payload.budgetAmount = parseFloat(budget.replace(/[^0-9.]/g, ''));
-        payload.budgetCurrency = 'USD';
-      }
-
-      if (partnerCode && partnerCode.length === 8) {
-        payload.partnerCode = partnerCode;
-      }
 
       const { default: api } = await import('../utils/api');
       await api.post('/inquiries', payload);
 
-      const successMessage = t('tailor.successAlert', 'Your request has been submitted successfully! A luxury travel designer will contact you soon.');
+      const successMessage = t('tailor.successAlert', 'تم إرسال طلب رحلتك المخصصة بنجاح! سيتواصل معك أحد خبراء السفر الفاخر قريباً.');
       toast?.success?.(successMessage, {
-        title: t('tailor.successTitle', 'Bespoke Request Confirmed'),
+        title: t('tailor.successTitle', 'تم تأكيد استلام الطلب'),
         duration: 7000,
       });
 
@@ -383,6 +493,7 @@ const TailorTour = () => {
       setPhone('');
       setTravelDate('');
       setDateError(false);
+      setFieldErrors({});
       setBudget('');
       setPartnerCode('');
       setPartnerVerificationState('idle');
@@ -397,15 +508,31 @@ const TailorTour = () => {
       scrollToTop();
     } catch (err) {
       console.error('Inquiry submission failed:', err);
-      const errorMessage = t('tailor.errorAlert', 'Failed to submit inquiry. Please check your details and try again.');
-      toast?.error?.(errorMessage, {
-        title: t('tailor.errorTitle', 'Submission Error'),
+      const serverResponse = err?.response?.data;
+      let errorDetail = '';
+
+      if (serverResponse?.message) {
+        if (Array.isArray(serverResponse.message)) {
+          errorDetail = serverResponse.message.join(', ');
+        } else if (typeof serverResponse.message === 'string') {
+          errorDetail = serverResponse.message;
+        }
+      } else if (err?.message) {
+        errorDetail = err.message;
+      }
+
+      const baseErrorMessage = isRtl
+        ? 'تعذر إرسال طلب الرحلة المخصصة، يرجى التحقق من الحقول الإلزامية.'
+        : 'Failed to submit bespoke inquiry. Please verify the required fields.';
+
+      toast?.error?.(errorDetail ? `${baseErrorMessage}\n(${errorDetail})` : baseErrorMessage, {
+        title: isRtl ? 'خطأ في إرسال الطلب' : 'Submission Error',
+        duration: 8000,
       });
     } finally {
       setIsSubmitting(false);
     }
   };
-
 
   // Select plane-icon class dynamically depending on step & language direction
   const getPlaneClass = () => {
@@ -1001,12 +1128,24 @@ const TailorTour = () => {
                       <input
                         id="tailor-fullname"
                         type="text"
-                        required
                         value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
+                        onChange={(e) => {
+                          setFullName(e.target.value);
+                          clearFieldError('fullName');
+                        }}
                         placeholder={t('tailor.fullNamePlaceholder', 'Name as shown in passport')}
-                        className="w-full p-4 bg-white border border-obsidian-900/10 rounded-xl focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)] outline-none transition-all text-obsidian-900"
+                        aria-invalid={Boolean(fieldErrors.fullName)}
+                        className={`w-full p-4 bg-white border rounded-xl outline-none transition-all text-obsidian-900 ${
+                          fieldErrors.fullName
+                            ? 'border-red-500 ring-2 ring-red-500/20 bg-red-50/10'
+                            : 'border-obsidian-900/10 focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)]'
+                        }`}
                       />
+                      {fieldErrors.fullName && (
+                        <p className="mt-1.5 text-xs text-red-600 font-bold flex items-center gap-1">
+                          <span>⚠️</span> {fieldErrors.fullName}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label htmlFor="tailor-email" className="block mb-2 font-semibold text-body-sm text-obsidian-700">
@@ -1015,12 +1154,24 @@ const TailorTour = () => {
                       <input
                         id="tailor-email"
                         type="email"
-                        required
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          clearFieldError('email');
+                        }}
                         placeholder={t('tailor.emailPlaceholder', 'name@example.com')}
-                        className="w-full p-4 bg-white border border-obsidian-900/10 rounded-xl focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)] outline-none transition-all text-obsidian-900"
+                        aria-invalid={Boolean(fieldErrors.email)}
+                        className={`w-full p-4 bg-white border rounded-xl outline-none transition-all text-obsidian-900 ${
+                          fieldErrors.email
+                            ? 'border-red-500 ring-2 ring-red-500/20 bg-red-50/10'
+                            : 'border-obsidian-900/10 focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)]'
+                        }`}
                       />
+                      {fieldErrors.email && (
+                        <p className="mt-1.5 text-xs text-red-600 font-bold flex items-center gap-1">
+                          <span>⚠️</span> {fieldErrors.email}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -1031,18 +1182,45 @@ const TailorTour = () => {
                       </label>
                       <select
                         id="tailor-nationality"
-                        required
                         value={nationality}
-                        onChange={(e) => setNationality(e.target.value)}
-                        className="w-full p-4 bg-white border border-obsidian-900/10 rounded-xl focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)] outline-none transition-all text-obsidian-900 cursor-pointer"
+                        onChange={(e) => {
+                          setNationality(e.target.value);
+                          clearFieldError('nationality');
+                        }}
+                        aria-invalid={Boolean(fieldErrors.nationality)}
+                        className={`w-full p-4 bg-white border rounded-xl outline-none transition-all text-obsidian-900 cursor-pointer ${
+                          fieldErrors.nationality
+                            ? 'border-red-500 ring-2 ring-red-500/20 bg-red-50/10'
+                            : 'border-obsidian-900/10 focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)]'
+                        }`}
                       >
                         <option value="">{t('tailor.selectNationality', 'Select nationality...')}</option>
-                        <option value="Egyptian">{t('tailor.nationalityEgypt', 'Egyptian')}</option>
-                        <option value="Saudi">{t('tailor.nationalitySaudi', 'Saudi')}</option>
-                        <option value="Emirati">{t('tailor.nationalityEmirati', 'Emirati')}</option>
-                        <option value="Kuwaiti">{t('tailor.nationalityKuwaiti', 'Kuwaiti')}</option>
-                        <option value="American">{t('tailor.nationalityAmerican', 'American')}</option>
+                        <option value="مصرية">{t('tailor.nationalityEgypt', 'مصرية (Egyptian)')}</option>
+                        <option value="سعودية">{t('tailor.nationalitySaudi', 'سعودية (Saudi)')}</option>
+                        <option value="إماراتية">{t('tailor.nationalityEmirati', 'إماراتية (Emirati)')}</option>
+                        <option value="كويتية">{t('tailor.nationalityKuwaiti', 'كويتية (Kuwaiti)')}</option>
+                        <option value="قطرية">{t('tailor.nationalityQatari', 'قطرية (Qatari)')}</option>
+                        <option value="بحرينية">{t('tailor.nationalityBahraini', 'بحرينية (Bahraini)')}</option>
+                        <option value="عمانية">{t('tailor.nationalityOmani', 'عمانية (Omani)')}</option>
+                        <option value="أردنية">{t('tailor.nationalityJordanian', 'أردنية (Jordanian)')}</option>
+                        <option value="لبنانية">{t('tailor.nationalityLebanese', 'لبنانية (Lebanese)')}</option>
+                        <option value="أمريكية">{t('tailor.nationalityAmerican', 'أمريكية (American)')}</option>
+                        <option value="بريطانية">{t('tailor.nationalityBritish', 'بريطانية (British)')}</option>
+                        <option value="برازيلية">{t('tailor.nationalityBrazilian', 'برازيلية (Brazilian)')}</option>
+                        <option value="إسبانية">{t('tailor.nationalitySpanish', 'إسبانية (Spanish)')}</option>
+                        <option value="إيطالية">{t('tailor.nationalityItalian', 'إيطالية (Italian)')}</option>
+                        <option value="برتغالية">{t('tailor.nationalityPortuguese', 'برتغالية (Portuguese)')}</option>
+                        <option value="فرنسية">{t('tailor.nationalityFrench', 'فرنسية (French)')}</option>
+                        <option value="ألمانية">{t('tailor.nationalityGerman', 'ألمانية (German)')}</option>
+                        <option value="كندية">{t('tailor.nationalityCanadian', 'كندية (Canadian)')}</option>
+                        <option value="أسترالية">{t('tailor.nationalityAustralian', 'أسترالية (Australian)')}</option>
+                        <option value="أخرى">{t('tailor.nationalityOther', 'أخرى (Other)')}</option>
                       </select>
+                      {fieldErrors.nationality && (
+                        <p className="mt-1.5 text-xs text-red-600 font-bold flex items-center gap-1">
+                          <span>⚠️</span> {fieldErrors.nationality}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label htmlFor="tailor-phone" className="block mb-2 font-semibold text-body-sm text-obsidian-700">
@@ -1050,13 +1228,25 @@ const TailorTour = () => {
                       </label>
                       <input
                         id="tailor-phone"
-                        type="text"
-                        required
+                        type="tel"
                         value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
+                        onChange={(e) => {
+                          setPhone(e.target.value);
+                          clearFieldError('phone');
+                        }}
                         placeholder={t('tailor.phonePlaceholder', 'Example: 00201xxxxxxxxx')}
-                        className="w-full p-4 bg-white border border-obsidian-900/10 rounded-xl focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)] outline-none transition-all text-obsidian-900"
+                        aria-invalid={Boolean(fieldErrors.phone)}
+                        className={`w-full p-4 bg-white border rounded-xl outline-none transition-all text-obsidian-900 ${
+                          fieldErrors.phone
+                            ? 'border-red-500 ring-2 ring-red-500/20 bg-red-50/10'
+                            : 'border-obsidian-900/10 focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)]'
+                        }`}
                       />
+                      {fieldErrors.phone && (
+                        <p className="mt-1.5 text-xs text-red-600 font-bold flex items-center gap-1">
+                          <span>⚠️</span> {fieldErrors.phone}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -1068,15 +1258,19 @@ const TailorTour = () => {
                       <input
                         id="tailor-date"
                         type="date"
-                        required
                         value={travelDate}
                         min={todayStr}
                         onChange={handleDateChange}
-                        className="w-full p-4 bg-white border border-obsidian-900/10 rounded-xl focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)] outline-none transition-all text-obsidian-900 cursor-pointer"
+                        aria-invalid={Boolean(fieldErrors.travelDate || dateError)}
+                        className={`w-full p-4 bg-white border rounded-xl outline-none transition-all text-obsidian-900 cursor-pointer ${
+                          fieldErrors.travelDate || dateError
+                            ? 'border-red-500 ring-2 ring-red-500/20 bg-red-50/10'
+                            : 'border-obsidian-900/10 focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)]'
+                        }`}
                       />
-                      {dateError && (
-                        <p className="text-[#e74c3c] mt-2 font-medium text-body-sm">
-                          {t('tailor.errorPastDate', '⚠️ Please select a future travel date.')}
+                      {(fieldErrors.travelDate || dateError) && (
+                        <p className="mt-1.5 text-xs text-red-600 font-bold flex items-center gap-1">
+                          <span>⚠️</span> {fieldErrors.travelDate || t('tailor.errorPastDate', 'تاريخ السفر يجب أن يكون في المستقبل')}
                         </p>
                       )}
                     </div>
@@ -1086,16 +1280,28 @@ const TailorTour = () => {
                       </label>
                       <select
                         id="tailor-budget"
-                        required
                         value={budget}
-                        onChange={(e) => setBudget(e.target.value)}
-                        className="w-full p-4 bg-white border border-obsidian-900/10 rounded-xl focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)] outline-none transition-all text-obsidian-900 cursor-pointer"
+                        onChange={(e) => {
+                          setBudget(e.target.value);
+                          clearFieldError('budget');
+                        }}
+                        aria-invalid={Boolean(fieldErrors.budget)}
+                        className={`w-full p-4 bg-white border rounded-xl outline-none transition-all text-obsidian-900 cursor-pointer ${
+                          fieldErrors.budget
+                            ? 'border-red-500 ring-2 ring-red-500/20 bg-red-50/10'
+                            : 'border-obsidian-900/10 focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)]'
+                        }`}
                       >
                         <option value="">{t('tailor.selectBudget', 'Select expected budget...')}</option>
                         <option value="1000-2000">{t('tailor.budgetOption1', '$1000 to $2000')}</option>
                         <option value="2000-3000">{t('tailor.budgetOption2', '$2000 to $3000')}</option>
                         <option value="3000+">{t('tailor.budgetOption3', '$3000 or more')}</option>
                       </select>
+                      {fieldErrors.budget && (
+                        <p className="mt-1.5 text-xs text-red-600 font-bold flex items-center gap-1">
+                          <span>⚠️</span> {fieldErrors.budget}
+                        </p>
+                      )}
                     </div>
                   </div>
 
