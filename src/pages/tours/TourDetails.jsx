@@ -16,7 +16,7 @@ import { useWishlist } from '../../hooks/useWishlist';
 import { trackEvent } from '../../utils/analytics';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import ErrorState from '../../components/ui/ErrorState';
-import { resolveTourTitle, resolveTourDuration, resolveTourOverview, resolveLocalizedText } from '../../utils/titleHelper';
+import { resolveTourTitle, resolveTourDuration, resolveTourOverview, resolveLocalizedText, resolveItineraryDayTitle } from '../../utils/titleHelper';
 import SEOHead from '../../components/seo/SEOHead';
 import SuggestedTours from '../../components/tour/SuggestedTours';
 import IncludedNotIncluded from '../../components/tour/IncludedNotIncluded';
@@ -342,7 +342,7 @@ const TourDetails = () => {
                           <div className="flex items-center gap-3">
                             <span className="font-bold text-obsidian-900 dark:text-ivory-50 text-base">{t('tour.day', 'Day')} {day.day}</span>
                             {day.title && (
-                              <span className="text-body-sm font-semibold text-gold-700 dark:text-gold-400">{resolveLocalizedText(day.title, t, lang)}</span>
+                              <span className="text-body-sm font-semibold text-gold-700 dark:text-gold-400">{resolveItineraryDayTitle(day, t, lang)}</span>
                             )}
                           </div>
                           {day.meals && (
