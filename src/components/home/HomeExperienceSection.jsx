@@ -12,6 +12,7 @@ import { useDestinations } from "../../hooks/useDestinations";
 import { useServices } from "../../hooks/useServices";
 import { transportation as fallbackTransportation } from "../../data/transportation";
 import useScrollAnimations from "../../hooks/useScrollAnimations";
+import AnimatedCounter from "../common/AnimatedCounter";
 import { useCurrency } from "../../context/CurrencyContext";
 import api from "../../utils/api";
 import {
@@ -1070,15 +1071,9 @@ const HomeExperienceSection = () => {
       </Helmet>
 
       {/* Hero Section */}
-      <section className="relative w-full aspect-video min-h-[360px] sm:min-h-[480px] md:min-h-[560px] flex items-center justify-center overflow-hidden bg-obsidian-950 mt-[104px] sm:mt-[108px] lg:mt-[124px]">
-        {/* Video Background with Guaranteed Fallback */}
-        <div className="absolute inset-0 z-0 flex items-center justify-center bg-obsidian-950">
-          <img
-            src="https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg"
-            alt="Dunas Travel Luxury"
-            className="absolute inset-0 w-full h-full object-cover filter brightness-[0.9]"
-            loading="eager"
-          />
+      <section className="relative w-full aspect-video flex items-center justify-center overflow-hidden bg-black mt-[104px] sm:mt-[108px] lg:mt-[124px]">
+        {/* Video Background */}
+        <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
           <video
             ref={videoRef}
             autoPlay
@@ -1087,15 +1082,15 @@ const HomeExperienceSection = () => {
             playsInline
             preload="auto"
             fetchPriority="high"
-            poster="https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg"
-            className="relative z-10 w-full h-full object-cover"
+            poster="/imgs/hero-poster.webp"
+            className="w-full h-full object-contain"
             width="1440"
             height="812"
           >
-            <source src="https://res.cloudinary.com/degbrq3ck/video/upload/Somos_Dunas_Travel_Group__480P_SD_gxfsxm.mp4" type="video/mp4" />
             <source src="/imgs/hero.webm" type="video/webm" />
+            <source src="/imgs/hero.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 z-10 bg-gradient-to-t from-obsidian-950/80 via-obsidian-950/20 to-transparent pointer-events-none"></div>
+          <div className="absolute inset-0 bg-obsidian-900/50 pointer-events-none"></div>
         </div>
         {/* Sound Toggle */}
         <button
@@ -1312,11 +1307,11 @@ const HomeExperienceSection = () => {
         <div className="relative z-10 container mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-4">
             {[
-              { count: 17, icon: FaCalendarAlt, labelKey: 'about.heroStatsYears', prefix: '', suffix: '' },
-              { count: 95654, icon: FaSuitcase, labelKey: 'about.heroStatsTravelers', prefix: '', suffix: '' },
-              { count: 438, icon: FaUsers, labelKey: 'about.heroStatsEmployees', prefix: '', suffix: '' },
-              { count: 182, icon: FaMapMarkedAlt, labelKey: 'about.heroStatsGuides', prefix: '', suffix: '' },
-              { count: 5, icon: FaGlobe, labelKey: 'about.heroStatsOffices', prefix: '', suffix: '' },
+              { count: 17, suffix: '+', icon: FaCalendarAlt, labelKey: 'about.heroStatsYears' },
+              { count: 95654, suffix: '+', icon: FaSuitcase, labelKey: 'about.heroStatsTravelers' },
+              { count: 438, suffix: '+', icon: FaUsers, labelKey: 'about.heroStatsEmployees' },
+              { count: 182, suffix: '+', icon: FaMapMarkedAlt, labelKey: 'about.heroStatsGuides' },
+              { count: 5, suffix: '', icon: FaGlobe, labelKey: 'about.heroStatsOffices' },
             ].map((s, i) => (
               <motion.div
                 key={i}
@@ -1329,8 +1324,8 @@ const HomeExperienceSection = () => {
                 <div className="w-16 h-16 rounded-full bg-gold-500/10 border border-gold-500/20 flex items-center justify-center mb-4 group-hover:bg-gold-500/20 group-hover:border-gold-500/40 transition-all duration-300">
                   <s.icon className="text-gold-500 text-2xl" />
                 </div>
-                <div className="gsap-count text-4xl md:text-5xl font-bold text-white font-display" data-count={s.count}>
-                  0
+                <div className="text-4xl md:text-5xl font-bold text-white font-display">
+                  <AnimatedCounter value={s.count} suffix={s.suffix} />
                 </div>
                 <div className="text-white text-sm mt-2 tracking-wide uppercase">
                   {t(s.labelKey)}

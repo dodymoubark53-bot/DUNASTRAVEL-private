@@ -15,9 +15,8 @@ const useScrollAnimations = () => {
       // Check if any matching elements exist before loading GSAP
       const revealCount = document.querySelectorAll('.gsap-reveal').length;
       const parallaxCount = document.querySelectorAll('.gsap-parallax').length;
-      const countCount = document.querySelectorAll('.gsap-count').length;
 
-      if (revealCount === 0 && parallaxCount === 0 && countCount === 0) {
+      if (revealCount === 0 && parallaxCount === 0) {
         return;
       }
 
@@ -64,28 +63,6 @@ const useScrollAnimations = () => {
               start: 'top bottom',
               end: 'bottom top',
               scrub: 1,
-            },
-          });
-        });
-
-        const counters = document.querySelectorAll('.gsap-count');
-        counters.forEach((counter) => {
-          const target = parseInt(counter.dataset.count) || 0;
-          const obj = { value: 0 };
-          
-          ScrollTrigger.create({
-            trigger: counter,
-            start: 'top 90%',
-            once: true,
-            onEnter: () => {
-              gsap.to(obj, {
-                value: target,
-                duration: 1.8,
-                ease: 'power2.out',
-                onUpdate: () => {
-                  counter.textContent = Math.round(obj.value);
-                },
-              });
             },
           });
         });
