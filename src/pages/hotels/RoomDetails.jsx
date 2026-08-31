@@ -122,6 +122,11 @@ const RoomDetails = () => {
   };
 
   const apiRoom = apiHotel?.rooms?.find((r) => r.slug === roomSlug);
+  const defaultFallbackImage = apiHotel?.heroImageUrl || 'https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1200';
+  const defaultFallbackGallery = (apiHotel?.images && apiHotel.images.length > 0)
+    ? apiHotel.images.map((img) => (typeof img === 'string' ? img : img?.url)).filter(Boolean)
+    : [defaultFallbackImage];
+
   const fallbackRoom = roomDataMap[roomSlug] || (apiRoom ? {
     id: apiRoom.slug,
     name: apiRoom.name || t('hotel.room.doubleTitle', 'Luxury Room'),
@@ -129,15 +134,8 @@ const RoomDetails = () => {
     capacity: `${apiRoom.maxOccupancy || 2} Guests`,
     bed: apiRoom.description || t('hotel.room.doubleBed', '1 King Bed'),
     view: t('hotel.room.doubleView', 'Panoramic View'),
-    image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
-    gallery: [
-      'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
-      'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0013.jpg',
-      'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0010.jpg',
-      'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/TV-Unit.jpg',
-      'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Tea-Tabel.jpg',
-      'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/View.jpg',
-    ],
+    image: defaultFallbackImage,
+    gallery: defaultFallbackGallery,
   } : null);
 
   const room = fallbackRoom ? {
@@ -145,6 +143,8 @@ const RoomDetails = () => {
     name: apiRoom?.name || fallbackRoom.name,
     price: (apiRoom?.ratePerNight !== undefined && apiRoom?.ratePerNight !== null) ? Number(apiRoom.ratePerNight) : fallbackRoom.price,
     capacity: apiRoom?.maxOccupancy ? `${apiRoom.maxOccupancy} Guests` : fallbackRoom.capacity,
+    image: fallbackRoom.image || defaultFallbackImage,
+    gallery: fallbackRoom.gallery && fallbackRoom.gallery.length > 0 ? fallbackRoom.gallery : defaultFallbackGallery,
   } : null;
 
   const todayStr = (() => {

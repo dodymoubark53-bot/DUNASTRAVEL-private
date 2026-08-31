@@ -229,23 +229,25 @@ const HotelDetails = () => {
             <div className="flex flex-wrap items-center justify-start gap-x-3 gap-y-2 mb-3">
               <div className="flex items-center gap-2">
                 <span className="flex items-center gap-0.5 text-gold-500 text-base md:text-lg">
-                  <FaStar /><FaStar /><FaStar />
+                  {Array.from({ length: Math.min(Math.max(Number(apiHotel?.stars) || 5, 1), 5) }).map((_, i) => (
+                    <FaStar key={i} />
+                  ))}
                 </span>
                 <span className="text-white text-[11px] md:text-xs font-semibold uppercase tracking-widest">
-                  {t('hotel.overview.starsLabel', '3-Star Hotel')}
+                  {apiHotel?.stars ? `${apiHotel.stars}-Star Hotel` : t('hotel.overview.starsLabel', 'Luxury Hotel')}
                 </span>
               </div>
               <span className="hidden sm:block w-1.5 h-1.5 rounded-full bg-gold-500" />
               <div className="flex items-center gap-1 text-white text-[11px] md:text-xs font-semibold uppercase tracking-widest">
                 <FaMapMarkerAlt className="text-sm shrink-0 text-gold-400" />
-                <span>{t('hotel.overview.gizaEgypt', 'Giza, Egypt')}</span>
+                <span>{apiHotel?.city ? `${apiHotel.city}, ${apiHotel.destinationSlug}` : t('hotel.overview.gizaEgypt', 'Giza, Egypt')}</span>
               </div>
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-display-xl text-white font-display font-semibold drop-shadow-lg mb-3 leading-tight">
               {hotelInfo.name}
             </h1>
             <p className="text-slate-200 text-lg md:text-xl font-medium italic mb-6">
-              "{t('hotel.tagline', 'Steps from the Pyramids of Giza — Where History Meets Comfort')}"
+              "{apiHotel?.description ? (apiHotel.description.slice(0, 140) + '...') : t('hotel.tagline', 'Where History Meets Supreme Luxury')}"
             </p>
             <div className="flex flex-wrap gap-2.5">
               <span className="bg-slate-900/70 border border-slate-700 px-3.5 py-1.5 rounded-full text-xs font-semibold text-white">
@@ -271,7 +273,7 @@ const HotelDetails = () => {
               {t('tourCard.startingFrom', 'Rooms From')}
             </div>
             <div className="text-3xl font-semibold text-gold-400 mb-3">
-              {formatPrice(85)}
+              {formatPrice(apiHotel?.pricePerNight ?? 85)}
               <span className="text-sm font-normal text-slate-300"> / {t('hotel.night', 'night')}</span>
             </div>
             <Link to="/tailor-a-tour">
@@ -291,9 +293,9 @@ const HotelDetails = () => {
             {t('hotel.overview.title', 'Hotel Overview')}
           </h2>
           <p className="text-lg text-slate-700 dark:text-slate-200 leading-relaxed mb-10">
-            "{t(
+            "{apiHotel?.description || t(
               'hotel.overview.desc',
-              "Solpyramid Hotel is a modern 3-star establishment built in 2025, designed for travellers who want to explore Egypt's greatest sights. Combining elegant room design with a family atmosphere, it offers complete modern facilities with personal and qualified service — all located steps away from the Pyramids of Giza."
+              "Luxury 5-star establishment designed for travellers who want to explore the greatest sights with supreme comfort, personal service, and world-class hospitality."
             )}"
           </p>
 
@@ -444,7 +446,7 @@ const HotelDetails = () => {
                     <span className="text-xs text-slate-400 font-normal"> / {t('hotel.night', 'night')}</span>
                   </span>
                 </div>
-                <Link to={`${basePath}/hotels/sol-pyramid-hotel/${room.id}`}>
+                <Link to={`${basePath}/hotels/${currentSlug}/${room.id}`}>
                   <Button variant="outline-gold" className="px-4 py-2 text-xs uppercase font-bold">
                     {t('tourCard.viewDetails', 'View Details')}
                   </Button>
