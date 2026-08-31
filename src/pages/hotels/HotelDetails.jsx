@@ -135,14 +135,14 @@ const HotelDetails = () => {
   ];
 
   const roomTypes = (apiHotel?.rooms && apiHotel.rooms.length > 0)
-    ? apiHotel.rooms.map((r, idx) => ({
+    ? apiHotel.rooms.map((r) => ({
         id: r.slug,
         name: r.name || defaultRoomTypes.find((d) => d.id === r.slug)?.name || r.slug,
         price: (r.ratePerNight !== undefined && r.ratePerNight !== null) ? Number(r.ratePerNight) : 0,
         capacity: `${r.maxOccupancy || 2} Guests`,
         bed: r.description || defaultRoomTypes.find((d) => d.id === r.slug)?.bed || '1 King Bed',
         view: defaultRoomTypes.find((d) => d.id === r.slug)?.view || 'Panoramic View',
-        image: defaultRoomTypes.find((d) => d.id === r.slug)?.image || 'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
+        image: r.imageUrl || defaultRoomTypes.find((d) => d.id === r.slug)?.image || apiHotel?.heroImageUrl || 'https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1200',
       }))
     : defaultRoomTypes;
 
@@ -166,7 +166,13 @@ const HotelDetails = () => {
     { label: t('hotel.fac.payment', 'SSL-secured online payment'), icon: <FaCreditCard className="text-gold-500" /> },
   ];
 
-  const galleryImages = [
+  const hotelHeroImage = apiHotel?.heroImageUrl || 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/23/0d/4e/68/henann-park-resort.jpg?w=600&h=600&s=1';
+
+  const rawGallery = (apiHotel?.images && apiHotel.images.length > 0)
+    ? apiHotel.images.map((img) => (typeof img === 'string' ? img : img?.url)).filter(Boolean)
+    : [];
+
+  const defaultSolGallery = [
     'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM5.jpg',
     'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM4.jpg',
     'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.45.12-PM.jpeg',
@@ -174,32 +180,11 @@ const HotelDetails = () => {
     'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.00-PM.jpeg',
     'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM6.jpg',
     'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.00-PM-2.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM3.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.21-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.07-P2M.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM-copy.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.16-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.22-PM-1.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.25-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.26-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.19-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.35-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.32-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.30-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.33-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.34-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.36-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Hotel.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Tea-Tabel.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/TV-Unit.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/View.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0013.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0010.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0009.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0006.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0002.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0004.jpg',
   ];
+
+  const galleryImages = rawGallery.length > 0
+    ? (apiHotel?.heroImageUrl && !rawGallery.includes(apiHotel.heroImageUrl) ? [apiHotel.heroImageUrl, ...rawGallery] : rawGallery)
+    : (apiHotel?.heroImageUrl ? [apiHotel.heroImageUrl, ...defaultSolGallery] : defaultSolGallery);
 
   const handleReviewSubmit = (e) => {
     e.preventDefault();
@@ -233,8 +218,8 @@ const HotelDetails = () => {
       <section className="relative min-h-[100svh] md:h-[75vh] md:min-h-[500px] flex items-end justify-center overflow-hidden pb-12 pt-32 md:pb-20 md:pt-0">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/23/0d/4e/68/henann-park-resort.jpg?w=600&h=600&s=1"
-            alt="Sol Pyramid Hotel Facade"
+            src={hotelHeroImage}
+            alt={hotelInfo.name}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-slate-900/60 bg-gradient-to-t from-[#FAF9F5] via-slate-900/40 to-transparent dark:from-obsidian-900" />
