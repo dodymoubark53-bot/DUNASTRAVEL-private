@@ -734,7 +734,7 @@ export const blogs = [
       "path": "/programs/jordan/reg-21"
     },
     "excerpt": "Explore the luxury of our custom Jordan Extension - 4 Days program in Jordan. Discover why this 4 days / 3 nights itinerary is perfect for your travel dreams wi",
-    "img": "https://images.unsplash.com/photo-1579606032824-03c004d0fb83?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://images.unsplash.com/photo-1544885935-98dd03b09034?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Jordan is a land of mesmerizing contrasts, where ancient history whispers from rose-red sandstone cliffs and modern luxury cradles you in the heart of the desert. The \"Jordan Extension - 4 Days\" tour is an exquisite 4 days / 3 nights adventure that invites you to uncover the secrets of the Nabateans, float in the therapeutic waters of the Dead Sea, and explore the vast, Martian landscapes of Wadi Rum. Designed for travelers who refuse to compromise on comfort, this itinerary brings you face-to-face with legendary hospitality, Roman archeological wonders, and natural marvels. In this guide, we dive deep into what makes Jordan a bucket-list destination and why this specific program is the ultimate way to experience it.",
       "## Why Visit Jordan",
