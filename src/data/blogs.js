@@ -5,7 +5,11 @@ export const blogs = [
     "title": "The Hidden Temples of Luxor",
     "category": "History",
     "date": "Oct 12, 2023",
-    "relatedTour": { "slug": "cairo-express-4d", "label": "Cairo Express", "path": "/tours/cairo-express-4d" },
+    "relatedTour": {
+      "slug": "cairo-express-4d",
+      "label": "Cairo Express",
+      "path": "/tours/cairo-express-4d"
+    },
     "hidden": true,
     "excerpt": "Beyond Karnak and the Valley of the Kings lie incredible, lesser-known temples waiting to be explored. Discover the secrets of ancient Thebes without the crowds.",
     "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026773/13_wtazze.jpg",
@@ -22,7 +26,11 @@ export const blogs = [
     "title": "Petra by Night",
     "category": "Travel Guide",
     "date": "Nov 05, 2023",
-    "relatedTour": { "slug": "reg-15", "label": "Classic Jordan", "path": "/programs/jordan/reg-15" },
+    "relatedTour": {
+      "slug": "reg-15",
+      "label": "Classic Jordan",
+      "path": "/programs/jordan/reg-15"
+    },
     "excerpt": "Experiencing the rose-red city illuminated by thousands of candles is a bucket-list event. Here is everything you need to know to plan your magical evening.",
     "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026773/20_riy2ce.jpg",
     "content": [
@@ -38,7 +46,11 @@ export const blogs = [
     "title": "Istanbul's Grand Bazaar",
     "category": "Culture & Shopping",
     "date": "Dec 18, 2023",
-    "relatedTour": { "slug": "reg-01-legendary-turkey", "label": "Legendary Turkey", "path": "/programs/turkey/reg-01-legendary-turkey" },
+    "relatedTour": {
+      "slug": "reg-01-legendary-turkey",
+      "label": "Legendary Turkey",
+      "path": "/programs/turkey/reg-01-legendary-turkey"
+    },
     "excerpt": "Navigate the labyrinthine alleys of one of the world's oldest and largest covered markets. From Turkish delight to antique kilims, here is your ultimate shopping guide.",
     "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026773/19_suxy3c.jpg",
     "content": [
@@ -54,7 +66,11 @@ export const blogs = [
     "title": "Sailing the Nile",
     "category": "Adventure",
     "date": "Jan 22, 2024",
-    "relatedTour": { "slug": "cairo-express-4d", "label": "Cairo Express", "path": "/tours/cairo-express-4d" },
+    "relatedTour": {
+      "slug": "cairo-express-4d",
+      "label": "Cairo Express",
+      "path": "/tours/cairo-express-4d"
+    },
     "excerpt": "Step away from the massive cruise ships and experience the lifeblood of Egypt on a traditional wooden felucca. A peaceful, authentic journey awaits.",
     "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026774/21_gqrhmg.jpg",
     "content": [
@@ -70,7 +86,11 @@ export const blogs = [
     "title": "Wadi Rum Desert",
     "category": "Nature & Camping",
     "date": "Feb 14, 2024",
-    "relatedTour": { "slug": "reg-15", "label": "Classic Jordan", "path": "/programs/jordan/reg-15" },
+    "relatedTour": {
+      "slug": "reg-15",
+      "label": "Classic Jordan",
+      "path": "/programs/jordan/reg-15"
+    },
     "hidden": true,
     "excerpt": "Towering sandstone mountains, crimson sands, and a sky exploding with stars. Discover why camping in Jordan's Valley of the Moon is the ultimate desert escape.",
     "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026774/1_uidqje.jpg",
@@ -87,7 +107,11 @@ export const blogs = [
     "title": "Turkish Cuisine",
     "category": "Food & Drink",
     "date": "Mar 08, 2024",
-    "relatedTour": { "slug": "reg-01-legendary-turkey", "label": "Legendary Turkey", "path": "/programs/turkey/reg-01-legendary-turkey" },
+    "relatedTour": {
+      "slug": "reg-01-legendary-turkey",
+      "label": "Legendary Turkey",
+      "path": "/programs/turkey/reg-01-legendary-turkey"
+    },
     "excerpt": "Turkish food is a rich fusion of Central Asian, Middle Eastern, and Mediterranean flavors. Here are the iconic dishes you absolutely must taste during your visit.",
     "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026774/2_h2krys.jpg",
     "content": [
@@ -103,7 +127,11 @@ export const blogs = [
     "title": "Best Time to Visit Egypt",
     "category": "Travel Tips",
     "date": "Mar 25, 2024",
-    "relatedTour": { "slug": "cairo-express-4d", "label": "Cairo Express", "path": "/tours/cairo-express-4d" },
+    "relatedTour": {
+      "slug": "cairo-express-4d",
+      "label": "Cairo Express",
+      "path": "/tours/cairo-express-4d"
+    },
     "excerpt": "Planning your dream trip to the Pyramids? Weather plays a crucial role. Read our comprehensive month-by-month guide to choosing the perfect season.",
     "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026775/22_gywthx.jpg",
     "content": [
@@ -119,7 +147,11 @@ export const blogs = [
     "title": "Dead Sea Experience",
     "category": "Wellness",
     "date": "Apr 02, 2024",
-    "relatedTour": { "slug": "reg-15", "label": "Classic Jordan", "path": "/programs/jordan/reg-15" },
+    "relatedTour": {
+      "slug": "reg-15",
+      "label": "Classic Jordan",
+      "path": "/programs/jordan/reg-15"
+    },
     "excerpt": "It is the lowest point on earth and the world's largest natural spa. Discover the incredible health benefits of floating in Jordan's hypersaline lake.",
     "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026775/3_rbjrys.jpg",
     "content": [
@@ -135,7 +167,11 @@ export const blogs = [
     "title": "Cappadocia Hot Air Balloons",
     "category": "Adventure",
     "date": "Apr 15, 2024",
-    "relatedTour": { "slug": "reg-01-legendary-turkey", "label": "Legendary Turkey", "path": "/programs/turkey/reg-01-legendary-turkey" },
+    "relatedTour": {
+      "slug": "reg-01-legendary-turkey",
+      "label": "Legendary Turkey",
+      "path": "/programs/turkey/reg-01-legendary-turkey"
+    },
     "excerpt": "Drifting silently over fairy chimneys at sunrise is a transcendent experience. Here is everything you need to know about booking a balloon flight in Turkey.",
     "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg",
     "content": [
@@ -151,7 +187,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Cairo Express: A Luxury Travel Itinerary",
     "category": "History",
     "date": "Jul 12, 2026",
-    "relatedTour": { "slug": "cairo-express-4d", "label": "Cairo Express", "path": "/tours/cairo-express-4d" },
+    "relatedTour": {
+      "slug": "cairo-express-4d",
+      "label": "Cairo Express",
+      "path": "/tours/cairo-express-4d"
+    },
     "excerpt": "Explore the luxury of our custom Cairo Express program in Egypt. Discover why this 4 Dias / 3 Noites itinerary is perfect for your travel dreams with Dunas Trav",
     "img": "/imgs/Brazil/Cairo Express.jpg",
     "content": [
@@ -174,7 +214,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Cairo Express com Alexandria: A Luxury Travel Itinerary",
     "category": "History",
     "date": "Jul 20, 2026",
-    "relatedTour": { "slug": "cairo-express-alexandria-5d", "label": "Cairo Express com Alexandria", "path": "/tours/cairo-express-alexandria-5d" },
+    "relatedTour": {
+      "slug": "cairo-express-alexandria-5d",
+      "label": "Cairo Express com Alexandria",
+      "path": "/tours/cairo-express-alexandria-5d"
+    },
     "excerpt": "Explore the luxury of our custom Cairo Express com Alexandria program in Egypt. Discover why this 5 Dias / 4 Noites itinerary is perfect for your travel dreams ",
     "img": "/imgs/Brazil/Cairo Express with Alexandria.jpeg",
     "content": [
@@ -197,7 +241,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Egito Clássico: Cairo + Cruzeiro no Nilo: A Luxury Travel Itinerary",
     "category": "History",
     "date": "Aug 02, 2026",
-    "relatedTour": { "slug": "egito-classico-8d", "label": "Egito Clássico", "path": "/tours/egito-classico-8d" },
+    "relatedTour": {
+      "slug": "egito-classico-8d",
+      "label": "Egito Clássico",
+      "path": "/tours/egito-classico-8d"
+    },
     "excerpt": "Explore the luxury of our custom Egito Clássico: Cairo + Cruzei... program in Egypt. Discover why this 8 Dias / 7 Noites itinerary is perfect for your travel dr",
     "img": "/imgs/Brazil/egito-classico-cairo-cruzeiro-no-nilo.jpg",
     "content": [
@@ -220,7 +268,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Egito Clássico II: Cairo + Cruzeiro no Nilo: A Luxury Travel Itinerary",
     "category": "History",
     "date": "Aug 18, 2026",
-    "relatedTour": { "slug": "egito-classico-ii-9d", "label": "Egito Clássico II", "path": "/tours/egito-classico-ii-9d" },
+    "relatedTour": {
+      "slug": "egito-classico-ii-9d",
+      "label": "Egito Clássico II",
+      "path": "/tours/egito-classico-ii-9d"
+    },
     "excerpt": "Explore the luxury of our custom Egito Clássico II: Cairo + Cru... program in Egypt. Discover why this 9 Dias / 8 Noites itinerary is perfect for your travel dr",
     "img": "/imgs/Brazil/cairo-with-cruise-sharm-el-sheikh.jpg",
     "content": [
@@ -243,7 +295,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Egito Histórico: Cairo + Cruzeiro + Mar Vermelho: A Luxury Travel Itinerary",
     "category": "History",
     "date": "Sep 05, 2026",
-    "relatedTour": { "slug": "egito-historico-10d", "label": "Egito Histórico", "path": "/tours/egito-historico-10d" },
+    "relatedTour": {
+      "slug": "egito-historico-10d",
+      "label": "Egito Histórico",
+      "path": "/tours/egito-historico-10d"
+    },
     "excerpt": "Explore the luxury of our custom Egito Histórico: Cairo + Cruze... program in Egypt. Discover why this 10 Dias / 9 Noites itinerary is perfect for your travel d",
     "img": "/imgs/Brazil/cairo-cruzeiro-mar-vermelho.jpg",
     "content": [
@@ -266,7 +322,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Cairo c/ Cruzeiro + Sharm El Sheikh: A Luxury Travel Itinerary",
     "category": "History",
     "date": "May 15, 2026",
-    "relatedTour": { "slug": "cairo-cruzeiro-sharm-11d", "label": "Cairo c/ Cruzeiro + Sharm El Sheikh", "path": "/tours/cairo-cruzeiro-sharm-11d" },
+    "relatedTour": {
+      "slug": "cairo-cruzeiro-sharm-11d",
+      "label": "Cairo c/ Cruzeiro + Sharm El Sheikh",
+      "path": "/tours/cairo-cruzeiro-sharm-11d"
+    },
     "excerpt": "Explore the luxury of our custom Cairo c/ Cruzeiro + Sharm El S... program in Egypt. Discover why this 11 Dias / 10 Noites itinerary is perfect for your travel ",
     "img": "/imgs/Brazil/cairo-with-cruise-sharm-el-sheikh-detail.jpg",
     "content": [
@@ -289,7 +349,11 @@ export const blogs = [
     "title": "The Ultimate Guide to O GRANDE RAMSES - DESCRITIVO COMPLETO (09 Noites / 10 Dias): A Luxury Travel Itinerary",
     "category": "History",
     "date": "Jun 10, 2026",
-    "relatedTour": { "slug": "grande-ramses-10d", "label": "O Grande Ramses", "path": "/tours/grande-ramses-10d" },
+    "relatedTour": {
+      "slug": "grande-ramses-10d",
+      "label": "O Grande Ramses",
+      "path": "/tours/grande-ramses-10d"
+    },
     "excerpt": "Explore the luxury of our custom O GRANDE RAMSES - DESCRITIVO C... program in Egypt. Discover why this 10 Dias / 9 Noites itinerary is perfect for your travel d",
     "img": "/imgs/Brazil/The Great Ramses.png",
     "content": [
@@ -312,7 +376,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Tesouros do Egito com Alexandria: A Luxury Travel Itinerary",
     "category": "History",
     "date": "Jul 05, 2026",
-    "relatedTour": { "slug": "tesouros-egipto-9d", "label": "Tesouros do Egito com Alexandria", "path": "/tours/tesouros-egipto-9d" },
+    "relatedTour": {
+      "slug": "tesouros-egipto-9d",
+      "label": "Tesouros do Egito com Alexandria",
+      "path": "/tours/tesouros-egipto-9d"
+    },
     "excerpt": "Explore the luxury of our custom Tesouros do Egito com Alexandr... program in Egypt. Discover why this 9 Dias / 8 Noites itinerary is perfect for your travel dr",
     "img": "/imgs/Brazil/Treasures of Egypt with Alexandria.jpg",
     "content": [
@@ -335,7 +403,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Lo Mejor de Grecia – 09 Días: A Luxury Travel Itinerary",
     "category": "Travel Guide",
     "date": "Jul 12, 2026",
-    "relatedTour": { "slug": "lo-mejor-de-grecia-9d", "label": "Lo Mejor de Grecia", "path": "/tours/lo-mejor-de-grecia-9d" },
+    "relatedTour": {
+      "slug": "lo-mejor-de-grecia-9d",
+      "label": "Lo Mejor de Grecia",
+      "path": "/tours/lo-mejor-de-grecia-9d"
+    },
     "excerpt": "Explore the luxury of our custom Lo Mejor de Grecia – 09 Días program in Greece. Discover why this 9 Días / 8 Noches itinerary is perfect for your travel dreams",
     "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920,c_fill/v1783023877/2ec72126-709b-4c8d-8f7b-a592d212cc3b_czpoig.jpg",
     "content": [
@@ -358,7 +430,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Turquía Legendaria en Tren de Alta Velocidad: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Aug 18, 2026",
-    "relatedTour": { "slug": "reg-01-legendary-turkey", "label": "Turquía Legendaria", "path": "/programs/turkey/reg-01-legendary-turkey" },
+    "relatedTour": {
+      "slug": "reg-01-legendary-turkey",
+      "label": "Turquía Legendaria",
+      "path": "/programs/turkey/reg-01-legendary-turkey"
+    },
     "excerpt": "Explore the luxury of our custom Turquía Legendaria en Tren de ... program in Turkey. Discover why this 11 Días / 10 Noches itinerary is perfect for your travel",
     "img": "https://blog.raynatours.com/wp-content/uploads/2025/01/sea-view-istanbul.webp",
     "content": [
@@ -381,7 +457,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Legendary Turkey: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "May 15, 2026",
-    "relatedTour": { "slug": "reg-01-legendary-turkey", "label": "Legendary Turkey", "path": "/programs/turkey/reg-01-legendary-turkey" },
+    "relatedTour": {
+      "slug": "reg-01-legendary-turkey",
+      "label": "Legendary Turkey",
+      "path": "/programs/turkey/reg-01-legendary-turkey"
+    },
     "excerpt": "Explore the luxury of our custom Legendary Turkey program in Turkey. Discover why this 11 days / 10 nights itinerary is perfect for your travel dreams with Duna",
     "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783023865/80f6f47a-4938-4684-aaf1-b1e61d44dab6_n8vdtl.jpg",
     "content": [
@@ -404,7 +484,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Legendary Cappadocia: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Oct 15, 2026",
-    "relatedTour": { "slug": "reg-04-legendary-cappadocia", "label": "Legendary Cappadocia", "path": "/programs/turkey/reg-04-legendary-cappadocia" },
+    "relatedTour": {
+      "slug": "reg-04-legendary-cappadocia",
+      "label": "Legendary Cappadocia",
+      "path": "/programs/turkey/reg-04-legendary-cappadocia"
+    },
     "excerpt": "Explore the luxury of our custom Legendary Cappadocia program in Turkey. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Du",
     "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg",
     "content": [
@@ -427,7 +511,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Best of Istanbul: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Nov 5, 2026",
-    "relatedTour": { "slug": "ist-01-best-of-istanbul", "label": "Best of Istanbul", "path": "/programs/turkey/ist-01-best-of-istanbul" },
+    "relatedTour": {
+      "slug": "ist-01-best-of-istanbul",
+      "label": "Best of Istanbul",
+      "path": "/programs/turkey/ist-01-best-of-istanbul"
+    },
     "excerpt": "Explore the luxury of our custom Best of Istanbul program in Turkey. Discover why this 4 days / 3 nights itinerary is perfect for your travel dreams with Dunas ",
     "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026773/19_suxy3c.jpg",
     "content": [
@@ -450,7 +538,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Passion of Turkey: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Dec 3, 2026",
-    "relatedTour": { "slug": "reg-03-passion-of-turkey", "label": "Passion of Turkey", "path": "/programs/turkey/reg-03-passion-of-turkey" },
+    "relatedTour": {
+      "slug": "reg-03-passion-of-turkey",
+      "label": "Passion of Turkey",
+      "path": "/programs/turkey/reg-03-passion-of-turkey"
+    },
     "excerpt": "Explore the luxury of our custom Passion of Turkey program in Turkey. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Dunas",
     "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783023927/dad14822-455c-419c-8627-32b3daebef90_akfw3l.jpg",
     "content": [
@@ -473,7 +565,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Classic Jordan: A Luxury Travel Itinerary",
     "category": "Adventure",
     "date": "Jul 20, 2026",
-    "relatedTour": { "slug": "reg-15", "label": "Classic Jordan", "path": "/programs/jordan/reg-15" },
+    "relatedTour": {
+      "slug": "reg-15",
+      "label": "Classic Jordan",
+      "path": "/programs/jordan/reg-15"
+    },
     "excerpt": "Explore the luxury of our custom Classic Jordan program in Jordan. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Dunas Tr",
     "img": "https://tse2.mm.bing.net/th/id/OIP.U7ZoEoRbqGqgDwZPt20THAHaDa?r=0&cb=thfvnextfalcon4&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -496,7 +592,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Jordan with Desert: A Luxury Travel Itinerary",
     "category": "Adventure",
     "date": "Aug 02, 2026",
-    "relatedTour": { "slug": "reg-16", "label": "Jordan with Desert", "path": "/programs/jordan/reg-16" },
+    "relatedTour": {
+      "slug": "reg-16",
+      "label": "Jordan with Desert",
+      "path": "/programs/jordan/reg-16"
+    },
     "excerpt": "Explore the luxury of our custom Jordan with Desert program in Jordan. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Duna",
     "img": "https://tse2.mm.bing.net/th/id/OIP.dEVfKhTjpPk1CkKT6GODTwHaI3?r=0&cb=thfvnextfalcon4&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -519,7 +619,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Jordan with Desert and Dead Sea: A Luxury Travel Itinerary",
     "category": "Adventure",
     "date": "Aug 18, 2026",
-    "relatedTour": { "slug": "reg-17", "label": "Jordan with Desert and Dead Sea", "path": "/programs/jordan/reg-17" },
+    "relatedTour": {
+      "slug": "reg-17",
+      "label": "Jordan with Desert and Dead Sea",
+      "path": "/programs/jordan/reg-17"
+    },
     "excerpt": "Explore the luxury of our custom Jordan with Desert and Dead Se... program in Jordan. Discover why this 8 days / 7 nights itinerary is perfect for your travel d",
     "img": "https://tse3.mm.bing.net/th/id/OIP.JMDqRgBCiKtJTi5IcGyTPAHaFj?r=0&cb=thfvnextfalcon4&w=1300&h=974&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -542,7 +646,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Complete Jordan: A Luxury Travel Itinerary",
     "category": "Adventure",
     "date": "Sep 05, 2026",
-    "relatedTour": { "slug": "reg-18", "label": "Complete Jordan", "path": "/programs/jordan/reg-18" },
+    "relatedTour": {
+      "slug": "reg-18",
+      "label": "Complete Jordan",
+      "path": "/programs/jordan/reg-18"
+    },
     "excerpt": "Explore the luxury of our custom Complete Jordan program in Jordan. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Dunas T",
     "img": "https://tse1.mm.bing.net/th/id/OIP.M-Olyoj_L0aPWSFeY_OWiwHaFM?r=0&cb=thfvnextfalcon4&w=840&h=590&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -565,7 +673,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Jordan Red Sea: A Luxury Travel Itinerary",
     "category": "Adventure",
     "date": "May 15, 2026",
-    "relatedTour": { "slug": "reg-19", "label": "Jordan Red Sea", "path": "/programs/jordan/reg-19" },
+    "relatedTour": {
+      "slug": "reg-19",
+      "label": "Jordan Red Sea",
+      "path": "/programs/jordan/reg-19"
+    },
     "excerpt": "Explore the luxury of our custom Jordan Red Sea program in Jordan. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Dunas Tr",
     "img": "https://tse1.mm.bing.net/th/id/OIP.QxUELTwEUmu3EPeD4KawoAHaHa?r=0&cb=thfvnextfalcon4&w=736&h=736&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -588,7 +700,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Jordan Extension - 5 Days: A Luxury Travel Itinerary",
     "category": "Adventure",
     "date": "Jun 10, 2026",
-    "relatedTour": { "slug": "reg-20", "label": "Jordan Extension 5 Days", "path": "/programs/jordan/reg-20" },
+    "relatedTour": {
+      "slug": "reg-20",
+      "label": "Jordan Extension 5 Days",
+      "path": "/programs/jordan/reg-20"
+    },
     "excerpt": "Explore the luxury of our custom Jordan Extension - 5 Days program in Jordan. Discover why this 5 days / 4 nights itinerary is perfect for your travel dreams wi",
     "img": "https://res.cloudinary.com/tibx70zb/image/upload/v1783627377/290040df138540fc22dd1060f6343ee1bf59c5f4f25651338f3c4740dcf9ee8f_f6nmtv.avif",
     "content": [
@@ -611,7 +727,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Jordan Extension - 4 Days: A Luxury Travel Itinerary",
     "category": "Adventure",
     "date": "Jul 05, 2026",
-    "relatedTour": { "slug": "reg-21", "label": "Jordan Extension 4 Days", "path": "/programs/jordan/reg-21" },
+    "relatedTour": {
+      "slug": "reg-21",
+      "label": "Jordan Extension 4 Days",
+      "path": "/programs/jordan/reg-21"
+    },
     "excerpt": "Explore the luxury of our custom Jordan Extension - 4 Days program in Jordan. Discover why this 4 days / 3 nights itinerary is perfect for your travel dreams wi",
     "img": "https://thfvnext.bing.com/th/id/R.b1f125aef15f0f1bb5787f4512144559?rik=KFVFQJwh12yFXw&riu=http%3a%2f%2flineandbox.com%2fblog%2fwp-content%2fuploads%2f2019%2f03%2fjordan20.jpg&ehk=ifo9XIN2nDLNZF%2b5LFeaUMRPsbdb5OEARUgLHn3kWQw%3d&risl=&pid=ImgRaw&r=0",
     "content": [
@@ -634,7 +754,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Stop Over Dubai: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Jul 12, 2026",
-    "relatedTour": { "slug": "reg-22", "label": "Stop Over Dubai", "path": "/programs/dubai/reg-22" },
+    "relatedTour": {
+      "slug": "reg-22",
+      "label": "Stop Over Dubai",
+      "path": "/programs/dubai/reg-22"
+    },
     "excerpt": "Explore the luxury of our custom Stop Over Dubai program in Dubai. Discover why this 2 Nights / 3 Days itinerary is perfect for your travel dreams with Dunas Tr",
     "img": "https://www.topsarabia.com/wp-content/uploads/2020/09/%D8%AF%D8%A8%D9%8A-1024x692.jpg",
     "content": [
@@ -657,7 +781,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Dubai and Its History: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Jul 20, 2026",
-    "relatedTour": { "slug": "reg-23", "label": "Dubai and Its History", "path": "/programs/dubai/reg-23" },
+    "relatedTour": {
+      "slug": "reg-23",
+      "label": "Dubai and Its History",
+      "path": "/programs/dubai/reg-23"
+    },
     "excerpt": "Explore the luxury of our custom Dubai and Its History program in Dubai. Discover why this 3 Nights / 4 Days itinerary is perfect for your travel dreams with Du",
     "img": "https://fiverr-res.cloudinary.com/images/t_main1,q_auto,f_auto,q_auto,f_auto/gigs/142838092/original/9191ee298e5274a3b4a36a5eb7208ee112c42c04/help-to-travel-to-dubai.jpg",
     "content": [
@@ -680,7 +808,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Dubai, City of the Future: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Aug 02, 2026",
-    "relatedTour": { "slug": "reg-24", "label": "Dubai, City of the Future", "path": "/programs/dubai/reg-24" },
+    "relatedTour": {
+      "slug": "reg-24",
+      "label": "Dubai, City of the Future",
+      "path": "/programs/dubai/reg-24"
+    },
     "excerpt": "Explore the luxury of our custom Dubai, City of the Future program in Dubai. Discover why this 4 Nights / 5 Days itinerary is perfect for your travel dreams wit",
     "img": "https://www.traveloptimizer.de/wp-content/uploads/2024/09/uae-dubai-skyline-im-sonnenuntergang-1000x667.jpg",
     "content": [
@@ -703,7 +835,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Dubai and Abu Dhabi: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Aug 18, 2026",
-    "relatedTour": { "slug": "reg-25", "label": "Dubai and Abu Dhabi", "path": "/programs/dubai/reg-25" },
+    "relatedTour": {
+      "slug": "reg-25",
+      "label": "Dubai and Abu Dhabi",
+      "path": "/programs/dubai/reg-25"
+    },
     "excerpt": "Explore the luxury of our custom Dubai and Abu Dhabi program in Dubai. Discover why this 5 Nights / 6 Days itinerary is perfect for your travel dreams with Duna",
     "img": "https://www.timeoutdubai.com/cloud/timeoutdubai/2024/03/04/Dubai-skyline-1-768x576.png",
     "content": [
@@ -726,7 +862,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Dubai with Overnight in Abu Dhabi: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Sep 05, 2026",
-    "relatedTour": { "slug": "reg-26", "label": "Dubai with Overnight in Abu Dhabi", "path": "/programs/dubai/reg-26" },
+    "relatedTour": {
+      "slug": "reg-26",
+      "label": "Dubai with Overnight in Abu Dhabi",
+      "path": "/programs/dubai/reg-26"
+    },
     "excerpt": "Explore the luxury of our custom Dubai with Overnight in Abu Dh... program in Dubai. Discover why this 5 Nights / 6 Days itinerary is perfect for your travel dr",
     "img": "https://www.timeoutdubai.com/cloud/timeoutdubai/2022/09/29/Dubai-skyline_4-1024x768.jpg",
     "content": [
@@ -749,7 +889,11 @@ export const blogs = [
     "title": "The Ultimate Guide to One Week in Dubai: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "May 15, 2026",
-    "relatedTour": { "slug": "reg-27", "label": "One Week in Dubai", "path": "/programs/dubai/reg-27" },
+    "relatedTour": {
+      "slug": "reg-27",
+      "label": "One Week in Dubai",
+      "path": "/programs/dubai/reg-27"
+    },
     "excerpt": "Explore the luxury of our custom One Week in Dubai program in Dubai. Discover why this 7 Nights / 8 Days itinerary is perfect for your travel dreams with Dunas ",
     "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783024003/d34eeca3-6bc8-4a19-aa18-bf13404bb11b_n0f8zn.jpg",
     "content": [
@@ -772,7 +916,11 @@ export const blogs = [
     "title": "The Ultimate Guide to The Complete Emirates: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Jun 10, 2026",
-    "relatedTour": { "slug": "reg-28", "label": "The Complete Emirates", "path": "/programs/dubai/reg-28" },
+    "relatedTour": {
+      "slug": "reg-28",
+      "label": "The Complete Emirates",
+      "path": "/programs/dubai/reg-28"
+    },
     "excerpt": "Explore the luxury of our custom The Complete Emirates program in Dubai. Discover why this 7 Nights / 8 Days itinerary is perfect for your travel dreams with Du",
     "img": "https://tse3.mm.bing.net/th/id/OIP.HAgTsJwf5ApVRx1dUamh1AHaI6?r=0&cb=thfvnextfalcon4&w=488&h=587&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -795,7 +943,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Honeymoon in Dubai: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Jul 05, 2026",
-    "relatedTour": { "slug": "hm001", "label": "Honeymoon in Dubai", "path": "/programs/dubai/hm001" },
+    "relatedTour": {
+      "slug": "hm001",
+      "label": "Honeymoon in Dubai",
+      "path": "/programs/dubai/hm001"
+    },
     "excerpt": "Explore the luxury of our custom Honeymoon in Dubai program in Dubai. Discover why this 4 Nights / 5 Days itinerary is perfect for your travel dreams with Dunas",
     "img": "https://www.aroohatours.com/resources/dubai-tour-inner-pages/images/burj-al-arab-beach-1.webp",
     "content": [
@@ -818,7 +970,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Honeymoon in Dubai with Dinner at Burj Al Arab: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Jul 12, 2026",
-    "relatedTour": { "slug": "hm002", "label": "Honeymoon in Dubai with Dinner at Burj Al Arab", "path": "/programs/dubai/hm002" },
+    "relatedTour": {
+      "slug": "hm002",
+      "label": "Honeymoon in Dubai with Dinner at Burj Al Arab",
+      "path": "/programs/dubai/hm002"
+    },
     "excerpt": "Explore the luxury of our custom Honeymoon in Dubai with Dinner... program in Dubai. Discover why this 4 Nights / 5 Days itinerary is perfect for your travel dr",
     "img": "https://tse2.mm.bing.net/th/id/OIP.SLY7b_wtA1vx_U3UUihFjgHaEA?r=0&cb=thfvnextfalcon4&w=1920&h=1037&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -841,7 +997,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Admirable Turkey: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Jul 20, 2026",
-    "relatedTour": { "slug": "reg-05-admirable-turkey", "label": "Admirable Turkey", "path": "/programs/turkey/reg-05-admirable-turkey" },
+    "relatedTour": {
+      "slug": "reg-05-admirable-turkey",
+      "label": "Admirable Turkey",
+      "path": "/programs/turkey/reg-05-admirable-turkey"
+    },
     "excerpt": "Explore the luxury of our custom Admirable Turkey program in Turkey. Discover why this 10 days / 9 nights itinerary is perfect for your travel dreams with Dunas",
     "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783024053/66dc2b5e-f90d-424f-b9a7-4164b52f4e5a_eoqd3p.jpg",
     "content": [
@@ -864,7 +1024,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Heart of Turkey - Istanbul with Cappadocia: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Aug 02, 2026",
-    "relatedTour": { "slug": "reg-06-heart-of-turkey", "label": "Heart of Turkey", "path": "/programs/turkey/reg-06-heart-of-turkey" },
+    "relatedTour": {
+      "slug": "reg-06-heart-of-turkey",
+      "label": "Heart of Turkey",
+      "path": "/programs/turkey/reg-06-heart-of-turkey"
+    },
     "excerpt": "Explore the luxury of our custom Heart of Turkey - Istanbul wit... program in Turkey. Discover why this 7 days / 6 nights itinerary is perfect for your travel d",
     "img": "https://tse2.mm.bing.net/th/id/OIP.C69bjtvZ6VkAFR_W4KXezQHaE8?r=0&cb=thfvnextfalcon4&w=720&h=480&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -887,7 +1051,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Turkish Riviera: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Aug 18, 2026",
-    "relatedTour": { "slug": "reg-07-turkish-riviera", "label": "Turkish Riviera", "path": "/programs/turkey/reg-07-turkish-riviera" },
+    "relatedTour": {
+      "slug": "reg-07-turkish-riviera",
+      "label": "Turkish Riviera",
+      "path": "/programs/turkey/reg-07-turkish-riviera"
+    },
     "excerpt": "Explore the luxury of our custom Turkish Riviera program in Turkey. Discover why this 12 Days / 11 Nights itinerary is perfect for your travel dreams with Dunas",
     "img": "https://tse3.mm.bing.net/th/id/OIP.Xs7wxyl_IbKiONSQkkDalgHaEE?r=0&cb=thfvnextfalcon4&w=4240&h=2332&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -910,7 +1078,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Stop Over — Stop in Istanbul: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Sep 05, 2026",
-    "relatedTour": { "slug": "reg-08-stop-over", "label": "Stop Over Istanbul", "path": "/programs/turkey/reg-08-stop-over" },
+    "relatedTour": {
+      "slug": "reg-08-stop-over",
+      "label": "Stop Over Istanbul",
+      "path": "/programs/turkey/reg-08-stop-over"
+    },
     "excerpt": "Explore the luxury of our custom Stop Over — Stop in Istanbul program in Turkey. Discover why this 3 Days / 2 Nights itinerary is perfect for your travel dreams",
     "img": "https://a.loveholidays.com/media-library/~production/83edbfb1a54a48fa35b9042e6ff8463e322b9371-6690x3763.jpg?width=1200&height=630&fit=crop",
     "content": [
@@ -947,7 +1119,12 @@ export const blogs = [
       "Turkey is best visited in the spring (April to May) or autumn (September to October) when the weather is mild and crowds are manageable. When visiting historic mosques such as Hagia Sophia or the Blue Mosque, women are required to cover their heads with a scarf, and both men and women must cover their shoulders and knees. Pack comfortable walking shoes for the cobblestone streets of Istanbul and the ruins of Ephesus. If you plan a hot air balloon flight in Cappadocia, bring a warm jacket, as early mornings in the balloon basket can be chilly. It is common to negotiate prices in the Grand Bazaar, so approach it with a friendly smile.",
       "## Book Your Experience",
       "From the historic streets of Istanbul to the breathtaking valleys of Cappadocia, Turkey awaits. Reserve your spot on the \"Turkey Without Rush\" tour package with Dunas Travel today. Reach out to our travel concierges to customize your itinerary, book premium flights, and secure the best boutique cave hotels."
-    ]
+    ],
+    "relatedTour": {
+      "slug": "reg-09-turkey-without-rush",
+      "label": "Turkey Without Rush",
+      "path": "/programs/turkey/reg-09-turkey-without-rush"
+    }
   },
   {
     "id": "b-056",
@@ -969,7 +1146,12 @@ export const blogs = [
       "Turkey is best visited in the spring (April to May) or autumn (September to October) when the weather is mild and crowds are manageable. When visiting historic mosques such as Hagia Sophia or the Blue Mosque, women are required to cover their heads with a scarf, and both men and women must cover their shoulders and knees. Pack comfortable walking shoes for the cobblestone streets of Istanbul and the ruins of Ephesus. If you plan a hot air balloon flight in Cappadocia, bring a warm jacket, as early mornings in the balloon basket can be chilly. It is common to negotiate prices in the Grand Bazaar, so approach it with a friendly smile.",
       "## Book Your Experience",
       "From the historic streets of Istanbul to the breathtaking valleys of Cappadocia, Turkey awaits. Reserve your spot on the \"Turkish Riviera with Fethiye\" tour package with Dunas Travel today. Reach out to our travel concierges to customize your itinerary, book premium flights, and secure the best boutique cave hotels."
-    ]
+    ],
+    "relatedTour": {
+      "slug": "reg-10-turkish-riviera-with-fethiye",
+      "label": "Turkish Riviera with Fethiye",
+      "path": "/programs/turkey/reg-10-turkish-riviera-with-fethiye"
+    }
   },
   {
     "id": "b-057",
@@ -991,7 +1173,12 @@ export const blogs = [
       "Turkey is best visited in the spring (April to May) or autumn (September to October) when the weather is mild and crowds are manageable. When visiting historic mosques such as Hagia Sophia or the Blue Mosque, women are required to cover their heads with a scarf, and both men and women must cover their shoulders and knees. Pack comfortable walking shoes for the cobblestone streets of Istanbul and the ruins of Ephesus. If you plan a hot air balloon flight in Cappadocia, bring a warm jacket, as early mornings in the balloon basket can be chilly. It is common to negotiate prices in the Grand Bazaar, so approach it with a friendly smile.",
       "## Book Your Experience",
       "From the historic streets of Istanbul to the breathtaking valleys of Cappadocia, Turkey awaits. Reserve your spot on the \"Antalya - 10 Days / 9 Nights\" tour package with Dunas Travel today. Reach out to our travel concierges to customize your itinerary, book premium flights, and secure the best boutique cave hotels."
-    ]
+    ],
+    "relatedTour": {
+      "slug": "reg-11-antalya-10-days-9-nights",
+      "label": "Antalya 10 Days",
+      "path": "/programs/turkey/reg-11-antalya-10-days-9-nights"
+    }
   },
   {
     "id": "b-058",
@@ -1013,7 +1200,12 @@ export const blogs = [
       "Turkey is best visited in the spring (April to May) or autumn (September to October) when the weather is mild and crowds are manageable. When visiting historic mosques such as Hagia Sophia or the Blue Mosque, women are required to cover their heads with a scarf, and both men and women must cover their shoulders and knees. Pack comfortable walking shoes for the cobblestone streets of Istanbul and the ruins of Ephesus. If you plan a hot air balloon flight in Cappadocia, bring a warm jacket, as early mornings in the balloon basket can be chilly. It is common to negotiate prices in the Grand Bazaar, so approach it with a friendly smile.",
       "## Book Your Experience",
       "From the historic streets of Istanbul to the breathtaking valleys of Cappadocia, Turkey awaits. Reserve your spot on the \"Beautiful Turkey - 9 Days / 8 Nights\" tour package with Dunas Travel today. Reach out to our travel concierges to customize your itinerary, book premium flights, and secure the best boutique cave hotels."
-    ]
+    ],
+    "relatedTour": {
+      "slug": "reg-12-beautiful-turkey-9-days-8-nights",
+      "label": "Beautiful Turkey",
+      "path": "/programs/turkey/reg-12-beautiful-turkey-9-days-8-nights"
+    }
   },
   {
     "id": "b-059",
@@ -1035,7 +1227,12 @@ export const blogs = [
       "Turkey is best visited in the spring (April to May) or autumn (September to October) when the weather is mild and crowds are manageable. When visiting historic mosques such as Hagia Sophia or the Blue Mosque, women are required to cover their heads with a scarf, and both men and women must cover their shoulders and knees. Pack comfortable walking shoes for the cobblestone streets of Istanbul and the ruins of Ephesus. If you plan a hot air balloon flight in Cappadocia, bring a warm jacket, as early mornings in the balloon basket can be chilly. It is common to negotiate prices in the Grand Bazaar, so approach it with a friendly smile.",
       "## Book Your Experience",
       "From the historic streets of Istanbul to the breathtaking valleys of Cappadocia, Turkey awaits. Reserve your spot on the \"Admirable Turkey Winter - 10 Days / 9 Nights\" tour package with Dunas Travel today. Reach out to our travel concierges to customize your itinerary, book premium flights, and secure the best boutique cave hotels."
-    ]
+    ],
+    "relatedTour": {
+      "slug": "reg-05-b-admirable-turkey-winter-10-days-9-nights",
+      "label": "Admirable Turkey Winter",
+      "path": "/programs/turkey/reg-05-b-admirable-turkey-winter-10-days-9-nights"
+    }
   },
   {
     "id": "b-060",
@@ -1057,7 +1254,12 @@ export const blogs = [
       "Turkey is best visited in the spring (April to May) or autumn (September to October) when the weather is mild and crowds are manageable. When visiting historic mosques such as Hagia Sophia or the Blue Mosque, women are required to cover their heads with a scarf, and both men and women must cover their shoulders and knees. Pack comfortable walking shoes for the cobblestone streets of Istanbul and the ruins of Ephesus. If you plan a hot air balloon flight in Cappadocia, bring a warm jacket, as early mornings in the balloon basket can be chilly. It is common to negotiate prices in the Grand Bazaar, so approach it with a friendly smile.",
       "## Book Your Experience",
       "From the historic streets of Istanbul to the breathtaking valleys of Cappadocia, Turkey awaits. Reserve your spot on the \"Extension 7 Churches - 3 Days / 2 Nights\" tour package with Dunas Travel today. Reach out to our travel concierges to customize your itinerary, book premium flights, and secure the best boutique cave hotels."
-    ]
+    ],
+    "relatedTour": {
+      "slug": "reg-13-extension-7-churches-3-days-2-nights",
+      "label": "Extension 7 Churches",
+      "path": "/programs/turkey/reg-13-extension-7-churches-3-days-2-nights"
+    }
   },
   {
     "id": "b-061",
@@ -1079,7 +1281,12 @@ export const blogs = [
       "Turkey is best visited in the spring (April to May) or autumn (September to October) when the weather is mild and crowds are manageable. When visiting historic mosques such as Hagia Sophia or the Blue Mosque, women are required to cover their heads with a scarf, and both men and women must cover their shoulders and knees. Pack comfortable walking shoes for the cobblestone streets of Istanbul and the ruins of Ephesus. If you plan a hot air balloon flight in Cappadocia, bring a warm jacket, as early mornings in the balloon basket can be chilly. It is common to negotiate prices in the Grand Bazaar, so approach it with a friendly smile.",
       "## Book Your Experience",
       "From the historic streets of Istanbul to the breathtaking valleys of Cappadocia, Turkey awaits. Reserve your spot on the \"Secret of the Temple\" tour package with Dunas Travel today. Reach out to our travel concierges to customize your itinerary, book premium flights, and secure the best boutique cave hotels."
-    ]
+    ],
+    "relatedTour": {
+      "slug": "reg-14-secret-of-the-temple",
+      "label": "Secret of the Temple",
+      "path": "/programs/turkey/reg-14-secret-of-the-temple"
+    }
   },
   {
     "id": "b-062",
@@ -1101,7 +1308,12 @@ export const blogs = [
       "Morocco's climate varies, making spring (March to May) and autumn (September to November) the best times to travel. Medford medinas can be crowded and labyrinthine, so hiring a local guide is highly recommended. Wear comfortable closed-toe walking shoes to navigate the narrow alleys. Dress respectfully by covering your shoulders and knees, especially in religious and rural areas. Haggling is a central part of shopping in the souks, so take your time and negotiate politely. Bring a jacket for cool evenings in the Atlas Mountains or the Sahara Desert. Carry local dirhams for small purchases and tips.",
       "## Book Your Experience",
       "Uncover the colors, spice medinas, and historic palaces of North Africa. Reserve your private \"Spices of Morocco\" tour through Morocco with Dunas Travel. Contact our travel designers today to customize your imperial journey and experience the ultimate in Moroccan hospitality."
-    ]
+    ],
+    "relatedTour": {
+      "slug": "spices-of-egypt-and-morocco",
+      "label": "Spices of Morocco",
+      "path": "/programs/multi-country/spices-of-egypt-and-morocco"
+    }
   },
   {
     "id": "b-063",
@@ -1123,7 +1335,12 @@ export const blogs = [
       "To ensure a comfortable journey through Egypt, it is best to plan your visit between October and April, when the weather is cooler and perfect for outdoor sightseeing. Pack lightweight, breathable cotton clothing to stay cool, a wide-brimmed hat, sunglasses, and high-SPF sunscreen to protect against the desert sun. Sturdy, comfortable walking shoes are essential for exploring temple ruins and dusty archaeological sites. While beach resorts are very relaxed, it is recommended to dress modestly when exploring historic Cairo or local towns (covering shoulders and knees). Always drink bottled water, carry some local currency (Egyptian Pounds) for small tips, and keep your camera charged for the incredible sights.",
       "## Book Your Experience",
       "Are you ready to witness the eternal wonders of Egypt? The \"Egypt Classic Program\" package is the perfect blend of ancient history, cultural immersion, and modern luxury. Contact the travel designers at Dunas Travel today to book your private tour or customize this itinerary to match your specific dates and preferences. Let our expert guides show you the magic of the Nile."
-    ]
+    ],
+    "relatedTour": {
+      "slug": "classic-program",
+      "label": "Classic Egypt Program",
+      "path": "/programs/classic/classic-program"
+    }
   },
   {
     "id": "b-064",
@@ -1145,7 +1362,12 @@ export const blogs = [
       "To ensure a comfortable journey through Egypt, it is best to plan your visit between October and April, when the weather is cooler and perfect for outdoor sightseeing. Pack lightweight, breathable cotton clothing to stay cool, a wide-brimmed hat, sunglasses, and high-SPF sunscreen to protect against the desert sun. Sturdy, comfortable walking shoes are essential for exploring temple ruins and dusty archaeological sites. While beach resorts are very relaxed, it is recommended to dress modestly when exploring historic Cairo or local towns (covering shoulders and knees). Always drink bottled water, carry some local currency (Egyptian Pounds) for small tips, and keep your camera charged for the incredible sights.",
       "## Book Your Experience",
       "Are you ready to witness the eternal wonders of Egypt? The \"Romantic Arabian Nights Honeymoon\" package is the perfect blend of ancient history, cultural immersion, and modern luxury. Contact the travel designers at Dunas Travel today to book your private tour or customize this itinerary to match your specific dates and preferences. Let our expert guides show you the magic of the Nile."
-    ]
+    ],
+    "relatedTour": {
+      "slug": "honeymooners",
+      "label": "Honeymoon & Romantic Luxury",
+      "path": "/programs/honeymooners"
+    }
   },
   {
     "id": "b-065",
@@ -1167,7 +1389,12 @@ export const blogs = [
       "When embarking on a multi-destination tour, ensure your passport has at least six months of validity and several empty pages for visas. Research the visa requirements for each country in advance, as some can be obtained online or upon arrival. Pack versatile clothing that can be layered to suit different climates, from breezy coastal cities to cool desert nights. Sturdy walking shoes, sunscreen, and adapters for different plug types are essential. Carry a mix of credit cards and local currency for each country, and always keep digital copies of your travel documents.",
       "## Book Your Experience",
       "Embark on the ultimate multi-country odyssey. The \"Egypt and Jordan Combined Pilgrimage\" package is your ticket to experiencing the world's most captivating destinations in total luxury. Contact Dunas Travel today to reserve your space, customize the route, or speak to a travel specialist about crafting your bespoke multi-border vacation."
-    ]
+    ],
+    "relatedTour": {
+      "slug": "jewels-of-egypt-and-jordan-11-days",
+      "label": "Jewels of Egypt and Jordan",
+      "path": "/programs/multi-country/jewels-of-egypt-and-jordan-11-days"
+    }
   },
   {
     "id": "b-066",
@@ -1189,7 +1416,12 @@ export const blogs = [
       "To ensure a comfortable journey through Egypt, it is best to plan your visit between October and April, when the weather is cooler and perfect for outdoor sightseeing. Pack lightweight, breathable cotton clothing to stay cool, a wide-brimmed hat, sunglasses, and high-SPF sunscreen to protect against the desert sun. Sturdy, comfortable walking shoes are essential for exploring temple ruins and dusty archaeological sites. While beach resorts are very relaxed, it is recommended to dress modestly when exploring historic Cairo or local towns (covering shoulders and knees). Always drink bottled water, carry some local currency (Egyptian Pounds) for small tips, and keep your camera charged for the incredible sights.",
       "## Book Your Experience",
       "Are you ready to witness the eternal wonders of Egypt? The \"Hurghada Red Sea Extension\" package is the perfect blend of ancient history, cultural immersion, and modern luxury. Contact the travel designers at Dunas Travel today to book your private tour or customize this itinerary to match your specific dates and preferences. Let our expert guides show you the magic of the Nile."
-    ]
+    ],
+    "relatedTour": {
+      "slug": "hurghada-4d3n",
+      "label": "Hurghada Red Sea Escape",
+      "path": "/programs/extension/hurghada-4d3n"
+    }
   },
   {
     "id": "b-067",
@@ -1211,7 +1443,12 @@ export const blogs = [
       "To ensure a comfortable journey through Egypt, it is best to plan your visit between October and April, when the weather is cooler and perfect for outdoor sightseeing. Pack lightweight, breathable cotton clothing to stay cool, a wide-brimmed hat, sunglasses, and high-SPF sunscreen to protect against the desert sun. Sturdy, comfortable walking shoes are essential for exploring temple ruins and dusty archaeological sites. While beach resorts are very relaxed, it is recommended to dress modestly when exploring historic Cairo or local towns (covering shoulders and knees). Always drink bottled water, carry some local currency (Egyptian Pounds) for small tips, and keep your camera charged for the incredible sights.",
       "## Book Your Experience",
       "Are you ready to witness the eternal wonders of Egypt? The \"Sharm El Sheikh Beach Extension\" package is the perfect blend of ancient history, cultural immersion, and modern luxury. Contact the travel designers at Dunas Travel today to book your private tour or customize this itinerary to match your specific dates and preferences. Let our expert guides show you the magic of the Nile."
-    ]
+    ],
+    "relatedTour": {
+      "slug": "sharm-4d3n",
+      "label": "Sharm El Sheikh Paradise",
+      "path": "/programs/extension/sharm-4d3n"
+    }
   },
   {
     "id": "b-068",
@@ -1233,6 +1470,11 @@ export const blogs = [
       "To ensure a comfortable journey through Egypt, it is best to plan your visit between October and April, when the weather is cooler and perfect for outdoor sightseeing. Pack lightweight, breathable cotton clothing to stay cool, a wide-brimmed hat, sunglasses, and high-SPF sunscreen to protect against the desert sun. Sturdy, comfortable walking shoes are essential for exploring temple ruins and dusty archaeological sites. While beach resorts are very relaxed, it is recommended to dress modestly when exploring historic Cairo or local towns (covering shoulders and knees). Always drink bottled water, carry some local currency (Egyptian Pounds) for small tips, and keep your camera charged for the incredible sights.",
       "## Book Your Experience",
       "Are you ready to witness the eternal wonders of Egypt? The \"Siwa Oasis and Alexandria Expedition\" package is the perfect blend of ancient history, cultural immersion, and modern luxury. Contact the travel designers at Dunas Travel today to book your private tour or customize this itinerary to match your specific dates and preferences. Let our expert guides show you the magic of the Nile."
-    ]
+    ],
+    "relatedTour": {
+      "slug": "siwa-oasis-alexandria",
+      "label": "Siwa Oasis & Alexandria Adventure",
+      "path": "/programs/extension/siwa-oasis-alexandria"
+    }
   }
 ];
