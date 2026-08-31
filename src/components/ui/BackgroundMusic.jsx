@@ -14,7 +14,7 @@ const BackgroundMusic = () => {
   const isHomePage = location.pathname === '/';
 
   const audioRef = useRef(null);
-  const iframeRef = useRef(null);
+  const playerRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
 
@@ -29,40 +29,23 @@ const BackgroundMusic = () => {
     hasInteractedRef.current = hasInteracted;
   }, [hasInteracted]);
 
-  const sendIframeCommand = (func, args = []) => {
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(
-        JSON.stringify({
-          event: 'command',
-          func: func,
-          args: args
-        }),
-        '*'
-      );
-    }
-  };
-
-  const playMusic = async () => {
+  const playMusic = () => {
     sessionStorage.removeItem('userExplicitlyPaused');
     if (isLocalAudio && audioRef.current) {
       try {
         audioRef.current.volume = 0.5;
-        await audioRef.current.play();
-        setIsPlaying(true);
-      } catch (err) {
-        console.warn('Audio play error:', err);
+        audioRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+      } catch {
         setIsPlaying(false);
       }
-    } else {
-      sendIframeCommand('unMute');
-      sendIframeCommand('playVideo');
-      setIsPlaying(true);
-
-      // Retry command shortly after to ensure YouTube iframe JS API processes it
-      setTimeout(() => {
-        sendIframeCommand('unMute');
-        sendIframeCommand('playVideo');
-      }, 400);
+    } else if (playerRef.current && typeof playerRef.current.playVideo === 'function') {
+      try {
+        playerRef.current.unMute();
+        playerRef.current.playVideo();
+        setIsPlaying(true);
+      } catch (e) {
+        console.warn('YT play error:', e);
+      }
     }
     sessionStorage.setItem('musicPlaying', 'true');
   };
@@ -74,8 +57,12 @@ const BackgroundMusic = () => {
       } catch {
         // ignore
       }
-    } else {
-      sendIframeCommand('pauseVideo');
+    } else if (playerRef.current && typeof playerRef.current.pauseVideo === 'function') {
+      try {
+        playerRef.current.pauseVideo();
+      } catch (e) {
+        console.warn('YT pause error:', e);
+      }
     }
     setIsPlaying(false);
     sessionStorage.setItem('musicPlaying', 'false');
@@ -94,19 +81,72 @@ const BackgroundMusic = () => {
     }
   };
 
-  // Restore playing state if set in sessionStorage
+  // Initialize YouTube Iframe API if using YouTube video
   useEffect(() => {
-    const storedPlaying = sessionStorage.getItem('musicPlaying') === 'true';
-    const explicitlyPaused = sessionStorage.getItem('userExplicitlyPaused') === 'true';
+    if (isLocalAudio) return;
 
-    if (storedPlaying && !explicitlyPaused) {
-      setHasInteracted(true);
-      const timer = setTimeout(() => {
-        playMusic();
-      }, 400);
-      return () => clearTimeout(timer);
+    const initYTPlayer = () => {
+      if (playerRef.current) return;
+      try {
+        playerRef.current = new window.YT.Player('webflow-bg-music-player', {
+          height: '1',
+          width: '1',
+          videoId: DEFAULT_YOUTUBE_ID,
+          playerVars: {
+            autoplay: 1,
+            controls: 0,
+            loop: 1,
+            playlist: DEFAULT_YOUTUBE_ID,
+            showinfo: 0,
+            rel: 0,
+            enablejsapi: 1,
+          },
+          events: {
+            onReady: (event) => {
+              const explicitlyPaused = sessionStorage.getItem('userExplicitlyPaused') === 'true';
+              if (isHomePage && !explicitlyPaused) {
+                try {
+                  event.target.unMute();
+                  event.target.playVideo();
+                  setIsPlaying(true);
+                } catch {
+                  // browser blocked
+                }
+              }
+            },
+            onStateChange: (event) => {
+              if (event.data === window.YT.PlayerState.PLAYING) {
+                setIsPlaying(true);
+                sessionStorage.setItem('musicPlaying', 'true');
+              } else if (event.data === window.YT.PlayerState.PAUSED) {
+                setIsPlaying(false);
+              }
+            },
+          },
+        });
+      } catch (e) {
+        console.warn('Failed to init YT player:', e);
+      }
+    };
+
+    if (window.YT && window.YT.Player) {
+      initYTPlayer();
+    } else {
+      if (!document.getElementById('yt-iframe-api-script')) {
+        const tag = document.createElement('script');
+        tag.id = 'yt-iframe-api-script';
+        tag.src = 'https://www.youtube.com/iframe_api';
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      }
+
+      const previousCallback = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        if (typeof previousCallback === 'function') previousCallback();
+        initYTPlayer();
+      };
     }
-  }, []);
+  }, [isHomePage]);
 
   // Autoplay on Home Page upon mount, scrolling, or user interaction
   useEffect(() => {
@@ -114,12 +154,11 @@ const BackgroundMusic = () => {
       const explicitlyPaused = sessionStorage.getItem('userExplicitlyPaused') === 'true';
       if (explicitlyPaused) return;
 
-      // Immediate attempt on mount
       const mountTimer = setTimeout(() => {
         if (!isPlayingRef.current) {
           playMusic();
         }
-      }, 400);
+      }, 600);
 
       const triggerPlayOnScroll = () => {
         const currentlyPaused = sessionStorage.getItem('userExplicitlyPaused') === 'true';
@@ -137,14 +176,12 @@ const BackgroundMusic = () => {
         window.removeEventListener('keydown', triggerPlayOnScroll);
       };
 
-      // Add scroll and interaction listeners
       window.addEventListener('scroll', triggerPlayOnScroll, { passive: true });
       window.addEventListener('wheel', triggerPlayOnScroll, { passive: true });
       window.addEventListener('touchmove', triggerPlayOnScroll, { passive: true });
       window.addEventListener('pointerdown', triggerPlayOnScroll, { passive: true });
       window.addEventListener('keydown', triggerPlayOnScroll, { passive: true });
 
-      // Check if page is already scrolled
       if (window.scrollY > 0) {
         triggerPlayOnScroll();
       }
@@ -155,28 +192,6 @@ const BackgroundMusic = () => {
       };
     }
   }, [isHomePage]);
-
-  // Listen to message events from YouTube iframe to stay in sync if player state changes
-  useEffect(() => {
-    const handleWindowMessage = (event) => {
-      if (!event.data) return;
-      try {
-        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-        if (data.event === 'onStateChange' || (data.info && typeof data.info.playerState !== 'undefined')) {
-          const state = data.info?.playerState ?? data.info;
-          if (state === 1) { // Playing
-            setIsPlaying(true);
-            sessionStorage.setItem('musicPlaying', 'true');
-          }
-        }
-      } catch {
-        // Ignore non-JSON postMessages
-      }
-    };
-
-    window.addEventListener('message', handleWindowMessage);
-    return () => window.removeEventListener('message', handleWindowMessage);
-  }, []);
 
   if (isJaiderOpen) return null;
 
@@ -228,26 +243,22 @@ const BackgroundMusic = () => {
         />
       )}
 
-      {/* Original YouTube Background Music Track (QqjdVDbxz6s) */}
+      {/* YouTube Iframe Player Container for Official YT API */}
       {!isLocalAudio && (
-        <iframe
-          ref={iframeRef}
-          id="webflow-bg-music-iframe"
-          width="1"
-          height="1"
-          src={`https://www.youtube.com/embed/${DEFAULT_YOUTUBE_ID}?enablejsapi=1&version=3&loop=1&playlist=${DEFAULT_YOUTUBE_ID}&controls=0&showinfo=0&rel=0&autoplay=1`}
-          frameBorder="0"
-          allow="autoplay"
-          title="Background Music"
+        <div
           style={{
             position: 'fixed',
             bottom: '-100px',
             left: '-100px',
             visibility: 'hidden',
             opacity: 0,
-            pointerEvents: 'none'
+            pointerEvents: 'none',
+            width: 1,
+            height: 1
           }}
-        />
+        >
+          <div id="webflow-bg-music-player" />
+        </div>
       )}
 
       {/* Music Floating Button - Bottom Left */}
