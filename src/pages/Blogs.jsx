@@ -65,7 +65,7 @@ const Blogs = () => {
       <section className="relative h-[50vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1600,c_fill/v1783026771/5_upvijm.jpg"
+            src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1600&q=80"
             alt="Blogs Hero"
             className="w-full h-full object-cover"
             loading="lazy"
@@ -155,7 +155,7 @@ const Blogs = () => {
 
                   <div className="mt-auto pt-4 border-t border-gray-100">
                     <Link to={`/blogs/${blog.slug}`} className="inline-flex items-center gap-2 text-body-sm text-gold-500 hover:text-gold-700 font-semibold transition-all group/link">
-                      <span>{t('blogs.readMore', 'Read More')}</span>
+                      <span>{t('blogs.readMore', 'Read More →')}</span>
                       <FaChevronRight size={10} className={`transition-transform duration-300 group-hover/link:translate-x-1 ${isRtl ? 'rotate-180 group-hover/link:-translate-x-1' : ''}`} />
                     </Link>
                   </div>

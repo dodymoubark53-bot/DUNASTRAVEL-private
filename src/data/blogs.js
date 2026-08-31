@@ -1,3 +1,4 @@
+// Cleaned and synchronized blogs catalog from luxury-project-one.vercel.app
 export const blogs = [
   {
     "id": "b-001",
@@ -12,7 +13,7 @@ export const blogs = [
     },
     "hidden": true,
     "excerpt": "Beyond Karnak and the Valley of the Kings lie incredible, lesser-known temples waiting to be explored. Discover the secrets of ancient Thebes without the crowds.",
-    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026773/13_wtazze.jpg",
+    "img": "https://images.unsplash.com/photo-1596130535979-eedea4278d29?w=800&q=80&fit=crop",
     "content": [
       "Luxor, often described as the world's greatest open-air museum, is undeniably famous for the colossal Karnak Temple and the pharaohs' tombs in the Valley of the Kings. However, for the discerning traveler, the true magic of this ancient city lies off the beaten path, hidden amongst the sugar cane fields and lesser-visited desert valleys. These secondary temples offer a profound, uncrowded connection to Egypt's majestic past.",
       "One such marvel is the Temple of Medinet Habu. Second only to Karnak in size, this magnificent mortuary temple of Ramses III is remarkably well-preserved. Its deeply carved hieroglyphs retain much of their original vibrant coloring, providing a vivid glimpse into ancient artistry. The towering pylons and massive courtyards are often devoid of the large tour groups, allowing visitors to wander in serene contemplation.",
@@ -32,7 +33,7 @@ export const blogs = [
       "path": "/programs/jordan/reg-15"
     },
     "excerpt": "Experiencing the rose-red city illuminated by thousands of candles is a bucket-list event. Here is everything you need to know to plan your magical evening.",
-    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026773/20_riy2ce.jpg",
+    "img": "https://images.unsplash.com/photo-1662747974561-f2f5ea3825a6?w=800&q=80&fit=crop",
     "content": [
       "There are few travel experiences as universally acclaimed yet deeply moving as Petra by Night. Operating only three times a week—Mondays, Wednesdays, and Thursdays—this after-dark excursion transforms the already mystical ancient Nabatean city into a scene straight out of a desert fairy tale. The journey begins at the visitor center, but the true magic starts as you step into the Siq.",
       "The Siq, a narrow 1.2-kilometer gorge flanked by towering 80-meter-high sandstone cliffs, is lit only by the soft, flickering glow of paper lanterns lining the path. Walking through this winding canyon in near silence, accompanied only by the whisper of the wind and the crunch of gravel beneath your feet, builds an incredible sense of anticipation. It is a meditative walk that prepares you for the grand reveal.",
@@ -52,7 +53,7 @@ export const blogs = [
       "path": "/programs/turkey/reg-01-legendary-turkey"
     },
     "excerpt": "Navigate the labyrinthine alleys of one of the world's oldest and largest covered markets. From Turkish delight to antique kilims, here is your ultimate shopping guide.",
-    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026773/19_suxy3c.jpg",
+    "img": "https://images.unsplash.com/photo-1547057365-90f38124c65b?w=800&q=80&fit=crop",
     "content": [
       "The Grand Bazaar (Kapalıçarşı) in Istanbul is not merely a market; it is a chaotic, colorful, and sensory labyrinth that has pulsed as the commercial heart of the city for over half a millennium. Spanning 61 covered streets and housing over 4,000 shops, it is one of the largest and oldest covered markets in the world. Stepping through its grand archways is like stepping into an Ottoman era time capsule.",
       "Navigating the bazaar can feel overwhelming to the uninitiated. The key is to embrace the art of getting lost. The market is roughly organized by trade—one alley shimmers with gold jewelry, another is draped in vibrant textiles and carpets, while others are filled with the rich aromas of leather goods or the clinking of hand-painted ceramics. Allow your senses to guide you, and do not be afraid to wander off the main thoroughfares into the quieter, more specialized courtyards (han).",
@@ -72,7 +73,7 @@ export const blogs = [
       "path": "/tours/cairo-express-4d"
     },
     "excerpt": "Step away from the massive cruise ships and experience the lifeblood of Egypt on a traditional wooden felucca. A peaceful, authentic journey awaits.",
-    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026774/21_gqrhmg.jpg",
+    "img": "https://images.unsplash.com/photo-1684100096410-fd39cdff91a3?w=800&q=80&fit=crop",
     "content": [
       "While multi-story luxury cruise ships offer undeniable comfort, there is no more authentic or peaceful way to experience the Nile River than aboard a traditional felucca. These simple, wooden sailing boats, distinguished by their lateen (triangular) sails, have navigated the waters of the Nile since the time of the pharaohs. A felucca trip strips away the noise and haste of modern travel, replacing it with the gentle lap of water and the whispering of the wind.",
       "A felucca relies entirely on the wind and the river's current, meaning the journey dictates its own pace. You will recline on soft cushions laid across the deck, shielded from the Egyptian sun by a canvas canopy. As you drift silently past lush riverbanks, local fishermen casting their nets, and the timeless silhouettes of mud-brick villages, you gain a perspective of rural Egyptian life that is impossible to see from the deck of a large ship.",
@@ -93,7 +94,7 @@ export const blogs = [
     },
     "hidden": true,
     "excerpt": "Towering sandstone mountains, crimson sands, and a sky exploding with stars. Discover why camping in Jordan's Valley of the Moon is the ultimate desert escape.",
-    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026774/1_uidqje.jpg",
+    "img": "https://images.unsplash.com/photo-1612892483236-52d32a0e0ac1?w=800&q=80&fit=crop",
     "content": [
       "Wadi Rum, known as the Valley of the Moon, is a landscape of such alien beauty that it has served as the backdrop for countless science fiction films. Located in southern Jordan, this vast expanse of crimson sand and towering, monolith-like sandstone mountains offers one of the most spectacular desert environments on earth. However, a daytime jeep tour only scratches the surface; to truly understand Wadi Rum, you must spend the night.",
       "Luxury glamping has transformed the Wadi Rum experience. You no longer need to sacrifice comfort to immerse yourself in the wilderness. High-end camps offer geodesic dome tents—often referred to as 'Martian Domes'—featuring transparent panoramic panels. From the comfort of a king-sized bed adorned with premium linens, you can watch the sun set the desert ablaze in reds and purples before giving way to the darkest, most star-filled sky you will ever witness.",
@@ -113,7 +114,7 @@ export const blogs = [
       "path": "/programs/turkey/reg-01-legendary-turkey"
     },
     "excerpt": "Turkish food is a rich fusion of Central Asian, Middle Eastern, and Mediterranean flavors. Here are the iconic dishes you absolutely must taste during your visit.",
-    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026774/2_h2krys.jpg",
+    "img": "https://images.unsplash.com/photo-1748540459503-19efc015143b?w=800&q=80&fit=crop",
     "content": [
       "Turkish cuisine is a magnificent tapestry woven from the historical influences of the Ottoman Empire, bridging Central Asian traditions with Mediterranean and Middle Eastern flavors. It is a culinary culture that reveres fresh ingredients, masterful spicing, and the joy of communal dining. A journey to Turkey is as much an exploration of taste as it is of history, and missing out on its authentic dishes is missing out on the country's soul.",
       "The day inevitably begins with the legendary Turkish Breakfast (Kahvaltı). This is not merely a meal, but a lavish morning ritual. A traditional kahvaltı spread covers the entire table with small plates: a variety of cheeses (like salty feta and mild kashkaval), black and green olives, fresh tomatoes, cucumbers, thick clotted cream (kaymak) drenched in local honey, spicy sujuk (sausage), and endless glasses of black tea, all accompanied by freshly baked simit—a sesame-encrusted bread ring.",
@@ -133,7 +134,7 @@ export const blogs = [
       "path": "/tours/cairo-express-4d"
     },
     "excerpt": "Planning your dream trip to the Pyramids? Weather plays a crucial role. Read our comprehensive month-by-month guide to choosing the perfect season.",
-    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026775/22_gywthx.jpg",
+    "img": "https://images.unsplash.com/photo-1623674587543-9c7564de99d1?w=800&q=80&fit=crop",
     "content": [
       "Timing is everything when planning a journey to Egypt. With a climate defined by scorching desert summers and mild, pleasant winters, choosing the right month can drastically alter your experience at open-air historical sites. The general consensus is that the prime tourist season runs from October to April, but each season offers its own unique advantages and challenges for the DUNAS TRAVELer.",
       "The 'Peak Season' occurs during the winter months of December, January, and February. During this time, the weather is incredibly pleasant, with daytime temperatures in Cairo and Luxor hovering around a comfortable 20°C to 25°C (68°F to 77°F). This is the absolute best weather for exploring the Valley of the Kings or wandering around the Giza plateau without suffering from heat exhaustion. However, because the weather is ideal, this is also when the crowds are thickest and luxury hotel rates are at their premium.",
@@ -153,7 +154,7 @@ export const blogs = [
       "path": "/programs/jordan/reg-15"
     },
     "excerpt": "It is the lowest point on earth and the world's largest natural spa. Discover the incredible health benefits of floating in Jordan's hypersaline lake.",
-    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026775/3_rbjrys.jpg",
+    "img": "https://images.unsplash.com/photo-1743943932415-947f79353387?w=800&q=80&fit=crop",
     "content": [
       "Sitting at 430 meters below sea level, the Dead Sea is the lowest point on the surface of the Earth. Bordering Jordan to the east, this landlocked body of water is one of the world's most unique natural phenomena and has been revered as a sanctuary of health and healing since the days of King Herod and Cleopatra. Today, it remains the ultimate destination for wellness-focused DUNAS TRAVELers.",
       "The most famous aspect of the Dead Sea is, of course, the buoyancy. The water is nearly ten times saltier than the ocean. This extreme hypersalinity means that swimming is practically impossible; instead, you effortlessly bob on the surface like a cork. Reading a newspaper or a book while floating on your back is the quintessential Dead Sea photo opportunity. However, it is the composition of the water, rich in magnesium, calcium, potassium, and bromide, that provides remarkable therapeutic benefits for the skin and joints.",
@@ -173,7 +174,7 @@ export const blogs = [
       "path": "/programs/turkey/reg-01-legendary-turkey"
     },
     "excerpt": "Drifting silently over fairy chimneys at sunrise is a transcendent experience. Here is everything you need to know about booking a balloon flight in Turkey.",
-    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg",
+    "img": "https://images.unsplash.com/photo-1559783510-c448bd7d686b?w=800&q=80&fit=crop",
     "content": [
       "The image of hundreds of colorful hot air balloons ascending simultaneously over the surreal, lunar-like landscape of Cappadocia is one of travel's most iconic visuals. This central Turkish region, famous for its 'fairy chimneys' (tall, cone-shaped rock formations), ancient cave dwellings, and underground cities, is arguably the best place in the world for hot air ballooning. For the DUNAS TRAVELer, this is an absolute, non-negotiable bucket list experience.",
       "The magic begins before dawn. You are picked up from your luxury cave hotel while the stars are still out and driven to the launch site. As you sip hot coffee in the crisp morning air, you watch the massive nylon envelopes inflate, glowing like giant lightbulbs against the dark landscape as the burners roar to life. The anticipation builds until you step into the woven wicker basket and gently, almost imperceptibly, leave the earth behind.",
@@ -193,7 +194,7 @@ export const blogs = [
       "path": "/tours/cairo-express-4d"
     },
     "excerpt": "Explore the luxury of our custom Cairo Express program in Egypt. Discover why this 4 Dias / 3 Noites itinerary is perfect for your travel dreams with Dunas Trav",
-    "img": "/imgs/Brazil/Cairo Express.jpg",
+    "img": "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Cairo Express\" package by Dunas Travel offers a carefully curated 4 Dias / 3 Noites itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -220,7 +221,7 @@ export const blogs = [
       "path": "/tours/cairo-express-alexandria-5d"
     },
     "excerpt": "Explore the luxury of our custom Cairo Express com Alexandria program in Egypt. Discover why this 5 Dias / 4 Noites itinerary is perfect for your travel dreams ",
-    "img": "/imgs/Brazil/Cairo Express with Alexandria.jpeg",
+    "img": "https://images.unsplash.com/photo-1572252009286-268acec5ca0a?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Cairo Express com Alexandria\" package by Dunas Travel offers a carefully curated 5 Dias / 4 Noites itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -247,7 +248,7 @@ export const blogs = [
       "path": "/tours/egito-classico-8d"
     },
     "excerpt": "Explore the luxury of our custom Egito Clássico: Cairo + Cruzei... program in Egypt. Discover why this 8 Dias / 7 Noites itinerary is perfect for your travel dr",
-    "img": "/imgs/Brazil/egito-classico-cairo-cruzeiro-no-nilo.jpg",
+    "img": "https://images.unsplash.com/photo-1596130535979-eedea4278d29?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Egito Clássico: Cairo + Cruzeiro no Nilo\" package by Dunas Travel offers a carefully curated 8 Dias / 7 Noites itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -274,7 +275,7 @@ export const blogs = [
       "path": "/tours/egito-classico-ii-9d"
     },
     "excerpt": "Explore the luxury of our custom Egito Clássico II: Cairo + Cru... program in Egypt. Discover why this 9 Dias / 8 Noites itinerary is perfect for your travel dr",
-    "img": "/imgs/Brazil/cairo-with-cruise-sharm-el-sheikh.jpg",
+    "img": "https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Egito Clássico II: Cairo + Cruzeiro no Nilo\" package by Dunas Travel offers a carefully curated 9 Dias / 8 Noites itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -301,7 +302,7 @@ export const blogs = [
       "path": "/tours/egito-historico-10d"
     },
     "excerpt": "Explore the luxury of our custom Egito Histórico: Cairo + Cruze... program in Egypt. Discover why this 10 Dias / 9 Noites itinerary is perfect for your travel d",
-    "img": "/imgs/Brazil/cairo-cruzeiro-mar-vermelho.jpg",
+    "img": "https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Egito Histórico: Cairo + Cruzeiro + Mar Vermelho\" package by Dunas Travel offers a carefully curated 10 Dias / 9 Noites itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -328,7 +329,7 @@ export const blogs = [
       "path": "/tours/cairo-cruzeiro-sharm-11d"
     },
     "excerpt": "Explore the luxury of our custom Cairo c/ Cruzeiro + Sharm El S... program in Egypt. Discover why this 11 Dias / 10 Noites itinerary is perfect for your travel ",
-    "img": "/imgs/Brazil/cairo-with-cruise-sharm-el-sheikh-detail.jpg",
+    "img": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Cairo c/ Cruzeiro + Sharm El Sheikh\" package by Dunas Travel offers a carefully curated 11 Dias / 10 Noites itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -355,7 +356,7 @@ export const blogs = [
       "path": "/tours/grande-ramses-10d"
     },
     "excerpt": "Explore the luxury of our custom O GRANDE RAMSES - DESCRITIVO C... program in Egypt. Discover why this 10 Dias / 9 Noites itinerary is perfect for your travel d",
-    "img": "/imgs/Brazil/The Great Ramses.png",
+    "img": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"O GRANDE RAMSES - DESCRITIVO COMPLETO (09 Noites / 10 Dias)\" package by Dunas Travel offers a carefully curated 10 Dias / 9 Noites itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -382,7 +383,7 @@ export const blogs = [
       "path": "/tours/tesouros-egipto-9d"
     },
     "excerpt": "Explore the luxury of our custom Tesouros do Egito com Alexandr... program in Egypt. Discover why this 9 Dias / 8 Noites itinerary is perfect for your travel dr",
-    "img": "/imgs/Brazil/Treasures of Egypt with Alexandria.jpg",
+    "img": "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Tesouros do Egito com Alexandria\" package by Dunas Travel offers a carefully curated 9 Dias / 8 Noites itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -409,7 +410,7 @@ export const blogs = [
       "path": "/tours/lo-mejor-de-grecia-9d"
     },
     "excerpt": "Explore the luxury of our custom Lo Mejor de Grecia – 09 Días program in Greece. Discover why this 9 Días / 8 Noches itinerary is perfect for your travel dreams",
-    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920,c_fill/v1783023877/2ec72126-709b-4c8d-8f7b-a592d212cc3b_czpoig.jpg",
+    "img": "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1920&q=80",
     "content": [
       "Greece is a sun-drenched paradise where ancient ruins stand proud against the backdrop of the deep blue Aegean Sea. The \"Lo Mejor de Grecia – 09 Días\" vacation package offers a legendary 9 Días / 8 Noches itinerary that blends classical mythology with island luxury. From the iconic Acropolis in Athens to the caldera cliffs of Santorini and the cosmopolitan beach clubs of Mykonos, this tour is designed for travelers seeking the ultimate Mediterranean escape. Savor fresh seafood, watch world-famous sunsets, and wander through historic villages while enjoying premium accommodations and private transfers. Here is everything you need to know about this spectacular Greek odyssey.",
       "## Why Visit Greece",
@@ -436,7 +437,7 @@ export const blogs = [
       "path": "/programs/turkey/reg-01-legendary-turkey"
     },
     "excerpt": "Explore the luxury of our custom Turquía Legendaria en Tren de ... program in Turkey. Discover why this 11 Días / 10 Noches itinerary is perfect for your travel",
-    "img": "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://blog.raynatours.com/wp-content/uploads/2025/01/sea-view-istanbul.webp",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Turquía Legendaria en Tren de Alta Velocidad\" itinerary is a premier 11 Días / 10 Noches journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -463,7 +464,7 @@ export const blogs = [
       "path": "/programs/turkey/reg-01-legendary-turkey"
     },
     "excerpt": "Explore the luxury of our custom Legendary Turkey program in Turkey. Discover why this 11 days / 10 nights itinerary is perfect for your travel dreams with Duna",
-    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783023865/80f6f47a-4938-4684-aaf1-b1e61d44dab6_n8vdtl.jpg",
+    "img": "https://images.unsplash.com/photo-1565552645632-d725f8bfc19a?w=800&q=80&fit=crop",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Legendary Turkey\" itinerary is a premier 11 days / 10 nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -490,7 +491,7 @@ export const blogs = [
       "path": "/programs/turkey/reg-04-legendary-cappadocia"
     },
     "excerpt": "Explore the luxury of our custom Legendary Cappadocia program in Turkey. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Du",
-    "img": "https://images.unsplash.com/photo-1570939617378-c8c4de2c8e26?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://images.unsplash.com/photo-1559783510-c448bd7d686b?w=800&q=80&fit=crop",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Legendary Cappadocia\" itinerary is a premier 8 days / 7 nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -517,7 +518,7 @@ export const blogs = [
       "path": "/programs/turkey/ist-01-best-of-istanbul"
     },
     "excerpt": "Explore the luxury of our custom Best of Istanbul program in Turkey. Discover why this 4 days / 3 nights itinerary is perfect for your travel dreams with Dunas ",
-    "img": "https://images.unsplash.com/photo-1527838832700-54595d9f458e?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://images.unsplash.com/photo-1547057365-90f38124c65b?w=800&q=80&fit=crop",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Best of Istanbul\" itinerary is a premier 4 days / 3 nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -544,7 +545,7 @@ export const blogs = [
       "path": "/programs/turkey/reg-03-passion-of-turkey"
     },
     "excerpt": "Explore the luxury of our custom Passion of Turkey program in Turkey. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Dunas",
-    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783023927/dad14822-455c-419c-8627-32b3daebef90_akfw3l.jpg",
+    "img": "https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=800&q=80&fit=crop",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Passion of Turkey\" itinerary is a premier 8 days / 7 nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -571,7 +572,7 @@ export const blogs = [
       "path": "/programs/jordan/reg-15"
     },
     "excerpt": "Explore the luxury of our custom Classic Jordan program in Jordan. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Dunas Tr",
-    "img": "https://images.unsplash.com/photo-1579606032822-675276e1a384?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://tse2.mm.bing.net/th/id/OIP.U7ZoEoRbqGqgDwZPt20THAHaDa?r=0&cb=thfvnextfalcon4&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
       "Jordan is a land of mesmerizing contrasts, where ancient history whispers from rose-red sandstone cliffs and modern luxury cradles you in the heart of the desert. The \"Classic Jordan\" tour is an exquisite 8 days / 7 nights adventure that invites you to uncover the secrets of the Nabateans, float in the therapeutic waters of the Dead Sea, and explore the vast, Martian landscapes of Wadi Rum. Designed for travelers who refuse to compromise on comfort, this itinerary brings you face-to-face with legendary hospitality, Roman archeological wonders, and natural marvels. In this guide, we dive deep into what makes Jordan a bucket-list destination and why this specific program is the ultimate way to experience it.",
       "## Why Visit Jordan",
@@ -598,7 +599,7 @@ export const blogs = [
       "path": "/programs/jordan/reg-16"
     },
     "excerpt": "Explore the luxury of our custom Jordan with Desert program in Jordan. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Duna",
-    "img": "https://images.unsplash.com/photo-1547234935-80c7145ec969?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://tse2.mm.bing.net/th/id/OIP.dEVfKhTjpPk1CkKT6GODTwHaI3?r=0&cb=thfvnextfalcon4&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
       "Jordan is a land of mesmerizing contrasts, where ancient history whispers from rose-red sandstone cliffs and modern luxury cradles you in the heart of the desert. The \"Jordan with Desert\" tour is an exquisite 8 days / 7 nights adventure that invites you to uncover the secrets of the Nabateans, float in the therapeutic waters of the Dead Sea, and explore the vast, Martian landscapes of Wadi Rum. Designed for travelers who refuse to compromise on comfort, this itinerary brings you face-to-face with legendary hospitality, Roman archeological wonders, and natural marvels. In this guide, we dive deep into what makes Jordan a bucket-list destination and why this specific program is the ultimate way to experience it.",
       "## Why Visit Jordan",
@@ -625,7 +626,7 @@ export const blogs = [
       "path": "/programs/jordan/reg-17"
     },
     "excerpt": "Explore the luxury of our custom Jordan with Desert and Dead Se... program in Jordan. Discover why this 8 days / 7 nights itinerary is perfect for your travel d",
-    "img": "https://images.unsplash.com/photo-1544945582-4ef8cae37c06?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://tse3.mm.bing.net/th/id/OIP.JMDqRgBCiKtJTi5IcGyTPAHaFj?r=0&cb=thfvnextfalcon4&w=1300&h=974&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
       "Jordan is a land of mesmerizing contrasts, where ancient history whispers from rose-red sandstone cliffs and modern luxury cradles you in the heart of the desert. The \"Jordan with Desert and Dead Sea\" tour is an exquisite 8 days / 7 nights adventure that invites you to uncover the secrets of the Nabateans, float in the therapeutic waters of the Dead Sea, and explore the vast, Martian landscapes of Wadi Rum. Designed for travelers who refuse to compromise on comfort, this itinerary brings you face-to-face with legendary hospitality, Roman archeological wonders, and natural marvels. In this guide, we dive deep into what makes Jordan a bucket-list destination and why this specific program is the ultimate way to experience it.",
       "## Why Visit Jordan",
@@ -652,7 +653,7 @@ export const blogs = [
       "path": "/programs/jordan/reg-18"
     },
     "excerpt": "Explore the luxury of our custom Complete Jordan program in Jordan. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Dunas T",
-    "img": "https://images.unsplash.com/photo-1580834341580-8c17a3a63021?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://tse1.mm.bing.net/th/id/OIP.M-Olyoj_L0aPWSFeY_OWiwHaFM?r=0&cb=thfvnextfalcon4&w=840&h=590&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
       "Jordan is a land of mesmerizing contrasts, where ancient history whispers from rose-red sandstone cliffs and modern luxury cradles you in the heart of the desert. The \"Complete Jordan\" tour is an exquisite 8 days / 7 nights adventure that invites you to uncover the secrets of the Nabateans, float in the therapeutic waters of the Dead Sea, and explore the vast, Martian landscapes of Wadi Rum. Designed for travelers who refuse to compromise on comfort, this itinerary brings you face-to-face with legendary hospitality, Roman archeological wonders, and natural marvels. In this guide, we dive deep into what makes Jordan a bucket-list destination and why this specific program is the ultimate way to experience it.",
       "## Why Visit Jordan",
@@ -679,7 +680,7 @@ export const blogs = [
       "path": "/programs/jordan/reg-19"
     },
     "excerpt": "Explore the luxury of our custom Jordan Red Sea program in Jordan. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Dunas Tr",
-    "img": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://tse1.mm.bing.net/th/id/OIP.QxUELTwEUmu3EPeD4KawoAHaHa?r=0&cb=thfvnextfalcon4&w=736&h=736&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
       "Jordan is a land of mesmerizing contrasts, where ancient history whispers from rose-red sandstone cliffs and modern luxury cradles you in the heart of the desert. The \"Jordan Red Sea\" tour is an exquisite 8 days / 7 nights adventure that invites you to uncover the secrets of the Nabateans, float in the therapeutic waters of the Dead Sea, and explore the vast, Martian landscapes of Wadi Rum. Designed for travelers who refuse to compromise on comfort, this itinerary brings you face-to-face with legendary hospitality, Roman archeological wonders, and natural marvels. In this guide, we dive deep into what makes Jordan a bucket-list destination and why this specific program is the ultimate way to experience it.",
       "## Why Visit Jordan",
@@ -733,7 +734,7 @@ export const blogs = [
       "path": "/programs/jordan/reg-21"
     },
     "excerpt": "Explore the luxury of our custom Jordan Extension - 4 Days program in Jordan. Discover why this 4 days / 3 nights itinerary is perfect for your travel dreams wi",
-    "img": "https://images.unsplash.com/photo-1565618198079-c30248ad3a62?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://images.unsplash.com/photo-1579606032824-03c004d0fb83?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Jordan is a land of mesmerizing contrasts, where ancient history whispers from rose-red sandstone cliffs and modern luxury cradles you in the heart of the desert. The \"Jordan Extension - 4 Days\" tour is an exquisite 4 days / 3 nights adventure that invites you to uncover the secrets of the Nabateans, float in the therapeutic waters of the Dead Sea, and explore the vast, Martian landscapes of Wadi Rum. Designed for travelers who refuse to compromise on comfort, this itinerary brings you face-to-face with legendary hospitality, Roman archeological wonders, and natural marvels. In this guide, we dive deep into what makes Jordan a bucket-list destination and why this specific program is the ultimate way to experience it.",
       "## Why Visit Jordan",
@@ -760,7 +761,7 @@ export const blogs = [
       "path": "/programs/dubai/reg-22"
     },
     "excerpt": "Explore the luxury of our custom Stop Over Dubai program in Dubai. Discover why this 2 Nights / 3 Days itinerary is perfect for your travel dreams with Dunas Tr",
-    "img": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://www.topsarabia.com/wp-content/uploads/2020/09/%D8%AF%D8%A8%D9%8A-1024x692.jpg",
     "content": [
       "In the heart of the Arabian Gulf, Dubai stands as a glittering oasis of futuristic architecture, world-class shopping, and ultra-luxury lifestyle. The \"Stop Over Dubai\" tour package offers a spectacular 2 Nights / 3 Days itinerary that bridges the rich heritage of the old spice markets with the towering wonders of the modern skyline. From the breathtaking heights of the Burj Khalifa and the tranquility of a desert safari to the historic alleys of the Al Fahidi district, this trip is a masterclass in luxury exploration. This guide details the marvelous highlights of this journey and explains why traveling with Dunas Travel ensures a premium, seamless experience in the City of Gold.",
       "## Why Visit Dubai",
@@ -787,7 +788,7 @@ export const blogs = [
       "path": "/programs/dubai/reg-23"
     },
     "excerpt": "Explore the luxury of our custom Dubai and Its History program in Dubai. Discover why this 3 Nights / 4 Days itinerary is perfect for your travel dreams with Du",
-    "img": "https://images.unsplash.com/photo-1580674684081-7617fbf3d745?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://fiverr-res.cloudinary.com/images/t_main1,q_auto,f_auto,q_auto,f_auto/gigs/142838092/original/9191ee298e5274a3b4a36a5eb7208ee112c42c04/help-to-travel-to-dubai.jpg",
     "content": [
       "In the heart of the Arabian Gulf, Dubai stands as a glittering oasis of futuristic architecture, world-class shopping, and ultra-luxury lifestyle. The \"Dubai and Its History\" tour package offers a spectacular 3 Nights / 4 Days itinerary that bridges the rich heritage of the old spice markets with the towering wonders of the modern skyline. From the breathtaking heights of the Burj Khalifa and the tranquility of a desert safari to the historic alleys of the Al Fahidi district, this trip is a masterclass in luxury exploration. This guide details the marvelous highlights of this journey and explains why traveling with Dunas Travel ensures a premium, seamless experience in the City of Gold.",
       "## Why Visit Dubai",
@@ -814,7 +815,7 @@ export const blogs = [
       "path": "/programs/dubai/reg-24"
     },
     "excerpt": "Explore the luxury of our custom Dubai, City of the Future program in Dubai. Discover why this 4 Nights / 5 Days itinerary is perfect for your travel dreams wit",
-    "img": "https://images.unsplash.com/photo-1610992015762-45cbb7fa5701?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://www.traveloptimizer.de/wp-content/uploads/2024/09/uae-dubai-skyline-im-sonnenuntergang-1000x667.jpg",
     "content": [
       "In the heart of the Arabian Gulf, Dubai stands as a glittering oasis of futuristic architecture, world-class shopping, and ultra-luxury lifestyle. The \"Dubai, City of the Future\" tour package offers a spectacular 4 Nights / 5 Days itinerary that bridges the rich heritage of the old spice markets with the towering wonders of the modern skyline. From the breathtaking heights of the Burj Khalifa and the tranquility of a desert safari to the historic alleys of the Al Fahidi district, this trip is a masterclass in luxury exploration. This guide details the marvelous highlights of this journey and explains why traveling with Dunas Travel ensures a premium, seamless experience in the City of Gold.",
       "## Why Visit Dubai",
@@ -841,7 +842,7 @@ export const blogs = [
       "path": "/programs/dubai/reg-25"
     },
     "excerpt": "Explore the luxury of our custom Dubai and Abu Dhabi program in Dubai. Discover why this 5 Nights / 6 Days itinerary is perfect for your travel dreams with Duna",
-    "img": "https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "In the heart of the Arabian Gulf, Dubai stands as a glittering oasis of futuristic architecture, world-class shopping, and ultra-luxury lifestyle. The \"Dubai and Abu Dhabi\" tour package offers a spectacular 5 Nights / 6 Days itinerary that bridges the rich heritage of the old spice markets with the towering wonders of the modern skyline. From the breathtaking heights of the Burj Khalifa and the tranquility of a desert safari to the historic alleys of the Al Fahidi district, this trip is a masterclass in luxury exploration. This guide details the marvelous highlights of this journey and explains why traveling with Dunas Travel ensures a premium, seamless experience in the City of Gold.",
       "## Why Visit Dubai",
@@ -895,7 +896,7 @@ export const blogs = [
       "path": "/programs/dubai/reg-27"
     },
     "excerpt": "Explore the luxury of our custom One Week in Dubai program in Dubai. Discover why this 7 Nights / 8 Days itinerary is perfect for your travel dreams with Dunas ",
-    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783024003/d34eeca3-6bc8-4a19-aa18-bf13404bb11b_n0f8zn.jpg",
+    "img": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80&fit=crop",
     "content": [
       "In the heart of the Arabian Gulf, Dubai stands as a glittering oasis of futuristic architecture, world-class shopping, and ultra-luxury lifestyle. The \"One Week in Dubai\" tour package offers a spectacular 7 Nights / 8 Days itinerary that bridges the rich heritage of the old spice markets with the towering wonders of the modern skyline. From the breathtaking heights of the Burj Khalifa and the tranquility of a desert safari to the historic alleys of the Al Fahidi district, this trip is a masterclass in luxury exploration. This guide details the marvelous highlights of this journey and explains why traveling with Dunas Travel ensures a premium, seamless experience in the City of Gold.",
       "## Why Visit Dubai",
@@ -922,7 +923,7 @@ export const blogs = [
       "path": "/programs/dubai/reg-28"
     },
     "excerpt": "Explore the luxury of our custom The Complete Emirates program in Dubai. Discover why this 7 Nights / 8 Days itinerary is perfect for your travel dreams with Du",
-    "img": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://tse3.mm.bing.net/th/id/OIP.HAgTsJwf5ApVRx1dUamh1AHaI6?r=0&cb=thfvnextfalcon4&w=488&h=587&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
       "In the heart of the Arabian Gulf, Dubai stands as a glittering oasis of futuristic architecture, world-class shopping, and ultra-luxury lifestyle. The \"The Complete Emirates\" tour package offers a spectacular 7 Nights / 8 Days itinerary that bridges the rich heritage of the old spice markets with the towering wonders of the modern skyline. From the breathtaking heights of the Burj Khalifa and the tranquility of a desert safari to the historic alleys of the Al Fahidi district, this trip is a masterclass in luxury exploration. This guide details the marvelous highlights of this journey and explains why traveling with Dunas Travel ensures a premium, seamless experience in the City of Gold.",
       "## Why Visit Dubai",
@@ -949,7 +950,7 @@ export const blogs = [
       "path": "/programs/dubai/hm001"
     },
     "excerpt": "Explore the luxury of our custom Honeymoon in Dubai program in Dubai. Discover why this 4 Nights / 5 Days itinerary is perfect for your travel dreams with Dunas",
-    "img": "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "In the heart of the Arabian Gulf, Dubai stands as a glittering oasis of futuristic architecture, world-class shopping, and ultra-luxury lifestyle. The \"Honeymoon in Dubai\" tour package offers a spectacular 4 Nights / 5 Days itinerary that bridges the rich heritage of the old spice markets with the towering wonders of the modern skyline. From the breathtaking heights of the Burj Khalifa and the tranquility of a desert safari to the historic alleys of the Al Fahidi district, this trip is a masterclass in luxury exploration. This guide details the marvelous highlights of this journey and explains why traveling with Dunas Travel ensures a premium, seamless experience in the City of Gold.",
       "## Why Visit Dubai",
@@ -976,7 +977,7 @@ export const blogs = [
       "path": "/programs/dubai/hm002"
     },
     "excerpt": "Explore the luxury of our custom Honeymoon in Dubai with Dinner... program in Dubai. Discover why this 4 Nights / 5 Days itinerary is perfect for your travel dr",
-    "img": "https://images.unsplash.com/photo-1526495124232-a04e1849168c?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://tse2.mm.bing.net/th/id/OIP.SLY7b_wtA1vx_U3UUihFjgHaEA?r=0&cb=thfvnextfalcon4&w=1920&h=1037&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
       "In the heart of the Arabian Gulf, Dubai stands as a glittering oasis of futuristic architecture, world-class shopping, and ultra-luxury lifestyle. The \"Honeymoon in Dubai with Dinner at Burj Al Arab\" tour package offers a spectacular 4 Nights / 5 Days itinerary that bridges the rich heritage of the old spice markets with the towering wonders of the modern skyline. From the breathtaking heights of the Burj Khalifa and the tranquility of a desert safari to the historic alleys of the Al Fahidi district, this trip is a masterclass in luxury exploration. This guide details the marvelous highlights of this journey and explains why traveling with Dunas Travel ensures a premium, seamless experience in the City of Gold.",
       "## Why Visit Dubai",
@@ -1003,7 +1004,7 @@ export const blogs = [
       "path": "/programs/turkey/reg-05-admirable-turkey"
     },
     "excerpt": "Explore the luxury of our custom Admirable Turkey program in Turkey. Discover why this 10 days / 9 nights itinerary is perfect for your travel dreams with Dunas",
-    "img": "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783024053/66dc2b5e-f90d-424f-b9a7-4164b52f4e5a_eoqd3p.jpg",
+    "img": "https://images.unsplash.com/photo-1655832975303-9c474a06ed56?w=800&q=80&fit=crop",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Admirable Turkey\" itinerary is a premier 10 days / 9 nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -1030,7 +1031,7 @@ export const blogs = [
       "path": "/programs/turkey/reg-06-heart-of-turkey"
     },
     "excerpt": "Explore the luxury of our custom Heart of Turkey - Istanbul wit... program in Turkey. Discover why this 7 days / 6 nights itinerary is perfect for your travel d",
-    "img": "https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://tse2.mm.bing.net/th/id/OIP.C69bjtvZ6VkAFR_W4KXezQHaE8?r=0&cb=thfvnextfalcon4&w=720&h=480&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Heart of Turkey - Istanbul with Cappadocia\" itinerary is a premier 7 days / 6 nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -1057,7 +1058,7 @@ export const blogs = [
       "path": "/programs/turkey/reg-07-turkish-riviera"
     },
     "excerpt": "Explore the luxury of our custom Turkish Riviera program in Turkey. Discover why this 12 Days / 11 Nights itinerary is perfect for your travel dreams with Dunas",
-    "img": "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://tse3.mm.bing.net/th/id/OIP.Xs7wxyl_IbKiONSQkkDalgHaEE?r=0&cb=thfvnextfalcon4&w=4240&h=2332&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Turkish Riviera\" itinerary is a premier 12 Days / 11 Nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -1084,7 +1085,7 @@ export const blogs = [
       "path": "/programs/turkey/reg-08-stop-over"
     },
     "excerpt": "Explore the luxury of our custom Stop Over — Stop in Istanbul program in Turkey. Discover why this 3 Days / 2 Nights itinerary is perfect for your travel dreams",
-    "img": "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://a.loveholidays.com/media-library/~production/83edbfb1a54a48fa35b9042e6ff8463e322b9371-6690x3763.jpg?width=1200&height=630&fit=crop",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Stop Over — Stop in Istanbul\" itinerary is a premier 3 Days / 2 Nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -1106,7 +1107,7 @@ export const blogs = [
     "category": "Culture & Shopping",
     "date": "May 15, 2026",
     "excerpt": "Explore the luxury of our custom Turkey Without Rush program in Turkey. Discover why this 9 Days / 8 Nights itinerary is perfect for your travel dreams with Dun",
-    "img": "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://tse2.mm.bing.net/th/id/OIP.hsdBefw33lWxRy6kgqEpmQHaD1?r=0&cb=thfvnextfalcon4&w=754&h=390&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Turkey Without Rush\" itinerary is a premier 9 Days / 8 Nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -1119,12 +1120,7 @@ export const blogs = [
       "Turkey is best visited in the spring (April to May) or autumn (September to October) when the weather is mild and crowds are manageable. When visiting historic mosques such as Hagia Sophia or the Blue Mosque, women are required to cover their heads with a scarf, and both men and women must cover their shoulders and knees. Pack comfortable walking shoes for the cobblestone streets of Istanbul and the ruins of Ephesus. If you plan a hot air balloon flight in Cappadocia, bring a warm jacket, as early mornings in the balloon basket can be chilly. It is common to negotiate prices in the Grand Bazaar, so approach it with a friendly smile.",
       "## Book Your Experience",
       "From the historic streets of Istanbul to the breathtaking valleys of Cappadocia, Turkey awaits. Reserve your spot on the \"Turkey Without Rush\" tour package with Dunas Travel today. Reach out to our travel concierges to customize your itinerary, book premium flights, and secure the best boutique cave hotels."
-    ],
-    "relatedTour": {
-      "slug": "reg-09-turkey-without-rush",
-      "label": "Turkey Without Rush",
-      "path": "/programs/turkey/reg-09-turkey-without-rush"
-    }
+    ]
   },
   {
     "id": "b-056",
@@ -1133,7 +1129,7 @@ export const blogs = [
     "category": "Culture & Shopping",
     "date": "Jun 10, 2026",
     "excerpt": "Explore the luxury of our custom Turkish Riviera with Fethiye program in Turkey. Discover why this 13 Days / 12 Nights itinerary is perfect for your travel drea",
-    "img": "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://turktt.com/wp-content/uploads/2023/06/3-1.jpg",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Turkish Riviera with Fethiye\" itinerary is a premier 13 Days / 12 Nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -1146,12 +1142,7 @@ export const blogs = [
       "Turkey is best visited in the spring (April to May) or autumn (September to October) when the weather is mild and crowds are manageable. When visiting historic mosques such as Hagia Sophia or the Blue Mosque, women are required to cover their heads with a scarf, and both men and women must cover their shoulders and knees. Pack comfortable walking shoes for the cobblestone streets of Istanbul and the ruins of Ephesus. If you plan a hot air balloon flight in Cappadocia, bring a warm jacket, as early mornings in the balloon basket can be chilly. It is common to negotiate prices in the Grand Bazaar, so approach it with a friendly smile.",
       "## Book Your Experience",
       "From the historic streets of Istanbul to the breathtaking valleys of Cappadocia, Turkey awaits. Reserve your spot on the \"Turkish Riviera with Fethiye\" tour package with Dunas Travel today. Reach out to our travel concierges to customize your itinerary, book premium flights, and secure the best boutique cave hotels."
-    ],
-    "relatedTour": {
-      "slug": "reg-10-turkish-riviera-with-fethiye",
-      "label": "Turkish Riviera with Fethiye",
-      "path": "/programs/turkey/reg-10-turkish-riviera-with-fethiye"
-    }
+    ]
   },
   {
     "id": "b-057",
@@ -1160,7 +1151,7 @@ export const blogs = [
     "category": "Culture & Shopping",
     "date": "Jul 05, 2026",
     "excerpt": "Explore the luxury of our custom Antalya - 10 Days / 9 Nights program in Turkey. Discover why this 10 Days / 9 Nights itinerary is perfect for your travel dream",
-    "img": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://tse2.mm.bing.net/th/id/OIP.RF1brfH2MOXlNAxnf2CnJAHaE9?r=0&cb=thfvnextfalcon4&w=777&h=520&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Antalya - 10 Days / 9 Nights\" itinerary is a premier 10 Days / 9 Nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -1173,12 +1164,7 @@ export const blogs = [
       "Turkey is best visited in the spring (April to May) or autumn (September to October) when the weather is mild and crowds are manageable. When visiting historic mosques such as Hagia Sophia or the Blue Mosque, women are required to cover their heads with a scarf, and both men and women must cover their shoulders and knees. Pack comfortable walking shoes for the cobblestone streets of Istanbul and the ruins of Ephesus. If you plan a hot air balloon flight in Cappadocia, bring a warm jacket, as early mornings in the balloon basket can be chilly. It is common to negotiate prices in the Grand Bazaar, so approach it with a friendly smile.",
       "## Book Your Experience",
       "From the historic streets of Istanbul to the breathtaking valleys of Cappadocia, Turkey awaits. Reserve your spot on the \"Antalya - 10 Days / 9 Nights\" tour package with Dunas Travel today. Reach out to our travel concierges to customize your itinerary, book premium flights, and secure the best boutique cave hotels."
-    ],
-    "relatedTour": {
-      "slug": "reg-11-antalya-10-days-9-nights",
-      "label": "Antalya 10 Days",
-      "path": "/programs/turkey/reg-11-antalya-10-days-9-nights"
-    }
+    ]
   },
   {
     "id": "b-058",
@@ -1187,7 +1173,7 @@ export const blogs = [
     "category": "Culture & Shopping",
     "date": "Jul 12, 2026",
     "excerpt": "Explore the luxury of our custom Beautiful Turkey - 9 Days / 8 ... program in Turkey. Discover why this 9 Days / 8 Nights itinerary is perfect for your travel d",
-    "img": "https://images.unsplash.com/photo-1583321500900-82807e458f3c?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://thumbs.dreamstime.com/z/lower-duden-waterfall-antalya-turkey-water-falls-drop-off-rocky-cliff-directly-mediterranean-sea-sunny-summer-day-most-160902291.jpg",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Beautiful Turkey - 9 Days / 8 Nights\" itinerary is a premier 9 Days / 8 Nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -1200,12 +1186,7 @@ export const blogs = [
       "Turkey is best visited in the spring (April to May) or autumn (September to October) when the weather is mild and crowds are manageable. When visiting historic mosques such as Hagia Sophia or the Blue Mosque, women are required to cover their heads with a scarf, and both men and women must cover their shoulders and knees. Pack comfortable walking shoes for the cobblestone streets of Istanbul and the ruins of Ephesus. If you plan a hot air balloon flight in Cappadocia, bring a warm jacket, as early mornings in the balloon basket can be chilly. It is common to negotiate prices in the Grand Bazaar, so approach it with a friendly smile.",
       "## Book Your Experience",
       "From the historic streets of Istanbul to the breathtaking valleys of Cappadocia, Turkey awaits. Reserve your spot on the \"Beautiful Turkey - 9 Days / 8 Nights\" tour package with Dunas Travel today. Reach out to our travel concierges to customize your itinerary, book premium flights, and secure the best boutique cave hotels."
-    ],
-    "relatedTour": {
-      "slug": "reg-12-beautiful-turkey-9-days-8-nights",
-      "label": "Beautiful Turkey",
-      "path": "/programs/turkey/reg-12-beautiful-turkey-9-days-8-nights"
-    }
+    ]
   },
   {
     "id": "b-059",
@@ -1214,7 +1195,7 @@ export const blogs = [
     "category": "Culture & Shopping",
     "date": "Jul 20, 2026",
     "excerpt": "Explore the luxury of our custom Admirable Turkey Winter - 10 D... program in Turkey. Discover why this 10 Days / 9 Nights itinerary is perfect for your travel ",
-    "img": "https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://cdn.getyourguide.com/img/tour/5f13fec814d42.jpeg/148.jpg",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Admirable Turkey Winter - 10 Days / 9 Nights\" itinerary is a premier 10 Days / 9 Nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -1227,12 +1208,7 @@ export const blogs = [
       "Turkey is best visited in the spring (April to May) or autumn (September to October) when the weather is mild and crowds are manageable. When visiting historic mosques such as Hagia Sophia or the Blue Mosque, women are required to cover their heads with a scarf, and both men and women must cover their shoulders and knees. Pack comfortable walking shoes for the cobblestone streets of Istanbul and the ruins of Ephesus. If you plan a hot air balloon flight in Cappadocia, bring a warm jacket, as early mornings in the balloon basket can be chilly. It is common to negotiate prices in the Grand Bazaar, so approach it with a friendly smile.",
       "## Book Your Experience",
       "From the historic streets of Istanbul to the breathtaking valleys of Cappadocia, Turkey awaits. Reserve your spot on the \"Admirable Turkey Winter - 10 Days / 9 Nights\" tour package with Dunas Travel today. Reach out to our travel concierges to customize your itinerary, book premium flights, and secure the best boutique cave hotels."
-    ],
-    "relatedTour": {
-      "slug": "reg-05-b-admirable-turkey-winter-10-days-9-nights",
-      "label": "Admirable Turkey Winter",
-      "path": "/programs/turkey/reg-05-b-admirable-turkey-winter-10-days-9-nights"
-    }
+    ]
   },
   {
     "id": "b-060",
@@ -1241,7 +1217,7 @@ export const blogs = [
     "category": "Culture & Shopping",
     "date": "Aug 02, 2026",
     "excerpt": "Explore the luxury of our custom Extension 7 Churches - 3 Days ... program in Turkey. Discover why this 3 Days / 2 Nights itinerary is perfect for your travel d",
-    "img": "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://www.nowtheendbegins.com/wp-content/uploads/2024/05/7-churches-apostle-paul-john-revelation-ephesus-laodicea-nteb-king-james-rightly-dividing-bible-study.jpg",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Extension 7 Churches - 3 Days / 2 Nights\" itinerary is a premier 3 Days / 2 Nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -1254,12 +1230,7 @@ export const blogs = [
       "Turkey is best visited in the spring (April to May) or autumn (September to October) when the weather is mild and crowds are manageable. When visiting historic mosques such as Hagia Sophia or the Blue Mosque, women are required to cover their heads with a scarf, and both men and women must cover their shoulders and knees. Pack comfortable walking shoes for the cobblestone streets of Istanbul and the ruins of Ephesus. If you plan a hot air balloon flight in Cappadocia, bring a warm jacket, as early mornings in the balloon basket can be chilly. It is common to negotiate prices in the Grand Bazaar, so approach it with a friendly smile.",
       "## Book Your Experience",
       "From the historic streets of Istanbul to the breathtaking valleys of Cappadocia, Turkey awaits. Reserve your spot on the \"Extension 7 Churches - 3 Days / 2 Nights\" tour package with Dunas Travel today. Reach out to our travel concierges to customize your itinerary, book premium flights, and secure the best boutique cave hotels."
-    ],
-    "relatedTour": {
-      "slug": "reg-13-extension-7-churches-3-days-2-nights",
-      "label": "Extension 7 Churches",
-      "path": "/programs/turkey/reg-13-extension-7-churches-3-days-2-nights"
-    }
+    ]
   },
   {
     "id": "b-061",
@@ -1268,7 +1239,7 @@ export const blogs = [
     "category": "Culture & Shopping",
     "date": "Aug 18, 2026",
     "excerpt": "Explore the luxury of our custom Secret of the Temple program in Turkey. Discover why this 11 days / 10 nights itinerary is perfect for your travel dreams with ",
-    "img": "https://images.unsplash.com/photo-1590077428593-a55bb07c4665?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://tse3.mm.bing.net/th/id/OIP.4psaWGald7WwinrYKhNo3gHaE8?r=0&cb=thfvnextfalcon4&w=1200&h=800&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
       "Spanning two continents, Turkey is a vibrant mosaic of Eastern and Western cultures, ancient history, and breathtaking landscapes. The \"Secret of the Temple\" itinerary is a premier 11 days / 10 nights journey that showcases the very best this diverse country has to offer. From the minarets and bustling bazaars of historic Istanbul to the fairy chimneys of Cappadocia and the thermal travertines of Pamukkale, this package is designed to show you Turkey in style. Whether you are cruising the Bosphorus, flying high in a hot air balloon at sunrise, or walking the marble streets of ancient Ephesus, this trip is packed with bucket-list moments. Let us explore why Turkey should be your next destination and how this tour makes it unforgettable.",
       "## Why Visit Turkey",
@@ -1281,12 +1252,7 @@ export const blogs = [
       "Turkey is best visited in the spring (April to May) or autumn (September to October) when the weather is mild and crowds are manageable. When visiting historic mosques such as Hagia Sophia or the Blue Mosque, women are required to cover their heads with a scarf, and both men and women must cover their shoulders and knees. Pack comfortable walking shoes for the cobblestone streets of Istanbul and the ruins of Ephesus. If you plan a hot air balloon flight in Cappadocia, bring a warm jacket, as early mornings in the balloon basket can be chilly. It is common to negotiate prices in the Grand Bazaar, so approach it with a friendly smile.",
       "## Book Your Experience",
       "From the historic streets of Istanbul to the breathtaking valleys of Cappadocia, Turkey awaits. Reserve your spot on the \"Secret of the Temple\" tour package with Dunas Travel today. Reach out to our travel concierges to customize your itinerary, book premium flights, and secure the best boutique cave hotels."
-    ],
-    "relatedTour": {
-      "slug": "reg-14-secret-of-the-temple",
-      "label": "Secret of the Temple",
-      "path": "/programs/turkey/reg-14-secret-of-the-temple"
-    }
+    ]
   },
   {
     "id": "b-062",
@@ -1308,12 +1274,7 @@ export const blogs = [
       "Morocco's climate varies, making spring (March to May) and autumn (September to November) the best times to travel. Medford medinas can be crowded and labyrinthine, so hiring a local guide is highly recommended. Wear comfortable closed-toe walking shoes to navigate the narrow alleys. Dress respectfully by covering your shoulders and knees, especially in religious and rural areas. Haggling is a central part of shopping in the souks, so take your time and negotiate politely. Bring a jacket for cool evenings in the Atlas Mountains or the Sahara Desert. Carry local dirhams for small purchases and tips.",
       "## Book Your Experience",
       "Uncover the colors, spice medinas, and historic palaces of North Africa. Reserve your private \"Spices of Morocco\" tour through Morocco with Dunas Travel. Contact our travel designers today to customize your imperial journey and experience the ultimate in Moroccan hospitality."
-    ],
-    "relatedTour": {
-      "slug": "spices-of-egypt-and-morocco",
-      "label": "Spices of Morocco",
-      "path": "/programs/multi-country/spices-of-egypt-and-morocco"
-    }
+    ]
   },
   {
     "id": "b-063",
@@ -1322,7 +1283,7 @@ export const blogs = [
     "category": "History",
     "date": "May 15, 2026",
     "excerpt": "Explore the luxury of our custom Egypt Classic Program program in Egypt. Discover why this 8 Days / 7 Nights itinerary is perfect for your travel dreams with Du",
-    "img": "https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://tse3.mm.bing.net/th/id/OIP.UbbZvuJ3XjPy3VgZk8GHbAHaFj?r=0&cb=thfvnextfalcon4&w=1200&h=900&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Egypt Classic Program\" package by Dunas Travel offers a carefully curated 8 Days / 7 Nights itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -1335,12 +1296,7 @@ export const blogs = [
       "To ensure a comfortable journey through Egypt, it is best to plan your visit between October and April, when the weather is cooler and perfect for outdoor sightseeing. Pack lightweight, breathable cotton clothing to stay cool, a wide-brimmed hat, sunglasses, and high-SPF sunscreen to protect against the desert sun. Sturdy, comfortable walking shoes are essential for exploring temple ruins and dusty archaeological sites. While beach resorts are very relaxed, it is recommended to dress modestly when exploring historic Cairo or local towns (covering shoulders and knees). Always drink bottled water, carry some local currency (Egyptian Pounds) for small tips, and keep your camera charged for the incredible sights.",
       "## Book Your Experience",
       "Are you ready to witness the eternal wonders of Egypt? The \"Egypt Classic Program\" package is the perfect blend of ancient history, cultural immersion, and modern luxury. Contact the travel designers at Dunas Travel today to book your private tour or customize this itinerary to match your specific dates and preferences. Let our expert guides show you the magic of the Nile."
-    ],
-    "relatedTour": {
-      "slug": "classic-program",
-      "label": "Classic Egypt Program",
-      "path": "/programs/classic/classic-program"
-    }
+    ]
   },
   {
     "id": "b-064",
@@ -1349,7 +1305,7 @@ export const blogs = [
     "category": "History",
     "date": "Jun 10, 2026",
     "excerpt": "Explore the luxury of our custom Romantic Arabian Nights Honeym... program in Egypt. Discover why this 10 Days / 9 Nights itinerary is perfect for your travel d",
-    "img": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://cdn.al-ain.com/lg/images/2023/11/27/143-145009-best-honeymoon-places-egypt-6.jpeg",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Romantic Arabian Nights Honeymoon\" package by Dunas Travel offers a carefully curated 10 Days / 9 Nights itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -1362,12 +1318,7 @@ export const blogs = [
       "To ensure a comfortable journey through Egypt, it is best to plan your visit between October and April, when the weather is cooler and perfect for outdoor sightseeing. Pack lightweight, breathable cotton clothing to stay cool, a wide-brimmed hat, sunglasses, and high-SPF sunscreen to protect against the desert sun. Sturdy, comfortable walking shoes are essential for exploring temple ruins and dusty archaeological sites. While beach resorts are very relaxed, it is recommended to dress modestly when exploring historic Cairo or local towns (covering shoulders and knees). Always drink bottled water, carry some local currency (Egyptian Pounds) for small tips, and keep your camera charged for the incredible sights.",
       "## Book Your Experience",
       "Are you ready to witness the eternal wonders of Egypt? The \"Romantic Arabian Nights Honeymoon\" package is the perfect blend of ancient history, cultural immersion, and modern luxury. Contact the travel designers at Dunas Travel today to book your private tour or customize this itinerary to match your specific dates and preferences. Let our expert guides show you the magic of the Nile."
-    ],
-    "relatedTour": {
-      "slug": "honeymooners",
-      "label": "Honeymoon & Romantic Luxury",
-      "path": "/programs/honeymooners"
-    }
+    ]
   },
   {
     "id": "b-065",
@@ -1376,7 +1327,7 @@ export const blogs = [
     "category": "Travel Guide",
     "date": "Jul 05, 2026",
     "excerpt": "Explore the luxury of our custom Egypt and Jordan Combined Pilg... program in Multi-country. Discover why this 14 Days / 13 Nights itinerary is perfect for your",
-    "img": "https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://thfvnext.bing.com/th/id/R.cbb36a8e25064259a378aac0d022f9e3?rik=VNwuZLz4ZBwncQ&riu=http%3a%2f%2fsafaryti.com%2fblogs%2f1732184755pQbgTpN8bJ&ehk=QqXuZ%2b0MhXgGrgJlnEuo6FuurWMsvO217Qsmmkqx4X8%3d&risl=&pid=ImgRaw&r=0",
     "content": [
       "Embarking on a journey across multiple borders is the ultimate travel adventure. The \"Egypt and Jordan Combined Pilgrimage\" tour is an exceptional 14 Days / 13 Nights multi-country package that combines the ancient wonders of Egypt, the desert landscapes of Jordan, the historic palaces of Turkey, and the futuristic skyline of Dubai. This curated program is designed for travelers who want to experience the absolute highlights of the Middle East and Mediterranean in a single, seamless vacation. Enjoy private transfers, boutique 5-star accommodations, and expert local guides at every stop. Read on to discover the incredible highlights and day-by-day experiences that await you on this grand tour.",
       "## Why Visit Multi-country",
@@ -1389,12 +1340,7 @@ export const blogs = [
       "When embarking on a multi-destination tour, ensure your passport has at least six months of validity and several empty pages for visas. Research the visa requirements for each country in advance, as some can be obtained online or upon arrival. Pack versatile clothing that can be layered to suit different climates, from breezy coastal cities to cool desert nights. Sturdy walking shoes, sunscreen, and adapters for different plug types are essential. Carry a mix of credit cards and local currency for each country, and always keep digital copies of your travel documents.",
       "## Book Your Experience",
       "Embark on the ultimate multi-country odyssey. The \"Egypt and Jordan Combined Pilgrimage\" package is your ticket to experiencing the world's most captivating destinations in total luxury. Contact Dunas Travel today to reserve your space, customize the route, or speak to a travel specialist about crafting your bespoke multi-border vacation."
-    ],
-    "relatedTour": {
-      "slug": "jewels-of-egypt-and-jordan-11-days",
-      "label": "Jewels of Egypt and Jordan",
-      "path": "/programs/multi-country/jewels-of-egypt-and-jordan-11-days"
-    }
+    ]
   },
   {
     "id": "b-066",
@@ -1403,7 +1349,7 @@ export const blogs = [
     "category": "History",
     "date": "Jul 12, 2026",
     "excerpt": "Explore the luxury of our custom Hurghada Red Sea Extension program in Egypt. Discover why this 4 Days / 3 Nights itinerary is perfect for your travel dreams wi",
-    "img": "https://images.unsplash.com/photo-1682687220063-4742bd7fd538?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2a/d1/9e/8f/caption.jpg?w=1200&h=1200&s=1",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Hurghada Red Sea Extension\" package by Dunas Travel offers a carefully curated 4 Days / 3 Nights itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -1416,12 +1362,7 @@ export const blogs = [
       "To ensure a comfortable journey through Egypt, it is best to plan your visit between October and April, when the weather is cooler and perfect for outdoor sightseeing. Pack lightweight, breathable cotton clothing to stay cool, a wide-brimmed hat, sunglasses, and high-SPF sunscreen to protect against the desert sun. Sturdy, comfortable walking shoes are essential for exploring temple ruins and dusty archaeological sites. While beach resorts are very relaxed, it is recommended to dress modestly when exploring historic Cairo or local towns (covering shoulders and knees). Always drink bottled water, carry some local currency (Egyptian Pounds) for small tips, and keep your camera charged for the incredible sights.",
       "## Book Your Experience",
       "Are you ready to witness the eternal wonders of Egypt? The \"Hurghada Red Sea Extension\" package is the perfect blend of ancient history, cultural immersion, and modern luxury. Contact the travel designers at Dunas Travel today to book your private tour or customize this itinerary to match your specific dates and preferences. Let our expert guides show you the magic of the Nile."
-    ],
-    "relatedTour": {
-      "slug": "hurghada-4d3n",
-      "label": "Hurghada Red Sea Escape",
-      "path": "/programs/extension/hurghada-4d3n"
-    }
+    ]
   },
   {
     "id": "b-067",
@@ -1430,7 +1371,7 @@ export const blogs = [
     "category": "History",
     "date": "Jul 20, 2026",
     "excerpt": "Explore the luxury of our custom Sharm El Sheikh Beach Extensio... program in Egypt. Discover why this 4 Days / 3 Nights itinerary is perfect for your travel dr",
-    "img": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://www.cleopatraluxuryhotels.com/wp-content/uploads/sites/55/2023/07/Cleopatra-Luxury-Resort-Sharm-El-Sheikh-Exterior-3.jpg",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Sharm El Sheikh Beach Extension\" package by Dunas Travel offers a carefully curated 4 Days / 3 Nights itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -1443,12 +1384,7 @@ export const blogs = [
       "To ensure a comfortable journey through Egypt, it is best to plan your visit between October and April, when the weather is cooler and perfect for outdoor sightseeing. Pack lightweight, breathable cotton clothing to stay cool, a wide-brimmed hat, sunglasses, and high-SPF sunscreen to protect against the desert sun. Sturdy, comfortable walking shoes are essential for exploring temple ruins and dusty archaeological sites. While beach resorts are very relaxed, it is recommended to dress modestly when exploring historic Cairo or local towns (covering shoulders and knees). Always drink bottled water, carry some local currency (Egyptian Pounds) for small tips, and keep your camera charged for the incredible sights.",
       "## Book Your Experience",
       "Are you ready to witness the eternal wonders of Egypt? The \"Sharm El Sheikh Beach Extension\" package is the perfect blend of ancient history, cultural immersion, and modern luxury. Contact the travel designers at Dunas Travel today to book your private tour or customize this itinerary to match your specific dates and preferences. Let our expert guides show you the magic of the Nile."
-    ],
-    "relatedTour": {
-      "slug": "sharm-4d3n",
-      "label": "Sharm El Sheikh Paradise",
-      "path": "/programs/extension/sharm-4d3n"
-    }
+    ]
   },
   {
     "id": "b-068",
@@ -1457,7 +1393,7 @@ export const blogs = [
     "category": "History",
     "date": "Aug 02, 2026",
     "excerpt": "Explore the luxury of our custom Siwa Oasis and Alexandria Expe... program in Egypt. Discover why this 4 Days / 3 Nights itinerary is perfect for your travel dr",
-    "img": "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80",
+    "img": "https://holidayplannereg.com/wp-content/uploads/2022/12/Screenshot_20211221-190900_Instagram.jpg",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Siwa Oasis and Alexandria Expedition\" package by Dunas Travel offers a carefully curated 4 Days / 3 Nights itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -1470,11 +1406,8 @@ export const blogs = [
       "To ensure a comfortable journey through Egypt, it is best to plan your visit between October and April, when the weather is cooler and perfect for outdoor sightseeing. Pack lightweight, breathable cotton clothing to stay cool, a wide-brimmed hat, sunglasses, and high-SPF sunscreen to protect against the desert sun. Sturdy, comfortable walking shoes are essential for exploring temple ruins and dusty archaeological sites. While beach resorts are very relaxed, it is recommended to dress modestly when exploring historic Cairo or local towns (covering shoulders and knees). Always drink bottled water, carry some local currency (Egyptian Pounds) for small tips, and keep your camera charged for the incredible sights.",
       "## Book Your Experience",
       "Are you ready to witness the eternal wonders of Egypt? The \"Siwa Oasis and Alexandria Expedition\" package is the perfect blend of ancient history, cultural immersion, and modern luxury. Contact the travel designers at Dunas Travel today to book your private tour or customize this itinerary to match your specific dates and preferences. Let our expert guides show you the magic of the Nile."
-    ],
-    "relatedTour": {
-      "slug": "siwa-oasis-alexandria",
-      "label": "Siwa Oasis & Alexandria Adventure",
-      "path": "/programs/extension/siwa-oasis-alexandria"
-    }
+    ]
   }
 ];
+
+export default blogs;
