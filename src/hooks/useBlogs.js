@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
 import { supportedLocale } from '../utils/locale';
+import { blogs as fallbackBlogs } from '../data/blogs';
 
 /**
- * Hook to fetch blog posts from GET /api/blogs with resilient fallback
+ * Hook to fetch blog posts from GET /api/blogs with resilient fallback to full static catalog
  * @param {Object} filters Query params (category, tag, limit, page)
  */
 const blogsCache = new Map();
@@ -15,7 +16,7 @@ export function useBlogs(filters = {}) {
   const { i18n } = useTranslation();
   const lang = supportedLocale(i18n.language);
 
-  const [blogs, setBlogs] = useState([]);
+  const [blogs, setBlogs] = useState(fallbackBlogs);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -61,24 +62,29 @@ export function useBlogs(filters = {}) {
                   : Array.isArray(res?.data)
                     ? res.data
                     : null;
-              if (!items) {
-                throw new Error('Invalid canonical blogs response');
+              if (!items || items.length === 0) {
+                return fallbackBlogs;
               }
-              blogsCache.set(cacheKey, { data: items, timestamp: Date.now() });
-              return items;
+              // Merge backend items with fallback static catalog (keyed by slug/id)
+              const mergedMap = new Map();
+              fallbackBlogs.forEach((b) => mergedMap.set(b.slug || b.id, b));
+              items.forEach((b) => mergedMap.set(b.slug || b.id, { ...mergedMap.get(b.slug || b.id), ...b }));
+              const result = Array.from(mergedMap.values());
+              blogsCache.set(cacheKey, { data: result, timestamp: Date.now() });
+              return result;
             })
+            .catch(() => fallbackBlogs)
             .finally(() => pendingBlogsRequests.delete(cacheKey));
           pendingBlogsRequests.set(cacheKey, request);
         }
 
         const items = await request;
         if (isMounted) {
-          setBlogs(items);
+          setBlogs(items && items.length > 0 ? items : fallbackBlogs);
         }
       } catch (err) {
         if (isMounted) {
-          setError(err);
-          setBlogs([]);
+          setBlogs(fallbackBlogs);
         }
       } finally {
         if (isMounted) setLoading(false);

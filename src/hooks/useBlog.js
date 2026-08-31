@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
 import { supportedLocale } from '../utils/locale';
+import { blogs as fallbackBlogs } from '../data/blogs';
 
 /**
- * Hook to fetch a single blog post by slug from GET /api/blogs/:slug with resilient fallback
+ * Hook to fetch a single blog post by slug from GET /api/blogs/:slug with resilient fallback to full static catalog
  * @param {string} slug
  */
 const blogCache = new Map();
@@ -16,7 +17,8 @@ export function useBlog(slug) {
   const lang = supportedLocale(i18n.language);
   const cacheKey = slug ? `${slug}:${lang}` : null;
 
-  const [blog, setBlog] = useState(null);
+  const initialFallback = slug ? fallbackBlogs.find((b) => b.slug === slug || b.id === slug) || null : null;
+  const [blog, setBlog] = useState(initialFallback);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -25,6 +27,8 @@ export function useBlog(slug) {
     if (!slug || !cacheKey) {
       return;
     }
+
+    const fallbackItem = fallbackBlogs.find((b) => b.slug === slug || b.id === slug) || null;
 
     const fetchBlog = async () => {
       try {
@@ -50,23 +54,25 @@ export function useBlog(slug) {
             .get(`/blogs/${encodeURIComponent(slug)}?locale=${encodeURIComponent(lang)}`)
             .then((data) => {
               if (data && (data.title || data.slug || data.id)) {
-                blogCache.set(cacheKey, { data, timestamp: Date.now() });
-                return data;
+                const merged = fallbackItem ? { ...fallbackItem, ...data } : data;
+                blogCache.set(cacheKey, { data: merged, timestamp: Date.now() });
+                return merged;
               }
+              if (fallbackItem) return fallbackItem;
               throw new Error('Invalid blog response');
             })
+            .catch(() => fallbackItem)
             .finally(() => pendingBlogRequests.delete(cacheKey));
           pendingBlogRequests.set(cacheKey, request);
         }
 
         const data = await request;
         if (isMounted) {
-          setBlog(data);
+          setBlog(data || fallbackItem);
         }
       } catch (err) {
         if (isMounted) {
-          setError(err);
-          setBlog(null);
+          setBlog(fallbackItem);
         }
       } finally {
         if (isMounted) setLoading(false);
