@@ -67,7 +67,7 @@ export default function ReligiousTours() {
           text: t('programs.religiousSecondaryCta', 'طلب برنامج ديني خاص'),
           link: '/tailor-tour'
         }}
-        bgImage="https://thf.bing.com/th/id/R.e047649d8bd183efbdd320d17de8a8b1?rik=d18ZW0xT%2fK31lQ&pid=ImgRaw&r=0"
+        bgImage="/images/holy-land.webp"
       />
 
       {/* Breadcrumb Bar */}
@@ -195,7 +195,7 @@ export default function ReligiousTours() {
       <section className="relative py-20 mt-12 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(https://thf.bing.com/th/id/R.e047649d8bd183efbdd320d17de8a8b1?rik=d18ZW0xT%2fK31lQ&pid=ImgRaw&r=0)' }}
+          style={{ backgroundImage: 'url(/images/holy-land.webp)' }}
         />
         <div className="absolute inset-0 bg-obsidian-900/85" />
         <div className="relative z-10 container mx-auto px-6 text-center max-w-3xl">

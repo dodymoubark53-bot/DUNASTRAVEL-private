@@ -330,7 +330,7 @@ const Transportation = () => {
           .dunas-marquee-track {
             display: flex;
             width: max-content;
-            animation: dunasMarqueeLtr 45s linear infinite;
+            animation: dunasMarqueeLtr 65s linear infinite;
             will-change: transform;
           }
           .dunas-marquee-track:hover {

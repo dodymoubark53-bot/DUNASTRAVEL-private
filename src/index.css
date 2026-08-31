@@ -400,7 +400,7 @@ html[data-scroll-locked] {
 
   /* ── Auto-scroll marquee ────────────────────────────────── */
   .marquee-track {
-    animation: marquee 40s linear infinite;
+    animation: marquee 65s linear infinite;
     width: max-content;
     will-change: transform;
     transform: translate3d(0, 0, 0);

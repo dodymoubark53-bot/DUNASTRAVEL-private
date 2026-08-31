@@ -136,7 +136,7 @@ const DEST_FALLBACK_DATA = {
     descDefault: 'انطلق في رحلة إيمانية عميقة تتبع خطى العائلة المقدسة عبر أديرة وكنائس مصر القديمة وجبال سيناء وصولاً إلى الأردن.',
     tags: ['dest.holylands.tag1', 'dest.holylands.tag2', 'dest.holylands.tag3'],
     tagsDefault: ['📖 مرشدون متخصصون في التاريخ الديني', '🏨 إقامات 5 نجوم قريبة من المعالم المقدسة', '✈️ خدمات التأشيرة والتنقلات VIP الشاملة'],
-    heroImage: 'https://sft-nationaltours.com/wp-content/uploads/2024/11/holy-family-egypt_tg_1397-870x555.jpg',
+    heroImage: '/images/holy-land.webp',
   },
   holyland: {
     badge: 'nav.holyland',
@@ -149,7 +149,7 @@ const DEST_FALLBACK_DATA = {
     descDefault: 'استكشف المعالم التاريخية والروحية الفريدة في الأراضي المقدسة، واختبر جولات فريدة مخصصة بين أقدم مواقع التراث البشري.',
     tags: ['dest.holyland.tag1', 'dest.holyland.tag2', 'dest.holyland.tag3'],
     tagsDefault: ['🕊️ جولات الإرث الروحي والتاريخي VIP', '🏨 إقامات فاخرة في أرقى الفنادق التاريخية', '✈️ تنظيم كامل للخدمات والتنقلات المريحة'],
-    heroImage: 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920,c_fill/v1783024072/400a841d-18b7-4915-8483-f9a3346651cf_ocdouu.jpg',
+    heroImage: '/images/holy-land.webp',
   },
   'holy-land': {
     badge: 'nav.holyland',
@@ -162,7 +162,7 @@ const DEST_FALLBACK_DATA = {
     descDefault: 'استكشف المعالم التاريخية والروحية الفريدة في الأراضي المقدسة، واختبر جولات فريدة مخصصة بين أقدم مواقع التراث البشري.',
     tags: ['dest.holyland.tag1', 'dest.holyland.tag2', 'dest.holyland.tag3'],
     tagsDefault: ['🕊️ جولات الإرث الروحي والتاريخي VIP', '🏨 إقامات فاخرة في أرقى الفنادق التاريخية', '✈️ تنظيم كامل للخدمات والتنقلات المريحة'],
-    heroImage: 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920,c_fill/v1783024072/400a841d-18b7-4915-8483-f9a3346651cf_ocdouu.jpg',
+    heroImage: '/images/holy-land.webp',
   }
 };
 
