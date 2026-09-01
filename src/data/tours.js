@@ -357,20 +357,85 @@ const baseTours = [
       "Roteiro arqueológico de elite"
     ],
     "included": [
-      "Voos domésticos em classe econômica: CAI / LXR // ASW / CAI;",
-      "04 noites de hospedagem no Cairo na categoria escolhida com café da manhã e taxas;",
-      "04 noites de cruzeiro pelo Nilo com pensão completa (FB sem bebidas);",
-      "01 noite de hospedagem em Abu Simbel na categoria escolhida com café da manhã e taxas;",
-      "Traslados IN / OUT em serviço regular;",
-      "Todas as visitas durante o cruzeiro mencionadas no itinerário em serviço regular;",
-      
-      "Todos os veículos para traslados e tours com ar-condicionado."
+      {
+        "ar": "رحلات الطيران الداخلية بالدرجة الاقتصادية: القاهرة / الأقصر // أسوان / القاهرة.",
+        "en": "Domestic flights in economy class: CAI / LXR // ASW / CAI.",
+        "es": "Vuelos domésticos en clase económica: CAI / LXR // ASW / CAI.",
+        "it": "Voli interni in classe economica: CAI / LXR // ASW / CAI.",
+        "pt": "Voos domésticos em classe econômica: CAI / LXR // ASW / CAI;"
+      },
+      {
+        "ar": "إقامة لمدة 4 ليالٍ في القاهرة في فندق من الفئة المختارة مع الإفطار والضرائب.",
+        "en": "04 nights accommodation in Cairo in the chosen hotel category with breakfast and taxes;",
+        "es": "04 noches de alojamiento en El Cairo con desayuno e impuestos;",
+        "it": "04 notti di sistemazione al Cairo con colazione e tasse;",
+        "pt": "04 noites de hospedagem no Cairo na categoria escolhida com café da manhã e taxas;"
+      },
+      {
+        "ar": "إقامة لمدة 4 ليالٍ في كروز النيل مع إقامة كاملة (بدون مشروبات).",
+        "en": "04 nights Nile cruise with Full Board (FB without drinks);",
+        "es": "04 noches de crucero por el Nilo con pensión completa (FB sin bebidas);",
+        "it": "04 notti di crociera sul Nilo a pensione completa (FB senza bevande);",
+        "pt": "04 noites de cruzeiro pelo Nilo com pensão completa (FB sem bebidas);"
+      },
+      {
+        "ar": "إقامة لمدة ليلة واحدة في أبو سمبل في فندق من الفئة المختارة مع الإفطار والضرائب.",
+        "en": "01 night accommodation in Abu Simbel in the chosen hotel category with breakfast and taxes;",
+        "es": "01 noche de alojamiento en Abu Simbel con desayuno e impuestos;",
+        "it": "01 notte di sistemazione ad Abu Simbel con colazione e tasse;",
+        "pt": "01 noite de hospedagem em Abu Simbel na categoria escolhida com café da manhã e taxas;"
+      },
+      {
+        "ar": "انتقالات استقبال وتوديع في خدمة منتظمة.",
+        "en": "In / Out transfers in regular service;",
+        "es": "Traslados IN / OUT en servicio regular;",
+        "it": "Trasferimenti IN / OUT in servizio regolare;",
+        "pt": "Traslados IN / OUT em serviço regular;"
+      },
+      {
+        "ar": "جميع الزيارات خلال الكروز المذكورة في البرنامج في خدمة منتظمة.",
+        "en": "All visits during the cruise mentioned in the itinerary in regular service;",
+        "es": "Todas las visitas durante el crucero mencionadas en el itinerario en servicio regular;",
+        "it": "Tutte le visite durante la crociera menzionate nell'itinerario in servizio regolare;",
+        "pt": "Todas as visitas durante o cruzeiro mencionadas no itinerário em serviço regular;"
+      },
+      {
+        "ar": "جميع المركبات المستخدمة في الانتقالات والجولات مكيفة.",
+        "en": "All vehicles for transfers and tours with air conditioning.",
+        "es": "Todos los vehículos para traslados y excursiones con aire acondicionado.",
+        "it": "Tutti i veicoli per trasferimenti e tour con aria condizionata.",
+        "pt": "Todos os veículos para traslados e tours com ar-condicionado."
+      }
     ],
     "excluded": [
-      "Todas as bebidas em todas as refeições não estão inclusas;",
-      "Gorjetas obrigatórias de $50 PP (por pessoa) durante o cruzeiro;",
-      "Passeios descritos como opcionais;",
-      "Visto obrigatório de $35 PP (um representante lhe auxiliará no desembarque)."
+      {
+        "ar": "جميع المشروبات في جميع الوجبات غير مشمولة.",
+        "en": "All drinks during all meals are not included;",
+        "es": "Todas las bebidas en todas las comidas no están incluidas;",
+        "it": "Tutte le bevande durante i pasti non sono incluse;",
+        "pt": "Todas as bebidas em todas as refeições não estão inclusas;"
+      },
+      {
+        "ar": "الإكراميات الإلزامية للكروز بقيمة 50 دولارًا للشخص الواحد.",
+        "en": "Mandatory tips of $50 PP during the cruise;",
+        "es": "Propinas obligatorias de $50 PP durante el crucero;",
+        "it": "Mance obbligatorie di $50 PP durante la crociera;",
+        "pt": "Gorjetas obrigatórias de $50 PP (por pessoa) durante o cruzeiro;"
+      },
+      {
+        "ar": "الجولات الموصوفة كخيار اختيارية.",
+        "en": "Tours described as optional;",
+        "es": "Excursiones opcionales;",
+        "it": "Tour descritti come opzionali;",
+        "pt": "Passeios descritos como opcionais;"
+      },
+      {
+        "ar": "التأشيرة الإلزامية بقيمة 35 دولارًا للشخص الواحد (ممثلنا سيكون في انتظارك لمساعدتك).",
+        "en": "Mandatory Visa $35 PP (a representative will assist you upon arrival).",
+        "es": "Visado obligatorio de $35 PP (asistencia a la llegada).",
+        "it": "Visto obbligatorio di $35 PP (assistenza all'arrivo).",
+        "pt": "Visto obrigatório de $35 PP (um representante lhe auxiliará no desembarque)."
+      }
     ],
     "itinerary": [
       {
