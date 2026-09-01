@@ -89,48 +89,57 @@ const HotelDetails = () => {
   const defaultRoomTypes = [
     {
       id: 'single-room',
-      name: t('hotel.room.singleTitle', 'Single Room'),
+      name: isAr ? 'غرفة مفردة' : t('hotel.room.singleTitle', 'Single Room'),
       price: 75,
-      capacity: '1 Guest',
-      bed: t('hotel.room.singleBed', '1 Single Bed'),
-      view: t('hotel.room.singleView', 'City / Garden View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
+      capacity: isAr ? 'شخص واحد' : '1 Guest',
+      bed: isAr ? 'سرير مفرد' : t('hotel.room.singleBed', '1 Single Bed'),
+      view: isAr ? 'إطلالة على الحديقة / المدينة' : t('hotel.room.singleView', 'City / Garden View'),
+      image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=1200',
+    },
+    {
+      id: 'twin-room',
+      name: isAr ? 'غرفة توأم' : t('hotel.room.twinTitle', 'Twin Room'),
+      price: 85,
+      capacity: isAr ? 'شخصين' : '2 Guests',
+      bed: isAr ? 'مزدوجة / توأم' : t('hotel.room.twinBed', 'Double / Twin Beds'),
+      view: isAr ? 'إطلالة قياسية' : t('hotel.room.twinView', 'Standard View'),
+      image: 'https://images.unsplash.com/photo-1595576508898-0ad5c879a061?q=80&w=1200',
     },
     {
       id: 'double-room',
-      name: t('hotel.room.doubleTitle', 'Double Room'),
+      name: isAr ? 'غرفة مزدوجة' : t('hotel.room.doubleTitle', 'Double Room'),
       price: 95,
-      capacity: '1–2 Guests',
-      bed: t('hotel.room.doubleBed', '1 King Bed'),
-      view: t('hotel.room.doubleView', 'Pyramids View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
+      capacity: isAr ? 'شخصين' : '1–2 Guests',
+      bed: isAr ? '1 سرير كينج مزدوج' : t('hotel.room.doubleBed', '1 King Bed'),
+      view: isAr ? 'إطلالة على الأهرامات' : t('hotel.room.doubleView', 'Pyramids View'),
+      image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1200',
     },
     {
       id: 'triple-room',
-      name: t('hotel.room.tripleTitle', 'Triple Room'),
+      name: isAr ? 'غرفة ثلاثية' : t('hotel.room.tripleTitle', 'Triple Room'),
       price: 125,
-      capacity: '3 Guests',
-      bed: t('hotel.room.tripleBed', 'Double/Twin'),
-      view: t('hotel.room.tripleView', 'Standard View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2026/02/Triple-900x500.jpg',
+      capacity: isAr ? '3 ضيوف' : '3 Guests',
+      bed: isAr ? 'مزدوجة / توأم' : t('hotel.room.tripleBed', 'Double/Twin'),
+      view: isAr ? 'إطلالة قياسية' : t('hotel.room.tripleView', 'Standard View'),
+      image: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=1200',
     },
     {
       id: 'executive-suite',
-      name: t('hotel.room.suiteTitle', 'Executive Suite'),
+      name: isAr ? 'جناح تنفيذي' : t('hotel.room.suiteTitle', 'Executive Suite'),
       price: 190,
-      capacity: '2–3 Guests',
-      bed: t('hotel.room.suiteBed', '1 King Bed + Lounge'),
-      view: t('hotel.room.suiteView', 'Panoramic Pyramids View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
+      capacity: isAr ? '2–3 ضيوف' : '2–3 Guests',
+      bed: isAr ? '1 سرير كينج + صالون استراحة' : t('hotel.room.suiteBed', '1 King Bed + Lounge'),
+      view: isAr ? 'إطلالة بانورامية على الأهرامات' : t('hotel.room.suiteView', 'Panoramic Pyramids View'),
+      image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1200',
     },
     {
       id: 'royal-pyramid-view-suite',
-      name: t('hotel.room.royalTitle', 'Royal Pyramid View Suite'),
+      name: isAr ? 'الجناح الملكي بإطلالة الأهرامات' : t('hotel.room.royalTitle', 'Royal Pyramid View Suite'),
       price: 280,
-      capacity: '2–4 Guests',
-      bed: t('hotel.room.royalBed', 'Master King Bed + Royal Lounge'),
-      view: t('hotel.room.royalView', 'Front-Row Direct Pyramids View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2026/02/Double-900x500.jpg',
+      capacity: isAr ? '2–4 ضيوف' : '2–4 Guests',
+      bed: isAr ? 'ماستر كينج + صالة ملكية' : t('hotel.room.royalBed', 'Master King Bed + Royal Lounge'),
+      view: isAr ? 'إطلالة مباشرة صف أول على الأهرامات' : t('hotel.room.royalView', 'Front-Row Direct Pyramids View'),
+      image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=1200',
     },
   ];
 
@@ -144,48 +153,47 @@ const HotelDetails = () => {
           id: r.slug,
           name: r.name || fallback?.name || r.slug,
           price: resolvedPrice,
-          capacity: `${r.maxOccupancy || 2} Guests`,
-          bed: r.description || fallback?.bed || '1 King Bed',
-          view: fallback?.view || 'Panoramic View',
-          image: r.imageUrl || fallback?.image || apiHotel?.heroImageUrl || 'https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1200',
+          capacity: r.maxOccupancy ? (isAr ? (r.maxOccupancy === 1 ? 'شخص واحد' : r.maxOccupancy === 2 ? 'شخصين' : `${r.maxOccupancy} ضيوف`) : `${r.maxOccupancy} Guests`) : (fallback?.capacity || '2 Guests'),
+          bed: r.bedType || r.description || fallback?.bed || '1 King Bed',
+          view: r.viewType || fallback?.view || 'Panoramic View',
+          image: r.image || r.imageUrl || fallback?.image || apiHotel?.heroImageUrl || 'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1200',
         };
       })
     : defaultRoomTypes;
 
   const inRoomAmenities = [
-    { label: t('hotel.fac.wifi', 'Free Wi-Fi'), icon: <FaWifi className="text-gold-500" /> },
-    { label: t('hotel.fac.ac', 'Air conditioning (cold & heat)'), icon: <FaSnowflake className="text-gold-500" /> },
-    { label: t('hotel.fac.bathroom', 'Private bathroom with amenities'), icon: <FaBath className="text-gold-500" /> },
-    { label: t('hotel.fac.minibar', 'Mini bar — refrigerated, stocked (against charge)'), icon: <FaWineGlass className="text-gold-500" /> },
-    { label: t('hotel.fac.coffee', 'In-room coffee & tea — daily refreshment basis'), icon: <FaCoffee className="text-gold-500" /> },
-    { label: t('hotel.fac.linen', '100% Egyptian cotton linen & bed covers'), icon: <FaBed className="text-gold-500" /> },
-    { label: t('hotel.fac.tv', 'TV — Multi-language channels: Italian, Spanish, English, Portuguese, Sport, Kids, Arabic'), icon: <FaTv className="text-gold-500" /> },
-    { label: t('hotel.fac.safe', 'Free safe box'), icon: <FaLock className="text-gold-500" /> },
-    { label: t('hotel.fac.iron', 'Iron & ironing board (upon request)'), icon: <FaShieldAlt className="text-gold-500" /> },
-    { label: t('hotel.fac.phone', 'In-room phone'), icon: <FaPhoneAlt className="text-gold-500" /> },
+    { label: isAr ? 'إنترنت لاسلكي مجاني' : t('hotel.fac.wifi', 'Free Wi-Fi'), icon: <FaWifi className="text-gold-500" /> },
+    { label: isAr ? 'تكييف هواء (بارد وساخن)' : t('hotel.fac.ac', 'Air conditioning (cold & heat)'), icon: <FaSnowflake className="text-gold-500" /> },
+    { label: isAr ? 'حمام خاص مع المستلزمات' : t('hotel.fac.bathroom', 'Private bathroom with amenities'), icon: <FaBath className="text-gold-500" /> },
+    { label: isAr ? 'ثلاجة صغيرة للغرفة (برسوم إضافية)' : t('hotel.fac.minibar', 'Mini bar — refrigerated, stocked (against charge)'), icon: <FaWineGlass className="text-gold-500" /> },
+    { label: isAr ? 'ماكينة قهوة وشاي مع تجديد يومي' : t('hotel.fac.coffee', 'In-room coffee & tea — daily refreshment basis'), icon: <FaCoffee className="text-gold-500" /> },
+    { label: isAr ? 'مفروشات من القطن المصري 100٪' : t('hotel.fac.linen', '100% Egyptian cotton linen & bed covers'), icon: <FaBed className="text-gold-500" /> },
+    { label: isAr ? 'شاشة تلفزيون بقنوات متعددة اللغات' : t('hotel.fac.tv', 'TV — Multi-language channels: Italian, Spanish, English, Portuguese, Sport, Kids, Arabic'), icon: <FaTv className="text-gold-500" /> },
+    { label: isAr ? 'خزنة مجانية داخل الغرفة' : t('hotel.fac.safe', 'Free safe box'), icon: <FaLock className="text-gold-500" /> },
+    { label: isAr ? 'مكواة وطاولة كي (عند الطلب)' : t('hotel.fac.iron', 'Iron & ironing board (upon request)'), icon: <FaShieldAlt className="text-gold-500" /> },
+    { label: isAr ? 'هاتف داخلي' : t('hotel.fac.phone', 'In-room phone'), icon: <FaPhoneAlt className="text-gold-500" /> },
   ];
 
   const hotelWideFacilities = [
-    { label: t('hotel.fac.giftshop', 'Gift shop'), icon: <FaShoppingBag className="text-gold-500" /> },
-    { label: t('hotel.fac.restaurant', 'Rooftop restaurant (coming soon)'), icon: <FaUtensils className="text-gold-500" /> },
-    { label: t('hotel.fac.bar', 'Bar with wide range of snack options (coming soon)'), icon: <FaWineGlass className="text-gold-500" /> },
-    { label: t('hotel.fac.payment', 'SSL-secured online payment'), icon: <FaCreditCard className="text-gold-500" /> },
+    { label: isAr ? 'متجر هدايا وتذكارات' : t('hotel.fac.giftshop', 'Gift shop'), icon: <FaShoppingBag className="text-gold-500" /> },
+    { label: isAr ? 'مطعم على السطح بإطلالة الأهرامات' : t('hotel.fac.restaurant', 'Rooftop restaurant (coming soon)'), icon: <FaUtensils className="text-gold-500" /> },
+    { label: isAr ? 'مقهى واستراحة للمشروبات والوجبات الخفيفة' : t('hotel.fac.bar', 'Bar with wide range of snack options (coming soon)'), icon: <FaWineGlass className="text-gold-500" /> },
+    { label: isAr ? 'دفع إلكتروني آمن عبر بطاقات الائتمان' : t('hotel.fac.payment', 'SSL-secured online payment'), icon: <FaCreditCard className="text-gold-500" /> },
   ];
 
-  const hotelHeroImage = apiHotel?.heroImageUrl || 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/23/0d/4e/68/henann-park-resort.jpg?w=600&h=600&s=1';
+  const hotelHeroImage = apiHotel?.heroImageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200';
 
   const rawGallery = (apiHotel?.images && apiHotel.images.length > 0)
     ? apiHotel.images.map((img) => (typeof img === 'string' ? img : img?.url)).filter(Boolean)
     : [];
 
   const defaultSolGallery = [
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM5.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM4.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.45.12-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.45.58-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.00-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM6.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.00-PM-2.jpg',
+    'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200',
+    'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1200',
+    'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1200',
+    'https://images.unsplash.com/photo-1595576508898-0ad5c879a061?q=80&w=1200',
+    'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=1200',
+    'https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=1200',
   ];
 
   const galleryImages = rawGallery.length > 0

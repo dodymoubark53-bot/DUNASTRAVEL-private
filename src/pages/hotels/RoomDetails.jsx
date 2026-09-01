@@ -48,105 +48,131 @@ const RoomDetails = () => {
   const roomDataMap = {
     'single-room': {
       id: 'single-room',
-      name: t('hotel.room.singleTitle', 'Single Room'),
+      name: isAr ? 'غرفة مفردة' : t('hotel.room.singleTitle', 'Single Room'),
       price: 75,
-      capacity: t('hotel.room.singleCapacity', '1 Guest'),
-      bed: t('hotel.room.singleBed', '1 Single Bed'),
-      view: t('hotel.room.singleView', 'City / Garden View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
+      capacity: isAr ? 'شخص واحد' : t('hotel.room.singleCapacity', '1 Guest'),
+      bed: isAr ? 'سرير مفرد' : t('hotel.room.singleBed', '1 Single Bed'),
+      view: isAr ? 'إطلالة على الحديقة / المدينة' : t('hotel.room.singleView', 'City / Garden View'),
+      smokingAllowed: false,
+      petsAllowed: false,
+      image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=1200',
       gallery: [
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0013.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Tea-Tabel.jpg',
+        'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=1200',
+        'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1200',
+        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1200',
+      ],
+    },
+    'twin-room': {
+      id: 'twin-room',
+      name: isAr ? 'غرفة توأم' : t('hotel.room.twinTitle', 'Twin Room'),
+      price: 85,
+      capacity: isAr ? 'شخصين' : t('hotel.room.twinCapacity', '2 Guests'),
+      bed: isAr ? 'مزدوجة / توأم' : t('hotel.room.twinBed', 'Double / Twin Beds'),
+      view: isAr ? 'إطلالة قياسية' : t('hotel.room.twinView', 'Standard View'),
+      smokingAllowed: false,
+      petsAllowed: false,
+      image: 'https://images.unsplash.com/photo-1595576508898-0ad5c879a061?q=80&w=1200',
+      gallery: [
+        'https://images.unsplash.com/photo-1595576508898-0ad5c879a061?q=80&w=1200',
+        'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1200',
+        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1200',
+        'https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=1200',
       ],
     },
     'double-room': {
       id: 'double-room',
-      name: t('hotel.room.doubleTitle', 'Double Room'),
+      name: isAr ? 'غرفة مزدوجة' : t('hotel.room.doubleTitle', 'Double Room'),
       price: 95,
-      capacity: t('hotel.room.doubleCapacity', '1–2 Guests'),
-      bed: t('hotel.room.doubleBed', '1 King Bed'),
-      view: t('hotel.room.doubleView', 'Pyramids View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
+      capacity: isAr ? 'شخصين' : t('hotel.room.doubleCapacity', '1–2 Guests'),
+      bed: isAr ? '1 سرير كينج مزدوج' : t('hotel.room.doubleBed', '1 King Bed'),
+      view: isAr ? 'إطلالة على الأهرامات' : t('hotel.room.doubleView', 'Pyramids View'),
+      smokingAllowed: false,
+      petsAllowed: false,
+      image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1200',
       gallery: [
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0013.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0010.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/TV-Unit.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Tea-Tabel.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/View.jpg',
+        'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1200',
+        'https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=1200',
+        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1200',
+        'https://images.unsplash.com/photo-1595576508898-0ad5c879a061?q=80&w=1200',
       ],
     },
     'triple-room': {
       id: 'triple-room',
-      name: t('hotel.room.tripleTitle', 'Triple Room'),
+      name: isAr ? 'غرفة ثلاثية' : t('hotel.room.tripleTitle', 'Triple Room'),
       price: 125,
-      capacity: t('hotel.room.tripleCapacity', '3 Guests'),
-      bed: t('hotel.room.tripleBed', 'Double/Twin'),
-      view: t('hotel.room.tripleView', 'Standard View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2026/02/Triple-900x500.jpg',
+      capacity: isAr ? '3 ضيوف' : t('hotel.room.tripleCapacity', '3 Guests'),
+      bed: isAr ? 'مزدوجة / توأم' : t('hotel.room.tripleBed', 'Double/Twin'),
+      view: isAr ? 'إطلالة قياسية' : t('hotel.room.tripleView', 'Standard View'),
+      smokingAllowed: false,
+      petsAllowed: false,
+      image: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=1200',
       gallery: [
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2026/02/Triple-900x500.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0002.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0004.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/TV-Unit.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Tea-Tabel.jpg',
+        'https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=1200',
+        'https://images.unsplash.com/photo-1595576508898-0ad5c879a061?q=80&w=1200',
+        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1200',
       ],
     },
     'executive-suite': {
       id: 'executive-suite',
-      name: t('hotel.room.suiteTitle', 'Executive Suite'),
+      name: isAr ? 'جناح تنفيذي' : t('hotel.room.suiteTitle', 'Executive Suite'),
       price: 190,
-      capacity: t('hotel.room.suiteCapacity', '2–3 Guests'),
-      bed: t('hotel.room.suiteBed', '1 King Bed + Lounge'),
-      view: t('hotel.room.suiteView', 'Panoramic Pyramids View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
+      capacity: isAr ? '2–3 ضيوف' : t('hotel.room.suiteCapacity', '2–3 Guests'),
+      bed: isAr ? '1 سرير كينج + صالون استراحة' : t('hotel.room.suiteBed', '1 King Bed + Lounge'),
+      view: isAr ? 'إطلالة بانورامية على الأهرامات' : t('hotel.room.suiteView', 'Panoramic Pyramids View'),
+      smokingAllowed: false,
+      petsAllowed: false,
+      image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1200',
       gallery: [
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0010.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/View.jpg',
+        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1200',
+        'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1200',
+        'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=1200',
       ],
     },
     'royal-pyramid-view-suite': {
       id: 'royal-pyramid-view-suite',
-      name: t('hotel.room.royalTitle', 'Royal Pyramid View Suite'),
+      name: isAr ? 'الجناح الملكي بإطلالة الأهرامات' : t('hotel.room.royalTitle', 'Royal Pyramid View Suite'),
       price: 280,
-      capacity: t('hotel.room.royalCapacity', '2–4 Guests'),
-      bed: t('hotel.room.royalBed', 'Master King Bed + Royal Lounge'),
-      view: t('hotel.room.royalView', 'Front-Row Direct Pyramids View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2026/02/Double-900x500.jpg',
+      capacity: isAr ? '2–4 ضيوف' : t('hotel.room.royalCapacity', '2–4 Guests'),
+      bed: isAr ? 'ماستر كينج + صالة ملكية' : t('hotel.room.royalBed', 'Master King Bed + Royal Lounge'),
+      view: isAr ? 'إطلالة مباشرة صف أول على الأهرامات' : t('hotel.room.royalView', 'Front-Row Direct Pyramids View'),
+      smokingAllowed: false,
+      petsAllowed: false,
+      image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=1200',
       gallery: [
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2026/02/Double-900x500.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0013.jpg',
-        'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/View.jpg',
+        'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=1200',
+        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1200',
+        'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1200',
+        'https://images.unsplash.com/photo-1595576508898-0ad5c879a061?q=80&w=1200',
       ],
     },
   };
 
   const apiRoom = apiHotel?.rooms?.find((r) => r.slug === roomSlug);
-  const defaultFallbackImage = apiHotel?.heroImageUrl || 'https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1200';
-  const defaultFallbackGallery = (apiHotel?.images && apiHotel.images.length > 0)
-    ? apiHotel.images.map((img) => (typeof img === 'string' ? img : img?.url)).filter(Boolean)
-    : [defaultFallbackImage];
+  const matchedStatic = roomDataMap[roomSlug];
+  const defaultFallbackImage = apiHotel?.heroImageUrl || matchedStatic?.image || 'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1200';
+  const defaultFallbackGallery = (apiRoom?.gallery && apiRoom.gallery.length > 0)
+    ? apiRoom.gallery
+    : (matchedStatic?.gallery || (apiHotel?.images && apiHotel.images.length > 0
+        ? apiHotel.images.map((img) => (typeof img === 'string' ? img : img?.url)).filter(Boolean)
+        : [defaultFallbackImage]));
 
-  const fallbackRoom = roomDataMap[roomSlug] || (apiRoom ? {
-    id: apiRoom.slug,
-    name: apiRoom.name || t('hotel.room.doubleTitle', 'Luxury Room'),
-    price: (apiRoom.ratePerNight !== undefined && apiRoom.ratePerNight !== null) ? Number(apiRoom.ratePerNight) : 0,
-    capacity: `${apiRoom.maxOccupancy || 2} Guests`,
-    bed: apiRoom.description || t('hotel.room.doubleBed', '1 King Bed'),
-    view: t('hotel.room.doubleView', 'Panoramic View'),
-    image: defaultFallbackImage,
+  const room = (matchedStatic || apiRoom) ? {
+    id: roomSlug,
+    name: (apiRoom?.name) || (matchedStatic?.name) || (isAr ? 'غرفة فاخرة' : 'Luxury Room'),
+    price: (apiRoom?.ratePerNight !== undefined && apiRoom?.ratePerNight !== null && Number(apiRoom.ratePerNight) > 0)
+      ? Number(apiRoom.ratePerNight)
+      : (matchedStatic?.price || 85),
+    capacity: apiRoom?.maxOccupancy
+      ? (isAr
+          ? (apiRoom.maxOccupancy === 1 ? 'شخص واحد' : apiRoom.maxOccupancy === 2 ? 'شخصين' : `${apiRoom.maxOccupancy} ضيوف`)
+          : `${apiRoom.maxOccupancy} Guests`)
+      : (matchedStatic?.capacity || (isAr ? 'شخصين' : '2 Guests')),
+    bed: (apiRoom?.bedType) || (matchedStatic?.bed) || (isAr ? 'مزدوجة / توأم' : 'Double / Twin Beds'),
+    view: (apiRoom?.viewType) || (matchedStatic?.view) || (isAr ? 'إطلالة قياسية' : 'Standard View'),
+    smokingAllowed: apiRoom?.smokingAllowed ?? matchedStatic?.smokingAllowed ?? false,
+    petsAllowed: apiRoom?.petsAllowed ?? matchedStatic?.petsAllowed ?? false,
+    image: apiRoom?.image || matchedStatic?.image || defaultFallbackImage,
     gallery: defaultFallbackGallery,
-  } : null);
-
-  const room = fallbackRoom ? {
-    ...fallbackRoom,
-    name: apiRoom?.name || fallbackRoom.name,
-    price: (apiRoom?.ratePerNight !== undefined && apiRoom?.ratePerNight !== null) ? Number(apiRoom.ratePerNight) : fallbackRoom.price,
-    capacity: apiRoom?.maxOccupancy ? `${apiRoom.maxOccupancy} Guests` : fallbackRoom.capacity,
-    image: fallbackRoom.image || defaultFallbackImage,
-    gallery: fallbackRoom.gallery && fallbackRoom.gallery.length > 0 ? fallbackRoom.gallery : defaultFallbackGallery,
   } : null;
 
   const todayStr = (() => {
@@ -217,16 +243,16 @@ const RoomDetails = () => {
   }
 
   const roomAmenitiesList = [
-    { label: t('hotel.fac.wifi', 'Free Wi-Fi'), icon: <FaWifi className="text-gold-500 text-lg" /> },
-    { label: t('hotel.fac.ac', 'Air conditioning (cold & heat)'), icon: <FaSnowflake className="text-gold-500 text-lg" /> },
-    { label: t('hotel.fac.bathroom', 'Private bathroom with amenities'), icon: <FaBath className="text-gold-500 text-lg" /> },
-    { label: t('hotel.fac.minibar', 'Mini bar — refrigerated, stocked (against charge)'), icon: <FaWineGlass className="text-gold-500 text-lg" /> },
-    { label: t('hotel.fac.coffee', 'Coffee & tea — daily refreshment basis'), icon: <FaCoffee className="text-gold-500 text-lg" /> },
-    { label: t('hotel.fac.linen', '100% Egyptian cotton linen & bed covers'), icon: <FaBed className="text-gold-500 text-lg" /> },
-    { label: t('hotel.fac.tv', 'TV — Italian, Spanish, English, Portuguese, Sport, Kids, Arabic channels'), icon: <FaTv className="text-gold-500 text-lg" /> },
-    { label: t('hotel.fac.safe', 'Free safe box'), icon: <FaLock className="text-gold-500 text-lg" /> },
-    { label: t('hotel.fac.iron', 'Iron & ironing board (upon request)'), icon: <FaShieldAlt className="text-gold-500 text-lg" /> },
-    { label: t('hotel.fac.phone', 'In-room phone'), icon: <FaPhoneAlt className="text-gold-500 text-lg" /> },
+    { label: isAr ? 'إنترنت لاسلكي مجاني' : t('hotel.fac.wifi', 'Free Wi-Fi'), icon: <FaWifi className="text-gold-500 text-lg" /> },
+    { label: isAr ? 'تكييف هواء (بارد وساخن)' : t('hotel.fac.ac', 'Air conditioning (cold & heat)'), icon: <FaSnowflake className="text-gold-500 text-lg" /> },
+    { label: isAr ? 'حمام خاص مع المستلزمات ومجفف شعر' : t('hotel.fac.bathroom', 'Private bathroom with amenities'), icon: <FaBath className="text-gold-500 text-lg" /> },
+    { label: isAr ? 'ثلاجة صغيرة للغرفة مجهزة بالكامل (برسوم إضافية)' : t('hotel.fac.minibar', 'Mini bar — refrigerated, stocked (against charge)'), icon: <FaWineGlass className="text-gold-500 text-lg" /> },
+    { label: isAr ? 'ماكينة قهوة وشاي في الغرفة مع تجديد يومي' : t('hotel.fac.coffee', 'Coffee & tea — daily refreshment basis'), icon: <FaCoffee className="text-gold-500 text-lg" /> },
+    { label: isAr ? 'مفروشات وأغطية أسرة من القطن المصري 100٪' : t('hotel.fac.linen', '100% Egyptian cotton linen & bed covers'), icon: <FaBed className="text-gold-500 text-lg" /> },
+    { label: isAr ? 'شاشة تلفزيون بقنوات متعددة اللغات: الإيطالية، الإسبانية، الإنجليزية، البرتغالية، الرياضية، الأطفال، العربية' : t('hotel.fac.tv', 'TV — Multi-language channels: Italian, Spanish, English, Portuguese, Sport, Kids, Arabic'), icon: <FaTv className="text-gold-500 text-lg" /> },
+    { label: isAr ? 'خزنة مجانية داخل الغرفة' : t('hotel.fac.safe', 'Free safe box'), icon: <FaLock className="text-gold-500 text-lg" /> },
+    { label: isAr ? 'مكواة وطاولة كي (عند الطلب)' : t('hotel.fac.iron', 'Iron & ironing board (upon request)'), icon: <FaShieldAlt className="text-gold-500 text-lg" /> },
+    { label: isAr ? 'هاتف داخلي' : t('hotel.fac.phone', 'In-room phone'), icon: <FaPhoneAlt className="text-gold-500 text-lg" /> },
   ];
 
   const handleInputChange = (e) => {
@@ -400,7 +426,7 @@ const RoomDetails = () => {
                   {t('hotel.room.smokingLabel', 'Smoking')}
                 </span>
                 <span className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                  <FaBan className="text-red-500 text-sm" /> {t('hotel.room.notAllowed', 'Not allowed')}
+                  <FaBan className="text-red-500 text-sm" /> {room.smokingAllowed ? (isAr ? 'مسموح' : 'Allowed') : (isAr ? 'غير مسموح' : t('hotel.room.notAllowed', 'Not allowed'))}
                 </span>
               </div>
               <div>
@@ -408,7 +434,7 @@ const RoomDetails = () => {
                   {t('hotel.room.petsLabel', 'Pets')}
                 </span>
                 <span className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                  <FaPaw className="text-red-500 text-sm" /> {t('hotel.room.notAllowed', 'Not allowed')}
+                  <FaPaw className="text-red-500 text-sm" /> {room.petsAllowed ? (isAr ? 'مسموح' : 'Allowed') : (isAr ? 'غير مسموح' : t('hotel.room.notAllowed', 'Not allowed'))}
                 </span>
               </div>
             </div>
