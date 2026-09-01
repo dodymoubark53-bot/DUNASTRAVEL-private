@@ -2368,7 +2368,7 @@ const HomeExperienceSection = () => {
               <div 
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out group-hover:scale-105"
                 style={{
-                  backgroundImage: "url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiWVfHeTs2QLuU6NhgNvTKx_KFBTeby1jQBf6myvtan1NdUxoX6kZqCkgJukV9BeYtJrvjhp5EyQsDqi2dEJ8U-plcLLibJQGDsBIO_L6EfzTFe95QuMmw5s9tsP80CvvL6O2rD7vTwuIte3ad90nusm_i_gRVJ5hYLvqM-Z18mZuchSXuGIU6UdRt9-x0/s16000-rw/%D8%A3%D9%81%D8%B6%D9%84%20%D8%A7%D9%84%D9%81%D9%86%D8%A7%D8%AF%D9%82%20%D8%A7%D9%84%D9%81%D8%A7%D8%AE%D8%B1%D8%A9%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%B1%D8%A8%D8%A7%D8%B7.webp')"
+                  backgroundImage: "url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80')"
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-900/60 to-transparent opacity-90 transition-opacity duration-500 group-hover:opacity-95" />
