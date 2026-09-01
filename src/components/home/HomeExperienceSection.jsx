@@ -363,94 +363,79 @@ const HomeExperienceSection = () => {
     error: destinationsError,
   } = useDestinations();
   const liveDestinations = useMemo(() => Array.isArray(liveDestinationsRaw) ? liveDestinationsRaw : [], [liveDestinationsRaw]);
+  const DEST_HERO_MAP = {
+    egypt: '/imgs/egyothero.png',
+    turkey: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1920&q=80',
+    jordan: 'https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg',
+    dubai: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80',
+    morocco: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200',
+    greece: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200',
+    tunisia: 'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=1200&q=80',
+    'holy-land': 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=1920&q=80',
+    holyland: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=1920&q=80',
+  };
+
+  const DEST_TOUR_COUNTS = {
+    egypt: 9,
+    turkey: 15,
+    jordan: 7,
+    dubai: 9,
+    morocco: 1,
+    greece: 1,
+    tunisia: 1,
+    'holy-land': 6,
+    holyland: 6,
+  };
+
   const liveDestinationCards = useMemo(() => {
-    const safeT = typeof t === 'function' ? t : (k, fallback) => (fallback || k);
-    const lang = i18n?.language || 'en';
-    const rawList = liveDestinations.length > 0 ? liveDestinations : _destinationsData;
+    const cardMap = new Map();
 
-    const filtered = rawList.filter((d) => {
-      const slug = String(d.slug || d.id || '').toLowerCase();
-      return slug !== 'multi-country' && slug !== 'religious' && slug !== 'religious-tours' && slug !== 'multi-country-tours';
-    });
+    (liveDestinations || []).forEach((destination) => {
+      const slug = destination.slug || destination.id;
+      const heroImg = DEST_HERO_MAP[slug] || destination.heroImageUrl || destination.image;
+      const dynamicCount = (allLiveTours || []).filter(t => t && (t.destination === slug || (slug.includes('holy') && (t.destination === 'holy-land' || t.destination === 'holyland')))).length;
+      const exactCount = DEST_TOUR_COUNTS[slug] !== undefined ? DEST_TOUR_COUNTS[slug] : destination.toursCount;
+      const toursCount = exactCount !== undefined ? exactCount : dynamicCount;
+      const navKey = (slug === 'holy-land' || slug === 'holyland') ? 'holyland' : slug;
 
-    const DEST_I18N_KEYS = {
-      egypt: { nameKey: 'home.destEgypt', descKey: 'home.destEgyptDesc' },
-      turkey: { nameKey: 'home.destTurkey', descKey: 'home.destTurkeyDesc' },
-      dubai: { nameKey: 'home.destDubai', descKey: 'home.destDubaiDesc' },
-      jordan: { nameKey: 'home.destJordan', descKey: 'home.destJordanDesc' },
-      morocco: { nameKey: 'home.destMorocco', descKey: 'home.destMoroccoDesc' },
-      greece: { nameKey: 'home.destGreece', descKey: 'home.destGreeceDesc' },
-      tunisia: { nameKey: 'home.destTunisia', descKey: 'home.destTunisiaDesc' },
-      holyland: { nameKey: 'home.destHolyLand', descKey: 'home.destHolyLandDesc' },
-      'holy-land': { nameKey: 'home.destHolyLand', descKey: 'home.destHolyLandDesc' },
-    };
+      const name = t(`nav.${navKey}`, destination.title || destination.name);
+      const subtitle = t(`dest.${navKey}.subtitle`, destination.subtitle || destination.description || '');
 
-    const cards = filtered.map((destination) => {
-      const slug = String(destination.slug || destination.id || '').toLowerCase();
-      const keys = DEST_I18N_KEYS[slug];
+      const key = slug === 'holyland' ? 'holy-land' : slug;
 
-      let name = '';
-      if (keys && safeT(keys.nameKey) !== keys.nameKey) {
-        name = safeT(keys.nameKey);
-      } else {
-        let rawTitle = destination.title || destination.name;
-        if (!rawTitle && destination.nameKey) {
-          rawTitle = safeT(destination.nameKey);
-        }
-        name = resolveLocalizedText(rawTitle || slug, safeT, lang);
-      }
-
-      let subtitle = '';
-      if (keys && safeT(keys.descKey) !== keys.descKey) {
-        subtitle = safeT(keys.descKey);
-      } else {
-        let rawSub = destination.subtitle || destination.description;
-        if (!rawSub && destination.descKey) {
-          rawSub = safeT(destination.descKey);
-        }
-        subtitle = resolveLocalizedText(rawSub || '', safeT, lang);
-      }
-
-      return {
+      cardMap.set(key, {
         id: slug,
-        name: name || slug,
-        description: subtitle || '',
-        subtitle: subtitle || '',
-        image: destination.heroImageUrl || destination.image,
-        toursCount: destination.toursCount || 3,
+        name,
+        description: subtitle,
+        subtitle,
+        image: heroImg,
+        toursCount: toursCount,
         link: `/destinations/${slug}`,
-      };
+      });
     });
 
-    const hasHolyLand = cards.some((c) => c.id === 'holyland' || c.id === 'holy-land');
-    if (!hasHolyLand) {
-      cards.push({
-        id: 'holyland',
-        name: safeT('home.destHolyLand', 'Holy Land'),
-        description: safeT('home.destHolyLandDesc', 'History, spirituality and eternal legacy.'),
-        subtitle: safeT('home.destHolyLandDesc', 'History, spirituality and eternal legacy.'),
-        image: '/images/holy-land.webp',
-        toursCount: 3,
-        link: '/destinations/holyland',
-      });
-    }
+    const DESIRED_ORDER = ['egypt', 'turkey', 'dubai', 'jordan', 'morocco', 'tunisia', 'greece', 'holy-land'];
 
-    const destOrderMap = {
-      'egypt': 1,
-      'turkey': 2,
-      'dubai': 3,
-      'jordan': 4,
-      'morocco': 5,
-      'tunisia': 6,
-      'greece': 7,
-      'holyland': 8,
-      'holy-land': 8
-    };
+    const result = [];
+    DESIRED_ORDER.forEach((key) => {
+      if (cardMap.has(key)) {
+        result.push(cardMap.get(key));
+      } else {
+        const navKey = key === 'holy-land' ? 'holyland' : key;
+        result.push({
+          id: key,
+          name: t(`nav.${navKey}`, key.charAt(0).toUpperCase() + key.slice(1)),
+          description: t(`dest.${navKey}.subtitle`, ''),
+          subtitle: t(`dest.${navKey}.subtitle`, ''),
+          image: DEST_HERO_MAP[key] || '/imgs/egyothero.png',
+          toursCount: DEST_TOUR_COUNTS[key] || 1,
+          link: `/destinations/${key}`,
+        });
+      }
+    });
 
-    cards.sort((a, b) => (destOrderMap[a.id] || 99) - (destOrderMap[b.id] || 99));
-
-    return cards;
-  }, [liveDestinations, t, i18n?.language]);
+    return result;
+  }, [liveDestinations, allLiveTours, t]);
   const livePackageCards = useMemo(() => {
     const safeT = typeof t === 'function' ? t : (k, fallback) => (fallback || k);
     const definitions = [
@@ -1386,31 +1371,30 @@ const HomeExperienceSection = () => {
                     boxShadow: "0 0 32px rgba(245,166,35,0.22)",
                     transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
                   }}
-                  className="relative h-[300px] rounded-2xl overflow-hidden cursor-pointer group transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-gold-500 hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(245,166,35,0.2)]"
+                  className="relative h-[320px] rounded-2xl overflow-hidden cursor-pointer group transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-gold-500 hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(245,166,35,0.2)]"
                 >
-                  {dest.image ? (
-                    <img
-                      src={dest.image}
-                      alt={dest.name}
-                      className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-obsidian-800 px-4 text-center text-sm text-ivory-300">
-                      {t('destination.imageUnavailable', 'No image has been added for this destination.')}
-                    </div>
-                  )}
+                  <img
+                    src={dest.image}
+                    alt={dest.name}
+                    className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.08] transition-transform duration-700"
+                    loading="lazy"
+                    decoding="async"
+                  />
                   <div
-                    className="absolute inset-0 bg-obsidian-900/35 transition-colors duration-500 group-hover:bg-obsidian-900/15"
+                    className="absolute inset-0 bg-gradient-to-t from-obsidian-950/85 via-obsidian-900/60 to-obsidian-900/40 group-hover:from-obsidian-950/75 transition-colors duration-500"
                   ></div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
-                    <h3 className="text-display-lg text-ivory-50 mb-2">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-10">
+                    <h3 className="text-display-lg text-white font-bold mb-2 drop-shadow-md">
                       {dest.name}
                     </h3>
-                    <p className="text-body-lg text-gold-500 font-medium mb-4 leading-relaxed">{dest.description}</p>
-                    <span className="text-caption text-ivory-300 uppercase tracking-wider bg-obsidian-900/50 backdrop-blur-sm px-4 py-2 rounded-full border border-ivory-50/10">
-                      {tourCount} {t("home.toursAvailable")}
+                    <p className="text-body-lg text-white font-medium mb-4 leading-relaxed line-clamp-2 max-w-xs drop-shadow">{dest.description}</p>
+                    
+                    {/* Tour Count Badge */}
+                    <span className="inline-flex items-center gap-2 text-caption font-semibold uppercase tracking-wider bg-black/65 backdrop-blur-md px-4 py-2 rounded-full border border-gold-500/40 shadow-lg group-hover:border-gold-400 group-hover:bg-gold-500/20 transition-all">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 002.5-2.5V8.5M12 12a3 3 0 100-6 3 3 0 000 6z" />
+                      </svg>
+                      <span className="text-white font-bold">{tourCount} {t("home.toursAvailable", "رحلات متوفرة")}</span>
                     </span>
                   </div>
                 </motion.div>
