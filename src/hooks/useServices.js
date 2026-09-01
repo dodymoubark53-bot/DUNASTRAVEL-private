@@ -99,6 +99,8 @@ function transformTransportToService(service) {
         : [],
     shortDesc: service.description || '',
     description: service.description || '',
+    rating: service.rating || 5.0,
+    reviews: service.reviews || 100,
     isActive: service.isActive !== false,
     isPrivate: service.isPrivate !== undefined ? Boolean(service.isPrivate) : category === 'private',
   };
