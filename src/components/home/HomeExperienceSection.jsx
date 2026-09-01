@@ -923,22 +923,16 @@ const HomeExperienceSection = () => {
   useScrollAnimations();
 
   const filteredVehicles = useMemo(() => {
-    const list = transportationList || [];
-    let filtered = list;
-    if (vehicleFilter !== "all") {
-      filtered = list.filter((v) => {
-        const cat = (v.category || v.vehicleCategory || "").toLowerCase();
-        if (vehicleFilter === "bus") return cat === "bus" || v.seats > 30;
-        if (vehicleFilter === "coaster") return cat === "coaster" || (v.seats > 8 && v.seats <= 30);
-        if (vehicleFilter === "private") return cat === "private" || v.seats <= 8;
-        return cat === vehicleFilter.toLowerCase();
-      });
-    }
-    if (!filtered || filtered.length === 0) {
-      filtered = fallbackTransportation.filter(v => vehicleFilter === 'all' || v.category === vehicleFilter);
-    }
-    return filtered.length > 0 ? filtered : fallbackTransportation;
-  }, [transportationList, vehicleFilter]);
+    const list = (fallbackTransportation && fallbackTransportation.length > 0) ? fallbackTransportation : (transportationList || []);
+    if (vehicleFilter === "all") return list;
+    return list.filter((v) => {
+      const cat = (v.category || v.vehicleCategory || "").toLowerCase();
+      if (vehicleFilter === "bus") return cat === "bus" || v.seats > 30;
+      if (vehicleFilter === "coaster") return cat === "coaster" || (v.seats > 8 && v.seats <= 30);
+      if (vehicleFilter === "private") return cat === "private" || v.seats <= 8;
+      return cat === vehicleFilter.toLowerCase();
+    });
+  }, [vehicleFilter, transportationList]);
 
   // Shared galleryImages and videos retrieved from useMedia hook
 
@@ -1815,42 +1809,42 @@ const HomeExperienceSection = () => {
             <div
               className="flex w-max"
               style={{
-                gap: "20px",
-                paddingLeft: "20px",
-                animation: "tourMarquee 180s linear infinite",
+                gap: "16px",
+                paddingLeft: "16px",
+                animation: "tourMarquee 75s linear infinite",
               }}
               onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
               onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
             >
               {(() => {
-                const infiniteVehicles = buildInfiniteMarqueeList(filteredVehicles, 'veh');
-                return infiniteVehicles.map((vehicle, idx) => (
+                const repeatedList = Array.from({ length: 4 }).flatMap(() => filteredVehicles);
+                return repeatedList.map((vehicle, idx) => (
                   <div
-                    key={vehicle.uKey || `veh-${vehicle.id}-${idx}`}
-                    className="flex-shrink-0 flex flex-col rounded-[20px] overflow-hidden group relative w-[280px] sm:w-[320px] md:w-[360px] h-[360px] md:h-[400px] transition-all duration-500 ease-out hover:scale-[1.05] hover:-translate-y-2 hover:shadow-[0_12px_40px_rgba(245,166,35,0.35)] border border-obsidian-700/50 hover:border-gold-500 bg-obsidian-900"
+                    key={`veh-${vehicle.id}-${idx}`}
+                    className="flex-shrink-0 flex flex-col rounded-[16px] overflow-hidden group relative w-[280px] h-[360px] md:h-[380px] transition-all duration-[350ms] ease-out hover:scale-[1.05] hover:-translate-y-2 hover:shadow-[0_12px_40px_rgba(245,166,35,0.35)] hover:z-10 border border-obsidian-700/50 hover:border-gold-500 bg-obsidian-900"
                   >
                     <img
-                      src={getOptimizedImageUrl(vehicle.heroImage || vehicle.image, 360, 400)}
+                      src={vehicle.heroImage || vehicle.image}
                       alt={vehicle.name}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
                       decoding="async"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-900/50 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900 via-obsidian-900/40 to-transparent"></div>
 
-                    <div className="absolute top-4 left-4 z-20 bg-gold-500 text-obsidian-950 text-caption font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md backdrop-blur-md">
+                    <div className="absolute top-4 left-4 bg-gold-500 text-obsidian-900 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded shadow-md">
                       {vehicle.category === 'bus' ? t('transportation.filter.buses', 'Buses') :
                         vehicle.category === 'coaster' ? t('transportation.filter.coasters', 'Coaster Vehicles') :
                           t('transportation.filter.private', 'Private Vehicles')}
                     </div>
 
-                    <div className="absolute bottom-0 left-0 right-0 p-5 flex flex-col justify-end z-10" dir={isRtl ? "rtl" : "ltr"}>
-                      <h3 className="font-serif text-xl md:text-2xl text-white font-bold mb-1 drop-shadow-md" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    <div className="absolute bottom-0 left-0 right-0 p-5 flex flex-col justify-end">
+                      <h3 className="font-display text-xl text-ivory-50 mb-1 drop-shadow-md">
                         {vehicle.name}
                       </h3>
-                      <div className="flex items-center text-xs text-ivory-200 mb-3 gap-1 font-medium">
+                      <div className="flex items-center text-xs text-white mb-3 gap-1">
                         <svg
-                          className="w-4 h-4 text-gold-500 shrink-0"
+                          className="w-4 h-4 text-gold-500"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -1866,13 +1860,13 @@ const HomeExperienceSection = () => {
                         {t("transportation.seatsCount", "Seats")}
                       </div>
 
-                      <div className="flex items-center justify-between mb-4 border-t border-white/20 pt-3 mt-1">
-                        <span className="text-xs text-ivory-300 uppercase tracking-wider">
+                      <div className="flex items-center justify-between mb-4 border-t border-ivory-50/20 pt-3 mt-1">
+                        <span className="text-xs text-white uppercase tracking-wider">
                           {t("tourCard.from", "From")}
                         </span>
-                        <span className="text-lg font-bold text-gold-400">
+                        <span className="text-lg font-semibold text-gold-500">
                           {formatPrice(vehicle.pricePerDay)}
-                          <span className="text-xs text-ivory-300 font-normal">
+                          <span className="text-xs text-white font-normal">
                             {" "}
                             / {t("transportation.day", "day")}
                           </span>
@@ -1881,7 +1875,7 @@ const HomeExperienceSection = () => {
 
                       <button
                         onClick={() => handleHomeReserveClick(vehicle.id)}
-                        className="w-full py-2.5 text-xs font-bold text-obsidian-950 transition-all bg-gradient-to-r from-[#F5A623] to-[#E09612] hover:brightness-110 rounded-xl shadow-lg flex items-center justify-center cursor-pointer outline-none active:scale-95"
+                        className="w-full py-2 text-sm font-semibold text-white transition-colors border border-gold-500 rounded-lg flex items-center justify-center bg-obsidian-900/40 backdrop-blur-sm cursor-pointer outline-none hover:bg-gold-500 hover:text-obsidian-950"
                       >
                         {t("transportation.reserveNow", "Reserve Now")}
                       </button>
