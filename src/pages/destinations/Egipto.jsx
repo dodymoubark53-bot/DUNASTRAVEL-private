@@ -169,7 +169,7 @@ export default function Egipto() {
             variants={itemVariants}
             className="bg-white dark:bg-[#151728] rounded-xl overflow-hidden flex flex-col h-full group shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 dark:border-obsidian-800 hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] hover:border-gold-500 hover:-translate-y-2 transition-all duration-300 ease-out z-10 hover:z-20 relative"
           >
-            <Link to="/tours/classic-program" className="block relative h-[240px] overflow-hidden">
+            <Link to="/programs/classic/classic-program" className="block relative h-[240px] overflow-hidden">
               <img
                 src="https://res.cloudinary.com/degbrq3ck/image/upload/v1783029636/Classic_Program_gfal0s.jpg"
                 alt="Classic Program"
@@ -181,7 +181,7 @@ export default function Egipto() {
               <span className="text-caption text-gold-600 dark:text-gold-400 uppercase tracking-widest font-semibold mb-1">
                 {t('nav.classic', 'Classic')}
               </span>
-              <Link to="/tours/classic-program">
+              <Link to="/programs/classic/classic-program">
                 <h3
                   className="text-display-md text-obsidian-900 dark:text-ivory-50 mt-1 mb-3 group-hover:text-gold-500 transition-colors line-clamp-2 font-display"
                   style={{ fontFamily: "'Playfair Display', serif" }}
@@ -197,7 +197,7 @@ export default function Egipto() {
               </p>
               <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 mt-auto">
                 <span className="text-xs font-semibold text-gold-600 dark:text-gold-400">8 {t('common.days', 'Days')}</span>
-                <Link to="/tours/classic-program">
+                <Link to="/programs/classic/classic-program">
                   <Button as="span" variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
                     {t('tourCard.viewDetails', 'View Details')}{' '}
                     <span className="rtl-flip">→</span>
@@ -212,7 +212,7 @@ export default function Egipto() {
             variants={itemVariants}
             className="bg-white dark:bg-[#151728] rounded-xl overflow-hidden flex flex-col h-full group shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 dark:border-obsidian-800 hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] hover:border-gold-500 hover:-translate-y-2 transition-all duration-300 ease-out z-10 hover:z-20 relative"
           >
-            <Link to="/tours/honeymoon-in-egypt" className="block relative h-[240px] overflow-hidden">
+            <Link to="/programs/honeymooners" className="block relative h-[240px] overflow-hidden">
               <img
                 src="https://hl-tourism.com/media/typecms/Honeymoon_Planning_Guide_2025_Complete_Resource.webp"
                 alt="Honeymoon in Egypt"
@@ -224,7 +224,7 @@ export default function Egipto() {
               <span className="text-caption text-gold-600 dark:text-gold-400 uppercase tracking-widest font-semibold mb-1">
                 {t('nav.honeymooners', 'Honeymooners Package')}
               </span>
-              <Link to="/tours/honeymoon-in-egypt">
+              <Link to="/programs/honeymooners">
                 <h3
                   className="text-display-md text-obsidian-900 dark:text-ivory-50 mt-1 mb-3 group-hover:text-gold-500 transition-colors line-clamp-2 font-display"
                   style={{ fontFamily: "'Playfair Display', serif" }}
@@ -240,7 +240,7 @@ export default function Egipto() {
               </p>
               <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 mt-auto">
                 <span className="text-xs font-semibold text-gold-600 dark:text-gold-400">10 {t('common.days', 'Days')}</span>
-                <Link to="/tours/honeymoon-in-egypt">
+                <Link to="/programs/honeymooners">
                   <Button as="span" variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
                     {t('tourCard.viewDetails', 'View Details')}{' '}
                     <span className="rtl-flip">→</span>
@@ -255,7 +255,7 @@ export default function Egipto() {
             variants={itemVariants}
             className="bg-white dark:bg-[#151728] rounded-xl overflow-hidden flex flex-col h-full group shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-obsidian-200 dark:border-obsidian-800 hover:shadow-[0_12px_32px_rgba(245,166,35,0.25)] hover:border-gold-500 hover:-translate-y-2 transition-all duration-300 ease-out z-10 hover:z-20 relative"
           >
-            <Link to="/tours/journey-of-the-holy-family-10-days" className="block relative h-[240px] overflow-hidden">
+            <Link to="/programs/religious" className="block relative h-[240px] overflow-hidden">
               <img
                 src="https://sft-nationaltours.com/wp-content/uploads/2024/11/holy-family-egypt_tg_1397-870x555.jpg"
                 alt="Holy Family & Pilgrimages"
@@ -267,7 +267,7 @@ export default function Egipto() {
               <span className="text-caption text-gold-600 dark:text-gold-400 uppercase tracking-widest font-semibold mb-1">
                 {t('nav.religious', 'Religious Programs')}
               </span>
-              <Link to="/tours/journey-of-the-holy-family-10-days">
+              <Link to="/programs/religious">
                 <h3
                   className="text-display-md text-obsidian-900 dark:text-ivory-50 mt-1 mb-3 group-hover:text-gold-500 transition-colors line-clamp-2 font-display"
                   style={{ fontFamily: "'Playfair Display', serif" }}
@@ -284,17 +284,17 @@ export default function Egipto() {
               
               {/* Religious options chips */}
               <div className="flex flex-wrap gap-1.5 mb-4">
-                <Link to="/tours/journey-of-the-holy-family-10-days" className="text-[11px] bg-gold-50 dark:bg-gold-900/20 text-gold-700 dark:text-gold-400 px-2.5 py-1 rounded-md font-medium border border-gold-200/50 hover:bg-gold-500 hover:text-obsidian-900 transition-colors">
+                <Link to="/programs/religious" className="text-[11px] bg-gold-50 dark:bg-gold-900/20 text-gold-700 dark:text-gold-400 px-2.5 py-1 rounded-md font-medium border border-gold-200/50 hover:bg-gold-500 hover:text-obsidian-900 transition-colors">
                   {t('programs.holyFamily10d', 'Holy Family (10D)')}
                 </Link>
-                <Link to="/tours/egypt-jordan-combined-14d" className="text-[11px] bg-gold-50 dark:bg-gold-900/20 text-gold-700 dark:text-gold-400 px-2.5 py-1 rounded-md font-medium border border-gold-200/50 hover:bg-gold-500 hover:text-obsidian-900 transition-colors">
+                <Link to="/programs/religious" className="text-[11px] bg-gold-50 dark:bg-gold-900/20 text-gold-700 dark:text-gold-400 px-2.5 py-1 rounded-md font-medium border border-gold-200/50 hover:bg-gold-500 hover:text-obsidian-900 transition-colors">
                   {t('programs.egyptJordan14d', 'Egypt & Jordan (14D)')}
                 </Link>
               </div>
 
               <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 mt-auto">
                 <span className="text-xs font-semibold text-gold-600 dark:text-gold-400">10-14 {t('common.days', 'Days')}</span>
-                <Link to="/services/religious">
+                <Link to="/programs/religious">
                   <Button as="span" variant="outline-gold" className="px-6 py-2 flex items-center gap-2">
                     {t('tourCard.viewDetails', 'View Details')}{' '}
                     <span className="rtl-flip">→</span>

@@ -6,7 +6,8 @@ import {
   FaChevronRight, FaChevronLeft, FaClock, FaTag,
   FaMapMarkerAlt, FaBed, FaCheckCircle, FaUsers, FaStar,
   FaGlobeAmericas, FaShieldAlt,
-  FaTimes, FaExternalLinkAlt, FaHeart, FaRegHeart
+  FaTimes, FaExternalLinkAlt, FaHeart, FaRegHeart,
+  FaTrain, FaBus, FaExclamationTriangle
 } from 'react-icons/fa';
 import { fadeInUp } from '../../animations/variants';
 import BookingForm from '../../components/booking/BookingForm';
@@ -29,19 +30,40 @@ const marketFlag = (market) => {
   return flags[market] ?? '🌍';
 };
 
+/**
+ * Tours that require the customer to choose a transport method (Train vs Bus)
+ * BEFORE completing their booking. Only these two Turkey-route tours use this feature.
+ */
+const TRANSPORT_REQUIRED_SLUGS = [
+  'reg-01-legendary-turkey',
+  'marvels-of-dubai-and-turkey-14-days',
+];
+
+const SLUG_ALIASES = {
+  'classic': 'complete-egypt-8d',
+  'classic-program': 'complete-egypt-8d',
+  'honeymoon-in-egypt': 'cairo-cruzeiro-sharm-11d',
+  'honeymooners': 'cairo-cruzeiro-sharm-11d',
+  'journey-of-the-holy-family-10-days': 'egito-historico-10d',
+  'egypt-jordan-combined-14d': 'jewels-of-egypt-and-jordan-11-days'
+};
+
 const TourDetails = () => {
   const { t, i18n } = useTranslation();
   const { formatPrice } = useCurrency();
   const lang = i18n.language || 'en';
   const params = useParams();
   const rawSlug = params.slug || params.programId || params.id || params['*'];
-  const slug = rawSlug ? String(rawSlug).split('/').filter(Boolean).pop().trim() : '';
+  const extractedSlug = rawSlug ? String(rawSlug).split('/').filter(Boolean).pop().trim() : '';
+  const slug = SLUG_ALIASES[extractedSlug] || extractedSlug || 'complete-egypt-8d';
 
   const { tour, loading, error, retry } = useTour(slug);
   const { isFavorite, toggleFavorite } = useWishlist();
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [selectedTransport, setSelectedTransport] = useState(null); // 'train' | 'bus' | null — only for TRANSPORT_REQUIRED_SLUGS
+
 
   useEffect(() => {
     if (tour?.slug) {
@@ -543,13 +565,93 @@ const TourDetails = () => {
 
           </div>
 
-          <div className="lg:col-span-1 sticky top-28">
+          <div className="lg:col-span-1 sticky top-28 space-y-6">
+            {/* ── Transport Selector (Turkey tours only) ── */}
+            {TRANSPORT_REQUIRED_SLUGS.includes(slug) && (
+              <motion.div
+                id="transport-selector"
+                variants={fadeInUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="bg-ivory-50 dark:bg-[#1a1a30] rounded-2xl shadow-sm border border-obsidian-200 dark:border-gray-700 p-6 text-left rtl:text-right"
+              >
+                <h3 className="text-display-md text-obsidian-900 dark:text-ivory-50 mb-1 font-display font-semibold" style={{ fontFamily: "'Playfair Display', serif" }}>
+                  🚄 {t('tour.transportOrBus', 'High-Speed Train or Bus')} 🚌
+                </h3>
+                <p className="text-body-sm text-obsidian-500 dark:text-ivory-400 mb-5">
+                  {t('tour.chooseTransport', 'Choose your preferred transport between Istanbul and Ankara')}
+                </p>
+
+                {/* Validation warning */}
+                {selectedTransport === null && (
+                  <div className="mb-4 flex items-center gap-2 text-[12px] text-amber-700 dark:text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-xl px-3.5 py-2.5">
+                    <FaExclamationTriangle className="shrink-0 text-amber-500" />
+                    <span>{t('booking.transportRequired', 'Please select a transport option before booking.')}</span>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 gap-4">
+                  {/* Train Option */}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTransport('train')}
+                    className={`relative w-full text-center p-5 rounded-2xl border-2 transition-all duration-200 cursor-pointer group ${
+                      selectedTransport === 'train'
+                        ? 'border-gold-500 bg-gold-500/10 shadow-[0_0_20px_rgba(201,162,39,0.2)]'
+                        : 'border-obsidian-200 dark:border-gray-700 bg-white dark:bg-[#12121f] hover:border-gold-500/50 hover:bg-gold-500/5'
+                    }`}
+                  >
+                    <div className="text-4xl mb-3">🚄</div>
+                    <p className="font-semibold text-obsidian-900 dark:text-ivory-50 text-base font-display">
+                      {t('tour.highSpeedTrain', 'High-Speed Train')}
+                    </p>
+                    <p className="text-body-sm text-obsidian-500 dark:text-ivory-400 mt-1">
+                      ~{t('tour.trainDuration', '4 hours')}
+                    </p>
+                    {selectedTransport === 'train' && (
+                      <span className="absolute top-3 right-3 rtl:right-auto rtl:left-3 w-5 h-5 rounded-full bg-gold-500 flex items-center justify-center">
+                        <FaCheckCircle className="text-obsidian-900 text-[10px]" />
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Bus Option */}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTransport('bus')}
+                    className={`relative w-full text-center p-5 rounded-2xl border-2 transition-all duration-200 cursor-pointer group ${
+                      selectedTransport === 'bus'
+                        ? 'border-gold-500 bg-gold-500/10 shadow-[0_0_20px_rgba(201,162,39,0.2)]'
+                        : 'border-obsidian-200 dark:border-gray-700 bg-white dark:bg-[#12121f] hover:border-gold-500/50 hover:bg-gold-500/5'
+                    }`}
+                  >
+                    <div className="text-4xl mb-3">🚌</div>
+                    <p className="font-semibold text-obsidian-900 dark:text-ivory-50 text-base font-display">
+                      {t('tour.bus', 'Bus')}
+                    </p>
+                    <p className="text-body-sm text-obsidian-500 dark:text-ivory-400 mt-1">
+                      ~{t('tour.busDuration', '6 hours')} · {t('tour.viaGrandBazaar', 'via Grand Bazaar')}
+                    </p>
+                    {selectedTransport === 'bus' && (
+                      <span className="absolute top-3 right-3 rtl:right-auto rtl:left-3 w-5 h-5 rounded-full bg-gold-500 flex items-center justify-center">
+                        <FaCheckCircle className="text-obsidian-900 text-[10px]" />
+                      </span>
+                    )}
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ── Booking Form ── */}
             <BookingForm
               tourId={tour.id}
               tourSlug={tour.slug}
               tourTitle={title}
               price={tour.basePriceUsd || tour.price}
-              transportChoice={tour.transportOptions}
+              {...(TRANSPORT_REQUIRED_SLUGS.includes(slug)
+                ? { transportChoice: selectedTransport, requireTransportChoice: true }
+                : {})}
             />
           </div>
 

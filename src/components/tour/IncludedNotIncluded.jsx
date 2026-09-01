@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { fadeInUp } from '../../animations/variants';
+import { resolveLocalizedText } from '../../utils/titleHelper';
 
 const IncludedNotIncluded = ({
   includedItems = [],
@@ -13,20 +14,12 @@ const IncludedNotIncluded = ({
   excursionsTitle,
   sectionTitle
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language || 'en';
 
   const translateKey = (item) => {
     if (!item) return '';
-    // If the key is already dot-notated or has underscores, try translating directly
-    if (item.includes('.') || item.includes('_')) {
-      const translated = t(item);
-      if (translated !== item) return translated;
-    }
-    // Check if it's stored in data translations namespace
-    const translatedData = t(`data.${item}`);
-    if (translatedData !== `data.${item}`) return translatedData;
-    
-    return t(item, item);
+    return resolveLocalizedText(item, t, lang);
   };
 
   const hasExcursions = Array.isArray(excursionsItems) && excursionsItems.length > 0;

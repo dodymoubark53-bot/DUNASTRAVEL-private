@@ -15,7 +15,6 @@ import {
   FaChevronDown,
   FaShieldAlt,
   FaTag,
-  FaInfoCircle,
   FaUserCheck,
   FaBuilding
 } from 'react-icons/fa';
@@ -598,17 +597,6 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
                   </div>
                 </div>
 
-                {(availabilityStatus === 'empty' || availabilityStatus === 'error') && (
-                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-3.5 py-2.5 flex items-start gap-2">
-                    <FaInfoCircle className="text-amber-400 mt-0.5 flex-shrink-0" size={13} />
-                    <p className="text-[12px] text-amber-200 leading-snug">
-                      {t(
-                        'booking.noAvailability',
-                        'Scheduled group departures are limited. You may still submit; our team will lock in the closest private slot.'
-                      )}
-                    </p>
-                  </div>
-                )}
 
                 {/* Times */}
                 <div className="grid grid-cols-2 gap-3">

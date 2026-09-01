@@ -614,6 +614,16 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route path="honeymooners" element={<PageTransition><Honeymooners /></PageTransition>} />
+                <Route path="honeymooners/:id" element={<PageTransition><TourDetails /></PageTransition>} />
+                <Route path="religious" element={<PageTransition><ReligiousTours /></PageTransition>} />
+                <Route path="religious/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                <Route path="multi-country" element={<PageTransition><MultiCountryTours /></PageTransition>} />
+                <Route path="multi-country/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                <Route path="extension" element={<PageTransition><ExtensionTours /></PageTransition>} />
+                <Route path="extension/:id" element={<PageTransition><TourDetails /></PageTransition>} />
+                <Route path="classic" element={<PageTransition><BackendToursPage titleKey="programs.classicTitle" titleDefault="Classic Tours" filters={{ destination: 'Egypt' }} /></PageTransition>} />
+                <Route path="classic/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
                 <Route
                   path="trips/:slug"
                   element={

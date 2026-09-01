@@ -5,6 +5,135 @@
  * records, so the i18n resolver is retained. Static tour/program title maps
  * are intentionally not used at runtime: the API response is authoritative.
  */
+const TAG_FALLBACK_DICTIONARY = {
+  'honeymooners.tag1': {
+    ar: 'استقبال بالورد وعشاء رومانسي خاص',
+    en: 'Flowers Welcome & Private Candlelit Dinner',
+    es: 'Bienvenida con Flores y Cena Romántica Privada',
+    it: 'Benvenuto con Fiori e Cena Romantica Privata',
+    pt: 'Recepção com Flores e Jantar Romântico Privativo'
+  },
+  'honeymooners.tag2': {
+    ar: 'جلسات تصوير احترافية للزوجين',
+    en: 'Professional Couple Photography Sessions',
+    es: 'Sesiones de Fotografía Profesional para Parejas',
+    it: 'Sessioni Fotografiche Professionali di Coppia',
+    pt: 'Sessões de Fotografia Profissional para Casais'
+  },
+  'honeymooners.tag3': {
+    ar: 'ترقية مجانية للغرف والأجنحة (حسب الإمكانية)',
+    en: 'Complimentary Room & Suite Upgrade (Subject to Availability)',
+    es: 'Mejora de Habitación y Suite Gratuita (Sujeto a Disponibilidad)',
+    it: 'Upgrade Gratuito di Camera e Suite (Previa Disponibilità)',
+    pt: 'Upgrade Gratuito de Quarto e Suíte (Sujeito a Disponibilidade)'
+  },
+  'egyptPackages.honeymooners.tag1': {
+    ar: 'عشاء رومانسي خاص',
+    en: 'Private Romantic Dinner',
+    es: 'Cena Romántica Privada',
+    pt: 'Jantares Privados',
+    it: 'Cena Romantica Privata'
+  },
+  'egyptPackages.honeymooners.tag2': {
+    ar: 'منتجعات البحر الأحمر',
+    en: 'Red Sea Resorts',
+    es: 'Resorts del Mar Rojo',
+    pt: 'Resorts Mar Vermelho',
+    it: 'Resort Mar Rosso'
+  },
+  'egyptPackages.honeymooners.tag3': {
+    ar: 'إبحار وقت الغروب',
+    en: 'Sunset Cruise',
+    es: 'Crucero al Atardecer',
+    pt: 'Cruzeiro Pôr do Sol',
+    it: 'Crociera al Tramonto'
+  },
+  'extensions.tag1': {
+    ar: 'منتجعات الغردقة وشرم الشيخ الشاملة All-Inclusive',
+    en: 'All-Inclusive Hurghada & Sharm El Sheikh Resorts',
+    es: 'Resorts Todo Incluido en Hurghada y Sharm El Sheikh',
+    pt: 'Resorts All-Inclusive em Hurghada e Sharm El Sheikh',
+    it: 'Resort All-Inclusive a Hurghada e Sharm El Sheikh'
+  },
+  'extensions.tag2': {
+    ar: 'رحلات واحة سيوة والإسكندرية الاستكشافية',
+    en: 'Siwa Oasis & Alexandria Expeditions',
+    es: 'Expediciones al Oasis de Siwa y Alejandría',
+    pt: 'Expedições ao Oásis de Siwa e Alexandria',
+    it: 'Spedizioni all Oasi di Siwa e Alessandria'
+  },
+  'extensions.tag3': {
+    ar: 'طيران داخلي مريح من وإلى القاهرة',
+    en: 'Comfortable Domestic Flights to/from Cairo',
+    es: 'Vuelos domésticos cómodos desde/hacia El Cairo',
+    pt: 'Voos domésticos confortáveis de/para o Cairo',
+    it: 'Voli interni comodi da/per Il Cairo'
+  },
+  'programs.multiTag1': {
+    ar: 'طيران وتنقلات VIP مدمجة بالكامل',
+    en: 'Fully Integrated VIP Flights & Transfers',
+    es: 'Vuelos y traslados VIP totalmente integrados',
+    pt: 'Voos e traslados VIP totalmente integrados',
+    it: 'Voli e trasferimenti VIP completamente integrati'
+  },
+  'programs.multiTag2': {
+    ar: 'باقات (مصر + الأردن / تركيا + دبي)',
+    en: 'Packages (Egypt + Jordan / Turkey + Dubai)',
+    es: 'Paquetes (Egipto + Jordania / Turquía + Dubái)',
+    pt: 'Pacotes (Egito + Jordânia / Turquia + Dubai)',
+    it: 'Pacchetti (Egitto + Giordania / Turchia + Dubai)'
+  },
+  'programs.multiTag3': {
+    ar: 'إدارة شاملة للتأشيرات والخدمات',
+    en: 'Comprehensive Visa & Logistics Management',
+    es: 'Gestión integral de visados y logística',
+    pt: 'Gestão completa de vistos e logística',
+    it: 'Gestione completa di visti e servizi'
+  },
+  'programs.religiousTag1': {
+    ar: 'جولات الأديرة والمواقع القبطية بمصر',
+    en: 'Coptic Monasteries & Sacred Sites in Egypt',
+    es: 'Monasterios coptos y sitios sagrados en Egipto',
+    pt: 'Mosteiros coptas e locais sagrados no Egito',
+    it: 'Monasteri copti e luoghi sacri in Egitto'
+  },
+  'programs.religiousTag2': {
+    ar: 'إرشاد تاريخي وروحي متمرس',
+    en: 'Expert Historical & Spiritual Guidance',
+    es: 'Guía histórica y espiritual experta',
+    pt: 'Guia histórico e espiritual especializado',
+    it: 'Guida storica e spirituale esperta'
+  },
+  'programs.religiousTag3': {
+    ar: 'إقامات 5 نجوم وتنقلات مريحة مجهزة بالكامل',
+    en: '5-Star Stays & Fully Equipped Transfers',
+    es: 'Estancias 5 estrellas y traslados equipados',
+    pt: 'Estadias 5 estrelas e traslados equipados',
+    it: 'Soggiorni a 5 stelle e trasferimenti attrezzati'
+  },
+  'dest.egypt.tag1': {
+    ar: 'رحلات نيلية 5 نجوم ديلوكس',
+    en: '5-Star Deluxe Nile Cruises',
+    es: 'Cruceros por el Nilo 5 Estrellas Deluxe',
+    pt: 'Cruzeiros no Nilo 5 Estrelas Deluxe',
+    it: 'Crociere sul Nilo 5 Stelle Deluxe'
+  },
+  'dest.egypt.tag2': {
+    ar: 'إرشاد سياحي خاص باللغات العالمية',
+    en: 'Private Multilingual Tour Guiding',
+    es: 'Guía turístico privado multilingüe',
+    pt: 'Guia turístico privativo multilíngue',
+    it: 'Guida turistica privata multilingue'
+  },
+  'dest.egypt.tag3': {
+    ar: 'تجارب سفاري وحصريات الصحراء',
+    en: 'Desert Safaris & Exclusive Experiences',
+    es: 'Safaris por el desierto y experiencias exclusivas',
+    pt: 'Safáris no deserto e experiências exclusivas',
+    it: 'Safari nel deserto ed esperienze esclusive'
+  }
+};
+
 export function resolveLocalizedText(val, t = (key) => key, lang = 'en') {
   if (!val) return '';
 
@@ -20,6 +149,11 @@ export function resolveLocalizedText(val, t = (key) => key, lang = 'en') {
   const direct = safeT(cleanVal);
   if (direct && direct !== cleanVal) return direct;
 
+  const fallbackEntry = TAG_FALLBACK_DICTIONARY[cleanVal];
+  if (fallbackEntry) {
+    return fallbackEntry[lang] || fallbackEntry.en || fallbackEntry.ar || '';
+  }
+
   if (!cleanVal.startsWith('data.')) {
     const dataPrefixed = safeT(`data.${cleanVal}`);
     if (dataPrefixed && dataPrefixed !== `data.${cleanVal}`) return dataPrefixed;
@@ -29,6 +163,17 @@ export function resolveLocalizedText(val, t = (key) => key, lang = 'en') {
     const stripped = cleanVal.replace(/^data\./, '');
     const translatedStripped = safeT(stripped);
     if (translatedStripped && translatedStripped !== stripped) return translatedStripped;
+  }
+
+  if (cleanVal.startsWith('honeymooners.tag')) {
+    const egyptKey = cleanVal.replace('honeymooners.tag', 'egyptPackages.honeymooners.tag');
+    const directEgypt = safeT(egyptKey);
+    if (directEgypt && directEgypt !== egyptKey) return directEgypt;
+  }
+  if (cleanVal.startsWith('egyptPackages.honeymooners.tag')) {
+    const honeyKey = cleanVal.replace('egyptPackages.honeymooners.tag', 'honeymooners.tag');
+    const directHoney = safeT(honeyKey);
+    if (directHoney && directHoney !== honeyKey) return directHoney;
   }
 
   return cleanVal.startsWith('data.') ? cleanVal.replace(/^data\./, '') : cleanVal;
