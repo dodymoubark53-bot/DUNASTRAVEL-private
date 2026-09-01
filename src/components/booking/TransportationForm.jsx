@@ -56,10 +56,27 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
     pickupTime: '10:00',
     adults: 1,
     children: 0,
+    luggageCount: 1,
+    fullName: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    flightNumber: '',
     pickupLocation: '',
     dropoffLocation: '',
     specialRequest: '',
   });
+
+  // Sync user details if logged in
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: prev.fullName || user.name || '',
+        email: prev.email || user.email || '',
+        phone: prev.phone || user.phone || '',
+      }));
+    }
+  }, [user]);
 
   // Sync selected vehicle when user clicks "Reserve Now" or when fleet loads
   useEffect(() => {
@@ -94,6 +111,11 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
         pickupLocation: formData.pickupLocation.trim(),
         dropoffLocation: formData.dropoffLocation.trim(),
         passengerCount,
+        luggageCount: parseInt(formData.luggageCount, 10) || 0,
+        flightNumber: formData.flightNumber.trim() || undefined,
+        fullName: formData.fullName.trim() || undefined,
+        email: formData.email.trim() || undefined,
+        phone: formData.phone.trim() || undefined,
         notes: formData.specialRequest.trim() || undefined,
       };
 
@@ -281,6 +303,93 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
                     min="0"
                     max="20"
                     value={formData.children}
+                    onChange={handleChange}
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+
+              {/* Contact Information */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label htmlFor="full-name" className={labelClass}>
+                    <FaUsers className="text-gold-400" size={11} />
+                    {t('booking.fullName', 'Full Name')}
+                  </label>
+                  <input
+                    id="full-name"
+                    type="text"
+                    name="fullName"
+                    placeholder="e.g. Alexander Vance"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    required
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="contact-email" className={labelClass}>
+                    <FaInfoCircle className="text-gold-400" size={11} />
+                    {t('booking.email', 'Email Address')}
+                  </label>
+                  <input
+                    id="contact-email"
+                    type="email"
+                    name="email"
+                    placeholder="alexander@luxury.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="contact-phone" className={labelClass}>
+                    <FaPaperPlane className="text-gold-400" size={11} />
+                    {t('booking.phone', 'Phone / WhatsApp')}
+                  </label>
+                  <input
+                    id="contact-phone"
+                    type="tel"
+                    name="phone"
+                    placeholder="+1 (555) 019-2834"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+
+              {/* Flight and Luggage Info */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="flight-number" className={labelClass}>
+                    <FaPaperPlane className="text-gold-400" size={11} />
+                    {t('booking.flightNumber', 'Flight No. (Optional)')}
+                  </label>
+                  <input
+                    id="flight-number"
+                    type="text"
+                    name="flightNumber"
+                    placeholder="e.g. TK 1821 / EK 924"
+                    value={formData.flightNumber}
+                    onChange={handleChange}
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="luggage-count" className={labelClass}>
+                    <FaCarSide className="text-gold-400" size={11} />
+                    {t('booking.luggageCount', 'Luggage Pieces')}
+                  </label>
+                  <input
+                    id="luggage-count"
+                    type="number"
+                    name="luggageCount"
+                    min="0"
+                    max="30"
+                    value={formData.luggageCount}
                     onChange={handleChange}
                     className={inputClass}
                   />

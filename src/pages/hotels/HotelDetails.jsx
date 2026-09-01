@@ -90,7 +90,7 @@ const HotelDetails = () => {
     {
       id: 'single-room',
       name: t('hotel.room.singleTitle', 'Single Room'),
-      price: 0,
+      price: 75,
       capacity: '1 Guest',
       bed: t('hotel.room.singleBed', '1 Single Bed'),
       view: t('hotel.room.singleView', 'City / Garden View'),
@@ -99,7 +99,7 @@ const HotelDetails = () => {
     {
       id: 'double-room',
       name: t('hotel.room.doubleTitle', 'Double Room'),
-      price: 0,
+      price: 95,
       capacity: '1–2 Guests',
       bed: t('hotel.room.doubleBed', '1 King Bed'),
       view: t('hotel.room.doubleView', 'Pyramids View'),
@@ -108,7 +108,7 @@ const HotelDetails = () => {
     {
       id: 'triple-room',
       name: t('hotel.room.tripleTitle', 'Triple Room'),
-      price: 0,
+      price: 125,
       capacity: '3 Guests',
       bed: t('hotel.room.tripleBed', 'Double/Twin'),
       view: t('hotel.room.tripleView', 'Standard View'),
@@ -117,7 +117,7 @@ const HotelDetails = () => {
     {
       id: 'executive-suite',
       name: t('hotel.room.suiteTitle', 'Executive Suite'),
-      price: 0,
+      price: 190,
       capacity: '2–3 Guests',
       bed: t('hotel.room.suiteBed', '1 King Bed + Lounge'),
       view: t('hotel.room.suiteView', 'Panoramic Pyramids View'),
@@ -126,7 +126,7 @@ const HotelDetails = () => {
     {
       id: 'royal-pyramid-view-suite',
       name: t('hotel.room.royalTitle', 'Royal Pyramid View Suite'),
-      price: 0,
+      price: 280,
       capacity: '2–4 Guests',
       bed: t('hotel.room.royalBed', 'Master King Bed + Royal Lounge'),
       view: t('hotel.room.royalView', 'Front-Row Direct Pyramids View'),
@@ -135,15 +135,21 @@ const HotelDetails = () => {
   ];
 
   const roomTypes = (apiHotel?.rooms && apiHotel.rooms.length > 0)
-    ? apiHotel.rooms.map((r) => ({
-        id: r.slug,
-        name: r.name || defaultRoomTypes.find((d) => d.id === r.slug)?.name || r.slug,
-        price: (r.ratePerNight !== undefined && r.ratePerNight !== null) ? Number(r.ratePerNight) : 0,
-        capacity: `${r.maxOccupancy || 2} Guests`,
-        bed: r.description || defaultRoomTypes.find((d) => d.id === r.slug)?.bed || '1 King Bed',
-        view: defaultRoomTypes.find((d) => d.id === r.slug)?.view || 'Panoramic View',
-        image: r.imageUrl || defaultRoomTypes.find((d) => d.id === r.slug)?.image || apiHotel?.heroImageUrl || 'https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1200',
-      }))
+    ? apiHotel.rooms.map((r) => {
+        const fallback = defaultRoomTypes.find((d) => d.id === r.slug);
+        const resolvedPrice = (r.ratePerNight !== undefined && r.ratePerNight !== null && Number(r.ratePerNight) > 0)
+          ? Number(r.ratePerNight)
+          : (fallback?.price || 75);
+        return {
+          id: r.slug,
+          name: r.name || fallback?.name || r.slug,
+          price: resolvedPrice,
+          capacity: `${r.maxOccupancy || 2} Guests`,
+          bed: r.description || fallback?.bed || '1 King Bed',
+          view: fallback?.view || 'Panoramic View',
+          image: r.imageUrl || fallback?.image || apiHotel?.heroImageUrl || 'https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1200',
+        };
+      })
     : defaultRoomTypes;
 
   const inRoomAmenities = [
@@ -273,14 +279,14 @@ const HotelDetails = () => {
               {t('tourCard.startingFrom', 'Rooms From')}
             </div>
             <div className="text-3xl font-semibold text-gold-400 mb-3">
-              {formatPrice(apiHotel?.pricePerNight ?? 85)}
+              {formatPrice(apiHotel?.pricePerNight && apiHotel.pricePerNight > 0 ? apiHotel.pricePerNight : 75)}
               <span className="text-sm font-normal text-slate-300"> / {t('hotel.night', 'night')}</span>
             </div>
-            <Link to="/tailor-a-tour">
+            <a href="#rooms">
               <Button variant="glass" className="w-full px-6 py-2.5 text-xs uppercase font-bold">
-                {t('home.tailorTour', 'Customize Your Stay')}
+                {t('hotel.room.viewRooms', 'View Available Rooms')}
               </Button>
-            </Link>
+            </a>
           </div>
         </div>
       </section>
@@ -398,7 +404,7 @@ const HotelDetails = () => {
       </section>
 
       {/* Available Room Types */}
-      <section className="container mx-auto px-6 py-12 max-w-6xl text-left rtl:text-right">
+      <section id="rooms" className="container mx-auto px-6 py-12 max-w-6xl text-left rtl:text-right">
         <div className="text-center mb-12">
           <span className="text-gold-600 uppercase tracking-widest text-xs font-semibold block mb-2">
             {t('hotel.room.selection', 'ACCOMMODATIONS')}
