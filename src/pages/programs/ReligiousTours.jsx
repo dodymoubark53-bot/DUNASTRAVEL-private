@@ -30,7 +30,15 @@ const itemVariants = {
 export default function ReligiousTours() {
   const { t } = useTranslation();
   const { landingPage, loading, error, retry } = useLandingPage('religious');
-  const tours = Array.isArray(landingPage?.tours) ? landingPage.tours : [];
+  const { tours: allTours } = useTours({ limit: 50 });
+
+  const fallbackReligious = (allTours || []).filter((tour) =>
+    ['egito-historico-10d', 'mct-004', 'mct-009', 'egito-classico-ii-9d'].includes(tour.slug)
+  );
+
+  const tours = Array.isArray(landingPage?.tours) && landingPage.tours.length > 0
+    ? landingPage.tours
+    : fallbackReligious;
 
   return (
     <div className="w-full min-h-screen bg-obsidian-50 dark:bg-[#0c0d19] pb-24 text-start">

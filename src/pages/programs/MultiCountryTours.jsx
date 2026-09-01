@@ -21,7 +21,10 @@ const containerVariants = {
 export default function MultiCountryTours() {
   const { t } = useTranslation();
   const { landingPage, loading, error, retry } = useLandingPage('multi-country');
-  const tours = Array.isArray(landingPage?.tours) ? landingPage.tours : [];
+  const { tours: allMultiTours } = useTours({ country: 'Multi-Country', limit: 20 });
+  const tours = Array.isArray(landingPage?.tours) && landingPage.tours.length > 0
+    ? landingPage.tours
+    : (allMultiTours || []);
 
   return (
     <div className="w-full min-h-screen bg-obsidian-50 dark:bg-[#0c0d19] pb-24 text-start">

@@ -20,7 +20,19 @@ const containerVariants = {
 
 export default function Honeymooners() {
   const { t } = useTranslation();
-  const { tours, loading, error, retry } = useTours({ category: 'Honeymoon' });
+  const { tours: honeymoonCategoryTours, loading, error, retry } = useTours({ category: 'Honeymoon' });
+  const { tours: allTours } = useTours({ limit: 50 });
+
+  const egyptRomanticTours = allTours.filter((tour) =>
+    ['cairo-cruzeiro-sharm-11d', 'egito-classico-ii-9d', 'complete-egypt-8d'].includes(tour.slug)
+  );
+
+  const tours = [
+    ...(Array.isArray(honeymoonCategoryTours) ? honeymoonCategoryTours : []),
+    ...egyptRomanticTours.filter(
+      (egTour) => !(honeymoonCategoryTours || []).some((hTour) => hTour.slug === egTour.slug)
+    )
+  ];
 
   return (
     <div className="w-full min-h-screen bg-obsidian-50 dark:bg-[#0c0d19] pb-24 text-start">

@@ -20,10 +20,17 @@ const containerVariants = {
 
 export default function ExtensionTours() {
   const { t } = useTranslation();
-  // Fetch all Egypt destination tours then filter to extensions (Hurghada, Sharm, Siwa)
   const { tours, loading, error, retry } = useTours({ destination: 'egypt', limit: 20 });
-  const extensionSlugs = ['hurghada-4d3n', 'sharm-4d3n', 'siwa-oasis-alexandria'];
-  const extensionTours = tours.filter((tour) => extensionSlugs.includes(tour.slug));
+  const extensionSlugs = [
+    'cairo-express-4d',
+    'cairo-express-alexandria-5d',
+    'cairo-cruzeiro-sharm-11d',
+    'tesouros-egipto-9d',
+    'hurghada-4d3n',
+    'sharm-4d3n',
+    'siwa-oasis-alexandria'
+  ];
+  const extensionTours = (tours || []).filter((tour) => extensionSlugs.includes(tour.slug));
 
   return (
     <div className="w-full min-h-screen bg-obsidian-50 dark:bg-[#0c0d19] pb-24 text-start">
