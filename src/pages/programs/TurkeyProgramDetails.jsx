@@ -518,8 +518,10 @@ export default function TurkeyProgramDetails() {
         .related-carousel {
           display: flex;
           overflow-x: auto;
+          overflow-y: hidden;
           gap: 24px;
-          padding-bottom: 16px;
+          padding-top: 12px;
+          padding-bottom: 24px;
           scroll-snap-type: x mandatory;
           -webkit-overflow-scrolling: touch;
           scrollbar-width: none;
@@ -530,8 +532,10 @@ export default function TurkeyProgramDetails() {
         }
         .related-carousel-item {
           flex: 0 0 auto;
-          width: 280px;
+          width: 290px;
           scroll-snap-align: start;
+          display: flex;
+          flex-direction: column;
         }
         @media (min-width: 768px) {
           .related-carousel-item { width: 320px; }
