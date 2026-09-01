@@ -1,13 +1,12 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import Button from '../../components/ui/Button';
 import TourCard from '../../components/tour/TourCard';
+import tours from '../../data/tours.js';
 import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
-import { useLandingPage } from '../../hooks/useLandingPage';
-import ErrorState from '../../components/ui/ErrorState';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -28,14 +27,8 @@ const itemVariants = {
 
 export default function Egipto() {
   const { t, i18n } = useTranslation();
-  const { landingPage, loading, error, retry } = useLandingPage('egypt', { destinationOnly: true });
-
-  const rawTours = Array.isArray(landingPage?.tours) ? landingPage.tours : [];
-  // Filter base classic tours for the primary grid (exclude extensions/special packages to keep the layout organized)
-  const baseTours = rawTours.filter(tour => {
-    const s = (tour.slug || '').toLowerCase();
-    return !['classic-program', 'honeymoon-in-egypt', 'journey-of-the-holy-family-10-days', 'egypt-jordan-combined-14d', 'hurghada-4d3n', 'sharm-4d3n', 'siwa-oasis-alexandria'].includes(s);
-  });
+  const navigate = useNavigate();
+  const egyptTours = tours.filter((tour) => tour && tour.destination === 'egypt');
 
   return (
     <div className="w-full min-h-screen bg-obsidian-50 dark:bg-[#0c0d19] pb-24 text-start">
@@ -75,7 +68,7 @@ export default function Egipto() {
         bgImage="/imgs/egyothero.png"
       />
 
-      {/* Brief Overview & Egypt Tours Grid */}
+      {/* Brief Overview & 9 Egypt Tours Grid */}
       <section className="container mx-auto px-6 mt-16" id="tours-grid">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <p className="text-body-lg text-obsidian-600 dark:text-ivory-200 leading-relaxed">
@@ -86,42 +79,17 @@ export default function Egipto() {
           </p>
         </div>
 
-        {loading ? (
-          <div className="grid min-h-[40vh] grid-cols-1 gap-8 md:grid-cols-3">
-            {[0, 1, 2, 3, 4, 5].map((item) => (
-              <div key={item} className="h-80 animate-pulse rounded-2xl bg-obsidian-200/70 dark:bg-obsidian-800/50" />
-            ))}
-          </div>
-        ) : error ? (
-          <div className="max-w-xl mx-auto text-center">
-            <ErrorState
-              title={t('destinations.loadError', 'Destination details could not be loaded')}
-              message={error.message || t('destinations.retryDescription', 'Please try again in a moment.')}
-              actionLabel={t('common.tryAgain', 'Try again')}
-              onRetry={retry}
-            />
-          </div>
-        ) : (
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-          >
-            {(baseTours.length > 0 ? baseTours : rawTours).map((tour) => (
-              <TourCard
-                key={tour.id || tour.slug}
-                tour={{
-                  ...tour,
-                  price: Number(tour.basePriceUsd || 0),
-                  images: Array.isArray(tour.images) ? tour.images : (tour.heroImage ? [tour.heroImage] : []),
-                  destination: tour.country || 'Egypt',
-                }}
-              />
-            ))}
-          </motion.div>
-        )}
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-50px' }}
+        >
+          {egyptTours.map((tour) => (
+            <TourCard key={tour.id} tour={tour} />
+          ))}
+        </motion.div>
       </section>
 
       {/* Exclusive Egypt Experiences & Packages (5 Signature Suites) */}
