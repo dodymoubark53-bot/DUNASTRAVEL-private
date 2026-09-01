@@ -478,93 +478,20 @@ const HomeExperienceSection = () => {
   }, [allLiveTours]);
 
   const defaultPackageTours = useMemo(() => [
-    // 1. Classic Program (1 tour)
+    // 1. Multi-Country Combined - Top Picks matching reference order
     {
-      id: "classic-program-tour-1",
-      slug: "classic-program",
-      title: isAr ? "البرنامج الكلاسيكي: القاهرة والأهرامات والنيل الفاخر" : "Classic Egypt: Cairo, Pyramids & Nile Cruise",
-      overview: isAr ? "برنامج متميز يجمع بين الأهرامات، الجيزة، والمتحف الكبير مع رحلة نيلية فاخرة." : "Timeless Classic Egypt itinerary covering Cairo Pyramids, GEM Museum, and Nile Cruise.",
-      duration: isAr ? "8 أيام / 7 ليالي" : "8 Days / 7 Nights",
-      price: 1290,
-      badge: isAr ? "البرنامج الكلاسيكي" : "Classic Program",
-      destination: "egypt",
-      rating: 4.9,
-      reviewCount: 312,
-      images: ["https://res.cloudinary.com/degbrq3ck/image/upload/v1783029636/Classic_Program_gfal0s.jpg"],
-      link: "/programs/classic/classic-program"
-    },
-    // 2. Honeymooners (1 tour)
-    {
-      id: "honeymooners-tour-1",
-      slug: "honeymooners",
-      title: isAr ? "باقة شهر العسل والرفاهية الرومانسية" : "Honeymoon & Romantic Luxury Escape",
-      overview: isAr ? "عطلة رومانسية ساحرة تشمل شواطئ البحر الأحمر وغروب النيل المذهل." : "Enchanting Red Sea escapes & private Nile sunset cruises for couples.",
-      duration: isAr ? "10 أيام / 9 ليالي" : "10 Days / 9 Nights",
-      price: 1650,
-      badge: isAr ? "شهر العسل" : "Honeymoon",
-      destination: "egypt",
-      rating: 4.95,
-      reviewCount: 189,
-      images: ["https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=800&q=80"],
-      link: "/programs/honeymooners"
-    },
-    // 3. Religious Programs (1 tour)
-    {
-      id: "religious-tour-1",
-      slug: "religious",
-      title: isAr ? "برنامج مسار العائلة المقدسة والتراث الديني" : "Holy Family & Sacred Journeys",
-      overview: isAr ? "مسار إيماني وثقافي عريق يمتد عبر الكنائس والأديرة الأثرية في مصر." : "Spiritual path along Coptic monasteries & ancient holy shrines.",
-      duration: isAr ? "9 أيام / 8 ليالي" : "9 Days / 8 Nights",
-      price: 1390,
-      badge: isAr ? "رحلة دينية" : "Religious Heritage",
-      destination: "egypt",
-      rating: 4.85,
-      reviewCount: 176,
-      images: ["https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=800&q=80"],
-      link: "/programs/religious"
-    },
-    // 4. Multi-Country Combined (9 tours)
-    {
-      id: "mct-001",
-      slug: "estrellas-medio-oriente-19d",
-      title: isAr ? "نجوم الشرق الأوسط (مصر والأردن وتركيا ودبي)" : "Estrellas del Medio Oriente (19 Days)",
-      overview: isAr ? "رحلة أسطورية تجمع بين عظمة الفراعنة، البتراء الوردية، مناطيد كبادوكيا وبرج خليفة." : "19-day grand odyssey traversing Egypt, Jordan, Turkey, and Dubai.",
-      duration: isAr ? "19 يوم / 18 ليلة" : "19 Days / 18 Nights",
-      price: 3450,
+      id: "mct-005",
+      slug: "stars-of-the-middle-east-16-days",
+      title: isAr ? "نجوم الشرق الأوسط (مصر والأردن ودبي 16 يوماً)" : "Stars of the Middle East 16 Days",
+      overview: isAr ? "رحلة استكشافية شاملة تجمع بين النيل، البتراء، وصحراء رم، وناطحات سحاب دبي." : "16-day luxury tour across the Nile valley, Petra rose city, and Dubai skyline.",
+      duration: isAr ? "16 يوم / 15 ليلة" : "16 Days / 15 Nights",
+      price: 3100,
       badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
       destination: "multi-country",
-      rating: 4.9,
-      reviewCount: 210,
-      images: ["https://theglobetrottingdetective.com/wp-content/uploads/2022/03/best-places-in-the-middle-east-traveling-the-middle-east-cappadocia-turkey.jpg"],
-      link: "/programs/multi-country/estrellas-medio-oriente-19d"
-    },
-    {
-      id: "mct-002",
-      slug: "cairo-and-athens-11-days",
-      title: isAr ? "رحلة القاهرة وأثينا (عجائب مصر واليونان)" : "Cairo and Athens 11 Days",
-      overview: isAr ? "رحلة تجمع بين حضارة الفراعنة في القاهرة وأساطير الأكروبوليس في أثينا." : "11 days combining ancient Egyptian wonders and Greek Mediterranean mythology.",
-      duration: isAr ? "11 يوم / 10 ليالي" : "11 Days / 10 Nights",
-      price: 2250,
-      badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
-      destination: "multi-country",
-      rating: 4.88,
-      reviewCount: 145,
-      images: ["https://cdn.thecollector.com/wp-content/uploads/2024/07/history-cairo-monuments.jpg"],
-      link: "/programs/multi-country/cairo-and-athens-11-days"
-    },
-    {
-      id: "mct-003",
-      slug: "essences-of-egypt-and-turkey-15-days",
-      title: isAr ? "جوهر مصر وتركيا (النيل وإسطنبول 15 يوماً)" : "Essences of Egypt and Turkey 15 Days",
-      overview: isAr ? "برنامج فاخر يربط سحر الأهرامات والرحلة النيلية بأجواء البسفور وكبادوكيا." : "15 days spanning Cairo, Nile Cruise, Istanbul, and Cappadocia balloon skies.",
-      duration: isAr ? "15 يوم / 14 ليلة" : "15 Days / 14 Nights",
-      price: 2890,
-      badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
-      destination: "multi-country",
-      rating: 4.92,
-      reviewCount: 278,
-      images: ["/imgs/Essences of Egypt and Turkey .png"],
-      link: "/programs/multi-country/essences-of-egypt-and-turkey-15-days"
+      rating: 4.94,
+      reviewCount: 165,
+      images: ["/imgs/Stars of the Middle East .png"],
+      link: "/programs/multi-country/stars-of-the-middle-east-16-days"
     },
     {
       id: "mct-004",
@@ -581,18 +508,18 @@ const HomeExperienceSection = () => {
       link: "/programs/multi-country/marvels-of-dubai-and-turkey-14-days"
     },
     {
-      id: "mct-005",
-      slug: "stars-of-the-middle-east-16-days",
-      title: isAr ? "نجوم الشرق الأوسط (مصر والأردن ودبي 16 يوماً)" : "Stars of the Middle East 16 Days",
-      overview: isAr ? "رحلة استكشافية شاملة تجمع بين النيل، البتراء، وصحراء رم، وناطحات سحاب دبي." : "16-day luxury tour across the Nile valley, Petra rose city, and Dubai skyline.",
-      duration: isAr ? "16 يوم / 15 ليلة" : "16 Days / 15 Nights",
-      price: 3100,
+      id: "mct-003",
+      slug: "essences-of-egypt-and-turkey-15-days",
+      title: isAr ? "جوهر مصر وتركيا (النيل وإسطنبول 15 يوماً)" : "Essences of Egypt and Turkey 15 Days",
+      overview: isAr ? "برنامج فاخر يربط سحر الأهرامات والرحلة النيلية بأجواء البسفور وكبادوكيا." : "15 days spanning Cairo, Nile Cruise, Istanbul, and Cappadocia balloon skies.",
+      duration: isAr ? "15 يوم / 14 ليلة" : "15 Days / 14 Nights",
+      price: 2890,
       badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
       destination: "multi-country",
-      rating: 4.94,
-      reviewCount: 165,
-      images: ["/imgs/Stars of the Middle East .png"],
-      link: "/programs/multi-country/stars-of-the-middle-east-16-days"
+      rating: 4.92,
+      reviewCount: 278,
+      images: ["/imgs/Essences of Egypt and Turkey .png"],
+      link: "/programs/multi-country/essences-of-egypt-and-turkey-15-days"
     },
     {
       id: "mct-006",
@@ -622,6 +549,84 @@ const HomeExperienceSection = () => {
       images: ["/imgs/Egypt and Dubai.png"],
       link: "/programs/multi-country/egypt-and-dubai-13-days"
     },
+
+    // 2. Classic Program (1 tour)
+    {
+      id: "classic-program-tour-1",
+      slug: "classic-program",
+      title: isAr ? "البرنامج الكلاسيكي: القاهرة والأهرامات والنيل الفاخر" : "Classic Egypt: Cairo, Pyramids & Nile Cruise",
+      overview: isAr ? "برنامج متميز يجمع بين الأهرامات، الجيزة، والمتحف الكبير مع رحلة نيلية فاخرة." : "Timeless Classic Egypt itinerary covering Cairo Pyramids, GEM Museum, and Nile Cruise.",
+      duration: isAr ? "8 أيام / 7 ليالي" : "8 Days / 7 Nights",
+      price: 1290,
+      badge: isAr ? "البرنامج الكلاسيكي" : "Classic Program",
+      destination: "egypt",
+      rating: 4.9,
+      reviewCount: 312,
+      images: ["https://res.cloudinary.com/degbrq3ck/image/upload/v1783029636/Classic_Program_gfal0s.jpg"],
+      link: "/programs/classic/classic-program"
+    },
+
+    // 3. Honeymooners (1 tour)
+    {
+      id: "honeymooners-tour-1",
+      slug: "honeymooners",
+      title: isAr ? "باقة شهر العسل والرفاهية الرومانسية" : "Honeymoon & Romantic Luxury Escape",
+      overview: isAr ? "عطلة رومانسية ساحرة تشمل شواطئ البحر الأحمر وغروب النيل المذهل." : "Enchanting Red Sea escapes & private Nile sunset cruises for couples.",
+      duration: isAr ? "10 أيام / 9 ليالي" : "10 Days / 9 Nights",
+      price: 1650,
+      badge: isAr ? "شهر العسل" : "Honeymoon",
+      destination: "egypt",
+      rating: 4.95,
+      reviewCount: 189,
+      images: ["https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=800&q=80"],
+      link: "/programs/honeymooners"
+    },
+
+    // 4. Religious Programs (1 tour)
+    {
+      id: "religious-tour-1",
+      slug: "religious",
+      title: isAr ? "برنامج مسار العائلة المقدسة والتراث الديني" : "Holy Family & Sacred Journeys",
+      overview: isAr ? "مسار إيماني وثقافي عريق يمتد عبر الكنائس والأديرة الأثرية في مصر." : "Spiritual path along Coptic monasteries & ancient holy shrines.",
+      duration: isAr ? "9 أيام / 8 ليالي" : "9 Days / 8 Nights",
+      price: 1390,
+      badge: isAr ? "رحلة دينية" : "Religious Heritage",
+      destination: "egypt",
+      rating: 4.85,
+      reviewCount: 176,
+      images: ["https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=800&q=80"],
+      link: "/programs/religious"
+    },
+
+    // 5. Remaining Multi-Country Tours
+    {
+      id: "mct-001",
+      slug: "estrellas-medio-oriente-19d",
+      title: isAr ? "نجوم الشرق الأوسط (مصر والأردن وتركيا ودبي)" : "Estrellas del Medio Oriente (19 Days)",
+      overview: isAr ? "رحلة أسطورية تجمع بين عظمة الفراعنة، البتراء الوردية، مناطيد كبادوكيا وبرج خليفة." : "19-day grand odyssey traversing Egypt, Jordan, Turkey, and Dubai.",
+      duration: isAr ? "19 يوم / 18 ليلة" : "19 Days / 18 Nights",
+      price: 3450,
+      badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+      destination: "multi-country",
+      rating: 4.9,
+      reviewCount: 210,
+      images: ["https://theglobetrottingdetective.com/wp-content/uploads/2022/03/best-places-in-the-middle-east-traveling-the-middle-east-cappadocia-turkey.jpg"],
+      link: "/programs/multi-country/estrellas-medio-oriente-19d"
+    },
+    {
+      id: "mct-002",
+      slug: "cairo-and-athens-11-days",
+      title: isAr ? "رحلة القاهرة وأثينا (عجائب مصر واليونان)" : "Cairo and Athens 11 Days",
+      overview: isAr ? "رحلة تجمع بين حضارة الفراعنة في القاهرة وأساطير الأكروبوليس في أثينا." : "11 days combining ancient Egyptian wonders and Greek Mediterranean mythology.",
+      duration: isAr ? "11 يوم / 10 ليالي" : "11 Days / 10 Nights",
+      price: 2250,
+      badge: isAr ? "جولات متعددة الدول" : "Multi-Country",
+      destination: "multi-country",
+      rating: 4.88,
+      reviewCount: 145,
+      images: ["https://cdn.thecollector.com/wp-content/uploads/2024/07/history-cairo-monuments.jpg"],
+      link: "/programs/multi-country/cairo-and-athens-11-days"
+    },
     {
       id: "mct-008",
       slug: "spices-of-egypt-and-morocco",
@@ -650,7 +655,8 @@ const HomeExperienceSection = () => {
       images: ["https://th.bing.com/th/id/R.d4c411bd75b827b087396502b4144fe6?rik=3VllwT9EP1BvFA&pid=ImgRaw&r=0"],
       link: "/programs/multi-country/jewels-of-egypt-and-jordan-11-days"
     },
-    // 5. Extensions (3 tours)
+
+    // 6. Extensions (3 tours)
     {
       id: "extension-tour-1",
       slug: "hurghada-4d3n",
@@ -696,54 +702,8 @@ const HomeExperienceSection = () => {
   ], [isAr]);
 
   const packagesToursForMarquee = useMemo(() => {
-    const combined = [];
-    const seen = new Set();
-
-    // 1. Add canonical backend tours from package cards
-    Object.values(packagesToursMap || {}).flat().filter(Boolean).forEach(tourItem => {
-      const link = tourItem.link || `${tourItem.linkBase || '/tours'}/${tourItem.slug || tourItem.id}`;
-      if (!seen.has(link)) {
-        seen.add(link);
-        combined.push({
-          ...tourItem,
-          link,
-          title: resolveTourTitle(tourItem, t, lang),
-          duration: resolveTourDuration(tourItem, t, lang),
-          badge: tourItem.badge || (tourItem.destination ? (typeof t === 'function' ? t(`nav.${tourItem.destination}`, tourItem.destination) : tourItem.destination) : null),
-          images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : [tourItem.heroImage || tourItem.image || '/imgs/egyothero.png'],
-        });
-      }
-    });
-
-    // 2. Add rich curated package tours
-    defaultPackageTours.forEach(tourItem => {
-      if (!seen.has(tourItem.link)) {
-        seen.add(tourItem.link);
-        combined.push(tourItem);
-      }
-    });
-
-    // 3. Fallback to allLiveTours if combined is still empty
-    if (combined.length === 0 && Array.isArray(allLiveTours)) {
-      allLiveTours.forEach(tourItem => {
-        const link = `/tours/${tourItem.slug || tourItem.id}`;
-        if (!seen.has(link)) {
-          seen.add(link);
-          combined.push({
-            ...tourItem,
-            link,
-            title: resolveTourTitle(tourItem, t, lang),
-            duration: resolveTourDuration(tourItem, t, lang),
-            overview: tourItem.overview || tourItem.description || '',
-            badge: tourItem.destination ? (typeof t === 'function' ? t(`nav.${tourItem.destination}`, tourItem.destination) : tourItem.destination) : null,
-            images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : [tourItem.heroImage || tourItem.image || '/imgs/egyothero.png'],
-          });
-        }
-      });
-    }
-
-    return combined;
-  }, [packagesToursMap, defaultPackageTours, allLiveTours, lang, t]);
+    return defaultPackageTours;
+  }, [defaultPackageTours]);
 
   const destinationToursForMarquee = useMemo(() => {
     const egyptTours = (allLiveTours || [])
@@ -1714,7 +1674,7 @@ const HomeExperienceSection = () => {
             style={{
               gap: "24px",
               paddingLeft: "24px",
-              animation: "tourMarquee 240s linear infinite",
+              animation: "tourMarquee 120s linear infinite",
             }}
             onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
             onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
@@ -1722,7 +1682,7 @@ const HomeExperienceSection = () => {
             {(() => {
               const infiniteList = buildInfiniteMarqueeList(packagesToursForMarquee, 'pkg');
               return infiniteList.map((tData, idx) => {
-                const tourImg = tourImageUrl(tData);
+                const tourImg = (Array.isArray(tData.images) && tData.images[0]) || tData.heroImage || tData.image || '/imgs/egyothero.png';
                 return (
                   <Link
                     key={tData.uKey || `pkg-tour-${idx}`}
@@ -1748,7 +1708,7 @@ const HomeExperienceSection = () => {
                       </div>
                     )}
 
-                    <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full z-10" dir={isRtl ? "rtl" : "ltr"}>
+                    <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full z-10">
                       <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
                         <h3 className="text-xl md:text-2xl text-white font-serif font-bold mb-2 leading-tight drop-shadow-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
                           {tData.title}
@@ -1760,11 +1720,8 @@ const HomeExperienceSection = () => {
                           </p>
                         )}
 
-                        <div className="flex items-center justify-between text-caption text-gold-400 font-semibold mb-4 pt-2 border-t border-white/15">
+                        <div className="flex items-center text-caption text-gold-400 font-semibold mb-4 pt-2 border-t border-white/15">
                           <span>{tData.duration}</span>
-                          {Number.isFinite(Number(tData.price)) && Number(tData.price) > 0 && (
-                            <span className="text-gold-400 font-bold">{formatPrice(Number(tData.price))}</span>
-                          )}
                         </div>
 
                         <div className="block">
