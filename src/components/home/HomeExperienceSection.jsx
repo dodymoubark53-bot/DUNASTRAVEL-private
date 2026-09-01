@@ -112,7 +112,7 @@ const _packagesData = [
     tag2Key: "egyptPackages.honeymooners.tag2",
     tag3Key: "egyptPackages.honeymooners.tag3",
     price: 1650,
-    image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783024090/9788c6d2-7046-4ce0-aa64-a0adcbe1a54d_omcrnc.jpg",
+    image: "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=800&q=80",
     link: "/programs/honeymooners",
     featured: false,
   },
@@ -130,7 +130,7 @@ const _packagesData = [
     tag2Key: "egyptPackages.religious.tag2",
     tag3Key: "egyptPackages.religious.tag3",
     price: 1390,
-    image: "/images/holy-land.webp",
+    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=800&q=80",
     link: "/programs/religious",
     featured: false,
   },
@@ -148,7 +148,7 @@ const _packagesData = [
     tag2Key: "egyptPackages.multiCountry.tag2",
     tag3Key: "egyptPackages.multiCountry.tag3",
     price: 2450,
-    image: "https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026771/6_q4vcdg.jpg",
+    image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80",
     link: "/programs/multi-country",
     featured: false,
   },
@@ -437,33 +437,18 @@ const HomeExperienceSection = () => {
     return result;
   }, [liveDestinations, allLiveTours, t]);
   const livePackageCards = useMemo(() => {
-    const safeT = typeof t === 'function' ? t : (k, fallback) => (fallback || k);
-    const definitions = [
-      { id: 'classic-program', titleKey: 'egyptPackages.classic.name', fallbackTitle: 'Classic Egypt Program', link: '/programs/classic', categories: ['classic'] },
-      { id: 'honeymooners', titleKey: 'egyptPackages.honeymooners.name', fallbackTitle: 'Honeymoon & Romantic Luxury', link: '/programs/honeymooners', categories: ['honeymoon'] },
-      { id: 'religious', titleKey: 'egyptPackages.religious.name', fallbackTitle: 'Sacred Journeys', link: '/programs/religious', categories: ['religious'] },
-      { id: 'multi-country', titleKey: 'egyptPackages.multiCountry.name', fallbackTitle: 'Multi-Country Journeys', link: '/programs/multi-country', destinations: ['multi-country'], categories: ['multi-country'] },
-      { id: 'extension', titleKey: 'egyptPackages.extension.name', fallbackTitle: 'Egypt Extensions & Escapes', link: '/programs/extension', categories: ['extension'] },
-    ];
-
-    return definitions.map((definition) => {
-      const matches = allLiveTours.filter((tour) => {
-        const category = String(tour.category || '').trim().toLowerCase();
-        return definition.categories?.includes(category) || definition.destinations?.includes(tour.destination);
-      });
-      const representative = matches.find((tour) => tour.heroImage) || matches[0] || null;
-      return {
-        ...definition,
-        recordId: representative?.id || definition.id,
-        name: safeT(definition.titleKey, representative?.title || definition.fallbackTitle),
-        desc: representative?.overview || representative?.description || '',
-        image: representative?.heroImage || null,
-        duration: representative?.duration || '',
-        featured: Boolean(representative?.isFeatured),
-        tours: matches,
-      };
-    }).filter((packageCard) => packageCard.tours.length > 0);
-  }, [allLiveTours, t]);
+    return _packagesData.map((pkg) => ({
+      ...pkg,
+      recordId: pkg.id,
+      name: t(pkg.nameKey, pkg.nameDefault),
+      desc: t(pkg.descKey, pkg.descDefault),
+      badge: t(pkg.badgeKey, pkg.badgeDefault),
+      duration: t(pkg.durationKey, pkg.durationDefault),
+      tag1: pkg.tag1Key ? t(pkg.tag1Key, '') : '',
+      tag2: pkg.tag2Key ? t(pkg.tag2Key, '') : '',
+      tag3: pkg.tag3Key ? t(pkg.tag3Key, '') : '',
+    }));
+  }, [t]);
 
   const allToursForMarquee = useMemo(() => {
     if (!Array.isArray(allLiveTours)) return [];
@@ -476,12 +461,21 @@ const HomeExperienceSection = () => {
   }, [allLiveTours]);
 
   const packagesToursMap = useMemo(() => {
+    const matches = (tour, values) => {
+      if (!tour) return false;
+      const searchable = `${tour.slug || ''} ${tour.category || ''} ${tour.title || ''}`.toLowerCase();
+      return values.some((value) => searchable.includes(value));
+    };
     const withLinkBase = (items) => (items || []).map((tour) => ({ ...tour, linkBase: '/tours' }));
-    return Object.fromEntries(livePackageCards.map((packageCard) => [
-      packageCard.id,
-      withLinkBase(packageCard.tours),
-    ]));
-  }, [livePackageCards]);
+    const safeTours = Array.isArray(allLiveTours) ? allLiveTours : [];
+    return {
+      'classic-program': withLinkBase(safeTours.filter((tour) => matches(tour, ['classic', 'classico', 'clásico', 'cairo']))),
+      honeymooners: withLinkBase(safeTours.filter((tour) => matches(tour, ['honeymoon', 'luna de miel', 'شهر العسل']))),
+      religious: withLinkBase(safeTours.filter((tour) => matches(tour, ['religious', 'holy family', 'العائلة المقدسة']))),
+      'multi-country': withLinkBase(safeTours.filter((tour) => matches(tour, ['multi-country', 'combined', 'and-']))),
+      extension: withLinkBase(safeTours.filter((tour) => matches(tour, ['extension', 'escape']))),
+    };
+  }, [allLiveTours]);
 
   const defaultPackageTours = useMemo(() => [
     // 1. Classic Program (1 tour)
@@ -1554,41 +1548,10 @@ const HomeExperienceSection = () => {
             <div className="w-28 h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent mx-auto mt-6 rounded-full shadow-[0_0_12px_rgba(245,166,35,0.6)]"></div>
           </div>
 
-          {/* Alternating Bento Grid (Large + Small / Small + Large) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 items-stretch">
+          {/* 5-Card Bento Layout Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
             {livePackageCards.map((pkg, idx) => {
-              const totalCards = livePackageCards.length;
-              // Alternating rhythm:
-              // Pair 0 (0, 1): 0 is Large (col-span-8), 1 is Small (col-span-4)
-              // Pair 1 (2, 3): 2 is Small (col-span-4), 3 is Large (col-span-8) - Inverted!
-              // Last odd card (4): Panoramic showcase (col-span-12)
-              const isLastOdd = idx === totalCards - 1 && totalCards % 2 !== 0;
-              const pairIdx = Math.floor(idx / 2);
-              const isFirstInPair = idx % 2 === 0;
-
-              let colSpanClass = "lg:col-span-6 min-h-[380px] sm:min-h-[420px]";
-              let isLargeCard = false;
-
-              if (isLastOdd) {
-                colSpanClass = "md:col-span-2 lg:col-span-12 min-h-[380px] sm:min-h-[430px]";
-                isLargeCard = true;
-              } else if (pairIdx % 2 === 0) {
-                if (isFirstInPair) {
-                  colSpanClass = "md:col-span-1 lg:col-span-8 min-h-[380px] sm:min-h-[440px]";
-                  isLargeCard = true;
-                } else {
-                  colSpanClass = "md:col-span-1 lg:col-span-4 min-h-[380px] sm:min-h-[440px]";
-                  isLargeCard = false;
-                }
-              } else {
-                if (isFirstInPair) {
-                  colSpanClass = "md:col-span-1 lg:col-span-4 min-h-[380px] sm:min-h-[440px]";
-                  isLargeCard = false;
-                } else {
-                  colSpanClass = "md:col-span-1 lg:col-span-8 min-h-[380px] sm:min-h-[440px]";
-                  isLargeCard = true;
-                }
-              }
+              const isHero = pkg.featured || idx === 0;
 
               return (
                 <motion.div
@@ -1597,38 +1560,33 @@ const HomeExperienceSection = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: idx * 0.1 }}
-                  className={`group relative rounded-3xl overflow-hidden cursor-pointer flex flex-col justify-between border transition-all duration-500 backdrop-blur-xl ${colSpanClass} ${
-                    isLargeCard 
-                      ? "bg-gradient-to-br from-[#121c3b]/95 via-[#0d152d]/95 to-[#070c1b]/95 border-gold-500/50 hover:border-gold-400 shadow-[0_12px_40px_rgba(0,0,0,0.5)] hover:shadow-[0_16px_50px_rgba(245,166,35,0.3)]" 
-                      : "bg-gradient-to-br from-[#121c3b]/90 via-[#0a1127]/90 to-[#060a17]/90 border-white/20 hover:border-gold-500/60 shadow-[0_8px_32px_rgba(0,0,0,0.45)] hover:shadow-[0_14px_40px_rgba(245,166,35,0.25)] hover:-translate-y-1.5"
+                  className={`group relative rounded-3xl overflow-hidden cursor-pointer flex flex-col justify-between border transition-all duration-500 backdrop-blur-xl ${
+                    isHero 
+                      ? "lg:col-span-2 min-h-[380px] sm:min-h-[420px] bg-gradient-to-br from-[#121c3b]/90 via-[#0d152d]/90 to-[#070c1b]/90 border-gold-500/40 hover:border-gold-400 shadow-[0_12px_40px_rgba(245,166,35,0.2)] hover:shadow-[0_16px_50px_rgba(245,166,35,0.35)]" 
+                      : "min-h-[360px] bg-gradient-to-br from-[#121c3b]/80 via-[#0a1127]/80 to-[#060a17]/80 border-white/10 hover:border-gold-500/50 hover:shadow-[0_12px_36px_rgba(245,166,35,0.25)] hover:-translate-y-2"
                   }`}
                   onClick={() => handlePackageClick(pkg.id)}
                 >
-                  {/* Background Image with Multi-Stop Dark Gradient for Perfect Text Contrast */}
+                  {/* Background Image with High Clarity & Gradient Overlay */}
                   <div className="absolute inset-0 z-0 overflow-hidden">
-                    {pkg.image ? (
-                      <img
-                        src={pkg.image}
-                        alt={pkg.name}
-                        className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-700 ease-out opacity-85 group-hover:opacity-95"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="h-full w-full bg-obsidian-800" aria-label={t('tour.imageUnavailable', 'No image has been added for this tour.')} />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#040814] via-[#040814]/70 to-[#040814]/20"></div>
-                    <div className="absolute inset-0 bg-gradient-to-b from-[#040814]/50 via-transparent to-transparent"></div>
+                    <img
+                      src={pkg.image}
+                      alt={pkg.name}
+                      className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-700 ease-out opacity-85 group-hover:opacity-100"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#060a17]/95 via-[#060a17]/40 to-transparent"></div>
                   </div>
 
                   {/* Top Floating Badges */}
-                  <div className="relative z-10 p-6 sm:p-8 flex items-center justify-between gap-3">
+                  <div className="relative z-10 p-6 sm:p-8 flex items-center justify-between gap-4">
                     {pkg.badge && (
-                      <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-gold-500 to-amber-500 text-obsidian-950 font-extrabold text-xs uppercase tracking-wider shadow-lg backdrop-blur-md">
+                      <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gold-500 text-obsidian-950 font-bold text-caption uppercase tracking-wider shadow-lg backdrop-blur-md">
                         <span>★</span> {pkg.badge}
                       </span>
                     )}
                     {pkg.duration && (
-                      <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/75 text-white font-semibold text-xs border border-white/30 backdrop-blur-md shadow-md">
+                      <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/60 text-white font-medium text-caption border border-white/30 backdrop-blur-md shadow-md">
                         <FaClock className="text-gold-400 text-xs" /> {pkg.duration}
                       </span>
                     )}
@@ -1642,7 +1600,7 @@ const HomeExperienceSection = () => {
                         {[pkg.tag1, pkg.tag2, pkg.tag3].filter(Boolean).map((tText, tIdx) => (
                           <span 
                             key={tIdx} 
-                            className="text-xs font-semibold text-white bg-black/60 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full shadow-sm"
+                            className="text-[11px] font-semibold text-white bg-black/50 backdrop-blur-md border border-white/30 px-2.5 py-1 rounded-full shadow-sm"
                           >
                             {tText}
                           </span>
@@ -1651,34 +1609,25 @@ const HomeExperienceSection = () => {
                     )}
 
                     <h3 
-                      className={`${isLargeCard ? "text-2xl sm:text-3xl lg:text-4xl" : "text-xl sm:text-2xl"} text-white font-serif font-bold mb-2 group-hover:text-gold-300 transition-colors duration-300 drop-shadow-md`}
+                      className={`${isHero ? "text-2xl sm:text-4xl" : "text-xl sm:text-2xl"} text-white font-serif font-bold mb-2 group-hover:text-gold-300 transition-colors duration-300`}
                       style={{ fontFamily: "'Playfair Display', serif" }}
                     >
                       {pkg.name}
                     </h3>
 
-                    <p className="text-sm sm:text-base text-gray-100 font-normal leading-relaxed line-clamp-2 sm:line-clamp-3 mb-6 max-w-2xl drop-shadow-sm">
+                    <p className="text-body-sm text-white/90 line-clamp-2 mb-6 max-w-xl">
                       {pkg.desc}
                     </p>
 
                     {/* Footer Actions */}
-                    <div className="flex items-center justify-between pt-4 border-t border-white/20 group-hover:border-gold-500/50 transition-colors">
-                      {pkg.price ? (
-                        <div className="flex flex-col text-left rtl:text-right">
-                          <span className="text-[11px] text-gray-300 uppercase tracking-wider font-medium">{t('tourCard.from', 'from')}</span>
-                          <span className="text-xl sm:text-2xl font-bold text-gold-400 drop-shadow-sm">
-                            {formatPrice(pkg.price)}
-                          </span>
-                        </div>
-                      ) : <div />}
-
+                    <div className="flex items-center justify-end pt-4 border-t border-white/20 group-hover:border-gold-500/40 transition-colors">
                       <Link 
                         to={pkg.link} 
                         onClick={(e) => e.stopPropagation()}
-                        className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 via-amber-500 to-gold-600 text-obsidian-950 font-bold px-6 py-2.5 rounded-full shadow-lg hover:shadow-gold-500/40 hover:scale-105 transition-all duration-300 text-xs sm:text-sm border border-gold-300"
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-600 text-obsidian-900 font-bold px-6 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 text-xs border border-gold-400"
                       >
                         {t("home.explorePackage", "Explore Program")}
-                        <span className="rtl-flip font-bold">→</span>
+                        <span className="rtl-flip">→</span>
                       </Link>
                     </div>
                   </div>
