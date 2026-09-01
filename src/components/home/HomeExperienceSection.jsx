@@ -820,19 +820,19 @@ const HomeExperienceSection = () => {
       }));
 
     const combined = [
-      ...egyptTours.slice(0, 2),
-      ...turkeyFormatted.slice(0, 2),
       ...jordanFormatted.slice(0, 1),
       ...dubaiFormatted.slice(0, 1),
+      ...egyptTours.slice(0, 2),
+      ...turkeyFormatted.slice(0, 2),
+      ...jordanFormatted.slice(1),
+      ...dubaiFormatted.slice(1),
       ...otherDestTours,
       ...egyptTours.slice(2),
       ...turkeyFormatted.slice(2),
-      ...jordanFormatted.slice(1),
-      ...dubaiFormatted.slice(1),
     ].filter(Boolean);
 
     return combined.length > 0 ? combined : allToursForMarquee;
-  }, [allLiveTours, allToursForMarquee, lang, t]);
+  }, [allLiveTours, allToursForMarquee, homeTurkeyPreviewTours, homeJordanPreviewTours, homeDubaiPreviewTours, lang, t]);
 
 
   // Hero Video State
@@ -1410,7 +1410,7 @@ const HomeExperienceSection = () => {
         <div className="container mx-auto px-6">
           <div className="text-center mb-12 max-w-3xl mx-auto">
             <span className="text-gold-600 dark:text-gold-400 uppercase tracking-widest text-caption block mb-3 font-semibold">
-              {t("home.destToursBadge", "تجارب مصممة بعناية فائقة عبر جميع وجهاتنا الساحرة")}
+              {t("home.destToursBadge", "Meticulously crafted experiences across all our destinations")}
             </span>
             <h2 className="text-display-lg text-obsidian-900 dark:text-ivory-50 font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>
               {t("home.destToursTitle", "جولات الوجهات المميزة")}
@@ -1419,21 +1419,23 @@ const HomeExperienceSection = () => {
           </div>
         </div>
 
-        {/* Marquee Strip: Continuous Infinite Seamless Glide */}
-        <div dir="ltr" className="overflow-hidden w-full relative py-4">
+        <div dir="ltr" className="overflow-hidden w-full relative">
           <div
             className="flex w-max"
             style={{
               gap: "24px",
               paddingLeft: "24px",
-              animation: "tourMarquee 220s linear infinite",
+              animation: "tourMarquee 110s linear infinite",
             }}
             onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
             onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
           >
             {(() => {
-              const infiniteList = buildInfiniteMarqueeList(destinationToursForMarquee, 'dest');
-              return infiniteList.map((tData, idx) => {
+              const sliced = destinationToursForMarquee;
+              return [
+                ...sliced.map(tData => ({ ...tData, isDuplicate: false })),
+                ...sliced.map(tData => ({ ...tData, isDuplicate: true }))
+              ].map((tData, idx) => {
                 const resolvedTitle = resolveTourTitle(tData, t, lang);
                 const resolvedDuration = resolveTourDuration(tData, t, lang);
                 const rawDest = tData.destination === 'holy-land' ? 'holyland' : (tData.destination || 'egypt');
@@ -1442,49 +1444,54 @@ const HomeExperienceSection = () => {
 
                 return (
                   <Link
-                    key={tData.uKey || `dest-tour-${idx}`}
+                    key={`dest-tour-${tData.id || idx}-${idx}`}
                     to={tData.link || `/tours/${tData.slug || tData.id}`}
                     tabIndex={tData.isDuplicate ? -1 : undefined}
                     aria-hidden={tData.isDuplicate ? "true" : undefined}
-                    className="min-w-[300px] sm:min-w-[340px] md:min-w-[380px] shrink-0 group relative rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_40px_rgba(245,166,35,0.3)] transition-all duration-500 h-[450px] block border border-obsidian-700/50 hover:border-gold-500 bg-obsidian-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                    className="min-w-[320px] md:min-w-[400px] shrink-0 group relative rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] transition-all duration-500 h-[450px] block focus:outline-none focus:ring-2 focus:ring-gold-500"
                   >
                     <img
                       src={getOptimizedImageUrl(imageUrl, 400, 450)}
                       alt={resolvedTitle}
                       width="400"
                       height="450"
-                      className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.08] opacity-90 group-hover:opacity-100"
+                      className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
                       loading="lazy"
                       decoding="async"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-900/50 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/90 via-obsidian-900/20 to-transparent"></div>
 
-                    <div className="absolute top-4 left-4 z-20 bg-gold-500 text-obsidian-950 text-caption font-bold px-3.5 py-1.5 rounded-full shadow-md uppercase backdrop-blur-md">
+                    <div className="absolute top-4 left-4 bg-gold-500/90 backdrop-blur-sm text-obsidian-900 text-caption font-bold px-3.5 py-1.5 rounded-full shadow-md uppercase">
                       {resolvedDest}
                     </div>
 
-                    <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full z-10" dir={isRtl ? "rtl" : "ltr"}>
-                      <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                        <h3 className="text-xl md:text-2xl text-white font-serif font-bold mb-2 leading-tight drop-shadow-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full">
+                      <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                        <h3 className="text-display-md text-white font-bold mb-2 leading-tight">
                           {resolvedTitle}
                         </h3>
 
-                        {tData.overview && (
-                          <p className="text-body-sm text-ivory-200 line-clamp-2 mb-3 font-medium drop-shadow">
-                            {tData.overview}
-                          </p>
-                        )}
-
-                        <div className="flex items-center justify-between text-caption text-gold-400 font-semibold mb-4 pt-2 border-t border-white/15">
+                        <div className="flex items-center justify-between text-caption text-ivory-300 mb-4">
                           <span>{resolvedDuration}</span>
                           {Number.isFinite(Number(tData.price)) && Number(tData.price) > 0 && (
-                            <span className="text-gold-400 font-bold">{formatPrice(Number(tData.price))}</span>
+                            <span className="text-gold-500 font-semibold">
+                              {formatPrice(tData.price)}
+                            </span>
                           )}
                         </div>
 
-                        <div className="block">
-                          <Button variant="gold-glow" tabIndex={-1} className="w-full py-2.5 text-xs font-bold shadow-lg">
-                            {t("home.viewTour", isAr ? "عرض التفاصيل وحجز الرحلة" : "View Tour & Book")} →
+                        {Number.isFinite(Number(tData.rating)) && Number.isFinite(Number(tData.reviewCount)) ? (
+                          <div className="flex items-center gap-1 text-gold-500 mb-4">
+                            <FaStar size={14} />
+                            <span className="text-ivory-50 ml-1 text-sm font-semibold">
+                              {Number(tData.rating).toFixed(1)} <span className="text-ivory-300 font-normal">({tData.reviewCount})</span>
+                            </span>
+                          </div>
+                        ) : null}
+
+                        <div className="block opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                          <Button variant="outline-gold" tabIndex={-1} className="w-full py-2">
+                            {t("home.viewTour", "View Tour")}
                           </Button>
                         </div>
                       </div>
