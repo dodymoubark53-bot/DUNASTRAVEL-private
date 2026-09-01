@@ -384,11 +384,12 @@ function App() {
                   <Route path="honeymooners" element={<PageTransition><Honeymooners /></PageTransition>} />
                   <Route path="honeymooners/:id" element={<PageTransition><HoneymoonersDetails /></PageTransition>} />
                   <Route path="religious" element={<PageTransition><ReligiousTours /></PageTransition>} />
-                  <Route path="religious/:slug" element={<PageTransition><ServiceDetails /></PageTransition>} />
                   <Route path="multi-country" element={<PageTransition><MultiCountryTours /></PageTransition>} />
                   <Route path="multi-country/:slug" element={<PageTransition><MultiCountryTourDetails /></PageTransition>} />
                   <Route path="extension" element={<PageTransition><ExtensionTours /></PageTransition>} />
                   <Route path="extension/:id" element={<PageTransition><ExtensionDetails /></PageTransition>} />
+                  <Route path="extensions" element={<PageTransition><ExtensionTours /></PageTransition>} />
+                  <Route path="extensions/:id" element={<PageTransition><ExtensionDetails /></PageTransition>} />
                   <Route path="classic" element={<PageTransition><ClassicProgramDetails /></PageTransition>} />
                   <Route path="classic/:slug" element={<PageTransition><ClassicProgramDetails /></PageTransition>} />
                   <Route path="turkey" element={<PageTransition><BackendToursPage titleKey="nav.turkey" titleDefault="Turkey Tours" filters={{ destination: 'Turkey' }} /></PageTransition>} />
@@ -630,14 +631,16 @@ function App() {
                 <Route path="multi-country" element={<PageTransition><MultiCountryTours /></PageTransition>} />
                 <Route path="multi-country/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
                 <Route path="extension" element={<PageTransition><ExtensionTours /></PageTransition>} />
-                <Route path="extension/:id" element={<PageTransition><TourDetails /></PageTransition>} />
-                <Route path="classic" element={<PageTransition><BackendToursPage titleKey="programs.classicTitle" titleDefault="Classic Tours" filters={{ destination: 'Egypt' }} /></PageTransition>} />
-                <Route path="classic/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                <Route path="extension/:id" element={<PageTransition><ExtensionDetails /></PageTransition>} />
+                <Route path="extensions" element={<PageTransition><ExtensionTours /></PageTransition>} />
+                <Route path="extensions/:id" element={<PageTransition><ExtensionDetails /></PageTransition>} />
+                <Route path="classic" element={<PageTransition><ClassicProgramDetails /></PageTransition>} />
+                <Route path="classic/:slug" element={<PageTransition><ClassicProgramDetails /></PageTransition>} />
                 <Route
-                  path="trips/:slug"
+                  path="trips/:id"
                   element={
                     <PageTransition>
-                      <ServiceDetails />
+                      <ExtensionDetails />
                     </PageTransition>
                   }
                 />

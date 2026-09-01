@@ -18,9 +18,9 @@ const ALIAS_MAP = {
 
 export default function ExtensionDetails() {
   const { t } = useTranslation();
-  const { id } = useParams();
-
-  const targetSlug = ALIAS_MAP[id] || id;
+  const params = useParams();
+  const rawParam = params.id || params.slug || params.programId || params['*'] || '';
+  const targetSlug = ALIAS_MAP[rawParam] || rawParam;
 
   // Find tour from services data or default to hurghada-4d3n
   const tourData = services.find((s) => s.slug === targetSlug) || services.find((s) => s.slug === 'hurghada-4d3n');

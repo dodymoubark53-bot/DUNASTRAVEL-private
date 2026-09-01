@@ -21,6 +21,7 @@ import { resolveTourTitle, resolveTourDuration, resolveTourOverview, resolveLoca
 import SEOHead from '../../components/seo/SEOHead';
 import SuggestedTours from '../../components/tour/SuggestedTours';
 import IncludedNotIncluded from '../../components/tour/IncludedNotIncluded';
+import ExtensionDetails from '../programs/ExtensionDetails';
 
 const ReviewsMap = lazy(() => import('../../components/tour/ReviewsMap'));
 const RouteMap = lazy(() => import('../../components/tour/RouteMap'));
@@ -39,6 +40,16 @@ const TRANSPORT_REQUIRED_SLUGS = [
   'marvels-of-dubai-and-turkey-14-days',
 ];
 
+const EXTENSION_SLUGS = [
+  'hurghada-4d3n',
+  'sharm-4d3n',
+  'siwa-oasis-alexandria',
+  'siwa-oasis',
+  'extension-siwa',
+  'extension-hurghada',
+  'extension-sharm',
+];
+
 const SLUG_ALIASES = {
   'classic': 'complete-egypt-8d',
   'classic-program': 'complete-egypt-8d',
@@ -47,19 +58,20 @@ const SLUG_ALIASES = {
   'journey-of-the-holy-family-10-days': 'egito-historico-10d',
   'holy-family-in-egypt-and-jordan-14-days': 'mct-004',
   'egypt-jordan-combined-14d': 'jewels-of-egypt-and-jordan-11-days',
-  'hurghada-4d3n': 'cairo-cruzeiro-sharm-11d',
-  'sharm-4d3n': 'cairo-cruzeiro-sharm-11d',
-  'siwa-oasis-alexandria': 'cairo-express-alexandria-5d',
-  'siwa-oasis': 'cairo-express-alexandria-5d'
 };
 
 const TourDetails = () => {
-  const { t, i18n } = useTranslation();
-  const { formatPrice } = useCurrency();
-  const lang = i18n.language || 'en';
   const params = useParams();
   const rawSlug = params.slug || params.programId || params.id || params['*'];
   const extractedSlug = rawSlug ? String(rawSlug).split('/').filter(Boolean).pop().trim() : '';
+
+  if (EXTENSION_SLUGS.includes(extractedSlug)) {
+    return <ExtensionDetails />;
+  }
+
+  const { t, i18n } = useTranslation();
+  const { formatPrice } = useCurrency();
+  const lang = i18n.language || 'en';
   const slug = SLUG_ALIASES[extractedSlug] || extractedSlug || 'complete-egypt-8d';
 
   const { tour, loading, error, retry } = useTour(slug);
