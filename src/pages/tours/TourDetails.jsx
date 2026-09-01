@@ -392,6 +392,15 @@ const TourDetails = () => {
               </div>
             </motion.div>
 
+            <IncludedNotIncluded
+              includedItems={tour.included}
+              excludedItems={tour.excluded}
+              excursionsItems={tour.excursions}
+              inclusionsTitle={t('tourDetail.included', 'What is Included')}
+              exclusionsTitle={t('tourDetail.excluded', 'What is Not Included')}
+              excursionsTitle={t('tour.optionalExcursions', 'Optional Excursions')}
+            />
+
             {tour.itinerary && tour.itinerary.length > 0 && (
               <Suspense fallback={<div className="h-80 rounded-2xl bg-obsidian-200/40 dark:bg-obsidian-800/40 animate-pulse my-8" />}>
                 <RouteMap itinerary={tour.itinerary} />
@@ -558,15 +567,6 @@ const TourDetails = () => {
                 )}
               </motion.div>
             )}
-
-            <IncludedNotIncluded
-              includedItems={tour.included}
-              excludedItems={tour.excluded}
-              excursionsItems={tour.excursions}
-              inclusionsTitle={t('tourDetail.included', 'What is Included')}
-              exclusionsTitle={t('tourDetail.excluded', 'What is Not Included')}
-              excursionsTitle={t('tour.optionalExcursions', 'Optional Excursions')}
-            />
 
           </div>
 

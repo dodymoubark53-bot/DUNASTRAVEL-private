@@ -143,8 +143,15 @@ const BlogDetails = lazyWithRetry(() => import("./pages/blogs/BlogDetails"));
 const ServiceDetails = lazyWithRetry(() => import("./pages/services/ServiceDetails"));
 const ReligiousTours = lazyWithRetry(() => import("./pages/programs/ReligiousTours"));
 const Honeymooners = lazyWithRetry(() => import("./pages/programs/Honeymooners"));
+const HoneymoonersDetails = lazyWithRetry(() => import("./pages/programs/HoneymoonersDetails"));
 const ExtensionTours = lazyWithRetry(() => import("./pages/programs/ExtensionTours"));
+const ExtensionDetails = lazyWithRetry(() => import("./pages/programs/ExtensionDetails"));
 const MultiCountryTours = lazyWithRetry(() => import("./pages/programs/MultiCountryTours"));
+const MultiCountryTourDetails = lazyWithRetry(() => import("./pages/programs/MultiCountryTourDetails"));
+const ClassicProgramDetails = lazyWithRetry(() => import("./pages/programs/ClassicProgramDetails"));
+const JordanProgramDetails = lazyWithRetry(() => import("./pages/programs/JordanProgramDetails"));
+const DubaiProgramDetails = lazyWithRetry(() => import("./pages/programs/DubaiProgramDetails"));
+const TurkeyProgramDetails = lazyWithRetry(() => import("./pages/programs/TurkeyProgramDetails"));
 const Transportation = lazyWithRetry(
   () => import("./pages/transportation/Transportation"),
 );
@@ -375,24 +382,26 @@ function App() {
                     }
                   />
                   <Route path="honeymooners" element={<PageTransition><Honeymooners /></PageTransition>} />
-                  <Route path="honeymooners/:id" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="honeymooners/:id" element={<PageTransition><HoneymoonersDetails /></PageTransition>} />
                   <Route path="religious" element={<PageTransition><ReligiousTours /></PageTransition>} />
-                  <Route path="religious/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="religious/:slug" element={<PageTransition><ServiceDetails /></PageTransition>} />
                   <Route path="multi-country" element={<PageTransition><MultiCountryTours /></PageTransition>} />
-                  <Route path="multi-country/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="multi-country/:slug" element={<PageTransition><MultiCountryTourDetails /></PageTransition>} />
                   <Route path="extension" element={<PageTransition><ExtensionTours /></PageTransition>} />
-                  <Route path="extension/:id" element={<PageTransition><TourDetails /></PageTransition>} />
-                  <Route path="classic" element={<PageTransition><BackendToursPage titleKey="programs.classicTitle" titleDefault="Classic Tours" filters={{ destination: 'Egypt' }} /></PageTransition>} />
-                  <Route path="classic/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="extension/:id" element={<PageTransition><ExtensionDetails /></PageTransition>} />
+                  <Route path="classic" element={<PageTransition><ClassicProgramDetails /></PageTransition>} />
+                  <Route path="classic/:slug" element={<PageTransition><ClassicProgramDetails /></PageTransition>} />
                   <Route path="turkey" element={<PageTransition><BackendToursPage titleKey="nav.turkey" titleDefault="Turkey Tours" filters={{ destination: 'Turkey' }} /></PageTransition>} />
-                  <Route path="turkey/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="turkey/:programId" element={<PageTransition><TurkeyProgramDetails /></PageTransition>} />
+                  <Route path="turquia/:programId" element={<PageTransition><TurkeyProgramDetails /></PageTransition>} />
                   <Route path="jordan" element={<PageTransition><BackendToursPage titleKey="nav.jordan" titleDefault="Jordan Tours" filters={{ destination: 'Jordan' }} /></PageTransition>} />
-                  <Route path="jordan/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="jordan/:programId" element={<PageTransition><JordanProgramDetails /></PageTransition>} />
                   <Route path="dubai" element={<PageTransition><BackendToursPage titleKey="nav.dubai" titleDefault="Dubai Tours" filters={{ destination: 'United Arab Emirates' }} /></PageTransition>} />
-                  <Route path="dubai/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="dubai/:programId" element={<PageTransition><DubaiProgramDetails /></PageTransition>} />
                   <Route path="hotels" element={<Navigate to="/services" replace />} />
                   <Route path="transportation" element={<Navigate to="/transportation" replace />} />
-                  <Route path=":slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path=":slug" element={<PageTransition><LandingPageDetails /></PageTransition>} />
+                  <Route path=":category/:programSlug" element={<PageTransition><LandingPageDetails /></PageTransition>} />
                 </Route>
                 <Route path="destinations">
                   <Route

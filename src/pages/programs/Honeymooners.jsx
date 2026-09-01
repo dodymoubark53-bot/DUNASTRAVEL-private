@@ -1,41 +1,30 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { FaChevronRight } from 'react-icons/fa';
-import Button from '../../components/ui/Button';
-import TourCard from '../../components/tour/TourCard';
+import { staggerContainer, fadeInUp } from '../../animations/variants';
 import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
-import ErrorState from '../../components/ui/ErrorState';
-import { useTours } from '../../hooks/useTours';
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.1 }
+export const HONEYMOON_PACKAGES = [
+  {
+    id: 'honeymoon-egypt',
+    titleKey: 'honeymooners.egyptTitle',
+    titleDefault: 'Honeymoon in Egypt',
+    duration: '10 Days / 9 Nights',
+    destinations: 'Cairo • Nile Cruise • Hurghada',
+    img: 'https://hl-tourism.com/media/typecms/Honeymoon_Planning_Guide_2025_Complete_Resource.webp',
+    taglineKey: 'honeymooners.egyptTagline',
+    taglineDefault: 'A perfect trip to celebrate love, combining history, culture, romance, and unforgettable moments on the Red Sea.',
   }
-};
+];
 
 export default function Honeymooners() {
   const { t } = useTranslation();
-  const { tours: honeymoonCategoryTours, loading, error, retry } = useTours({ category: 'Honeymoon' });
-  const { tours: allTours } = useTours({ limit: 50 });
-
-  const egyptRomanticTours = allTours.filter((tour) =>
-    ['cairo-cruzeiro-sharm-11d', 'egito-classico-ii-9d', 'complete-egypt-8d'].includes(tour.slug)
-  );
-
-  const tours = [
-    ...(Array.isArray(honeymoonCategoryTours) ? honeymoonCategoryTours : []),
-    ...egyptRomanticTours.filter(
-      (egTour) => !(honeymoonCategoryTours || []).some((hTour) => hTour.slug === egTour.slug)
-    )
-  ];
 
   return (
-    <div className="w-full min-h-screen bg-obsidian-50 dark:bg-[#0c0d19] pb-24 text-start">
+    <div className="w-full bg-obsidian-50 pb-24">
       <Helmet>
         <title>{t('honeymooners.title', 'Honeymooners Package | Dunas Travel')}</title>
         <meta
@@ -91,18 +80,15 @@ export default function Honeymooners() {
       </div>
 
       {/* Package Cards List */}
-      <section className="container mx-auto px-6 py-16" id="packages-list">
+      <section className="container mx-auto px-6 py-16">
         <div className="text-center mb-14">
-          <span className="inline-block font-body text-gold-500 tracking-[0.2em] uppercase text-sm mb-3">
-            {t('nav.honeymooners', 'Honeymooners')}
-          </span>
           <h2
-            className="text-3xl md:text-4xl text-obsidian-900 dark:text-ivory-50 font-display mb-4"
+            className="text-3xl md:text-4xl text-obsidian-900 font-display mb-4"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             {t('honeymooners.sectionTitle', 'Our Honeymoon Packages')}
           </h2>
-          <p className="text-body-md text-obsidian-600 dark:text-ivory-300 max-w-xl mx-auto">
+          <p className="text-body-md text-obsidian-500 max-w-xl mx-auto">
             {t(
               'honeymooners.sectionDesc',
               'Hand-picked romantic escapes designed for couples seeking magic, intimacy, and adventure.'
@@ -110,80 +96,76 @@ export default function Honeymooners() {
           </p>
         </div>
 
-        {loading ? (
-          <div className="grid min-h-[40vh] grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {[0, 1, 2].map((item) => (
-              <div key={item} className="h-96 animate-pulse rounded-2xl bg-obsidian-200/70 dark:bg-obsidian-800/50" />
-            ))}
-          </div>
-        ) : error ? (
-          <div className="max-w-xl mx-auto text-center">
-            <ErrorState
-              title={t('common.errorOccurred', 'Unable to load honeymoon packages')}
-              message={error.message || t('destinations.retryDescription', 'Please try again in a moment.')}
-              actionLabel={t('common.tryAgain', 'Try again')}
-              onRetry={retry}
-            />
-          </div>
-        ) : (
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-          >
-            {tours.map((tour) => (
-              <TourCard
-                key={tour.id || tour.slug}
-                tour={{
-                  ...tour,
-                  price: Number(tour.basePriceUsd || 0),
-                  images: Array.isArray(tour.images) ? tour.images : (tour.heroImage ? [tour.heroImage] : []),
-                  destination: tour.country || 'Egypt',
-                }}
-              />
-            ))}
-          </motion.div>
-        )}
-      </section>
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-50px' }}
+        >
+          {HONEYMOON_PACKAGES.map((pkg) => (
+            <motion.div
+              key={pkg.id}
+              variants={fadeInUp}
+              className="bg-ivory-50 dark:bg-[#1a1a30] rounded-2xl overflow-hidden shadow-card group h-full flex flex-col transition-all md:col-span-2 lg:col-span-3 max-w-2xl mx-auto"
+            >
+              <div className="relative h-72 overflow-hidden">
+                <div className="absolute top-4 left-4 z-10 bg-gold-500 text-obsidian-900 text-sm uppercase px-4 py-1.5 rounded-full shadow-md font-bold">
+                  {t('honeymooners.featured', 'Featured')}
+                </div>
+                <img
+                  src={pkg.img}
+                  alt={t(pkg.titleKey, pkg.titleDefault)}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
+                />
+              </div>
 
-      {/* Tailor Tour CTA Section */}
-      <section className="relative py-20 overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(https://hl-tourism.com/media/typecms/Honeymoon_Planning_Guide_2025_Complete_Resource.webp)' }}
-        />
-        <div className="absolute inset-0 bg-obsidian-900/85" />
-        <div className="relative z-10 container mx-auto px-6 text-center max-w-3xl">
-          <span className="text-gold-500 uppercase tracking-widest text-sm font-semibold block mb-3">
-            BESPOKE ROMANCE
-          </span>
-          <h2
-            className="text-display-xl text-ivory-50 mb-6 font-display"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {t('honeymooners.customTitle', 'صمّما شهر العسل الذي تحلمان به')}
-          </h2>
-          <p className="text-body-lg text-ivory-300 mb-10">
-            {t(
-              'honeymooners.customDesc',
-              'أخبرانا عن الوجهات المفضلة لديكما وسيقوم خبراؤنا بتصميم باقة متكاملة تشمل كافة التفاصيل الرومانسية الفاخرة.'
-            )}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/tailor-a-tour">
-              <Button variant="gold-glow" className="w-full sm:w-auto px-10 py-4">
-                {t('home.tailorTour', 'Tailor Your Tour')}
-              </Button>
-            </Link>
-            <Link to="/contact">
-              <Button variant="glass" className="w-full sm:w-auto px-10 py-4">
-                {t('nav.contact', 'Contact Us')}
-              </Button>
-            </Link>
-          </div>
-        </div>
+              <div className="p-8 flex flex-col flex-grow">
+                <div className="mb-3">
+                  <span className="text-sm text-gold-500 uppercase tracking-widest font-semibold">
+                    {pkg.duration}
+                  </span>
+                </div>
+                <h3
+                  className="text-2xl text-obsidian-900 dark:text-white mb-2 font-display"
+                  style={{ fontFamily: "'Playfair Display', serif" }}
+                >
+                  {t(pkg.titleKey, pkg.titleDefault)}
+                </h3>
+                <p className="text-sm text-obsidian-400 dark:text-gray-300 mb-3 font-medium">
+                  {pkg.destinations}
+                </p>
+                <p className="text-body-sm text-obsidian-500 dark:text-gray-300 mb-6 leading-relaxed">
+                  {t(pkg.taglineKey, pkg.taglineDefault)}
+                </p>
+
+                <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
+                  <Link
+                    to={`/programs/honeymooners/${pkg.id}`}
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-600 text-obsidian-900 gold-btn-text font-bold px-6 py-3 rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300 shadow-md border-2 border-gold-400"
+                  >
+                    {t('honeymooners.viewDetails', 'View Details')}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
       </section>
     </div>
   );

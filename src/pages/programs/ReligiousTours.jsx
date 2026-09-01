@@ -2,46 +2,44 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { FaChevronRight } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  FaStar,
+  FaStarHalfAlt,
+  FaRegStar,
+  FaMapMarkerAlt,
+  FaClock,
+  FaSearch,
+  FaChevronRight
+} from 'react-icons/fa';
+import { services } from '../../data/services';
+import { useCurrency } from '../../context/CurrencyContext';
 import Button from '../../components/ui/Button';
-import TourCard from '../../components/tour/TourCard';
+import { staggerContainer, fadeInUp } from '../../animations/variants';
 import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
-import ErrorState from '../../components/ui/ErrorState';
-import { useLandingPage } from '../../hooks/useLandingPage';
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.1 }
+const StarRating = ({ rating }) => {
+  const stars = [];
+  for (let i = 1; i <= 5; i++) {
+    if (rating >= i) {
+      stars.push(<FaStar key={i} className="text-gold-500" />);
+    } else if (rating >= i - 0.5) {
+      stars.push(<FaStarHalfAlt key={i} className="text-gold-500" />);
+    } else {
+      stars.push(<FaRegStar key={i} className="text-obsidian-300" />);
+    }
   }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5 }
-  }
+  return <div className="flex items-center gap-1 text-sm">{stars}</div>;
 };
 
 export default function ReligiousTours() {
   const { t } = useTranslation();
-  const { landingPage, loading, error, retry } = useLandingPage('religious');
-  const { tours: allTours } = useTours({ limit: 50 });
-
-  const fallbackReligious = (allTours || []).filter((tour) =>
-    ['egito-historico-10d', 'mct-004', 'mct-009', 'egito-classico-ii-9d'].includes(tour.slug)
-  );
-
-  const tours = Array.isArray(landingPage?.tours) && landingPage.tours.length > 0
-    ? landingPage.tours
-    : fallbackReligious;
+  const { formatPrice } = useCurrency();
+  const navigate = useNavigate();
+  const religiousPrograms = services.filter((s) => s.category === 'religious');
 
   return (
-    <div className="w-full min-h-screen bg-obsidian-50 dark:bg-[#0c0d19] pb-24 text-start">
+    <div className="w-full bg-obsidian-50 pb-24">
       <Helmet>
         <title>{`${t('nav.religious', 'Religious Programs')} | ${t('site.luxuryTravel', 'Dunas Travel')}`}</title>
         <meta
@@ -57,10 +55,10 @@ export default function ReligiousTours() {
       <LuxuryHeroSection
         badge={t('programs.religiousBadge', '🌐 رحلات الإيمان والتراكم الحضاري الروحي')}
         title={t('programs.religiousHeadline', 'الرحلات الدينية والروحانية.. رحلة الروح والسكينة')}
-        subtitle={t('programs.religiousSubtitle', 'الرحلات المقدسة والحج')}
+        subtitle={t('programs.religiousSubtitle', 'Religious & Cultural Tours: One Sacred Journey')}
         description={t(
           'programs.religiousLead',
-          'قم بالسير على خطى العائلة المقدسة عبر الأديرة القبطية القديمة في مصر واكتشف العجائب المقدسة في الأرض المقدسة. رحلات موجهة بخبرة وإثراء روحي تم تصميمها بعناية مطلقة.'
+          'سِر على خطى العائلة المقدسة وزُر الأديرة القبطية القديمة في مصر ومساجد وأضرحة آل البيت والأراضي المقدسة برعاية كاملة وتنظيم سياحي فاخر بمرشدين متمرسين.'
         )}
         highlights={[
           t('programs.religiousTag1', '🕊️ جولات الأديرة والمواقع القبطية بمصر'),
@@ -75,7 +73,7 @@ export default function ReligiousTours() {
           text: t('programs.religiousSecondaryCta', 'طلب برنامج ديني خاص'),
           link: '/tailor-tour'
         }}
-        bgImage="/images/holy-land.webp"
+        bgImage="https://thf.bing.com/th/id/R.e047649d8bd183efbdd320d17de8a8b1?rik=d18ZW0xT%2fK31lQ&pid=ImgRaw&r=0"
       />
 
       {/* Breadcrumb Bar */}
@@ -99,8 +97,8 @@ export default function ReligiousTours() {
 
       {/* Value Proposition Cards */}
       <section className="container mx-auto px-6 py-12">
-        <div className="bg-white dark:bg-[#151728] rounded-2xl border border-obsidian-200 dark:border-obsidian-800 shadow-card p-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+        <div className="bg-ivory-50 rounded-xl border border-gold-500/10 shadow-card p-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
             {[
               {
                 icon: '✝️',
@@ -129,12 +127,8 @@ export default function ReligiousTours() {
             ].map((item, idx) => (
               <div key={idx} className="flex flex-col items-center gap-3">
                 <span className="text-4xl">{item.icon}</span>
-                <h3 className="text-display-sm text-obsidian-900 dark:text-ivory-50 font-semibold font-display">
-                  {item.title}
-                </h3>
-                <p className="text-body-sm text-obsidian-600 dark:text-ivory-300 leading-relaxed">
-                  {item.desc}
-                </p>
+                <h3 className="text-display-sm text-obsidian-900 font-semibold">{item.title}</h3>
+                <p className="text-body-sm text-obsidian-500 leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -142,95 +136,174 @@ export default function ReligiousTours() {
       </section>
 
       {/* Religious Programs Grid */}
-      <section className="container mx-auto px-6 pb-20" id="religious-list">
-        <div className="text-center mb-12">
-          <span className="inline-block font-body text-gold-500 tracking-[0.2em] uppercase text-sm mb-3">
-            {t('nav.religious', 'Religious Programs')}
-          </span>
-          <h2
-            className="text-display-lg text-obsidian-900 dark:text-ivory-50 font-display mb-4"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {t('programs.religiousHeading', 'باقات الرحلات الدينية المتاحة')}
-          </h2>
-          <p className="text-body-lg text-obsidian-600 dark:text-ivory-300 max-w-2xl mx-auto">
-            {t(
-              'programs.religiousSubheading',
-              'برامج حج وزيارة معدة بأعلى درجات العناية الروحية والخدمية للمجموعات والأفراد.'
-            )}
-          </p>
-        </div>
-
-        {loading ? (
-          <div className="grid min-h-[40vh] grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {[0, 1].map((item) => (
-              <div key={item} className="h-96 animate-pulse rounded-2xl bg-obsidian-200/70 dark:bg-obsidian-800/50" />
-            ))}
-          </div>
-        ) : error ? (
-          <div className="max-w-xl mx-auto text-center">
-            <ErrorState
-              title={t('common.errorOccurred', 'Unable to load religious tours')}
-              message={error.message || t('destinations.retryDescription', 'Please try again in a moment.')}
-              actionLabel={t('common.tryAgain', 'Try again')}
-              onRetry={retry}
-            />
-          </div>
-        ) : (
+      <section className="container mx-auto px-6 pb-16">
+        {religiousPrograms.length > 0 ? (
           <motion.div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            variants={containerVariants}
+            variants={staggerContainer}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
           >
-            {tours.map((tour) => (
-              <TourCard
-                key={tour.id || tour.slug}
-                tour={{
-                  ...tour,
-                  price: Number(tour.basePriceUsd || 0),
-                  images: Array.isArray(tour.images) ? tour.images : (tour.heroImage ? [tour.heroImage] : []),
-                  destination: tour.country || 'Egypt',
-                }}
-              />
+            {religiousPrograms.map((tour) => (
+              <Link
+                key={tour.id}
+                to={`/services/religious/${tour.slug}`}
+                className="block h-full group"
+              >
+                <motion.div
+                  variants={fadeInUp}
+                  initial="rest"
+                  whileHover="hover"
+                  animate="rest"
+                  className="bg-ivory-50 rounded-xl overflow-hidden flex flex-col h-full shadow-card border border-gold-500/10 cursor-pointer"
+                >
+                  {/* Image & Badges */}
+                  <div className="relative h-[280px] overflow-hidden block">
+                    <div className="absolute top-4 left-4 z-10 bg-obsidian-900/80 backdrop-blur-md text-gold-500 text-caption px-4 py-1.5 rounded-full border border-gold-500/30 shadow-glass">
+                      {t('programs.religiousType', 'Religious Tour')}
+                    </div>
+                    <div className="absolute top-4 right-4 z-10 bg-obsidian-900/60 backdrop-blur-md text-ivory-50 text-caption px-3 py-1 rounded-full border border-white/10 shadow-glass flex items-center gap-1.5">
+                      <FaMapMarkerAlt size={10} className="text-gold-500" />
+                      <span className="text-[11px] font-medium">
+                        {t(`data.${tour.location}`, tour.location)}
+                      </span>
+                    </div>
+                    <img
+                      src={tour.images[0]}
+                      alt={t(`data.${tour.title}`, tour.title)}
+                      className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] cinematic-transition"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    {tour.itinerary && (
+                      <div className="absolute bottom-4 left-4 z-10">
+                        <span className="bg-obsidian-950/80 backdrop-blur-sm border border-gold-500/20 text-ivory-50 text-[11px] px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-glass">
+                          <FaClock size={10} className="text-gold-500" />
+                          <span>
+                            {tour.itinerary.length} {t('tour.days', 'Days')}
+                          </span>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-6 flex flex-col flex-grow">
+                    <span className="text-caption text-gold-600 uppercase tracking-widest mb-1 block">
+                      {t(`data.${tour.location}`, tour.location)}
+                    </span>
+                    <h3
+                      className="text-display-md text-obsidian-900 mb-3 line-clamp-2 group-hover:text-gold-700 transition-colors"
+                      style={{ fontFamily: "'Playfair Display', serif" }}
+                    >
+                      {t(tour.title, tour.title)}
+                    </h3>
+                    <p className="text-body-sm text-obsidian-500 line-clamp-3 mb-4 flex-grow">
+                      {t(tour.shortDesc, tour.shortDesc)}
+                    </p>
+
+                    {/* Rating */}
+                    <div className="flex items-center gap-2 mb-4">
+                      <StarRating rating={tour.rating} />
+                      <span className="text-caption text-obsidian-900 font-semibold ml-1">
+                        {tour.rating.toFixed(1)}
+                      </span>
+                      {tour.reviewCount && (
+                        <span className="text-caption text-obsidian-300">
+                          ({tour.reviewCount} {t('tourCard.reviews', 'reviews')})
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Highlights preview */}
+                    {tour.highlights && tour.highlights.length > 0 && (
+                      <div className="border-t border-gold-500/10 pt-4 mb-4">
+                        <ul className="grid grid-cols-1 gap-y-1.5">
+                          {tour.highlights.slice(0, 3).map((item, idx) => (
+                            <li key={idx} className="text-[12px] text-obsidian-500 flex items-start gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-gold-500 shrink-0 mt-1.5" />
+                              <span className="line-clamp-1">{t(item, item)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Price & Book Action */}
+                    <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 mt-auto">
+                      <div>
+                        <span className="block text-caption text-obsidian-300 mb-1">
+                          {t('tourCard.from', 'from')}
+                        </span>
+                        <span className="text-display-md text-gold-700">
+                          {formatPrice(tour.price)}
+                        </span>
+                      </div>
+                      <span className="border border-gold-500 text-gold-500 font-medium px-6 py-2 rounded-full group-hover:bg-gold-500 group-hover:text-obsidian-900 transition-all duration-300 inline-flex items-center gap-2 text-xs uppercase tracking-wider cursor-pointer">
+                        {t('tourCard.book', 'Book')} <span className="rtl-flip">→</span>
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
             ))}
           </motion.div>
+        ) : (
+          <div className="text-center py-20 bg-ivory-50 rounded-xl border border-gold-500/10 p-8 shadow-card">
+            <FaSearch size={48} className="text-gold-500 mx-auto mb-4 animate-bounce" />
+            <h3 className="text-display-md text-2xl text-obsidian-900 font-display mb-2">
+              {t('programs.noReligiousFound', 'No Religious Programs Found')}
+            </h3>
+            <p className="text-body-md text-obsidian-500 max-w-md mx-auto mb-6">
+              {t(
+                'programs.noReligiousDesc',
+                'We are currently updating our religious programs catalog. Please contact us for a tailor-made pilgrimage itinerary.'
+              )}
+            </p>
+            <Link to="/tailor-a-tour">
+              <Button variant="gold-glow">
+                {t('nav.tailorMade', 'Request Custom Tour')}
+              </Button>
+            </Link>
+          </div>
         )}
       </section>
 
-      {/* Tailor Tour CTA Section */}
-      <section className="relative py-20 mt-12 overflow-hidden">
+      {/* Bottom CTA Banner */}
+      <section className="bg-obsidian-900 text-ivory-50 py-20 px-6 relative overflow-hidden">
         <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(/images/holy-land.webp)' }}
+          className="absolute inset-0 bg-cover bg-center opacity-10"
+          style={{
+            backgroundImage:
+              "url('https://thf.bing.com/th/id/R.e047649d8bd183efbdd320d17de8a8b1?rik=d18ZW0xT%2fK31lQ&pid=ImgRaw&r=0')"
+          }}
         />
-        <div className="absolute inset-0 bg-obsidian-900/85" />
-        <div className="relative z-10 container mx-auto px-6 text-center max-w-3xl">
-          <span className="text-gold-500 uppercase tracking-widest text-sm font-semibold block mb-3">
-            {t('programs.customReligiousLabel', 'PILGRIMAGE & SPIRITUAL TAILOR-MADE')}
+        <div className="container mx-auto text-center relative z-10 max-w-3xl">
+          <span className="text-gold-500 uppercase tracking-widest text-caption font-semibold block mb-4">
+            {t('programs.religiousCTALabel', 'Bespoke Sacred Journeys')}
           </span>
           <h2
-            className="text-display-xl text-ivory-50 mb-6 font-display"
+            className="text-display-lg text-4xl font-display mb-6"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            {t('programs.customReligiousTitle', 'صمّم برنامجك الديني الخاص لمجموعتك أو كنيستك')}
+            {t('programs.religiousCTATitle', 'Need a custom pilgrimage itinerary?')}
           </h2>
-          <p className="text-body-lg text-ivory-300 mb-10">
+          <p className="text-body-lg text-ivory-300 mb-10 leading-relaxed">
             {t(
-              'programs.customReligiousDesc',
-              'فريقنا المتخصص في الرحلات الدينية يوفر ترتيبات استثنائية تشمل تصاريح الزيارة، القداسات، وأماكن الإقامة القريبة من المعالم المقدسة.'
+              'programs.religiousCTADesc',
+              'Our spiritual travel specialists will craft a personalized pilgrimage itinerary just for you — combining sacred sites across Egypt, Jordan, and the Holy Land with premium accommodation and expert theological guides.'
             )}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/tailor-a-tour">
-              <Button variant="gold-glow" className="w-full sm:w-auto px-10 py-4">
-                {t('home.tailorTour', 'Tailor Your Tour')}
+              <Button variant="gold-glow" className="w-full sm:w-auto px-8 py-4">
+                {t('nav.tailorMade', 'Design Your Pilgrimage')}
               </Button>
             </Link>
             <Link to="/contact">
-              <Button variant="glass" className="w-full sm:w-auto px-10 py-4">
-                {t('nav.contact', 'Contact Us')}
+              <Button variant="outline-gold" className="w-full sm:w-auto px-8 py-4">
+                {t('nav.contact', 'Contact Our Team')}
               </Button>
             </Link>
           </div>

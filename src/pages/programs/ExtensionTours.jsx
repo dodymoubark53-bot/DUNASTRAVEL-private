@@ -1,39 +1,59 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { FaChevronRight } from 'react-icons/fa';
-import Button from '../../components/ui/Button';
-import TourCard from '../../components/tour/TourCard';
+import { staggerContainer, fadeInUp } from '../../animations/variants';
 import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
-import ErrorState from '../../components/ui/ErrorState';
-import { useTours } from '../../hooks/useTours';
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.1 }
+export const EXTENSION_PACKAGES = [
+  {
+    id: 'hurghada-4d3n',
+    titleKey: 'trip.hurghada.title',
+    titleDefault: 'Hurghada Red Sea Extension',
+    durationKey: 'trip.hurghada.duration',
+    durationDefault: '04 Days / 03 Nights',
+    destinationsKey: 'trip.hurghada.title',
+    destinationsDefault: 'Hurghada',
+    img: 'https://1.bp.blogspot.com/-HqmKDzZ73hY/XgSOtrhSAOI/AAAAAAAARdc/cxtywSwZxLIaZPfw98FzQHYtiPblmzg2gCLcBGAsYHQ/w1200-h630-p-k-no-nu/%D8%A3%D9%81%D8%B6%D9%84-%D8%A7%D9%84%D8%A3%D9%86%D8%B4%D8%B7%D8%A9-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D9%8A%D8%A9-%D9%81%D9%89-%D8%A7%D9%84%D8%BA%D8%B1%D8%AF%D9%82%D8%A9-825x510.jpg',
+    descKey: 'trip.hurghada.day1.desc',
+    descDefault: 'Transfer to Cairo Airport and board flight to Hurghada. Enjoy 3 nights all-inclusive resort stay.',
+    price: 0
+  },
+  {
+    id: 'sharm-4d3n',
+    titleKey: 'trip.sharm.title',
+    titleDefault: 'Sharm El Sheikh VIP Extension',
+    durationKey: 'trip.sharm.duration',
+    durationDefault: '04 Days / 03 Nights',
+    destinationsKey: 'trip.sharm.title',
+    destinationsDefault: 'Sharm El Sheikh',
+    img: 'https://nileholiday.com/wp-content/uploads/2019/10/sharm-el-sheikh-top-attractions-1-1920x750.jpg',
+    descKey: 'trip.sharm.day1.desc',
+    descDefault: 'Transfer to Cairo Airport and board flight to Sharm El Sheikh. 3 nights all-inclusive stay & Sinai desert safari options.',
+    price: 0
+  },
+  {
+    id: 'siwa-oasis-alexandria',
+    titleKey: 'tour_siwa_title',
+    titleDefault: 'Siwa Oasis & Alexandria Expedition',
+    durationKey: 'tour_siwa_duration',
+    durationDefault: '05 Days / 04 Nights',
+    destinationsKey: 'tour_siwa_destination',
+    destinationsDefault: 'Siwa Oasis & Alexandria',
+    img: '/imgs/services/service-317.webp',
+    descKey: 'tour_siwa_summary',
+    descDefault: 'Cairo → Wadi El Natroun → Marsa Matruh → Siwa → Alexandria → Cairo',
+    price: 0
   }
-};
+];
 
 export default function ExtensionTours() {
   const { t } = useTranslation();
-  const { tours, loading, error, retry } = useTours({ destination: 'egypt', limit: 20 });
-  const extensionSlugs = [
-    'cairo-express-4d',
-    'cairo-express-alexandria-5d',
-    'cairo-cruzeiro-sharm-11d',
-    'tesouros-egipto-9d',
-    'hurghada-4d3n',
-    'sharm-4d3n',
-    'siwa-oasis-alexandria'
-  ];
-  const extensionTours = (tours || []).filter((tour) => extensionSlugs.includes(tour.slug));
 
   return (
-    <div className="w-full min-h-screen bg-obsidian-50 dark:bg-[#0c0d19] pb-24 text-start">
+    <div className="w-full bg-obsidian-50 pb-24">
       <Helmet>
         <title>{t('extensions.title', 'Egypt Extensions | Dunas Travel')}</title>
         <meta
@@ -86,105 +106,91 @@ export default function ExtensionTours() {
             <FaChevronRight />
           </span>
           <span className="text-gold-500 font-medium">
-            {t('dest.egypt.extensionTitle', 'Egypt Extensions')}
+            {t('extensions.subtitle', 'Egypt Extensions')}
           </span>
         </div>
       </div>
 
-      {/* Extension Packages List */}
-      <section className="container mx-auto px-6 py-16" id="extensions-list">
+      {/* Packages Grid */}
+      <section className="container mx-auto px-6 py-16">
         <div className="text-center mb-14">
-          <span className="inline-block font-body text-gold-500 tracking-[0.2em] uppercase text-sm mb-3">
-            EXTENSIONS & SHORT STAYS
-          </span>
           <h2
-            className="text-3xl md:text-4xl text-obsidian-900 dark:text-ivory-50 font-display mb-4"
+            className="text-3xl md:text-4xl text-obsidian-900 font-display mb-4"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            {t('extensions.sectionTitle', 'Egypt Extension Trips')}
+            {t('extensions.sectionTitle', 'Available Extension Packages')}
           </h2>
-          <p className="text-body-md text-obsidian-600 dark:text-ivory-300 max-w-xl mx-auto">
+          <p className="text-body-md text-obsidian-500 max-w-xl mx-auto">
             {t(
               'extensions.sectionDesc',
-              'Extend your holiday by adding a Red Sea beach escape or a desert adventure to your Egypt itinerary.'
+              'Select an extension add-on to pair seamlessly with your Egypt itinerary.'
             )}
           </p>
         </div>
 
-        {loading ? (
-          <div className="grid min-h-[40vh] grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {[0, 1, 2].map((item) => (
-              <div key={item} className="h-96 animate-pulse rounded-2xl bg-obsidian-200/70 dark:bg-obsidian-800/50" />
-            ))}
-          </div>
-        ) : error ? (
-          <div className="max-w-xl mx-auto text-center">
-            <ErrorState
-              title={t('common.errorOccurred', 'Unable to load extension packages')}
-              message={error.message || t('destinations.retryDescription', 'Please try again in a moment.')}
-              actionLabel={t('common.tryAgain', 'Try again')}
-              onRetry={retry}
-            />
-          </div>
-        ) : (
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-          >
-            {(extensionTours.length > 0 ? extensionTours : tours).map((tour) => (
-              <TourCard
-                key={tour.id || tour.slug}
-                tour={{
-                  ...tour,
-                  price: Number(tour.basePriceUsd || 0),
-                  images: Array.isArray(tour.images) ? tour.images : (tour.heroImage ? [tour.heroImage] : []),
-                  destination: tour.country || 'Egypt',
-                }}
-              />
-            ))}
-          </motion.div>
-        )}
-      </section>
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-50px' }}
+        >
+          {EXTENSION_PACKAGES.map((pkg) => (
+            <motion.div
+              key={pkg.id}
+              variants={fadeInUp}
+              className="bg-ivory-50 dark:bg-[#1a1a30] rounded-2xl overflow-hidden shadow-card group h-full flex flex-col transition-all border border-gold-500/10 hover:border-gold-500/40 hover:shadow-2xl cursor-pointer"
+            >
+              <Link to={`/programs/extension/${pkg.id}`} className="flex flex-col h-full">
+                <div className="relative h-64 overflow-hidden">
+                  <div className="absolute top-4 left-4 z-10 bg-gold-500 text-obsidian-900 text-xs uppercase px-3 py-1 rounded-full shadow-md font-bold">
+                    {t('extensions.addOnAvailable', 'Add-on Available')}
+                  </div>
+                  <img
+                    src={pkg.img}
+                    alt={t(pkg.titleKey, pkg.titleDefault)}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                </div>
 
-      {/* Tailor Tour CTA Section */}
-      <section className="relative py-20 overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(https://res.cloudinary.com/degbrq3ck/image/upload/v1783030445/Gemini_Generated_Image_kenvzkkenvzkkenv_h9kz07.png)' }}
-        />
-        <div className="absolute inset-0 bg-obsidian-900/85" />
-        <div className="relative z-10 container mx-auto px-6 text-center max-w-3xl">
-          <span className="text-gold-500 uppercase tracking-widest text-sm font-semibold block mb-3">
-            CUSTOM EXTENSIONS
-          </span>
-          <h2
-            className="text-display-xl text-ivory-50 mb-6 font-display"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {t('extensions.customTitle', 'هل ترغب في تمديد رحلتك لوجهة أخرى؟')}
-          </h2>
-          <p className="text-body-lg text-ivory-300 mb-10">
-            {t(
-              'extensions.customDesc',
-              'يمكننا إضافة ليالٍ في الإسكندرية، أسوان، طابا، أو مرسى علم بكل سهولة وتنسيق تنقلاتك وطيرانك الداخلي.'
-            )}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/tailor-a-tour">
-              <Button variant="gold-glow" className="w-full sm:w-auto px-10 py-4">
-                {t('home.tailorTour', 'Tailor Your Tour')}
-              </Button>
-            </Link>
-            <Link to="/contact">
-              <Button variant="glass" className="w-full sm:w-auto px-10 py-4">
-                {t('nav.contact', 'Contact Us')}
-              </Button>
-            </Link>
-          </div>
-        </div>
+                <div className="p-6 flex flex-col flex-grow">
+                  <div className="mb-2">
+                    <span className="text-xs text-gold-500 uppercase tracking-widest font-semibold">
+                      {t(pkg.durationKey, pkg.durationDefault)}
+                    </span>
+                  </div>
+                  <h3
+                    className="text-xl text-obsidian-900 dark:text-white mb-2 font-display line-clamp-2 group-hover:text-gold-500 transition-colors"
+                    style={{ fontFamily: "'Playfair Display', serif" }}
+                  >
+                    {t(pkg.titleKey, pkg.titleDefault)}
+                  </h3>
+                  <p className="text-xs text-gold-600 dark:text-gold-400 mb-3 font-medium">
+                    {t(pkg.destinationsKey, pkg.destinationsDefault)}
+                  </p>
+                  <p className="text-body-sm text-obsidian-500 dark:text-gray-300 mb-6 leading-relaxed flex-grow">
+                    {t(pkg.descKey, pkg.descDefault)}
+                  </p>
+
+                  <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-100 dark:border-gray-800">
+                    <div>
+                      <span className="text-[11px] text-obsidian-400 block uppercase">
+                        {t('extensions.startingFrom', 'Starting From')}
+                      </span>
+                      <span className="text-xl font-bold text-gold-600">${pkg.price}</span>
+                    </div>
+
+                    <span className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-600 text-obsidian-900 font-bold px-5 py-2.5 rounded-full shadow-md text-xs border border-gold-400 group-hover:scale-105 transition-all duration-300">
+                      {t('extensions.viewDetails', 'View Details')}
+                      <FaChevronRight className="rtl-flip text-[10px]" />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </motion.div>
       </section>
     </div>
   );
