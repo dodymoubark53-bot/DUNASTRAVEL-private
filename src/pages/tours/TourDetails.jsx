@@ -491,7 +491,7 @@ const TourDetails = () => {
           {/* Sidebar - Booking Form */}
           <div className="lg:col-span-1">
             <div className="sticky top-28">
-              <BookingForm tourId={tour.id} tourSlug={tour.slug} tourTitle={title} />
+              <BookingForm tourId={tour.id} tourSlug={tour.slug} tourTitle={title} initialPrice={tour.basePriceUsd || tour.price} />
             </div>
           </div>
 

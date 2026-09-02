@@ -48,7 +48,7 @@ const languages = [
   { value: 'ar', flag: '🇪🇬', labelKey: 'languages.arabic', fallback: 'Arabic' },
 ];
 
-const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTransportChoice }) => {
+const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTransportChoice, initialPrice = 0 }) => {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const bookingTourKey = tourSlug || tourId;
@@ -988,32 +988,40 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
                 )}
 
                 {/* Pricing Summary Breakdown Card */}
-                {pricePreview && (
-                  <div className="bg-gradient-to-br from-[rgba(201,162,39,0.08)] to-transparent border border-gold-500/30 rounded-xl p-4 space-y-2">
-                    <div className="flex items-center justify-between text-[11px] text-ivory-400">
-                      <span className="uppercase tracking-wider">
-                        {b.adults + b.children} {t('booking.passengers', 'Guest(s)')}
-                      </span>
-                      <span>{b.arrivalDate}</span>
-                    </div>
+                {(() => {
+                  const baseRate = Number(initialPrice) || Number(pricePreview?.basePriceUsd) || 0;
+                  const clientTotal = (baseRate * b.adults) + (baseRate * 0.5 * b.children);
+                  const totalToDisplay = pricePreview?.totalAmountUsd !== undefined ? pricePreview.totalAmountUsd : clientTotal;
+                  
+                  if (!totalToDisplay || totalToDisplay <= 0) return null;
 
-                    <div className="flex items-baseline justify-between pt-1 border-t border-gold-500/15">
-                      <span className="text-[12px] font-semibold text-ivory-200 uppercase tracking-wider">
-                        {t('booking.totalPrice', 'Authoritative Total')}
-                      </span>
-                      <div className="text-right">
-                        <span className="text-display-sm text-gold-400 font-display font-bold">
-                          ${pricePreview.totalAmountUsd}
+                  return (
+                    <div className="bg-gradient-to-br from-[rgba(201,162,39,0.08)] to-transparent border border-gold-500/30 rounded-xl p-4 space-y-2">
+                      <div className="flex items-center justify-between text-[11px] text-ivory-400">
+                        <span className="uppercase tracking-wider">
+                          {b.adults + b.children} {t('booking.passengers', 'Guest(s)')}
                         </span>
+                        <span>{b.arrivalDate}</span>
+                      </div>
+
+                      <div className="flex items-baseline justify-between pt-1 border-t border-gold-500/15">
+                        <span className="text-[12px] font-semibold text-ivory-200 uppercase tracking-wider">
+                          {t('booking.totalPrice', 'Authoritative Total')}
+                        </span>
+                        <div className="text-right">
+                          <span className="text-display-sm text-gold-400 font-display font-bold">
+                            ${Number(totalToDisplay).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 text-[10px] text-ivory-400/80 pt-1">
+                        <FaShieldAlt className="text-gold-400" size={10} />
+                        <span>{t('booking.gatePayInGuarantee', 'GatePayIn SSL Secured Checkout')}</span>
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-1.5 text-[10px] text-ivory-400/80 pt-1">
-                      <FaShieldAlt className="text-gold-400" size={10} />
-                      <span>{t('booking.gatePayInGuarantee', 'GatePayIn SSL Secured Checkout')}</span>
-                    </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Submit Action */}
                 <button
