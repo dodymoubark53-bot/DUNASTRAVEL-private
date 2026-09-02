@@ -232,6 +232,63 @@ export default function MultiCountryTourDetails() {
               </motion.div>
             )}
 
+            {/* Inclusions & Exclusions */}
+            {((tour.included && tour.included.length > 0) || (tour.excluded && tour.excluded.length > 0) || (tour.includes && tour.includes.length > 0) || (tour.excludes && tour.excludes.length > 0)) && (
+              <motion.div
+                variants={fadeInUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="mt-16"
+              >
+                <div className="mb-8">
+                  <span className="text-caption text-gold-500 uppercase tracking-[4px] font-semibold block mb-2 text-xs">
+                    {t('tourDetail.details', 'TOUR SPECIFICATIONS')}
+                  </span>
+                  <h2 className="text-display-lg text-2xl md:text-3xl text-obsidian-900 font-display font-semibold" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    {t('tourDetail.incExc', "What's Included & Excluded")}
+                  </h2>
+                  <div className="w-20 h-1 bg-gold-500 mt-3 rounded-full" />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {(tour.included || tour.includes) && (
+                    <div className="bg-emerald-50/80 p-6 md:p-8 rounded-2xl border border-emerald-200/80 shadow-sm">
+                      <h3 className="text-display-md text-xl font-bold text-emerald-950 mb-6 flex items-center gap-2.5 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
+                        <FaCheckCircle className="text-emerald-600 flex-shrink-0" />
+                        {t('tourDetail.included', 'What is Included')}
+                      </h3>
+                      <ul className="flex flex-col gap-3.5">
+                        {(tour.included || tour.includes).map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-3 text-body-md text-emerald-900">
+                            <FaCheck className="text-emerald-600 mt-1 flex-shrink-0 text-sm" />
+                            <span className="leading-relaxed">{t(`data.${item}`, item)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {(tour.excluded || tour.excludes) && (
+                    <div className="bg-rose-50/80 p-6 md:p-8 rounded-2xl border border-rose-200/80 shadow-sm">
+                      <h3 className="text-display-md text-xl font-bold text-rose-950 mb-6 flex items-center gap-2.5 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
+                        <FaTimes className="text-rose-600 flex-shrink-0" />
+                        {t('tourDetail.excluded', 'What is Excluded')}
+                      </h3>
+                      <ul className="flex flex-col gap-3.5">
+                        {(tour.excluded || tour.excludes).map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-3 text-body-md text-rose-900">
+                            <FaTimes className="text-rose-500 mt-1 flex-shrink-0 text-sm" />
+                            <span className="leading-relaxed">{t(`data.${item}`, item)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
             {/* Route Map */}
             {tour.itinerary && <RouteMap itinerary={tour.itinerary} />}
           </div>
