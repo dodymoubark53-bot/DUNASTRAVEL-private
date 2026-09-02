@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useTours } from './useTours';
+import { jordanTours } from '../data/jordanTours.js';
 
 function getLocalizedField(fieldObj, locale) {
   if (!fieldObj) return '';
@@ -19,10 +19,9 @@ export function useJordanPrograms() {
   const { i18n } = useTranslation();
   const lang = i18n.language || 'en';
   const locale = ['ar', 'en', 'es', 'pt', 'it'].includes(lang) ? lang : 'en';
-  const { tours } = useTours({ destination: 'Jordan', limit: 50 });
 
   return useMemo(() => {
-    return tours.map((program) => {
+    return jordanTours.map((program) => {
       const title = getLocalizedField(program.name || program.title, locale);
       const enTitle = getLocalizedField(program.name || program.title, 'en');
       const slug = program.slug || slugify(`${program.id}-${enTitle}`);
@@ -41,14 +40,35 @@ export function useJordanPrograms() {
           }))
         : [];
 
+      const resolveList = (val) => {
+        if (!val) return [];
+        if (Array.isArray(val)) {
+          return val.map(item => {
+            if (typeof item === 'object' && item !== null) {
+              return item[locale] || item.en || item.ar || item.es || Object.values(item)[0] || '';
+            }
+            return String(item || '');
+          }).filter(Boolean);
+        }
+        if (typeof val === 'object' && val !== null) {
+          return (val[locale] || val.en || val.ar || []).map(item => String(item || '')).filter(Boolean);
+        }
+        return [];
+      };
+
+      const included = resolveList(program.included || program.includes);
+      const excluded = resolveList(program.excluded || program.excludes);
+
       return {
         ...program,
         id: program.id,
         title,
         slug,
-        images: Array.isArray(program.images) && program.images.length > 0 ? program.images : (program.heroImage ? [program.heroImage] : []),
+        images: Array.isArray(program.images) && program.images.length > 0 ? program.images : [program.heroImage],
         duration,
         highlights: Array.isArray(highlights) ? highlights : [],
+        included,
+        excluded,
         overview,
         code,
         minPax,
@@ -56,15 +76,73 @@ export function useJordanPrograms() {
         raw: program,
       };
     });
-  }, [locale, tours]);
+  }, [locale]);
 }
 
 export function getJordanProgramBySlug(slug, locale = 'en') {
-  // Detail resolution is asynchronous and must go through GET /api/tours/:slug.
-  // Keep this legacy synchronous helper inert so it can never expose a local catalog.
-  void slug;
-  void locale;
-  return null;
+  if (!slug) return null;
+  const normSlug = String(slug).toLowerCase();
+  
+  const targetLocale = ['ar', 'en', 'es', 'pt', 'it'].includes(locale) ? locale : 'en';
+
+  const matched = jordanTours.find((p) => {
+    const pSlug = p.slug || slugify(`${p.id}-${getLocalizedField(p.name, 'en')}`);
+    return pSlug.toLowerCase() === normSlug || p.id.toLowerCase() === normSlug;
+  });
+
+  if (!matched) return null;
+
+  const title = getLocalizedField(matched.name || matched.title, targetLocale);
+  const duration = getLocalizedField(matched.duration, targetLocale);
+  const highlights = getLocalizedField(matched.highlights, targetLocale);
+  const overview = getLocalizedField(matched.overview, targetLocale);
+  const code = getLocalizedField(matched.code, targetLocale) || matched.id;
+  const minPax = getLocalizedField(matched.minPax, targetLocale);
+
+  const resolveList = (val) => {
+    if (!val) return [];
+    if (Array.isArray(val)) {
+      return val.map(item => {
+        if (typeof item === 'object' && item !== null) {
+          return item[targetLocale] || item.en || item.ar || item.es || Object.values(item)[0] || '';
+        }
+        return String(item || '');
+      }).filter(Boolean);
+    }
+    if (typeof val === 'object' && val !== null) {
+      return (val[targetLocale] || val.en || val.ar || []).map(item => String(item || '')).filter(Boolean);
+    }
+    return [];
+  };
+
+  const included = resolveList(matched.included || matched.includes);
+  const excluded = resolveList(matched.excluded || matched.excludes);
+
+  const days = Array.isArray(matched.days)
+    ? matched.days.map((d) => ({
+        day: d.day,
+        title: getLocalizedField(d.title, targetLocale),
+        description: getLocalizedField(d.description, targetLocale),
+        meals: d.meals ? getLocalizedField(d.meals, targetLocale) : null,
+      }))
+    : [];
+
+  return {
+    ...matched,
+    id: matched.id,
+    title,
+    slug: matched.slug || slugify(`${matched.id}-${getLocalizedField(matched.name, 'en')}`),
+    images: Array.isArray(matched.images) && matched.images.length > 0 ? matched.images : [matched.heroImage],
+    duration,
+    highlights: Array.isArray(highlights) ? highlights : [],
+    included,
+    excluded,
+    overview,
+    code,
+    minPax,
+    days,
+    raw: matched,
+  };
 }
 
 export default useJordanPrograms;

@@ -372,23 +372,45 @@ export default function TurkeyProgramDetails() {
             {(includes || excludes) && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {includes && (
-                  <div className="bg-emerald-500/5 dark:bg-emerald-500/10 p-6 rounded-2xl border border-emerald-500/20">
-                    <h3 className="text-title-md text-emerald-800 dark:text-emerald-300 font-semibold mb-4 flex items-center gap-2">
-                      <FaCheck className="text-emerald-500" /> {t('programs.included', 'What is Included')}
+                  <div className="bg-emerald-50/70 dark:bg-emerald-950/20 p-6 md:p-8 rounded-2xl border border-emerald-200/70 dark:border-emerald-800/40 shadow-sm">
+                    <h3 className="text-title-md text-emerald-950 dark:text-emerald-300 font-semibold mb-4 flex items-center gap-2 font-display">
+                      <FaCheck className="text-emerald-600 dark:text-emerald-400" /> {t('programs.included', 'What is Included')}
                     </h3>
-                    <p className="text-body-md text-obsidian-700 dark:text-ivory-200 whitespace-pre-line leading-relaxed">
-                      {typeof includes === 'string' ? includes : JSON.stringify(includes)}
-                    </p>
+                    {Array.isArray(includes) ? (
+                      <ul className="space-y-3">
+                        {includes.map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-2 text-body-md text-emerald-900 dark:text-emerald-100">
+                            <FaCheck className="text-emerald-600 dark:text-emerald-400 mt-1 shrink-0 text-sm" />
+                            <span>{typeof item === 'object' ? (item[locale] || item.en || item.ar) : item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-body-md text-emerald-900 dark:text-emerald-100 whitespace-pre-line leading-relaxed">
+                        {typeof includes === 'string' ? includes : ''}
+                      </p>
+                    )}
                   </div>
                 )}
                 {excludes && (
-                  <div className="bg-rose-500/5 dark:bg-rose-500/10 p-6 rounded-2xl border border-rose-500/20">
-                    <h3 className="text-title-md text-rose-800 dark:text-rose-300 font-semibold mb-4 flex items-center gap-2">
-                      <FaTimes className="text-rose-500" /> {t('programs.excluded', 'What is Excluded')}
+                  <div className="bg-rose-50/70 dark:bg-rose-950/20 p-6 md:p-8 rounded-2xl border border-rose-200/70 dark:border-rose-800/40 shadow-sm">
+                    <h3 className="text-title-md text-rose-950 dark:text-rose-300 font-semibold mb-4 flex items-center gap-2 font-display">
+                      <FaTimes className="text-rose-600 dark:text-rose-400" /> {t('programs.excluded', 'What is Excluded')}
                     </h3>
-                    <p className="text-body-md text-obsidian-700 dark:text-ivory-200 whitespace-pre-line leading-relaxed">
-                      {typeof excludes === 'string' ? excludes : JSON.stringify(excludes)}
-                    </p>
+                    {Array.isArray(excludes) ? (
+                      <ul className="space-y-3">
+                        {excludes.map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-2 text-body-md text-rose-900 dark:text-rose-100">
+                            <FaTimes className="text-rose-500 dark:text-rose-400 mt-1 shrink-0 text-sm" />
+                            <span>{typeof item === 'object' ? (item[locale] || item.en || item.ar) : item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-body-md text-rose-900 dark:text-rose-100 whitespace-pre-line leading-relaxed">
+                        {typeof excludes === 'string' ? excludes : ''}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -518,10 +540,8 @@ export default function TurkeyProgramDetails() {
         .related-carousel {
           display: flex;
           overflow-x: auto;
-          overflow-y: hidden;
           gap: 24px;
-          padding-top: 12px;
-          padding-bottom: 24px;
+          padding-bottom: 16px;
           scroll-snap-type: x mandatory;
           -webkit-overflow-scrolling: touch;
           scrollbar-width: none;
@@ -532,10 +552,8 @@ export default function TurkeyProgramDetails() {
         }
         .related-carousel-item {
           flex: 0 0 auto;
-          width: 290px;
+          width: 280px;
           scroll-snap-align: start;
-          display: flex;
-          flex-direction: column;
         }
         @media (min-width: 768px) {
           .related-carousel-item { width: 320px; }

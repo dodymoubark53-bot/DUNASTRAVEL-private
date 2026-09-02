@@ -74,7 +74,7 @@ export default function JordanProgramDetails() {
     );
   }
 
-  const { title, overview, duration, highlights, days, images, code, minPax, id } = program;
+  const { title, overview, duration, highlights, days, images, code, minPax, id, included, excluded } = program;
   const relatedPrograms = allJordanPrograms.filter((p) => p.id !== id);
 
   return (
@@ -272,6 +272,50 @@ export default function JordanProgramDetails() {
               </div>
             </motion.div>
 
+            {/* Inclusions & Exclusions */}
+            {((Array.isArray(included) && included.length > 0) || (Array.isArray(excluded) && excluded.length > 0)) && (
+              <motion.div
+                variants={itemVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="grid grid-cols-1 md:grid-cols-2 gap-6"
+              >
+                {Array.isArray(included) && included.length > 0 && (
+                  <div className="bg-emerald-50/70 dark:bg-emerald-950/20 p-6 md:p-8 rounded-2xl border border-emerald-200/70 dark:border-emerald-800/40 shadow-sm">
+                    <h3 className="text-display-md text-xl font-bold text-emerald-950 dark:text-emerald-300 mb-4 flex items-center gap-2 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
+                      <FaCheck className="text-emerald-600 dark:text-emerald-400 text-sm" />
+                      {t('tourDetail.included', 'What is Included')}
+                    </h3>
+                    <ul className="space-y-3">
+                      {included.map((item, idx) => (
+                        <li key={idx} className="flex items-start gap-2 text-body-md text-emerald-900 dark:text-emerald-100">
+                          <FaCheck className="text-emerald-600 dark:text-emerald-400 mt-1 shrink-0 text-sm" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {Array.isArray(excluded) && excluded.length > 0 && (
+                  <div className="bg-rose-50/70 dark:bg-rose-950/20 p-6 md:p-8 rounded-2xl border border-rose-200/70 dark:border-rose-800/40 shadow-sm">
+                    <h3 className="text-display-md text-xl font-bold text-rose-950 dark:text-rose-300 mb-4 flex items-center gap-2 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
+                      <FaClose className="text-rose-600 dark:text-rose-400 text-sm" />
+                      {t('tourDetail.excluded', 'What is Excluded')}
+                    </h3>
+                    <ul className="space-y-3">
+                      {excluded.map((item, idx) => (
+                        <li key={idx} className="flex items-start gap-2 text-body-md text-rose-900 dark:text-rose-100">
+                          <FaClose className="text-rose-500 dark:text-rose-400 mt-1 shrink-0 text-sm" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
             {/* Route Map */}
             {Array.isArray(days) && days.length > 0 && (
               <RouteMap itinerary={days} />
@@ -348,10 +392,8 @@ export default function JordanProgramDetails() {
         .related-carousel {
           display: flex;
           overflow-x: auto;
-          overflow-y: hidden;
           gap: 24px;
-          padding-top: 12px;
-          padding-bottom: 24px;
+          padding-bottom: 16px;
           scroll-snap-type: x mandatory;
           -webkit-overflow-scrolling: touch;
           scrollbar-width: none;
@@ -364,8 +406,6 @@ export default function JordanProgramDetails() {
           flex: 0 0 auto;
           width: 280px;
           scroll-snap-align: start;
-          display: flex;
-          flex-direction: column;
         }
         @media (min-width: 768px) {
           .related-carousel-item {

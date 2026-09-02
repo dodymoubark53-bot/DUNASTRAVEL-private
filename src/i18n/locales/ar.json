@@ -5113,7 +5113,7 @@
   "reviews.title": "تقييمات الضيوف",
   "reviews.location": "موقع الرحلة",
   "reviews.count": "بناءً على {{count}} تقييم معتمد",
-  "reviews.yourName": "اسمك الكريم",
+  "reviews.yourName": "أدخل اسمك",
   "reviews.country": "البلد",
   "reviews.rating": "درجة التقييم",
   "reviews.reviewText": "تفاصيل التقييم والانطباع",

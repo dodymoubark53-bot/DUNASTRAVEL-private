@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { fadeInUp } from '../../animations/variants';
-import { resolveLocalizedText } from '../../utils/titleHelper';
 
 const IncludedNotIncluded = ({
   includedItems = [],
@@ -19,10 +18,32 @@ const IncludedNotIncluded = ({
 
   const translateKey = (item) => {
     if (!item) return '';
-    return resolveLocalizedText(item, t, lang);
+    // If it's an object with language keys { ar: '...', en: '...' }
+    if (typeof item === 'object') {
+      return item[lang] || item.en || item.ar || item.es || Object.values(item)[0] || '';
+    }
+    if (typeof item !== 'string') return String(item);
+    
+    // If the key is already dot-notated or has underscores, try translating directly
+    if (item.includes('.') || item.includes('_')) {
+      const translated = t(item);
+      if (translated !== item) return translated;
+    }
+    // Check if it's stored in data translations namespace
+    const translatedData = t(`data.${item}`);
+    if (translatedData !== `data.${item}`) return translatedData;
+    
+    return t(item, item);
   };
 
+  const hasIncluded = Array.isArray(includedItems) && includedItems.length > 0;
+  const hasExcluded = Array.isArray(excludedItems) && excludedItems.length > 0;
   const hasExcursions = Array.isArray(excursionsItems) && excursionsItems.length > 0;
+
+  if (!hasIncluded && !hasExcluded && !hasExcursions) {
+    return null;
+  }
+
   const columnsCount = hasExcursions ? 3 : 2;
 
   return (

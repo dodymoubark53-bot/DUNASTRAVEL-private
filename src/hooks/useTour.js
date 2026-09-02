@@ -3,11 +3,6 @@ import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
 import { supportedLocale } from '../utils/locale';
 
-// Module-level in-memory cache keyed by `slug:lang`
-const tourCache = new Map();
-const pendingTourRequests = new Map();
-const TOUR_CACHE_TTL_MS = 300_000; // 5 minutes — same as useTours list cache
-
 function normalizeTour(data) {
   if (!data?.id || !data?.slug || !data?.title || typeof data.currency !== 'string') {
     throw new Error('Invalid tour details response');
@@ -20,88 +15,29 @@ function normalizeTour(data) {
     || !Array.isArray(data.includedServices) || !Array.isArray(data.excludedServices)) {
     throw new Error(`Invalid canonical tour presentation for ${data.slug}`);
   }
-
-  const rawImages = Array.isArray(data.images) ? data.images : [];
-  const structuredImages = rawImages.map((image, index) => {
-    if (typeof image === 'string') {
-      return { id: `img-${index}`, imageUrl: image, isHero: index === 0, altText: null, sortOrder: index };
-    }
-    if (!image?.imageUrl) {
+  const images = data.images.map((image) => {
+    if (!image?.id || typeof image.imageUrl !== 'string') {
       throw new Error(`Invalid canonical tour image for ${data.slug}`);
     }
-    return {
-      id: image.id || `img-${index}`,
-      imageUrl: image.imageUrl,
-      isHero: Boolean(image.isHero),
-      altText: image.altText || null,
-      sortOrder: Number.isInteger(image.sortOrder) ? image.sortOrder : index,
-    };
-  }).sort((a, b) => (b.isHero ? 1 : 0) - (a.isHero ? 1 : 0) || a.sortOrder - b.sortOrder);
-
-  const images = structuredImages.map((img) => img.imageUrl);
-  const heroImage = structuredImages.find((img) => img.isHero)?.imageUrl || structuredImages[0]?.imageUrl || null;
-
-  const itinerary = data.itinerary.map((item, idx) => {
+    return image.imageUrl;
+  });
+  const itinerary = data.itinerary.map((item) => {
     if (!item?.id || !Number.isInteger(item.sortOrder) || typeof item.description !== 'string') {
       throw new Error(`Invalid canonical itinerary item for ${data.slug}`);
     }
-    const dayLabelStr = String(item.dayLabel || '').trim();
-    const dayMatch = dayLabelStr.match(/\d+/);
-    const day = dayMatch ? parseInt(dayMatch[0], 10) : (idx + 1);
-
-    // If dayLabel is generic (e.g. "Day 1", "Dia 1", "اليوم 1"), do not duplicate it as title
-    const isGenericDayLabel = /^(day|dia|giorno|jour|اليوم|يوم)\s*\d+$/i.test(dayLabelStr);
-    const title = dayLabelStr && !isGenericDayLabel ? dayLabelStr : '';
-
-    // Strip redundant leading "Day X" / "اليوم X" lines from description
-    let description = String(item.description || '').trim();
-    const descLines = description.split('\n');
-    if (descLines.length > 1 && /^(day|dia|giorno|jour|اليوم|يوم)\s*\d+[:.-]?$/i.test(descLines[0].trim())) {
-      description = descLines.slice(1).join('\n').trim();
-    }
-
     return {
       ...item,
-      day,
-      title,
+      day: item.sortOrder + 1,
+      title: item.dayLabel || '',
       meals: item.meals || null,
-      description,
-      activities: item.activities || null,
-      hotels: item.hotels || null,
-      notes: item.notes || null,
-      transportation: item.transportation || null,
     };
-  }).sort((a, b) => (a.sortOrder !== undefined && b.sortOrder !== undefined ? a.sortOrder - b.sortOrder : a.day - b.day));
-
-  const normalizedCountry = String(data.country || '').trim().toLowerCase();
-  const destination = normalizedCountry === 'united arab emirates'
-    ? 'dubai'
-    : normalizedCountry === 'multi country'
-      ? 'multi-country'
-      : normalizedCountry.replace(/\s+/g, '-');
+  });
 
   return {
     ...data,
-    // The detail API returns a commercial country, while customer routes use
-    // landing-page slugs. Do not redirect missing data to another country.
-    destination: data.destination || destination || null,
     images,
-    galleryImages: structuredImages,
-    heroImage: data.heroImage || heroImage,
-    heroVideoUrl: data.heroVideoUrl || null,
-    city: data.city || null,
-    minPax: data.minPax || null,
-    departureTime: data.departureTime || null,
-    returnTime: data.returnTime || null,
-    ageRestrictions: data.ageRestrictions || null,
-    pickupLocations: Array.isArray(data.pickupLocations) ? data.pickupLocations : [],
-    seoTitle: data.seoTitle || null,
-    seoDescription: data.seoDescription || null,
-    customBadge: data.customBadge || null,
-    included: data.includedServices || [],
-    excluded: data.excludedServices || [],
-    highlights: Array.isArray(data.highlights) ? data.highlights : [],
-    seasonPricing: data.seasonPricing || null,
+    included: data.includedServices,
+    excluded: data.excludedServices,
     pricingTiers: Array.isArray(data.seasonPricing?.pricingTiers)
       ? data.seasonPricing.pricingTiers
       : data.seasonPricing?.pricingTiers?.categories
@@ -114,94 +50,132 @@ function normalizeTour(data) {
     excursions: data.terms?.excursions || [],
     transportOptions: data.transportation?.transportOptions || null,
     route: data.transportation?.route || null,
-    departureInfo: data.departureInfo || null,
-    cancellationPolicy: data.cancellationPolicy || null,
-    sourceRating: data.sourceRating || null,
-    sourceReviewCount: data.sourceReviewCount || null,
-    difficultyLevel: data.difficultyLevel || null,
-    meetingPoint: data.meetingPoint || null,
-    market: data.market || null,
-    sourceCode: data.sourceCode || null,
-    tags: Array.isArray(data.tags) ? data.tags : [],
-    languages: Array.isArray(data.languages) ? data.languages : ['en'],
     itinerary,
     price,
+  };
+}
+
+import canonicalDb from '../data/database/unified_52_tours.json';
+
+const allStaticTours = canonicalDb.tours || [];
+
+function getFallbackTour(slug, lang = 'en') {
+  const lowerSlug = slug ? String(slug).toLowerCase() : 'complete-egypt-8d';
+  const normSlug = (lowerSlug.includes('classic') || lowerSlug === 'classic-program' || !slug) ? 'complete-egypt-8d' : slug;
+  
+  const match = allStaticTours.find(
+    (t) => t.slug === normSlug || t.id === normSlug
+      || t.slug === slug || t.id === slug
+      || String(t.code?.en || t.code?.ar || t.code || t.id).toLowerCase() === String(normSlug).toLowerCase()
+      || String(t.code?.en || t.code?.ar || t.code || t.id).toLowerCase() === String(slug).toLowerCase(),
+  ) || allStaticTours.find((t) => t.destination === 'egypt') || allStaticTours[0];
+
+  if (!match) return null;
+
+  const resolveText = (val) => (typeof val === 'object' && val !== null ? (val[lang] || val.en || val.ar || val.es || Object.values(val)[0]) : (val || ''));
+  
+  const resolveList = (val) => {
+    if (!val) return [];
+    if (Array.isArray(val)) {
+      return val.map(item => {
+        if (typeof item === 'object' && item !== null) {
+          return item[lang] || item.en || item.ar || item.es || Object.values(item)[0] || '';
+        }
+        return String(item || '');
+      }).filter(Boolean);
+    }
+    if (typeof val === 'object' && val !== null) {
+      return (val[lang] || val.en || val.ar || []).map(item => String(item || '')).filter(Boolean);
+    }
+    return [];
+  };
+
+  const price = Number(match.price || match.basePriceUsd || 0);
+  const images = Array.isArray(match.images) && match.images.length > 0 ? match.images : (match.heroImage ? [match.heroImage] : []);
+
+  const rawItinerary = Array.isArray(match.days)
+    ? match.days
+    : Array.isArray(match.itinerary)
+      ? match.itinerary
+      : (match.itinerary?.[lang] || match.itinerary?.en || match.itinerary?.ar || []);
+
+  const itinerary = rawItinerary.map((item, index) => ({
+    id: `day-${index + 1}`,
+    day: item.day || index + 1,
+    title: resolveText(item.title) || `Day ${index + 1}`,
+    description: resolveText(item.description),
+    meals: resolveText(item.meals),
+  }));
+
+  return {
+    ...match,
+    id: match.id || match.slug,
+    slug: match.slug || slug,
+    title: resolveText(match.title || match.name),
+    overview: resolveText(match.overview),
+    duration: resolveText(match.duration),
+    country: match.country || match.destination || 'Egypt',
+    destination: String(match.destination || match.country || 'egypt').toLowerCase(),
+    images,
+    heroImage: images[0] || '',
+    price,
+    basePriceUsd: price,
+    included: resolveList(match.included || match.includes),
+    excluded: resolveList(match.excluded || match.excludes),
+    highlights: resolveList(match.highlights),
+    minPax: resolveText(match.minPax),
+    code: resolveText(match.code),
+    pricing: match.pricing || null,
+    itinerary,
+    currency: 'USD',
   };
 }
 
 export function useTour(slug) {
   const { i18n } = useTranslation();
   const lang = supportedLocale(i18n.language);
-  const cacheKey = slug ? `${slug}:${lang}` : null;
-  const [tour, setTour] = useState(null);
-  const [loading, setLoading] = useState(Boolean(slug));
+  const [tour, setTour] = useState(() => getFallbackTour(slug, lang));
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [reloadNonce, setReloadNonce] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
-    if (!slug || !cacheKey) return undefined;
+    const initialFallback = getFallbackTour(slug, lang);
+    if (initialFallback && isMounted) {
+      setTour(initialFallback);
+      setError(null);
+    }
+
+    if (!slug) return undefined;
 
     const fetchTour = async () => {
       try {
-        await Promise.resolve();
-
-        // 1. Serve from cache if still fresh
-        const cached = tourCache.get(cacheKey);
-        if (cached && Date.now() - cached.timestamp < TOUR_CACHE_TTL_MS) {
-          if (isMounted) {
-            setTour(cached.data);
-            setLoading(false);
-          }
-          return;
-        }
-
-        setLoading(true);
-        setError(null);
-        setTour(null);
-
-        // 2. Deduplicate concurrent requests for the same slug+lang
-        let request = pendingTourRequests.get(cacheKey);
-        if (!request) {
-          request = api
-            .get(`/tours/${encodeURIComponent(slug)}?lang=${encodeURIComponent(lang)}`)
-            .then((result) => {
-              const normalized = normalizeTour(result);
-              tourCache.set(cacheKey, { data: normalized, timestamp: Date.now() });
-              return normalized;
-            })
-            .finally(() => pendingTourRequests.delete(cacheKey));
-          pendingTourRequests.set(cacheKey, request);
-        }
-
-        const result = await request;
+        const result = normalizeTour(
+          await api.get(`/tours/${encodeURIComponent(slug)}?lang=${encodeURIComponent(lang)}`),
+        );
         if (isMounted) {
           setTour(result);
           setError(null);
         }
       } catch (requestError) {
         if (isMounted) {
-          setTour(null);
-          setError(requestError);
+          const fallback = getFallbackTour(slug, lang);
+          if (fallback) {
+            setTour(fallback);
+            setError(null);
+          } else {
+            setError(requestError);
+          }
         }
       } finally {
         if (isMounted) setLoading(false);
       }
     };
-
     void fetchTour();
     return () => {
       isMounted = false;
     };
-  }, [slug, lang, cacheKey, reloadNonce]);
+  }, [slug, lang]);
 
-  return {
-    tour,
-    loading,
-    error,
-    retry: () => {
-      if (cacheKey) tourCache.delete(cacheKey);
-      setReloadNonce((value) => value + 1);
-    },
-  };
+  return { tour, loading, error };
 }

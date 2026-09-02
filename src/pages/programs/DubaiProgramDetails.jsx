@@ -510,24 +510,48 @@ export default function DubaiProgramDetails() {
                 className="grid grid-cols-1 md:grid-cols-2 gap-8"
               >
                 {includes && (
-                  <div className="bg-ivory-50 rounded-xl p-8 border border-gold-500/10">
-                    <h3 className="text-display-md text-2xl text-obsidian-900 mb-6 font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>
+                  <div className="bg-emerald-50/70 dark:bg-emerald-950/20 rounded-2xl p-6 md:p-8 border border-emerald-200/70 dark:border-emerald-800/40 shadow-sm">
+                    <h3 className="text-display-md text-2xl text-emerald-950 dark:text-emerald-300 mb-6 font-serif flex items-center gap-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                      <FaCheck className="text-emerald-600 dark:text-emerald-400" />
                       {t('tourDetail.included', 'What is Included')}
                     </h3>
-                    <p className="text-body-md text-obsidian-700 whitespace-pre-line leading-relaxed">
-                      {includes}
-                    </p>
+                    {Array.isArray(includes) ? (
+                      <ul className="space-y-3">
+                        {includes.map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-2 text-body-md text-emerald-900 dark:text-emerald-100">
+                            <FaCheck className="text-emerald-600 dark:text-emerald-400 mt-1 shrink-0 text-sm" />
+                            <span>{typeof item === 'object' ? (item[locale] || item.en || item.ar) : item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-body-md text-emerald-900 dark:text-emerald-100 whitespace-pre-line leading-relaxed">
+                        {typeof includes === 'string' ? includes : ''}
+                      </p>
+                    )}
                   </div>
                 )}
 
                 {excludes && (
-                  <div className="bg-ivory-50 rounded-xl p-8 border border-gold-500/10">
-                    <h3 className="text-display-md text-2xl text-obsidian-900 mb-6 font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>
+                  <div className="bg-rose-50/70 dark:bg-rose-950/20 rounded-2xl p-6 md:p-8 border border-rose-200/70 dark:border-rose-800/40 shadow-sm">
+                    <h3 className="text-display-md text-2xl text-rose-950 dark:text-rose-300 mb-6 font-serif flex items-center gap-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                      <FaTimes className="text-rose-600 dark:text-rose-400" />
                       {t('tourDetail.excluded', 'What is Excluded')}
                     </h3>
-                    <p className="text-body-md text-obsidian-700 whitespace-pre-line leading-relaxed">
-                      {excludes}
-                    </p>
+                    {Array.isArray(excludes) ? (
+                      <ul className="space-y-3">
+                        {excludes.map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-2 text-body-md text-rose-900 dark:text-rose-100">
+                            <FaTimes className="text-rose-500 dark:text-rose-400 mt-1 shrink-0 text-sm" />
+                            <span>{typeof item === 'object' ? (item[locale] || item.en || item.ar) : item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-body-md text-rose-900 dark:text-rose-100 whitespace-pre-line leading-relaxed">
+                        {typeof excludes === 'string' ? excludes : ''}
+                      </p>
+                    )}
                   </div>
                 )}
               </motion.div>
@@ -604,10 +628,8 @@ export default function DubaiProgramDetails() {
         .related-carousel {
           display: flex;
           overflow-x: auto;
-          overflow-y: hidden;
           gap: 24px;
-          padding-top: 12px;
-          padding-bottom: 24px;
+          padding-bottom: 16px;
           scroll-snap-type: x mandatory;
           -webkit-overflow-scrolling: touch;
           scrollbar-width: none;
@@ -620,8 +642,6 @@ export default function DubaiProgramDetails() {
           flex: 0 0 auto;
           width: 280px;
           scroll-snap-align: start;
-          display: flex;
-          flex-direction: column;
         }
         @media (min-width: 768px) {
           .related-carousel-item {

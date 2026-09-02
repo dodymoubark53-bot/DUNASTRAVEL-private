@@ -5,7 +5,6 @@ import {
   FaRegStar,
   FaStar,
   FaReply,
-  FaUserCircle,
   FaShieldAlt,
   FaInfoCircle,
 } from 'react-icons/fa';
@@ -333,18 +332,12 @@ export default function ReviewsMap({ tourId }) {
           ) : (
             /* Guest Reviewer Name Input */
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="reviewer-name-input"
-                  className="block text-xs font-bold uppercase tracking-wider text-white"
-                >
-                  {t('reviews.yourName', 'Your Name')} *
-                </label>
-                <span className="text-[11px] text-amber-400/90 flex items-center gap-1 font-medium">
-                  <FaUserCircle className="w-3 h-3" />
-                  {t('reviews.guestCustomer', 'Guest')}
-                </span>
-              </div>
+              <label
+                htmlFor="reviewer-name-input"
+                className="block text-xs font-bold uppercase tracking-wider text-white"
+              >
+                {t('reviews.yourName', 'Your Name')} *
+              </label>
               <input
                 id="reviewer-name-input"
                 type="text"
