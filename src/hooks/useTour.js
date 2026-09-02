@@ -3,63 +3,11 @@ import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
 import { supportedLocale } from '../utils/locale';
 
-function normalizeTour(data) {
-  if (!data?.id || !data?.slug || !data?.title || typeof data.currency !== 'string') {
-    throw new Error('Invalid tour details response');
-  }
-  const price = Number(data.basePriceUsd);
-  if (!Number.isFinite(price) || price < 0) {
-    throw new Error(`Invalid tour price for ${data.slug}`);
-  }
-  if (!Array.isArray(data.images) || !Array.isArray(data.itinerary)
-    || !Array.isArray(data.includedServices) || !Array.isArray(data.excludedServices)) {
-    throw new Error(`Invalid canonical tour presentation for ${data.slug}`);
-  }
-  const images = data.images.map((image) => {
-    if (!image?.id || typeof image.imageUrl !== 'string') {
-      throw new Error(`Invalid canonical tour image for ${data.slug}`);
-    }
-    return image.imageUrl;
-  });
-  const itinerary = data.itinerary.map((item) => {
-    if (!item?.id || !Number.isInteger(item.sortOrder) || typeof item.description !== 'string') {
-      throw new Error(`Invalid canonical itinerary item for ${data.slug}`);
-    }
-    return {
-      ...item,
-      day: item.sortOrder + 1,
-      title: item.dayLabel || '',
-      meals: item.meals || null,
-    };
-  });
-
-  return {
-    ...data,
-    images,
-    included: data.includedServices,
-    excluded: data.excludedServices,
-    pricingTiers: Array.isArray(data.seasonPricing?.pricingTiers)
-      ? data.seasonPricing.pricingTiers
-      : data.seasonPricing?.pricingTiers?.categories
-        || data.seasonPricing?.pricing?.categories
-        || [],
-    optionalExcursionsPricing: data.seasonPricing?.optionalExcursionsPricing || null,
-    accommodation: data.hotelInfo?.accommodation || null,
-    hotels: data.hotelInfo?.hotels || null,
-    hotelCategory: data.hotelInfo?.hotelCategory || null,
-    excursions: data.terms?.excursions || [],
-    transportOptions: data.transportation?.transportOptions || null,
-    route: data.transportation?.route || null,
-    itinerary,
-    price,
-  };
-}
-
 import canonicalDb from '../data/database/unified_52_tours.json';
 
 const allStaticTours = canonicalDb.tours || [];
 
-function getFallbackTour(slug, lang = 'en') {
+export function getFallbackTour(slug, lang = 'en') {
   const lowerSlug = slug ? String(slug).toLowerCase() : 'complete-egypt-8d';
   const normSlug = (lowerSlug.includes('classic') || lowerSlug === 'classic-program' || !slug) ? 'complete-egypt-8d' : slug;
   
@@ -131,6 +79,70 @@ function getFallbackTour(slug, lang = 'en') {
   };
 }
 
+function normalizeTour(data, lang = 'en') {
+  if (!data?.id || !data?.slug || !data?.title || typeof data.currency !== 'string') {
+    throw new Error('Invalid tour details response');
+  }
+  const price = Number(data.basePriceUsd);
+  if (!Number.isFinite(price) || price < 0) {
+    throw new Error(`Invalid tour price for ${data.slug}`);
+  }
+
+  const fallback = getFallbackTour(data.slug, lang);
+
+  const images = Array.isArray(data.images) && data.images.length > 0
+    ? data.images.map((image) => (typeof image === 'string' ? image : image?.imageUrl || ''))
+    : (fallback?.images || []);
+
+  const itinerary = Array.isArray(data.itinerary) && data.itinerary.length > 0
+    ? data.itinerary.map((item, idx) => ({
+        ...item,
+        day: item.sortOrder !== undefined ? item.sortOrder + 1 : (item.day || idx + 1),
+        title: item.dayLabel || item.title || '',
+        meals: item.meals || null,
+      }))
+    : (fallback?.itinerary || []);
+
+  const included = (Array.isArray(data.includedServices) && data.includedServices.length > 0)
+    ? data.includedServices
+    : (Array.isArray(data.included) && data.included.length > 0)
+      ? data.included
+      : (fallback?.included || []);
+
+  const excluded = (Array.isArray(data.excludedServices) && data.excludedServices.length > 0)
+    ? data.excludedServices
+    : (Array.isArray(data.excluded) && data.excluded.length > 0)
+      ? data.excluded
+      : (fallback?.excluded || []);
+
+  const highlights = (Array.isArray(data.highlights) && data.highlights.length > 0)
+    ? data.highlights
+    : (fallback?.highlights || []);
+
+  return {
+    ...data,
+    images,
+    included,
+    excluded,
+    highlights,
+    pricingTiers: Array.isArray(data.seasonPricing?.pricingTiers)
+      ? data.seasonPricing.pricingTiers
+      : data.seasonPricing?.pricingTiers?.categories
+        || data.seasonPricing?.pricing?.categories
+        || fallback?.pricingTiers
+        || [],
+    optionalExcursionsPricing: data.seasonPricing?.optionalExcursionsPricing || null,
+    accommodation: data.hotelInfo?.accommodation || fallback?.accommodation || null,
+    hotels: data.hotelInfo?.hotels || fallback?.hotels || null,
+    hotelCategory: data.hotelInfo?.hotelCategory || fallback?.hotelCategory || null,
+    excursions: data.terms?.excursions || fallback?.excursions || [],
+    transportOptions: data.transportation?.transportOptions || null,
+    route: data.transportation?.route || null,
+    itinerary,
+    price,
+  };
+}
+
 export function useTour(slug) {
   const { i18n } = useTranslation();
   const lang = supportedLocale(i18n.language);
@@ -152,6 +164,7 @@ export function useTour(slug) {
       try {
         const result = normalizeTour(
           await api.get(`/tours/${encodeURIComponent(slug)}?lang=${encodeURIComponent(lang)}`),
+          lang
         );
         if (isMounted) {
           setTour(result);
@@ -179,3 +192,5 @@ export function useTour(slug) {
 
   return { tour, loading, error };
 }
+
+export default useTour;

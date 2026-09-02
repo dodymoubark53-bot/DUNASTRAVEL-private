@@ -318,6 +318,83 @@ const TourDetails = () => {
               </div>
             </motion.div>
 
+            {/* Inclusions & Exclusions Section */}
+            {((tour.included && tour.included.length > 0) || (tour.excluded && tour.excluded.length > 0)) && (
+              <motion.div
+                variants={fadeInUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="mt-16"
+              >
+                <div className="mb-8">
+                  <span className="text-caption text-gold-500 uppercase tracking-[4px] font-semibold block mb-2 text-xs">
+                    {t('tourDetail.details', 'TOUR SPECIFICATIONS')}
+                  </span>
+                  <h2 className="text-display-lg text-2xl md:text-3xl text-obsidian-900 dark:text-ivory-50 font-display font-semibold" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    {t('tourDetail.incExc', "What's Included & Excluded")}
+                  </h2>
+                  <div className="w-20 h-1 bg-gold-500 mt-3 rounded-full" />
+                </div>
+
+                <div className={`grid grid-cols-1 ${tour.excursions && tour.excursions.length > 0 ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-6`}>
+                  {/* What is Included */}
+                  {tour.included && tour.included.length > 0 && (
+                    <div className="bg-emerald-50/80 dark:bg-emerald-950/25 p-6 md:p-8 rounded-2xl border border-emerald-200/80 dark:border-emerald-800/40 shadow-sm">
+                      <h3 className="text-display-md text-xl font-bold text-emerald-950 dark:text-emerald-300 mb-6 flex items-center gap-2.5 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
+                        <FaCheckCircle className="text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                        {tour.inclusionsTitle ? resolveLocalizedText(tour.inclusionsTitle, t, lang) : t('tourDetail.included', 'What is Included')}
+                      </h3>
+                      <ul className="flex flex-col gap-3.5">
+                        {tour.included.map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-3 text-body-md text-emerald-900 dark:text-emerald-100">
+                            <FaCheck className="text-emerald-600 dark:text-emerald-400 mt-1 flex-shrink-0 text-sm" />
+                            <span className="leading-relaxed">{resolveLocalizedText(item, t, lang)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* What is Excluded */}
+                  {tour.excluded && tour.excluded.length > 0 && (
+                    <div className="bg-rose-50/80 dark:bg-rose-950/25 p-6 md:p-8 rounded-2xl border border-rose-200/80 dark:border-rose-800/40 shadow-sm">
+                      <h3 className="text-display-md text-xl font-bold text-rose-950 dark:text-rose-300 mb-6 flex items-center gap-2.5 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
+                        <FaTimes className="text-rose-600 dark:text-rose-400 flex-shrink-0" />
+                        {tour.exclusionsTitle ? resolveLocalizedText(tour.exclusionsTitle, t, lang) : t('tourDetail.excluded', 'What is Excluded')}
+                      </h3>
+                      <ul className="flex flex-col gap-3.5">
+                        {tour.excluded.map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-3 text-body-md text-rose-900 dark:text-rose-100">
+                            <FaTimes className="text-rose-500 dark:text-rose-400 mt-1 flex-shrink-0 text-sm" />
+                            <span className="leading-relaxed">{resolveLocalizedText(item, t, lang)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Optional Excursions */}
+                  {tour.excursions && tour.excursions.length > 0 && (
+                    <div className="bg-gold-50/80 dark:bg-gold-950/25 p-6 md:p-8 rounded-2xl border border-gold-200/80 dark:border-gold-800/40 shadow-sm">
+                      <h3 className="text-display-md text-xl font-bold text-gold-950 dark:text-gold-300 mb-6 flex items-center gap-2.5 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
+                        <FaCheckCircle className="text-gold-600 dark:text-gold-400 flex-shrink-0" />
+                        {t('tour.optionalExcursions', 'Optional Excursions')}
+                      </h3>
+                      <ul className="flex flex-col gap-3.5">
+                        {tour.excursions.map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-3 text-body-md text-gold-950 dark:text-gold-100">
+                            <FaCheck className="text-gold-500 mt-1 flex-shrink-0 text-sm" />
+                            <span className="leading-relaxed">{resolveLocalizedText(item, t, lang)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
             {/* Pricing Tiers */}
             {tour.pricingTiers && (
               <motion.div
@@ -420,88 +497,11 @@ const TourDetails = () => {
 
         </div>
 
-        {/* Inclusions, Exclusions & Hotels Section */}
-        {((tour.included && tour.included.length > 0) || (tour.excluded && tour.excluded.length > 0) || tour.hotels) && (
+        {/* Hotels Section */}
+        {tour.hotels && (
           <div className="relative mt-20 mb-8">
             <div className="absolute inset-0 bg-gradient-to-r from-obsidian-50 via-gold-50/20 to-obsidian-50 dark:from-[#0f0f1a] dark:via-[#1a1a30] dark:to-[#0f0f1a] rounded-3xl"></div>
             <div className="relative z-10 px-4 md:px-12 py-16">
-
-              {/* Included / Excluded Cards */}
-              {((tour.included && tour.included.length > 0) || (tour.excluded && tour.excluded.length > 0)) && (
-                <motion.div
-                  variants={fadeInUp}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  className="max-w-5xl mx-auto"
-                >
-                  <div className="text-center mb-10">
-                    <span className="text-caption text-gold-500 uppercase tracking-[4px] font-semibold block mb-2 text-xs">
-                      {t('tourDetail.details', 'TOUR SPECIFICATIONS')}
-                    </span>
-                    <h2 className="text-display-lg text-2xl md:text-3xl text-obsidian-900 dark:text-ivory-50 font-display font-semibold" style={{ fontFamily: "'Playfair Display', serif" }}>
-                      {t('tourDetail.incExc', "What's Included & Excluded")}
-                    </h2>
-                    <div className="w-20 h-1 bg-gold-500 mx-auto mt-3 rounded-full" />
-                  </div>
-
-                  <div className={`grid grid-cols-1 ${tour.excursions && tour.excursions.length > 0 ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-8`}>
-                    {/* What is Included */}
-                    {tour.included && tour.included.length > 0 && (
-                      <div className="bg-emerald-50/70 dark:bg-emerald-950/25 p-6 md:p-8 rounded-2xl border border-emerald-200/70 dark:border-emerald-800/40 shadow-sm">
-                        <h3 className="text-display-md text-xl md:text-2xl font-bold text-emerald-950 dark:text-emerald-300 mb-6 flex items-center gap-2.5 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
-                          <FaCheckCircle className="text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-                          {tour.inclusionsTitle ? resolveLocalizedText(tour.inclusionsTitle, t, lang) : t('tourDetail.included', 'What is Included')}
-                        </h3>
-                        <ul className="flex flex-col gap-3.5">
-                          {tour.included.map((item, idx) => (
-                            <li key={idx} className="flex items-start gap-3 text-body-md text-emerald-900 dark:text-emerald-100">
-                              <FaCheck className="text-emerald-600 dark:text-emerald-400 mt-1 flex-shrink-0 text-sm" />
-                              <span className="leading-relaxed">{resolveLocalizedText(item, t, lang)}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {/* What is Excluded */}
-                    {tour.excluded && tour.excluded.length > 0 && (
-                      <div className="bg-rose-50/70 dark:bg-rose-950/25 p-6 md:p-8 rounded-2xl border border-rose-200/70 dark:border-rose-800/40 shadow-sm">
-                        <h3 className="text-display-md text-xl md:text-2xl font-bold text-rose-950 dark:text-rose-300 mb-6 flex items-center gap-2.5 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
-                          <FaTimes className="text-rose-600 dark:text-rose-400 flex-shrink-0" />
-                          {tour.exclusionsTitle ? resolveLocalizedText(tour.exclusionsTitle, t, lang) : t('tourDetail.excluded', 'What is Excluded')}
-                        </h3>
-                        <ul className="flex flex-col gap-3.5">
-                          {tour.excluded.map((item, idx) => (
-                            <li key={idx} className="flex items-start gap-3 text-body-md text-rose-900 dark:text-rose-100">
-                              <FaTimes className="text-rose-500 dark:text-rose-400 mt-1 flex-shrink-0 text-sm" />
-                              <span className="leading-relaxed">{resolveLocalizedText(item, t, lang)}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {/* Optional Excursions */}
-                    {tour.excursions && tour.excursions.length > 0 && (
-                      <div className="bg-gold-50/70 dark:bg-gold-950/25 p-6 md:p-8 rounded-2xl border border-gold-200/70 dark:border-gold-800/40 shadow-sm">
-                        <h3 className="text-display-md text-xl md:text-2xl font-bold text-gold-950 dark:text-gold-300 mb-6 flex items-center gap-2.5 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
-                          <FaCheckCircle className="text-gold-600 dark:text-gold-400 flex-shrink-0" />
-                          {t('tour.optionalExcursions', 'Optional Excursions')}
-                        </h3>
-                        <ul className="flex flex-col gap-3.5">
-                          {tour.excursions.map((item, idx) => (
-                            <li key={idx} className="flex items-start gap-3 text-body-md text-gold-950 dark:text-gold-100">
-                              <FaCheck className="text-gold-500 mt-1 flex-shrink-0 text-sm" />
-                              <span className="leading-relaxed">{resolveLocalizedText(item, t, lang)}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              )}
 
               {/* Hotels */}
               {tour.hotels && (
