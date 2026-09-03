@@ -98,14 +98,22 @@ function normalizeTour(data, lang = 'en') {
     ? data.images.map((image) => (typeof image === 'string' ? image : image?.imageUrl || ''))
     : (fallback?.images || []);
 
-  const itinerary = Array.isArray(data.itinerary) && data.itinerary.length > 0
-    ? data.itinerary.map((item, idx) => ({
-        ...item,
-        day: item.sortOrder !== undefined ? item.sortOrder + 1 : (item.day || idx + 1),
-        title: item.dayLabel || item.title || '',
-        meals: item.meals || null,
-      }))
-    : (fallback?.itinerary || []);
+  const rawItineraryList = (Array.isArray(data.itinerary) && data.itinerary.length > 0)
+    ? data.itinerary
+    : (Array.isArray(data.days) && data.days.length > 0)
+      ? data.days
+      : (Array.isArray(fallback?.itinerary) && fallback.itinerary.length > 0)
+        ? fallback.itinerary
+        : (Array.isArray(fallback?.days) && fallback.days.length > 0)
+          ? fallback.days
+          : [];
+
+  const itinerary = rawItineraryList.map((item, idx) => ({
+    ...item,
+    day: item.sortOrder !== undefined ? item.sortOrder + 1 : (item.day || idx + 1),
+    title: item.dayLabel || item.title || '',
+    meals: item.meals || null,
+  }));
 
   const included = (Array.isArray(data.includedServices) && data.includedServices.length > 0)
     ? data.includedServices

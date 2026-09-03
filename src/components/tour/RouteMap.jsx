@@ -877,24 +877,52 @@ const RouteMap = ({ itinerary }) => {
   const animationRef = useRef(null);
 
   const locations = useMemo(() => {
-    if (!itinerary || !Array.isArray(itinerary)) return [];
+    const rawItinerary = Array.isArray(itinerary)
+      ? itinerary
+      : Array.isArray(itinerary?.days)
+        ? itinerary.days
+        : Array.isArray(itinerary?.itinerary)
+          ? itinerary.itinerary
+          : [];
+    if (rawItinerary.length === 0) return [];
     const extracted = [];
 
-    itinerary.forEach((day) => {
+    const langCode = (i18n.language || 'en').split('-')[0].toLowerCase();
+
+    const extractText = (val) => {
+      if (!val) return '';
+      if (typeof val === 'string') return val;
+      if (typeof val === 'object') {
+        return [
+          val[langCode],
+          val.en,
+          val.ar,
+          val.es,
+          val.it,
+          val.pt,
+          val.title,
+          val.description,
+        ].filter(Boolean).join(' ');
+      }
+      return String(val);
+    };
+
+    rawItinerary.forEach((day, idx) => {
+      const dayNum = day.day || day.dayLabel || idx + 1;
       const rawTexts = [
-        day.title,
-        day.description,
-        day.morning,
-        day.afternoon,
-        day.evening,
-        day.titleDefault,
-        day.descDefault,
+        extractText(day.title),
+        extractText(day.description),
+        extractText(day.morning),
+        extractText(day.afternoon),
+        extractText(day.evening),
+        extractText(day.titleDefault),
+        extractText(day.descDefault),
         day.titleKey ? t(day.titleKey) : null,
-        day.descKey ? t(day.descKey) : null
+        day.descKey ? t(day.descKey) : null,
       ].filter(Boolean);
 
       const translatedTexts = [];
-      rawTexts.forEach(text => {
+      rawTexts.forEach((text) => {
         translatedTexts.push(text);
         
         // Try English translation first to enforce 100% standard route matching across all active locales
@@ -918,18 +946,17 @@ const RouteMap = ({ itinerary }) => {
         if (t3 && t3 !== `trip.${text}`) translatedTexts.push(t3);
       });
 
-      const texts = translatedTexts.map((s) => s.toLowerCase());
-
-      const combinedText = texts.join(" ");
+      const texts = translatedTexts.map((s) => String(s).toLowerCase());
+      const combinedText = texts.join(' ');
 
       const dayMatches = [];
       Object.keys(KEYWORDS_MAP).forEach((keyword) => {
-        const idx = combinedText.indexOf(keyword);
-        if (idx !== -1) {
+        const index = combinedText.indexOf(keyword);
+        if (index !== -1) {
           dayMatches.push({
             keyword,
             dbKey: KEYWORDS_MAP[keyword],
-            index: idx
+            index,
           });
         }
       });
@@ -937,49 +964,48 @@ const RouteMap = ({ itinerary }) => {
       // Prioritize longer, more specific keywords (e.g. "palm jumeirah" over "dubai")
       dayMatches.sort((a, b) => b.keyword.length - a.keyword.length);
 
+      let matchedCoords = null;
+      let matchedName = null;
+
       if (dayMatches.length > 0) {
-        const rawTitle = day.title || day.titleDefault || 'Explore';
-        let resolvedTitle = rawTitle;
-        if (typeof rawTitle === 'string' && rawTitle.includes('.')) {
-          const tVal = t(`data.${rawTitle}`) || t(rawTitle);
-          if (tVal && tVal !== `data.${rawTitle}` && tVal !== rawTitle) {
-            resolvedTitle = tVal;
-          }
-        }
-
-        let matchedCoords = null;
-        let matchedName = null;
-        const lastLoc = extracted[extracted.length - 1];
-
         for (let i = 0; i < dayMatches.length; i++) {
           const match = dayMatches[i];
           const coords = COORDINATES_DATABASE[match.dbKey];
           if (coords) {
-            if (!lastLoc || lastLoc.coords[0] !== coords[0] || lastLoc.coords[1] !== coords[1]) {
-              matchedCoords = coords;
-              
-              const langCode = (i18n.language || 'en').split('-')[0].toLowerCase();
-              const langTranslations = CITY_TRANSLATIONS[langCode] || CITY_TRANSLATIONS['en'];
-              const translatedName = langTranslations[match.dbKey];
-              matchedName = translatedName || (match.dbKey.charAt(0).toUpperCase() + match.dbKey.slice(1));
-              break;
-            }
+            matchedCoords = coords;
+            const langTranslations = CITY_TRANSLATIONS[langCode] || CITY_TRANSLATIONS['en'];
+            const translatedName = langTranslations[match.dbKey];
+            matchedName = translatedName || (match.dbKey.charAt(0).toUpperCase() + match.dbKey.slice(1));
+            break;
           }
         }
+      }
 
-        // If a day matched some keywords but they all result in the same coords as lastLoc,
-        // we can still just skip pushing to avoid duplicate points on map, which is correct.
-        if (matchedCoords) {
-          extracted.push({
-            name: matchedName,
-            coords: matchedCoords,
-            description: `${t('tour.day', 'Day')} ${day.day}: ${resolvedTitle}`
-          });
-        }
+      // Default fallback if no keyword matched in single-destination or obscure itinerary
+      if (!matchedCoords) {
+        matchedCoords = [41.0082, 28.9784]; // Istanbul fallback
+        matchedName = 'Istanbul';
+      }
+
+      const rawTitle = extractText(day.title) || extractText(day.titleDefault) || `${t('tour.day', 'Day')} ${dayNum}`;
+      const firstLineTitle = rawTitle.split('\n')[0].replace(/^اليوم\s+\S+\s*—?\s*/i, '').trim();
+
+      const lastLoc = extracted[extracted.length - 1];
+      if (lastLoc && lastLoc.coords[0] === matchedCoords[0] && lastLoc.coords[1] === matchedCoords[1]) {
+        lastLoc.descriptions.push(`${t('tour.day', 'Day')} ${dayNum}: ${firstLineTitle}`);
+      } else {
+        extracted.push({
+          name: matchedName,
+          coords: matchedCoords,
+          descriptions: [`${t('tour.day', 'Day')} ${dayNum}: ${firstLineTitle}`],
+        });
       }
     });
 
-    return extracted;
+    return extracted.map((item) => ({
+      ...item,
+      description: item.descriptions.join('<br/>'),
+    }));
   }, [itinerary, t, i18n.language]);
 
   useEffect(() => {
@@ -989,7 +1015,7 @@ const RouteMap = ({ itinerary }) => {
       zoomControl: true,
       scrollWheelZoom: false,
       attributionControl: false,
-    }).setView(locations[0].coords, 7);
+    }).setView(locations[0].coords, 10);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '',
@@ -1003,15 +1029,27 @@ const RouteMap = ({ itinerary }) => {
     locations.forEach((loc) => {
       const marker = L.marker(loc.coords)
         .addTo(map)
-        .bindPopup(`<b>${loc.name}</b><br/>${loc.description || ''}`);
+        .bindPopup(`<div style="font-family: sans-serif; padding: 4px;"><b>${loc.name}</b><br/><div style="margin-top: 4px; font-size: 12px; color: #444; line-height: 1.4;">${loc.description || ''}</div></div>`);
       markers.push(marker);
     });
 
-    // Bounds
-    const latlngs = locations.map(l => l.coords);
-    if (latlngs.length > 0) {
+    // Bounds & Zoom handling
+    const latlngs = locations.map((l) => l.coords);
+    if (latlngs.length === 1) {
+      map.setView(latlngs[0], 11);
+      if (markers[0]) {
+        setTimeout(() => markers[0].openPopup(), 300);
+      }
+    } else if (latlngs.length > 1) {
       const bounds = L.latLngBounds(latlngs);
-      map.fitBounds(bounds, { padding: [50, 50] });
+      if (bounds.getSouthWest().equals(bounds.getNorthEast())) {
+        map.setView(latlngs[0], 11);
+        if (markers[0]) {
+          setTimeout(() => markers[0].openPopup(), 300);
+        }
+      } else {
+        map.fitBounds(bounds, { padding: [50, 50] });
+      }
     }
 
     // Animation / curved line if more than 1 location
