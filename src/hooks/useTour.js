@@ -80,10 +80,14 @@ export function getFallbackTour(slug, lang = 'en') {
 }
 
 function normalizeTour(data, lang = 'en') {
-  if (!data?.id || !data?.slug || !data?.title || typeof data.currency !== 'string') {
+  const id = data?.id || data?.slug;
+  const slug = data?.slug || data?.id;
+  const title = typeof data?.title === 'object' ? (data.title[lang] || data.title.en || data.title.ar) : (data?.title || slug);
+  if (!id || !slug || !title) {
     throw new Error('Invalid tour details response');
   }
-  const price = Number(data.basePriceUsd);
+  const rawPrice = data.basePriceUsd ?? data.price ?? data.basePrice ?? 0;
+  const price = Number(rawPrice);
   if (!Number.isFinite(price) || price < 0) {
     throw new Error(`Invalid tour price for ${data.slug}`);
   }
@@ -172,13 +176,8 @@ export function useTour(slug) {
         }
       } catch (requestError) {
         if (isMounted) {
-          const fallback = getFallbackTour(slug, lang);
-          if (fallback) {
-            setTour(fallback);
-            setError(null);
-          } else {
-            setError(requestError);
-          }
+          setError(requestError);
+          setTour(null);
         }
       } finally {
         if (isMounted) setLoading(false);

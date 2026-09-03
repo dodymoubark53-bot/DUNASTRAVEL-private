@@ -988,10 +988,11 @@ const RouteMap = ({ itinerary }) => {
     const map = L.map(mapContainerRef.current, {
       zoomControl: true,
       scrollWheelZoom: false,
+      attributionControl: false,
     }).setView(locations[0].coords, 7);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
+      attribution: '',
       maxZoom: 18,
     }).addTo(map);
 

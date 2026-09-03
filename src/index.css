@@ -10,6 +10,11 @@ body {
   pointer-events: auto !important;
 }
 
+/* Hide Leaflet attribution text completely from all maps */
+.leaflet-control-attribution {
+  display: none !important;
+}
+
 body[data-scroll-locked],
 html[data-scroll-locked] {
   pointer-events: auto !important;

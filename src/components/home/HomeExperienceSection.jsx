@@ -1288,17 +1288,17 @@ const HomeExperienceSection = () => {
                 {t('common.loading', 'Loading destinations and tours...')}
               </div>
             )}
-            {(destinationsError || toursError) && !destinationsLoading && !toursLoading && (
+            {(destinationsError || toursError) && liveDestinationCards.length === 0 && !destinationsLoading && !toursLoading && (
               <div className="md:col-span-3 rounded-2xl border border-red-300/30 bg-red-950/20 px-6 py-10 text-center text-red-100">
                 {t('common.loadError', 'Unable to load live catalog data. Please try again later.')}
               </div>
             )}
-            {!destinationsLoading && !toursLoading && !destinationsError && !toursError && liveDestinationCards.length === 0 && (
+            {!destinationsLoading && !toursLoading && liveDestinationCards.length === 0 && !destinationsError && !toursError && (
               <div className="md:col-span-3 rounded-2xl border border-white/10 bg-obsidian-950/30 px-6 py-10 text-center text-ivory-200">
                 {t('destination.empty', 'No destinations are currently available.')}
               </div>
             )}
-            {!destinationsLoading && !toursLoading && !destinationsError && !toursError && liveDestinationCards.map((dest) => {
+            {!destinationsLoading && !toursLoading && liveDestinationCards.length > 0 && liveDestinationCards.map((dest) => {
               const tourCount = dest.toursCount;
 
               return (

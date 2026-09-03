@@ -809,7 +809,7 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
                         <div key={p.key}>
                           <label
                             htmlFor={`passenger-name-${p.key}`}
-                            className="block text-[10px] text-ivory-400 mb-1 flex items-center justify-between"
+                            className="text-[10px] text-ivory-400 mb-1 flex items-center justify-between"
                           >
                             <span>
                               {p.type === 'Adult' ? '👤' : p.type === 'Child' ? '🧒' : '👶'}{' '}

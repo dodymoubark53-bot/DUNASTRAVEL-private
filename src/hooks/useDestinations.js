@@ -3,6 +3,17 @@ import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
 import { supportedLocale } from '../utils/locale';
 
+const staticDestinations = [
+  { id: 'egypt', slug: 'egypt', title: 'Egypt', name: 'Egypt', toursCount: 9 },
+  { id: 'turkey', slug: 'turkey', title: 'Turkey', name: 'Turkey', toursCount: 15 },
+  { id: 'dubai', slug: 'dubai', title: 'Dubai', name: 'Dubai', toursCount: 9 },
+  { id: 'jordan', slug: 'jordan', title: 'Jordan', name: 'Jordan', toursCount: 7 },
+  { id: 'morocco', slug: 'morocco', title: 'Morocco', name: 'Morocco', toursCount: 1 },
+  { id: 'tunisia', slug: 'tunisia', title: 'Tunisia', name: 'Tunisia', toursCount: 1 },
+  { id: 'greece', slug: 'greece', title: 'Greece', name: 'Greece', toursCount: 1 },
+  { id: 'holy-land', slug: 'holy-land', title: 'Holy Land', name: 'Holy Land', toursCount: 6 },
+];
+
 function readDestinations(response) {
   const items = Array.isArray(response)
     ? response
@@ -68,8 +79,13 @@ export function useDestinations() {
             .get(`/destinations?locale=${encodeURIComponent(lang)}`)
             .then((res) => {
               const items = readDestinations(res);
-              destinationsCache.set(cacheKey, { data: items, timestamp: Date.now() });
-              return items;
+              const result = items.length > 0 ? items : staticDestinations;
+              destinationsCache.set(cacheKey, { data: result, timestamp: Date.now() });
+              return result;
+            })
+            .catch(() => {
+              destinationsCache.set(cacheKey, { data: staticDestinations, timestamp: Date.now() });
+              return staticDestinations;
             })
             .finally(() => pendingDestinationsRequests.delete(cacheKey));
           pendingDestinationsRequests.set(cacheKey, request);
@@ -81,10 +97,8 @@ export function useDestinations() {
         }
       } catch (requestError) {
         if (isMounted) {
-          const fallback = destinationsCache.get(cacheKey);
-          if (!fallback) {
-            setError(requestError);
-          }
+          const cached = destinationsCache.get(cacheKey);
+          setDestinations(cached?.data || staticDestinations);
         }
       } finally {
         if (isMounted) setLoading(false);
