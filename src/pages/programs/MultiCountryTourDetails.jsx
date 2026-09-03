@@ -31,7 +31,7 @@ export default function MultiCountryTourDetails() {
   const overview = tour?.overview ? t(`data.${tour.overview}`, tour.overview) : '';
   const duration = tour?.duration ? t(`data.${tour.duration}`, tour.duration) : '';
 
-  const shuffledTours = useMemo(() => [...multiCountryTours].sort(() => Math.random() - 0.5), []);
+  const shuffledTours = useMemo(() => [...multiCountryTours].reverse(), []);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const carouselRef = useRef(null);
 

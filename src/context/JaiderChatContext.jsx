@@ -492,6 +492,19 @@ export const JaiderChatProvider = ({ children }) => {
             ),
           );
         }
+      } else {
+        // Stream received partial tokens but connection closed prematurely
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === botMsgId
+              ? {
+                  ...m,
+                  isStreaming: false,
+                  isInterrupted: true,
+                }
+              : m,
+          ),
+        );
       }
     } finally {
       setIsTyping(false);

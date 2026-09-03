@@ -26,7 +26,7 @@ const renderInlineFormatted = (text) => {
             rel="noreferrer"
             className="text-gold-400 hover:text-gold-300 underline underline-offset-2 font-medium transition-colors"
           >
-            {linkText}
+            <bdi>{linkText}</bdi>
           </a>
         );
       }
@@ -37,7 +37,7 @@ const renderInlineFormatted = (text) => {
       const content = part.slice(2, -2);
       return (
         <strong key={index} className="font-bold text-amber-300 tracking-normal">
-          {content}
+          <bdi>{content}</bdi>
         </strong>
       );
     }
@@ -47,12 +47,12 @@ const renderInlineFormatted = (text) => {
       const content = part.slice(1, -1);
       return (
         <em key={index} className="italic text-slate-200">
-          {content}
+          <bdi>{content}</bdi>
         </em>
       );
     }
 
-    return <span key={index}>{part}</span>;
+    return <span key={index} style={{ unicodeBidi: 'plaintext' }}>{part}</span>;
   });
 };
 
@@ -68,7 +68,7 @@ const FormattedChatMessage = ({ text, isStreaming = false }) => {
   const rawBlocks = (text || '').split(/\n\n+/);
 
   return (
-    <div className="space-y-2.5 text-xs sm:text-[13px] leading-relaxed text-slate-100 font-sans">
+    <div className="space-y-2.5 text-xs sm:text-[13px] leading-relaxed text-slate-100 font-sans" style={{ unicodeBidi: 'plaintext' }}>
       {rawBlocks.map((block, bIdx) => {
         const lines = block.split('\n');
 

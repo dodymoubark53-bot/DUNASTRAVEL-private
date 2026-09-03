@@ -221,7 +221,7 @@ export default function ClassicProgramDetails() {
 
   const { title, duration, type: tourType, groupSize, overview, highlights, included, excluded, itinerary } = currentLangData;
 
-  const shuffledTours = useMemo(() => [...tours].sort(() => Math.random() - 0.5), []);
+  const shuffledTours = useMemo(() => [...tours].reverse(), []);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const carouselRef = useRef(null);
 

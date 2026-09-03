@@ -150,19 +150,20 @@ function normalizeTour(data, lang = 'en') {
 export function useTour(slug) {
   const { i18n } = useTranslation();
   const lang = supportedLocale(i18n.language);
-  const [tour, setTour] = useState(() => getFallbackTour(slug, lang));
-  const [loading, setLoading] = useState(false);
+  const [tour, setTour] = useState(null);
+  const [loading, setLoading] = useState(Boolean(slug));
   const [error, setError] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
-    const initialFallback = getFallbackTour(slug, lang);
-    if (initialFallback && isMounted) {
-      setTour(initialFallback);
-      setError(null);
+
+    if (!slug) {
+      setTour(null);
+      setLoading(false);
+      return undefined;
     }
 
-    if (!slug) return undefined;
+    setLoading(true);
 
     const fetchTour = async () => {
       try {
