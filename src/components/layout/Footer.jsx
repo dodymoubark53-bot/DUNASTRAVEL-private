@@ -76,13 +76,24 @@ const Footer = () => {
               </div>
             )}
           </div>
-          <div
-            onClick={() => setIsOpen(prev => !prev)}
-            className={`flex flex-col items-center sm:items-start text-center ${isRtl ? 'sm:text-right' : 'sm:text-left'} gap-1 pt-2 sm:pt-8 cursor-pointer group`}
-          >
-            <p className="text-white text-base sm:text-lg font-bold max-w-[280px] leading-tight group-hover:text-gold-400 transition-colors">
+          <div className={`flex flex-col items-center sm:items-start text-center ${isRtl ? 'sm:text-right' : 'sm:text-left'} gap-1 pt-2 sm:pt-8`}>
+            <p
+              onClick={() => setIsOpen(prev => !prev)}
+              className="text-white text-base sm:text-lg font-bold max-w-[280px] leading-tight hover:text-gold-400 transition-colors cursor-pointer group"
+            >
               {t('footer.titoTagline', 'Descubre la magia de Egipto y sus monumentos históricos de la mano de los Expertos')}
             </p>
+            
+            <div className="mt-6 sm:mt-8 flex items-center justify-center sm:justify-start">
+              <img
+                src="/imgs/iata-logo.svg"
+                alt="IATA Accredited Agent"
+                className="h-20 sm:h-28 w-auto object-contain filter brightness-0 invert opacity-95 hover:opacity-100 transition-all hover:scale-105"
+                onError={(e) => {
+                  e.currentTarget.src = "https://cdn.svgrepo.com/show/306218/iata.svg";
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
