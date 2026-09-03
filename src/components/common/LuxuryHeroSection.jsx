@@ -90,12 +90,14 @@ export default function LuxuryHeroSection({
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-20 container mx-auto px-4 sm:px-6 text-center max-w-5xl pt-28 sm:pt-32 md:pt-36 pb-16"
+        className="relative z-20 container mx-auto px-4 sm:px-6 text-center max-w-5xl pt-32 sm:pt-36 md:pt-40 pb-16"
       >
         {/* Breadcrumb Slot */}
         {breadcrumbs && (
           <motion.div variants={itemVariants} className="mb-6 flex justify-center">
-            {breadcrumbs}
+            <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-obsidian-950/80 border border-gold-500/30 backdrop-blur-md shadow-lg shadow-black/40">
+              {breadcrumbs}
+            </div>
           </motion.div>
         )}
 
