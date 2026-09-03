@@ -193,44 +193,7 @@ const ServiceDetails = () => {
                   </div>
                 </motion.div>
 
-                {/* Accommodations Table */}
-                {service.accommodations && (
-                  <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-start">
-                    <div className="mb-6">
-                      <span className="text-caption text-gold-500 uppercase tracking-widest font-semibold block mb-2">
-                        {t('tour.accommodation', 'ALOJAMIENTO')}
-                      </span>
-                      <h2 className="text-display-md text-3xl text-obsidian-900 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
-                        {t('dest.greece.accTitle', 'Resumen de Alojamientos')}
-                      </h2>
-                    </div>
-                    <div className="bg-white rounded-2xl shadow-card overflow-hidden border border-gold-500/10">
-                      <div className="grid grid-cols-3 bg-obsidian-900 text-ivory-50 text-xs md:text-sm font-semibold uppercase tracking-wider">
-                        <div className="p-4 border-r rtl:border-r-0 rtl:border-l border-ivory-50/10 text-start">{t('tour.destination', 'Destino')}</div>
-                        <div className="p-4 border-r rtl:border-r-0 rtl:border-l border-ivory-50/10 text-center">{t('tour.nights', 'Noches')}</div>
-                        <div className="p-4 text-center">{t('tour.regime', 'Régimen')}</div>
-                      </div>
-                      {service.accommodations.map((row, idx) => (
-                        <div
-                          key={idx}
-                          className={`grid grid-cols-3 border-b border-gold-500/10 last:border-0 ${idx % 2 === 0 ? 'bg-white' : 'bg-obsidian-50/50'}`}
-                        >
-                          <div className="p-4 border-r rtl:border-r-0 rtl:border-l border-gold-500/10 font-semibold text-obsidian-900 flex items-center gap-2 text-sm md:text-base text-start">
-                            <FaMapMarkerAlt className="text-gold-500 flex-shrink-0" />
-                            {translateData(row.destination, row.destination)}
-                          </div>
-                          <div className="p-4 border-r rtl:border-r-0 rtl:border-l border-gold-500/10 text-center font-bold text-gold-700 text-base md:text-lg">
-                            {row.nights}
-                          </div>
-                          <div className="p-4 text-center text-obsidian-700 flex items-center justify-center gap-2 text-sm md:text-base">
-                            <FaBed className="text-gold-500 flex-shrink-0" />
-                            {translateData(row.regime, row.regime)}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
+
 
                 {/* Itinerary Section */}
                 {service.itinerary && (
