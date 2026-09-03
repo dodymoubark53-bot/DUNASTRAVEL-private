@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import { useDestinations } from '../../hooks/useDestinations';
 import TourCard from '../../components/tour/TourCard';
+import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 
 const Destinations = () => {
   const { t } = useTranslation();
@@ -18,31 +19,14 @@ const Destinations = () => {
     </Helmet>
 
     {/* Main Hero */}
-    <section className="relative h-[50vh] flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 z-0">
-        <img
-          src="https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1600,c_fill/v1783026771/5_upvijm.jpg"
-          alt="Destinations Hero"
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-obsidian-900/60 bg-gradient-to-t from-obsidian-900 to-transparent"></div>
-      </div>
-
-      <motion.div
-        className="relative z-10 container mx-auto px-6 text-center mt-12"
-        variants={staggerContainer}
-        initial="hidden"
-        animate="visible"
-      >
-        <motion.span variants={fadeInUp} className="inline-block font-body text-gold-500 tracking-[0.2em] uppercase text-sm mb-4">
-          {t('destinations.worldCurated', 'The World, Curated')}
-        </motion.span>
-        <motion.h1 variants={fadeInUp} className="text-display-xl text-ivory-50 mb-6">
-          {t('destinations.heading', 'Our Destinations')}
-        </motion.h1>
-      </motion.div>
-    </section>
+    <LuxuryHeroSection
+      badge={t('destinations.worldCurated', 'The World, Curated')}
+      title={t('destinations.heading', 'Our Destinations')}
+      bgImage="https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1600,c_fill/v1783026771/5_upvijm.jpg"
+      primaryCta={null}
+      secondaryCta={null}
+      zoomDuration={12}
+    />
 
     {/* Destinations Iteration */}
     <section className="container mx-auto px-6 -mt-16 relative z-20">

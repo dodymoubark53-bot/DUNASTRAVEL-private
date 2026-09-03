@@ -31,7 +31,8 @@ export default function LuxuryHeroSection({
   bgImage = '/imgs/egyothero.png',
   stats = [],
   breadcrumbs = null,
-  onImageClick = null
+  onImageClick = null,
+  zoomDuration = 6
 }) {
   const isRtl = document.dir === 'rtl' || true;
 
@@ -58,7 +59,7 @@ export default function LuxuryHeroSection({
         <motion.img
           initial={{ scale: 1 }}
           animate={{ scale: 1.15 }}
-          transition={{ duration: 3.5, ease: 'easeOut', repeat: Infinity, repeatType: 'reverse' }}
+          transition={{ duration: zoomDuration, ease: 'easeOut', repeat: Infinity, repeatType: 'reverse' }}
           src={bgImage || 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg'}
           onError={(e) => {
             e.currentTarget.src = 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg';

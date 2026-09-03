@@ -316,6 +316,7 @@ export default function LandingPageDetails({ destinationOnly = false, slug: slug
             link: '/tailor-tour'
           }}
           bgImage={heroImage}
+          zoomDuration={12}
         />
       )}
 

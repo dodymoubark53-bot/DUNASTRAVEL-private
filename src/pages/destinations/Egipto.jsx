@@ -66,6 +66,7 @@ export default function Egipto() {
           link: '/tailor-tour'
         }}
         bgImage="/imgs/egyothero.png"
+        zoomDuration={12}
       />
 
       {/* Brief Overview & 9 Egypt Tours Grid */}
