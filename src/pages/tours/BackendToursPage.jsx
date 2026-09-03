@@ -5,6 +5,7 @@ import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useTours } from '../../hooks/useTours';
 import TourCard from '../../components/tour/TourCard';
 import ErrorState from '../../components/ui/ErrorState';
+import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 
 /** A catalog page backed exclusively by GET /api/tours with pagination support. */
 export default function BackendToursPage({ titleKey, titleDefault, filters = {}, limit = 12 }) {
@@ -23,24 +24,22 @@ export default function BackendToursPage({ titleKey, titleDefault, filters = {},
   };
 
   return (
-    <main className="min-h-screen bg-ivory-50 dark:bg-[#0c0d19] px-6 pb-24 pt-32 text-start">
+    <main className="min-h-screen bg-ivory-50 dark:bg-[#0c0d19] pb-24 text-start">
       <Helmet>
         <title>{`${title} | Dunas Travel`}</title>
       </Helmet>
-      <section className="container mx-auto">
-        <header className="mb-10 text-center">
-          <span className="text-caption text-gold-600 dark:text-gold-400 uppercase tracking-widest font-semibold block mb-2">
-            {t('tours.catalogBadge', 'EXPLORE THE EXTRAORDINARY')}
-          </span>
-          <h1 className="text-display-xl text-obsidian-900 dark:text-ivory-50 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
-            {title}
-          </h1>
-          {total > 0 && !loading && (
-            <p className="text-body-sm text-obsidian-500 dark:text-ivory-400 mt-2">
-              {t('tours.totalCount', '{{total}} Luxury Journeys Available', { total })}
-            </p>
-          )}
-        </header>
+
+      {/* Luxury Hero Section */}
+      <LuxuryHeroSection
+        badge={t('tours.catalogBadge', 'EXPLORE THE EXTRAORDINARY')}
+        title={title}
+        subtitle={total > 0 && !loading ? t('tours.totalCount', '{{total}} Luxury Journeys Available', { total }) : ''}
+        bgImage="https://res.cloudinary.com/degbrq3ck/image/upload/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg"
+        primaryCta={null}
+        secondaryCta={null}
+      />
+
+      <section className="container mx-auto px-6 mt-16" id="tours-grid">
 
         {loading ? (
           <div className="grid grid-cols-1 gap-8 py-8 md:grid-cols-2 lg:grid-cols-3" role="status" aria-label={t('common.loading', 'Loading tours')}>

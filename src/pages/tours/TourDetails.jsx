@@ -23,6 +23,7 @@ import SEOHead from '../../components/seo/SEOHead';
 import ReviewsMap from '../../components/tour/ReviewsMap';
 import RouteMap from '../../components/tour/RouteMap';
 import SuggestedTours from '../../components/tour/SuggestedTours';
+import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 
 const SLUG_ALIASES = {
   'classic': 'complete-egypt-8d',
@@ -140,10 +141,15 @@ const TourDetails = () => {
         schema={[tourSchema, breadcrumbSchema]}
       />
 
-      {/* 1. Breadcrumb & Title */}
-      <section className="pt-32 pb-10 bg-obsidian-900 text-center px-6">
-        <div className="container mx-auto">
-          <div className="flex items-center justify-center gap-2 text-caption text-gold-500 mb-4 uppercase tracking-wider">
+      {/* Luxury Destination-Style Hero Section */}
+      <LuxuryHeroSection
+        badge={resolveLocalizedText(tour.type || tour.category, t, lang) || t('tour.luxuryExperience', 'رحلة سياحية فاخرة')}
+        title={title}
+        subtitle={duration}
+        bgImage={heroImg}
+        onImageClick={() => setIsLightboxOpen(true)}
+        breadcrumbs={
+          <div className="flex flex-wrap items-center justify-center gap-2 text-caption text-gold-400 mb-2 uppercase tracking-wider text-xs md:text-sm font-semibold">
             <Link to="/" className="hover:text-ivory-50 transition-colors">{t('nav.home', 'Home')}</Link>
             <span className="rtl-flip"><FaChevronRight className="text-[10px]" /></span>
             <Link to={`/destinations/${tour.destination || 'egypt'}`} className="hover:text-ivory-50 transition-colors">
@@ -152,47 +158,10 @@ const TourDetails = () => {
             <span className="rtl-flip"><FaChevronRight className="text-[10px]" /></span>
             <span className="text-ivory-300">{title}</span>
           </div>
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-display-xl text-ivory-50 mb-4"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {title}
-          </motion.h1>
-          {tour.subtitle && (
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-body-lg text-gold-400 font-medium tracking-wide mb-6"
-            >
-              {resolveLocalizedText(tour.subtitle, t, lang)}
-            </motion.p>
-          )}
-        </div>
-      </section>
-
-      {/* 2. Photo Gallery */}
-      <section className="relative w-full h-[50vh] lg:h-[70vh] overflow-hidden group cursor-pointer" onClick={() => setIsLightboxOpen(true)}>
-        {heroImg ? (
-          <motion.img
-            src={heroImg}
-            alt={title}
-            className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
-            loading="eager"
-            fetchPriority="high"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-obsidian-800 px-6 text-center text-ivory-300">
-            {t('tour.imageUnavailable', 'No image has been added for this tour.')}
-          </div>
-        )}
-        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
-        <div className="absolute bottom-6 right-6 rtl:right-auto rtl:left-6 bg-obsidian-900/80 backdrop-blur-md px-4 py-2 rounded-full text-ivory-50 text-caption border border-gold-500/20">
-          {t('tour.clickGallery', 'Click to open gallery')}
-        </div>
-      </section>
+        }
+        primaryCta={null}
+        secondaryCta={null}
+      />
 
       {/* 3. Quick Info Bar */}
       <div className="container mx-auto px-6 -mt-12 relative z-20">

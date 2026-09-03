@@ -29,7 +29,9 @@ export default function LuxuryHeroSection({
   primaryCta = { text: 'استكشف الباقات', link: '#tours' },
   secondaryCta = { text: 'صمّم رحلتك الخاصة', link: '/tailor-tour' },
   bgImage = '/imgs/egyothero.png',
-  stats = []
+  stats = [],
+  breadcrumbs = null,
+  onImageClick = null
 }) {
   const isRtl = document.dir === 'rtl' || true;
 
@@ -49,29 +51,32 @@ export default function LuxuryHeroSection({
   return (
     <section className="relative w-full min-h-[580px] md:min-h-[680px] flex items-center justify-center overflow-hidden bg-obsidian-950 text-ivory-50 select-none">
       {/* Background Image Container with Cinematic Zoom & Multi-layer Overlay */}
-      <div className="absolute inset-0 z-0 overflow-hidden bg-obsidian-950">
+      <div
+        className={`absolute inset-0 z-0 overflow-hidden bg-obsidian-950 ${onImageClick ? 'cursor-pointer group' : ''}`}
+        onClick={onImageClick || undefined}
+      >
         <motion.img
-          initial={{ scale: 1.15 }}
-          animate={{ scale: 1 }}
+          initial={{ scale: 1 }}
+          animate={{ scale: 1.15 }}
           transition={{ duration: 10, ease: 'easeOut', repeat: Infinity, repeatType: 'reverse' }}
           src={bgImage || 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg'}
           onError={(e) => {
             e.currentTarget.src = 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg';
           }}
           alt={title}
-          className="w-full h-full object-cover object-center filter brightness-105 contrast-[1.05]"
+          className={`w-full h-full object-cover object-center filter brightness-110 contrast-105 saturate-[1.08] ${onImageClick ? 'transition-transform duration-700 group-hover:scale-105' : ''}`}
           loading="eager"
         />
 
-        {/* Gradient Layer: Lightened overlay for maximum image clarity and text legibility */}
+        {/* Ultra-Light Gradient Layer: High image clarity while preserving text legibility */}
         <div
           className="absolute inset-0 z-10"
           style={{
             background: `linear-gradient(
               to bottom,
-              rgba(6, 13, 26, 0.25) 0%,
-              rgba(6, 13, 26, 0.45) 50%,
-              rgba(6, 13, 26, 0.82) 100%
+              rgba(6, 13, 26, 0.08) 0%,
+              rgba(6, 13, 26, 0.22) 50%,
+              rgba(6, 13, 26, 0.55) 100%
             )`
           }}
         />
@@ -85,8 +90,15 @@ export default function LuxuryHeroSection({
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-20 container mx-auto px-4 sm:px-6 text-center max-w-5xl pt-24 pb-16"
+        className="relative z-20 container mx-auto px-4 sm:px-6 text-center max-w-5xl pt-28 sm:pt-32 md:pt-36 pb-16"
       >
+        {/* Breadcrumb Slot */}
+        {breadcrumbs && (
+          <motion.div variants={itemVariants} className="mb-6 flex justify-center">
+            {breadcrumbs}
+          </motion.div>
+        )}
+
         {/* Eyebrow Glass Badge */}
         {badge && (
           <motion.div variants={itemVariants} className="inline-block mb-6">

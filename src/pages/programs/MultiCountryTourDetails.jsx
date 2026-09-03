@@ -11,6 +11,7 @@ import AdvancedBooking from '../../components/booking/AdvancedBooking';
 import RouteMap from '../../components/tour/RouteMap';
 import ReviewsMap from '../../components/tour/ReviewsMap';
 import multiCountryTours from '../../data/multiCountryTours';
+import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -62,10 +63,15 @@ export default function MultiCountryTourDetails() {
         <meta name="description" content={overview.substring(0, 150) + '...'} />
       </Helmet>
 
-      {/* Header Banner */}
-      <section className="pt-32 pb-10 bg-obsidian-900 text-center px-6">
-        <div className="container mx-auto">
-          <div className="flex items-center justify-center gap-2 text-caption text-gold-500 mb-4 uppercase tracking-wider text-xs">
+      {/* Luxury Hero Section */}
+      <LuxuryHeroSection
+        badge={t('programs.multiCountryBadge', '🌍 جولات متعددة الوجهات والدول')}
+        title={title}
+        subtitle={subtitle || duration}
+        bgImage={tour.images && tour.images[0] ? tour.images[0] : 'https://theglobetrottingdetective.com/wp-content/uploads/2022/03/best-places-in-the-middle-east-traveling-the-middle-east-cappadocia-turkey.jpg'}
+        onImageClick={() => setIsLightboxOpen(true)}
+        breadcrumbs={
+          <div className="flex flex-wrap items-center justify-center gap-2 text-caption text-gold-400 mb-2 uppercase tracking-wider text-xs font-semibold">
             <Link to="/" className="hover:text-ivory-50 transition-colors">
               {t('nav.home', 'Home')}
             </Link>
@@ -80,45 +86,10 @@ export default function MultiCountryTourDetails() {
             </span>
             <span className="text-ivory-300">{title}</span>
           </div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-display-xl text-ivory-50 mb-4"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {title}
-          </motion.h1>
-
-          {subtitle && (
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-body-lg text-gold-400 font-medium tracking-wide"
-            >
-              {subtitle}
-            </motion.p>
-          )}
-        </div>
-      </section>
-
-      {/* Hero Lightbox Gallery */}
-      <section
-        className="relative w-full h-[50vh] lg:h-[70vh] overflow-hidden group cursor-pointer"
-        onClick={() => setIsLightboxOpen(true)}
-      >
-        <motion.img
-          src={tour.images && tour.images[0] ? tour.images[0] : 'https://theglobetrottingdetective.com/wp-content/uploads/2022/03/best-places-in-the-middle-east-traveling-the-middle-east-cappadocia-turkey.jpg'}
-          alt={title}
-          className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
-          loading="eager"
-        />
-        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-        <div className="absolute bottom-6 right-6 bg-obsidian-900/80 backdrop-blur-md px-4 py-2 rounded-full text-ivory-50 text-caption border border-gold-500/20 text-xs">
-          {t('tour.clickGallery', 'Click to open gallery')}
-        </div>
-      </section>
+        }
+        primaryCta={null}
+        secondaryCta={null}
+      />
 
       {/* Quick Info Bar */}
       <div className="container mx-auto px-6 -mt-12 relative z-20">

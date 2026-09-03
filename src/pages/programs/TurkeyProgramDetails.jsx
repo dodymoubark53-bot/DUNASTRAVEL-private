@@ -21,6 +21,7 @@ import ReviewsMap from '../../components/tour/ReviewsMap';
 import TourCard from '../../components/tour/TourCard';
 import TurkeySidebarBooking from '../../components/booking/TurkeySidebarBooking';
 import SuggestedTours from '../../components/tour/SuggestedTours';
+import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -87,11 +88,15 @@ export default function TurkeyProgramDetails() {
         <meta name="description" content={overview} />
       </Helmet>
 
-      {/* Top Breadcrumb & Title Section (Matching Vercel 100%) */}
-      <section className="pt-32 pb-10 bg-obsidian-900 dark:bg-[#0a0a15] text-center px-6">
-        <div className="container mx-auto">
-          {/* Breadcrumb Links */}
-          <div className="flex items-center justify-center gap-2 text-caption text-gold-500 mb-4 uppercase tracking-wider text-xs md:text-sm font-semibold">
+      {/* Luxury Hero Section */}
+      <LuxuryHeroSection
+        badge={t('dest.turkey.title', 'Turkey') + ' • ' + (code || duration)}
+        title={title}
+        subtitle={duration}
+        bgImage={images && images.length > 0 ? images[0] : 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1920&q=80'}
+        onImageClick={() => setActiveImageIndex(0)}
+        breadcrumbs={
+          <div className="flex flex-wrap items-center justify-center gap-2 text-caption text-gold-400 mb-2 uppercase tracking-wider text-xs md:text-sm font-semibold">
             <Link to="/" className="hover:text-ivory-50 dark:hover:text-ivory-100 transition-colors">
               {t('nav.home', 'Home')}
             </Link>
@@ -106,58 +111,10 @@ export default function TurkeyProgramDetails() {
             </span>
             <span className="text-ivory-300">{title}</span>
           </div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-display-xl text-ivory-50 mb-4 font-serif"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {title}
-          </motion.h1>
-
-          {code && (
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-body-lg text-gold-400 font-medium tracking-wide"
-            >
-              {code}
-            </motion.p>
-          )}
-        </div>
-      </section>
-
-      {/* Hero Image Banner & Gallery Trigger (Matching Vercel 100%) */}
-      <section
-        className="relative w-full h-[50vh] lg:h-[70vh] overflow-hidden group cursor-pointer focus:outline-none focus:ring-2 focus:ring-gold-500"
-        onClick={() => setActiveImageIndex(0)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            setActiveImageIndex(0);
-          }
-        }}
-        tabIndex={0}
-        role="button"
-        aria-label={t('tour.clickGallery', 'Click to open gallery')}
-      >
-        <motion.img
-          key={activeImageIndex !== null ? activeImageIndex : 0}
-          initial={{ opacity: 0.8 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          src={images && images.length > 0 ? images[0] : 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1920&q=80'}
-          alt={title}
-          className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
-          loading="eager"
-        />
-        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-        <div className="absolute bottom-6 right-6 ltr:right-6 rtl:left-6 bg-obsidian-900/80 backdrop-blur-md px-4 py-2 rounded-full text-ivory-50 text-caption border border-gold-500/20 shadow-lg flex items-center gap-2">
-          {t('tour.clickGallery', 'Click to open gallery')}
-        </div>
-      </section>
+        }
+        primaryCta={null}
+        secondaryCta={null}
+      />
 
       {/* Floating Key Specs Card (-mt-12) (Matching Vercel 100%) */}
       <div className="container mx-auto px-6 -mt-12 relative z-20">
