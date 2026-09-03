@@ -97,7 +97,7 @@ const Invoice = () => {
           {error && (
             <div className="mt-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center gap-2 text-sm text-red-600">
               <FaTimes size={12} />
-              {error}
+              {typeof error === 'object' && error !== null ? (error.message || String(error)) : error}
             </div>
           )}
         </div>

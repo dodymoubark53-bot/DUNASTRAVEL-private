@@ -212,7 +212,7 @@ const LoginModal = ({ isOpen, onClose }) => {
               {/* Status Messages */}
               {error && (
                 <div className="mb-5 p-3.5 rounded-xl bg-red-500/15 border border-red-500/50 text-red-400 text-caption text-center space-y-2">
-                  <p>{error}</p>
+                  <p>{typeof error === 'object' && error !== null ? (error.message || String(error)) : error}</p>
                   {showResendBtn && (
                     <button
                       type="button"

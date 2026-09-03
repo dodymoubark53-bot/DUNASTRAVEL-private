@@ -94,7 +94,7 @@ const Login = () => {
 
         {error && (
           <div className="mb-6 p-4 rounded-xl bg-red-500/15 border border-red-500/40 text-red-400 text-body-sm text-center space-y-2">
-            <p>{error}</p>
+            <p>{typeof error === 'object' && error !== null ? (error.message || String(error)) : error}</p>
             {showResendBtn && (
               <button
                 type="button"

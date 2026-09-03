@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
 import { supportedLocale } from '../utils/locale';
+import { resolveDestinationSlug } from '../utils/destinationHelper';
 
 import canonicalDb from '../data/database/unified_52_tours.json';
 
@@ -63,7 +64,7 @@ export function getFallbackTour(slug, lang = 'en') {
     overview: resolveText(match.overview),
     duration: resolveText(match.duration),
     country: match.country || match.destination || 'Egypt',
-    destination: String(match.destination || match.country || 'egypt').toLowerCase(),
+    destination: resolveDestinationSlug(match.destination || match.country || 'egypt'),
     images,
     heroImage: images[0] || '',
     price,
@@ -152,6 +153,10 @@ function normalizeTour(data, lang = 'en') {
     route: data.transportation?.route || null,
     itinerary,
     price,
+    destination: resolveDestinationSlug(
+      data.destination || data.country || fallback?.destination || fallback?.country || data.city || fallback?.city || 'egypt'
+    ),
+    country: data.country || fallback?.country || 'Egypt',
   };
 }
 
@@ -185,7 +190,8 @@ export function useTour(slug) {
         }
       } catch (requestError) {
         if (isMounted) {
-          setError(requestError);
+          const errorMsg = requestError?.response?.data?.message || requestError?.message || 'Tour not found';
+          setError(typeof errorMsg === 'string' ? errorMsg : String(errorMsg));
           setTour(null);
         }
       } finally {

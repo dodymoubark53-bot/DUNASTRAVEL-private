@@ -306,7 +306,7 @@ export default function AdvancedBooking({
 
           {error && (
             <div className="mx-5 mt-3 bg-red-500/15 border border-red-500/40 rounded-xl px-4 py-3 text-center">
-              <p className="text-body-sm text-red-400 font-medium">{error}</p>
+              <p className="text-body-sm text-red-400 font-medium">{typeof error === 'object' && error !== null ? (error.message || String(error)) : error}</p>
             </div>
           )}
 

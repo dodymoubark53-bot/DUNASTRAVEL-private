@@ -11,6 +11,7 @@ import {
   resolveTourDuration,
   resolveLocalizedText
 } from '../../utils/titleHelper';
+import { getTourDestinationSlug } from '../../utils/destinationHelper';
 
 function resolveTourImage(tour) {
   if (!tour) return null;
@@ -49,7 +50,7 @@ export default function SuggestedTours({ currentDestination = 'egypt', currentSl
         ...tour,
         id: tour.id || tour.slug,
         slug: tour.slug,
-        destination: tour.destination || 'egypt',
+        destination: getTourDestinationSlug(tour),
         price: tour.price ?? Number(tour.basePriceUsd) ?? 0,
         rating: tour.rating || 4.9,
         image,

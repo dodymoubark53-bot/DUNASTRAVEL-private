@@ -163,7 +163,7 @@ const VerifyEmail = () => {
                 {error ? t('auth.verificationFailed', 'Verification Failed') : t('auth.verifyEmailHeading', 'Verify Your Email')}
               </h1>
               <p className="text-body-sm text-ivory-400">
-                {error || t('auth.verifyEmailManualDesc', 'Enter the verification token from your email confirmation.')}
+                {(typeof error === 'object' && error !== null ? error.message : error) || t('auth.verifyEmailManualDesc', 'Enter the verification token from your email confirmation.')}
               </p>
             </div>
 

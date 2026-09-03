@@ -18,6 +18,7 @@ import { trackEvent } from '../../utils/analytics';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import ErrorState from '../../components/ui/ErrorState';
 import { resolveTourTitle, resolveTourDuration, resolveTourOverview, resolveLocalizedText } from '../../utils/titleHelper';
+import { getTourDestinationSlug, getDestinationName, getDestinationUrl } from '../../utils/destinationHelper';
 
 import SEOHead from '../../components/seo/SEOHead';
 import ReviewsMap from '../../components/tour/ReviewsMap';
@@ -45,7 +46,10 @@ const TourDetails = () => {
   const slug = (!resolvedSlug || resolvedSlug === 'classic' || resolvedSlug === 'classic-program') ? 'complete-egypt-8d' : resolvedSlug;
 
   const { tour, loading, error } = useTour(slug);
-  const { tours: relatedToursList } = useTours({ limit: 6 });
+  const tourDestination = tour ? getTourDestinationSlug(tour) : null;
+  const { tours: relatedToursList } = useTours(
+    tourDestination ? { destination: tourDestination, limit: 12 } : { limit: 12 }
+  );
 
   useEffect(() => {
     if (tour?.slug) {
@@ -83,11 +87,15 @@ const TourDetails = () => {
   }
 
   if (error || !tour) {
+    const errorMessage = typeof error === 'object' && error !== null
+      ? (error.message || String(error))
+      : (error || t('tour.notFoundDesc', 'We could not find the requested luxury tour.'));
+
     return (
       <div className="w-full bg-obsidian-50 dark:bg-[#0f0f1a] min-h-screen pt-32 px-6 container mx-auto">
         <ErrorState
           title={t('common.errorOccurred', 'Tour not found')}
-          message={error || t('tour.notFoundDesc', 'We could not find the requested luxury tour.')}
+          message={errorMessage}
           actionLabel={t('tour.browseAll', 'Browse Tours')}
           actionLink="/tours"
         />
@@ -121,12 +129,16 @@ const TourDetails = () => {
     },
   };
 
+  const destinationSlug = getTourDestinationSlug(tour);
+  const destinationName = getDestinationName(destinationSlug, t, lang);
+  const destinationUrl = getDestinationUrl(destinationSlug);
+
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://dunastravel.com/' },
-      { '@type': 'ListItem', position: 2, name: resolveLocalizedText(tour.destination || 'egypt', t, lang), item: `https://dunastravel.com/destinations/${tour.destination || 'egypt'}` },
+      { '@type': 'ListItem', position: 2, name: destinationName, item: `https://dunastravel.com${destinationUrl}` },
       { '@type': 'ListItem', position: 3, name: title, item: `https://dunastravel.com/tours/${tour.slug}` },
     ],
   };
@@ -149,11 +161,11 @@ const TourDetails = () => {
         bgImage={heroImg}
         onImageClick={() => setIsLightboxOpen(true)}
         breadcrumbs={
-          <div className="flex flex-wrap items-center justify-center gap-2 text-caption text-gold-400 mb-2 uppercase tracking-wider text-xs md:text-sm font-semibold">
+          <div className="flex flex-wrap items-center justify-center gap-2 text-caption text-gold-400 mb-2 tracking-wider text-xs md:text-sm font-semibold">
             <Link to="/" className="hover:text-ivory-50 transition-colors">{t('nav.home', 'Home')}</Link>
             <span className="rtl-flip"><FaChevronRight className="text-[10px]" /></span>
-            <Link to={`/destinations/${tour.destination || 'egypt'}`} className="hover:text-ivory-50 transition-colors">
-              {resolveLocalizedText(tour.destination || 'egypt', t, lang)}
+            <Link to={destinationUrl} className="hover:text-ivory-50 transition-colors">
+              {destinationName}
             </Link>
             <span className="rtl-flip"><FaChevronRight className="text-[10px]" /></span>
             <span className="text-ivory-300">{title}</span>

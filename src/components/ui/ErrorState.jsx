@@ -9,11 +9,19 @@ export const ErrorState = ({
   actionLabel = 'Try again',
   actionLink,
 }) => {
+  const safeTitle = typeof title === 'object' && title !== null
+    ? (title.message || String(title))
+    : (typeof title === 'string' ? title : String(title || 'Something went wrong'));
+
+  const safeMessage = typeof message === 'object' && message !== null
+    ? (message.message || String(message))
+    : (typeof message === 'string' ? message : String(message || 'An unexpected error occurred while loading this content.'));
+
   return (
     <div className="mx-auto my-6 max-w-md rounded-2xl border border-gold-500/30 bg-obsidian-900/80 p-8 text-center text-ivory-100 backdrop-blur-md">
       <FaExclamationTriangle className="mx-auto mb-3 text-3xl text-gold-400" aria-hidden="true" />
-      <h3 className="mb-2 font-display text-lg font-bold text-ivory-100">{title}</h3>
-      <p className="mb-5 text-sm text-ivory-300">{message}</p>
+      <h3 className="mb-2 font-display text-lg font-bold text-ivory-100">{safeTitle}</h3>
+      <p className="mb-5 text-sm text-ivory-300">{safeMessage}</p>
       {onRetry && (
         <button
           onClick={onRetry}
