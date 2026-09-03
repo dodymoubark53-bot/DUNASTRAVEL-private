@@ -90,7 +90,7 @@ export default function LuxuryHeroSection({
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-20 container mx-auto px-4 sm:px-6 text-center max-w-5xl pt-32 sm:pt-36 md:pt-40 pb-16"
+        className="relative z-20 container mx-auto px-4 sm:px-6 text-center max-w-5xl pt-24 sm:pt-28 md:pt-32 pb-16"
       >
         {/* Breadcrumb Slot */}
         {breadcrumbs && (
