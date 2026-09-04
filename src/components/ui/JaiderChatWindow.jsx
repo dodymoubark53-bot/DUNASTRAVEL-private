@@ -24,11 +24,13 @@ import {
   FaCompass,
 } from 'react-icons/fa';
 import { useJaiderChat } from '../../context/JaiderChatContext';
+import { useAuth } from '../../context/AuthContext';
 import FormattedChatMessage from './FormattedChatMessage';
 
 const JaiderChatWindow = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const isRtl = i18n.dir() === 'rtl';
   const {
     isOpen,
@@ -43,6 +45,7 @@ const JaiderChatWindow = () => {
     suggestions,
     leadFormState,
     submitLead,
+    submitCustomTripInquiry,
   } = useJaiderChat();
 
   const [input, setInput] = useState('');
@@ -51,6 +54,18 @@ const JaiderChatWindow = () => {
   const [leadPhone, setLeadPhone] = useState('');
   const [isSubmittingLead, setIsSubmittingLead] = useState(false);
   const [expandedProposalDay, setExpandedProposalDay] = useState(null);
+
+  // Custom Trip Booking in Chat State
+  const [customTripFormOpenId, setCustomTripFormOpenId] = useState(null);
+  const [customTripName, setCustomTripName] = useState(user?.name || '');
+  const [customTripEmail, setCustomTripEmail] = useState(user?.email || '');
+  const [customTripPhone, setCustomTripPhone] = useState(user?.phone || '');
+  const [customTripAdults, setCustomTripAdults] = useState(2);
+  const [customTripChildren, setCustomTripChildren] = useState(0);
+  const [customTripNotes, setCustomTripNotes] = useState('');
+  const [isSubmittingCustomTrip, setIsSubmittingCustomTrip] = useState(false);
+  const [customTripSubmittedRef, setCustomTripSubmittedRef] = useState(null);
+
   const [feedbackState, setFeedbackState] = useState({}); // { [msgId]: { rated: 1 | -1, category?: string } }
   const [activeFeedbackModal, setActiveFeedbackModal] = useState(null); // msgId for negative feedback
   const [feedbackComment, setFeedbackComment] = useState('');
@@ -114,6 +129,39 @@ const JaiderChatWindow = () => {
     const query = tourTitle ? `?tour=${encodeURIComponent(tourTitle)}` : '';
     navigate(`/tailor-a-tour${query}`);
     setIsOpen(false);
+  };
+
+  const handleOpenCustomTripForm = (proposal, msgId) => {
+    setCustomTripFormOpenId(customTripFormOpenId === msgId ? null : msgId);
+    if (!customTripName && user?.name) setCustomTripName(user.name);
+    if (!customTripEmail && user?.email) setCustomTripEmail(user.email);
+    if (!customTripPhone && user?.phone) setCustomTripPhone(user.phone);
+    if (proposal?.title) setCustomTripNotes(proposal.title);
+  };
+
+  const handleSubmitCustomTripForm = async (e, proposal, msgId) => {
+    e.preventDefault();
+    const emailToUse = customTripEmail.trim() || user?.email;
+    if (!emailToUse || isSubmittingCustomTrip) return;
+    setIsSubmittingCustomTrip(true);
+
+    const res = await submitCustomTripInquiry({
+      fullName: customTripName.trim() || user?.name || 'Valued Traveler',
+      email: emailToUse,
+      phone: customTripPhone.trim() || user?.phone || 'N/A',
+      destinations: proposal?.destinations || ['Egypt'],
+      adults: customTripAdults || 2,
+      children: customTripChildren || 0,
+      budgetAmount: proposal?.estimatedPricePerPerson,
+      budgetCurrency: proposal?.currency || 'USD',
+      notes: `${proposal?.title || 'Custom Tour Proposal'} - ${customTripNotes || ''}`,
+    });
+
+    setIsSubmittingCustomTrip(false);
+    if (res?.success) {
+      setCustomTripSubmittedRef(res.referenceCode);
+      setCustomTripFormOpenId(null);
+    }
   };
 
   const handleOutsideClick = (e) => {
@@ -458,15 +506,161 @@ const JaiderChatWindow = () => {
                             </div>
 
                             {/* Proposal CTA Actions */}
-                            <div className="flex flex-col sm:flex-row gap-2 pt-2 border-t border-gold-500/20">
-                              <button
-                                onClick={() => handleCustomInquiry(msg.proposal.title)}
-                                className="flex-1 py-2.5 px-3 bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian-950 font-bold text-xs rounded-xl hover:brightness-110 transition-all text-center shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
-                              >
-                                <span>{isRtl ? 'تخصيص هذا البرنامج الفاخر' : t('jaider.customizeTrip', 'Customize This Trip')}</span>
-                                <span className={isRtl ? 'rotate-180' : ''}>→</span>
-                              </button>
+                            <div className="flex flex-col gap-2 pt-2 border-t border-gold-500/20">
+                              <div className="flex flex-col sm:flex-row gap-2">
+                                <button
+                                  onClick={() => handleOpenCustomTripForm(msg.proposal, msg.id)}
+                                  className="flex-1 py-2.5 px-3 bg-gradient-to-r from-gold-500 via-gold-400 to-amber-500 hover:from-gold-400 hover:to-amber-400 text-obsidian-950 font-black text-xs sm:text-sm rounded-xl transition-all text-center shadow-lg shadow-gold-500/20 flex items-center justify-center gap-2 cursor-pointer active:scale-98 animate-pulse hover:animate-none"
+                                >
+                                  <FaCalendarCheck size={14} className="text-obsidian-950" />
+                                  <span>{isRtl ? 'اطلب الرحلة الآن' : t('jaider.requestTripNow', 'Request Trip Now')}</span>
+                                  <span className={isRtl ? 'rotate-180' : ''}>✨</span>
+                                </button>
+                                <button
+                                  onClick={() => handleCustomInquiry(msg.proposal.title)}
+                                  className="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs rounded-xl border border-slate-700 transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer"
+                                >
+                                  <span>{isRtl ? 'تخصيص متقدم' : t('jaider.advancedCustomize', 'Advanced Customizer')}</span>
+                                  <span className={isRtl ? 'rotate-180' : ''}>→</span>
+                                </button>
+                              </div>
+
+                              {/* Inline Quick Request Form */}
+                              {customTripFormOpenId === msg.id && (
+                                <motion.form
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: 'auto' }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  onSubmit={(e) => handleSubmitCustomTripForm(e, msg.proposal, msg.id)}
+                                  className="mt-2 p-3.5 bg-slate-950 rounded-xl border border-gold-500/40 flex flex-col gap-2.5 shadow-inner"
+                                >
+                                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                                    <span className="text-xs font-bold text-gold-300 flex items-center gap-1.5">
+                                      <FaCrown size={11} className="text-gold-400" />
+                                      {isRtl ? 'بيانات تأكيد طلب الرحلة المخصصة' : 'Confirm Your Tailor-Made Trip Request'}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => setCustomTripFormOpenId(null)}
+                                      className="text-slate-400 hover:text-white text-xs cursor-pointer"
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                    <div>
+                                      <label className="text-[10px] text-slate-400 block mb-1">
+                                        {isRtl ? 'الاسم الكامل' : 'Full Name'}
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={customTripName}
+                                        onChange={(e) => setCustomTripName(e.target.value)}
+                                        placeholder={isRtl ? 'الاسم' : 'Your name'}
+                                        required
+                                        className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs focus:border-gold-400 focus:outline-none"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="text-[10px] text-slate-400 block mb-1">
+                                        {isRtl ? 'البريد الإلكتروني (مطلوب)' : 'Email Address (Required)'}
+                                      </label>
+                                      <input
+                                        type="email"
+                                        value={customTripEmail}
+                                        onChange={(e) => setCustomTripEmail(e.target.value)}
+                                        placeholder="email@example.com"
+                                        required
+                                        className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs focus:border-gold-400 focus:outline-none"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="text-[10px] text-slate-400 block mb-1">
+                                        {isRtl ? 'رقم الهاتف / واتساب' : 'Phone / WhatsApp'}
+                                      </label>
+                                      <input
+                                        type="tel"
+                                        value={customTripPhone}
+                                        onChange={(e) => setCustomTripPhone(e.target.value)}
+                                        placeholder="+123456789"
+                                        className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs focus:border-gold-400 focus:outline-none"
+                                      />
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <div className="flex-1">
+                                        <label className="text-[10px] text-slate-400 block mb-1">
+                                          {isRtl ? 'البالغين' : 'Adults'}
+                                        </label>
+                                        <input
+                                          type="number"
+                                          min="1"
+                                          max="50"
+                                          value={customTripAdults}
+                                          onChange={(e) => setCustomTripAdults(parseInt(e.target.value, 10) || 1)}
+                                          className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs focus:border-gold-400 focus:outline-none"
+                                        />
+                                      </div>
+                                      <div className="flex-1">
+                                        <label className="text-[10px] text-slate-400 block mb-1">
+                                          {isRtl ? 'الأطفال' : 'Children'}
+                                        </label>
+                                        <input
+                                          type="number"
+                                          min="0"
+                                          max="20"
+                                          value={customTripChildren}
+                                          onChange={(e) => setCustomTripChildren(parseInt(e.target.value, 10) || 0)}
+                                          className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs focus:border-gold-400 focus:outline-none"
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <button
+                                    type="submit"
+                                    disabled={isSubmittingCustomTrip}
+                                    className="mt-1 w-full py-2 bg-gradient-to-r from-gold-500 to-amber-500 text-obsidian-950 font-bold text-xs rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                                  >
+                                    {isSubmittingCustomTrip ? (
+                                      <div className="w-3.5 h-3.5 border-2 border-obsidian-950 border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                      <FaCheckCircle size={12} />
+                                    )}
+                                    <span>{isRtl ? 'تأكيد وإرسال طلب الرحلة' : 'Confirm & Submit Trip Request'}</span>
+                                  </button>
+                                </motion.form>
+                              )}
                             </div>
+                          </div>
+                        )}
+
+                        {/* Destination Summary Card (When inquiring about a country/destination) */}
+                        {msg.structuredContent?.destinationSummary && (
+                          <div className="mt-2 p-3 bg-gradient-to-r from-slate-900 via-obsidian-900 to-slate-900 border border-gold-500/40 rounded-2xl flex items-center justify-between shadow-md">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-full bg-gold-500/20 border border-gold-500/30 flex items-center justify-center text-gold-400 shrink-0">
+                                <FaMapMarkerAlt size={14} />
+                              </div>
+                              <div>
+                                <h5 className="font-bold text-xs text-white">
+                                  {msg.structuredContent.destinationSummary.destination}
+                                </h5>
+                                <span className="text-[11px] text-gold-300 font-semibold">
+                                  {msg.structuredContent.destinationSummary.totalToursCount} {isRtl ? 'رحلات سياحية فاخرة متوفرة' : t('jaider.availableTours', 'Luxury Tours Available')}
+                                </span>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => {
+                                navigate(`/destinations/${msg.structuredContent.destinationSummary.slug}`);
+                                setIsOpen(false);
+                              }}
+                              className="px-2.5 py-1.5 bg-gold-500/20 hover:bg-gold-500 hover:text-obsidian-950 text-gold-300 text-[11px] font-bold rounded-xl border border-gold-500/30 transition-all flex items-center gap-1 cursor-pointer"
+                            >
+                              <span>{isRtl ? 'دليل الوجهة' : t('jaider.viewGuide', 'Destination Guide')}</span>
+                              <FaArrowRight size={9} className={isRtl ? 'rotate-180' : ''} />
+                            </button>
                           </div>
                         )}
 

@@ -565,6 +565,88 @@ export const JaiderChatProvider = ({ children }) => {
     }
   };
 
+  const submitCustomTripInquiry = async (customTripData) => {
+    try {
+      setIsTyping(true);
+      const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
+      const validLang = ['en', 'ar', 'es', 'pt', 'it'].includes(activeLang) ? activeLang : 'en';
+
+      const payload = {
+        fullName: customTripData.fullName || 'Guest Traveler',
+        email: customTripData.email,
+        phone: customTripData.phone || 'N/A',
+        preferredLanguage: validLang,
+        destinations: Array.isArray(customTripData.destinations) && customTripData.destinations.length > 0
+          ? customTripData.destinations
+          : [customTripData.destination || 'Custom Egypt & Regional Tour'],
+        startDate: customTripData.startDate || null,
+        endDate: customTripData.endDate || null,
+        adults: parseInt(customTripData.adults, 10) || 2,
+        children: parseInt(customTripData.children, 10) || 0,
+        budgetAmount: customTripData.budgetAmount ? parseFloat(customTripData.budgetAmount) : undefined,
+        budgetCurrency: customTripData.budgetCurrency || 'USD',
+        notes: customTripData.notes || customTripData.itineraryTitle || 'Custom Itinerary requested via GuideR AI Concierge',
+      };
+
+      const res = await api.post('/inquiries', payload);
+      const refCode = res?.referenceCode || `INQ-${Date.now().toString(36).toUpperCase()}`;
+
+      const isAr = activeLang === 'ar';
+      const isEs = activeLang === 'es';
+      const isPt = activeLang === 'pt';
+      const isIt = activeLang === 'it';
+
+      let successText = `🎉 **تم استلام طلب رحلتك المخصصة بنجاح!**\n\nرقم الطلب المرجعي: **#${refCode}**\n\nتم إرسال تفاصيل برنامج رحلتك المخصصة فوراً إلى لوحة تحكم فريق خبراء دوناس ترافيل وتم ربطها بحسابك. سيتواصل معك مستشار السفر الخاص بك لتأكيد كافة الترتيبات الفاخرة.`;
+      if (isEs) {
+        successText = `🎉 **¡Hemos recibido tu solicitud de viaje personalizado con éxito!**\n\nNúmero de referencia: **#${refCode}**\n\nLos detalles de tu itinerario se han enviado a nuestro equipo y se han guardado en tu cuenta. Un asesor se comunicará contigo en breve.`;
+      } else if (isPt) {
+        successText = `🎉 **Recebemos seu pedido de viagem personalizada com sucesso!**\n\nCódigo de referência: **#${refCode}**\n\nOs detalhes foram enviados para nossos especialistas e salvos na sua conta. Um consultor entrará em contato em breve.`;
+      } else if (isIt) {
+        successText = `🎉 **La tua richiesta di viaggio personalizzato è stata ricevuta con successo!**\n\nCodice di riferimento: **#${refCode}**\n\nI dettagli dell'itinerario sono stati inviati ai nostri specialisti e registrati nel tuo account. Ti contatteremo al più presto.`;
+      } else if (!isAr) {
+        successText = `🎉 **Your custom trip request has been successfully received!**\n\nReference Code: **#${refCode}**\n\nYour customized itinerary details have been sent to our Dunas Travel specialists and registered to your account. Our senior travel concierge will contact you shortly.`;
+      }
+
+      const confirmationMsg = {
+        id: `custom-inq-conf-${Date.now()}`,
+        sender: 'jaider',
+        text: successText,
+        timestamp: new Date(),
+        customInquiry: {
+          referenceCode: refCode,
+          ...res,
+        },
+        structuredContent: {
+          type: 'custom_inquiry_confirmation',
+          referenceCode: refCode,
+          inquiry: res,
+        },
+      };
+
+      setMessages((prev) => [...prev, confirmationMsg]);
+      return { success: true, referenceCode: refCode, data: res };
+    } catch (err) {
+      console.error('Failed to submit custom trip inquiry:', err);
+      const isAr = (i18n.language || '').startsWith('ar');
+      const errorText = isAr
+        ? 'عذراً، حدث خطأ أثناء إرسال طلب الرحلة المخصصة. يرجى مراجعة البيانات والمحاولة مجدداً.'
+        : 'Sorry, an error occurred while submitting your custom trip request. Please check details and try again.';
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `custom-inq-err-${Date.now()}`,
+          sender: 'jaider',
+          text: errorText,
+          timestamp: new Date(),
+          isError: true,
+        },
+      ]);
+      return { success: false, error: err.message };
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
   const refineItinerary = (instruction) => {
     sendMessage(instruction);
   };
@@ -687,6 +769,7 @@ export const JaiderChatProvider = ({ children }) => {
         selectedPersona,
         changePersona,
         bookTourInChat,
+        submitCustomTripInquiry,
         isInChatBookingEnabled,
       }}
     >
