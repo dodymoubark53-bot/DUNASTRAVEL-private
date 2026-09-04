@@ -991,9 +991,9 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
                 {(() => {
                   const baseRate = Number(initialPrice) || Number(pricePreview?.basePriceUsd) || 0;
                   const clientTotal = (baseRate * b.adults) + (baseRate * 0.5 * b.children);
-                  const totalToDisplay = pricePreview?.totalAmountUsd !== undefined ? pricePreview.totalAmountUsd : clientTotal;
-                  
-                  if (!totalToDisplay || totalToDisplay <= 0) return null;
+                  const rawTotal = pricePreview?.totalAmountUsd !== undefined ? Number(pricePreview.totalAmountUsd) : clientTotal;
+                  const totalToDisplay = Number.isFinite(rawTotal) && rawTotal >= 0 ? rawTotal : 0;
+                  const formattedPrice = totalToDisplay.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
                   return (
                     <div className="bg-gradient-to-br from-[rgba(201,162,39,0.08)] to-transparent border border-gold-500/30 rounded-xl p-4 space-y-2">
@@ -1010,7 +1010,7 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
                         </span>
                         <div className="text-right">
                           <span className="text-display-sm text-gold-400 font-display font-bold">
-                            ${Number(totalToDisplay).toLocaleString()}
+                            ${formattedPrice}
                           </span>
                         </div>
                       </div>

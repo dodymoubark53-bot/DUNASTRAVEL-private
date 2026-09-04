@@ -46,6 +46,7 @@ export default function AdvancedBooking({
   initialTab = 'booking',
   predefinedTourId = null,
   transportChoice = null,
+  basePricePerPerson = 0,
 }) {
   const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -584,6 +585,40 @@ export default function AdvancedBooking({
                   </div>
                 </div>
               </div>
+
+              {/* Pricing Summary Breakdown Card */}
+              {(() => {
+                const baseRate = Number(basePricePerPerson) || 0;
+                const clientTotal = (baseRate * formData.adults) + (baseRate * 0.5 * formData.children);
+                const formattedPrice = clientTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                return (
+                  <div className="bg-gradient-to-br from-[rgba(201,162,39,0.08)] to-transparent border border-gold-500/30 rounded-xl p-4 space-y-2 mt-3">
+                    <div className="flex items-center justify-between text-[11px] text-ivory-400">
+                      <span className="uppercase tracking-wider">
+                        {formData.adults + formData.children} {t('booking.passengers', 'Guest(s)')}
+                      </span>
+                      <span>{formData.arrivalDate}</span>
+                    </div>
+
+                    <div className="flex items-baseline justify-between pt-1 border-t border-gold-500/15">
+                      <span className="text-[12px] font-semibold text-ivory-200 uppercase tracking-wider">
+                        {t('booking.totalPrice', 'Authoritative Total')}
+                      </span>
+                      <div className="text-right">
+                        <span className="text-display-sm text-gold-400 font-display font-bold">
+                          ${formattedPrice}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 text-[10px] text-ivory-400/80 pt-1">
+                      <FaShieldAlt className="text-gold-400" size={10} />
+                      <span>{t('booking.gatePayInGuarantee', 'GatePayIn SSL Secured Checkout')}</span>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Submit Button */}
               <button
