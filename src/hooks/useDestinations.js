@@ -11,7 +11,7 @@ const staticDestinations = [
   { id: 'morocco', slug: 'morocco', title: 'Morocco', name: 'Morocco', toursCount: 1 },
   { id: 'tunisia', slug: 'tunisia', title: 'Tunisia', name: 'Tunisia', toursCount: 1 },
   { id: 'greece', slug: 'greece', title: 'Greece', name: 'Greece', toursCount: 1 },
-  { id: 'holy-land', slug: 'holy-land', title: 'Holy Land', name: 'Holy Land', toursCount: 6 },
+  { id: 'holy-land', slug: 'holy-land', title: 'Holy Land', name: 'Holy Land', toursCount: 0 },
 ];
 
 function readDestinations(response) {

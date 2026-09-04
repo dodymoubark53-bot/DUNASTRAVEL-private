@@ -62,6 +62,9 @@ const destinationSlugAliases = {
   grecia: 'greece',
   tunez: 'tunisia',
   tunisie: 'tunisia',
+  'holy-land': 'holyland',
+  tierrasanta: 'holyland',
+  terrasanta: 'holyland',
 };
 
 export function useLandingPage(slug, { destinationOnly = false } = {}) {

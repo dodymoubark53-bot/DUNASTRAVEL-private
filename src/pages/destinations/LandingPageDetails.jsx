@@ -176,7 +176,21 @@ export default function LandingPageDetails({ destinationOnly = false, slug: slug
   const { t } = useTranslation();
   const { landingPage, loading, error, retry } = useLandingPage(slug, { destinationOnly });
 
-  if (loading) {
+  const config = DEST_FALLBACK_DATA[slug] || {};
+  const effectiveLandingPage = landingPage || (config && (config.headline || config.headlineDefault) ? {
+    id: slug,
+    slug,
+    title: config.headline ? t(config.headline, config.headlineDefault) : (config.headlineDefault || slug.toUpperCase()),
+    subtitle: config.subtitle ? t(config.subtitle, config.subtitleDefault) : (config.subtitleDefault || ''),
+    description: config.desc ? t(config.desc, config.descDefault) : (config.descDefault || ''),
+    brief: config.desc ? t(config.desc, config.descDefault) : (config.descDefault || ''),
+    type: 'DESTINATION',
+    heroImageUrl: config.heroImage || '/images/holy-land.webp',
+    tours: [],
+    sections: [],
+  } : null);
+
+  if (loading && !effectiveLandingPage) {
     return (
       <div className="mx-auto grid min-h-[60vh] max-w-6xl grid-cols-1 gap-8 px-6 py-24 md:grid-cols-3" role="status" aria-label={t('common.loading', 'Loading destination')}>
         {[0, 1, 2].map((item) => <div key={item} className="h-80 animate-pulse rounded-2xl bg-obsidian-200/70 dark:bg-obsidian-800/50" />)}
@@ -184,7 +198,7 @@ export default function LandingPageDetails({ destinationOnly = false, slug: slug
     );
   }
 
-  if (error) {
+  if (error && !effectiveLandingPage) {
     const isMissing = error.status === 404;
     const isUnauthorized = error.status === 401 || error.status === 403;
     const title = isMissing
@@ -213,7 +227,7 @@ export default function LandingPageDetails({ destinationOnly = false, slug: slug
     );
   }
 
-  if (!landingPage) {
+  if (!effectiveLandingPage) {
     return (
       <section className="mx-auto max-w-3xl px-6 py-24 text-start">
         <ErrorState
@@ -232,25 +246,23 @@ export default function LandingPageDetails({ destinationOnly = false, slug: slug
     );
   }
 
-  const sections = readableSections(landingPage.sections);
-  const sortedTours = Array.isArray(landingPage.tours)
-    ? [...landingPage.tours].sort((a, b) => {
+  const sections = readableSections(effectiveLandingPage.sections);
+  const sortedTours = Array.isArray(effectiveLandingPage.tours)
+    ? [...effectiveLandingPage.tours].sort((a, b) => {
         if (a.isFeatured && !b.isFeatured) return -1;
         if (!a.isFeatured && b.isFeatured) return 1;
         return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
       })
     : [];
 
-  const config = DEST_FALLBACK_DATA[slug] || {};
-
-  const heroBadge = config.badge ? t(config.badge, config.badgeDefault) : (landingPage.type || 'LUXURY DESTINATION');
-  const heroTitle = landingPage.title || (config.headline ? t(config.headline, config.headlineDefault) : slug.toUpperCase());
-  const heroSubtitle = landingPage.subtitle || (config.subtitle ? t(config.subtitle, config.subtitleDefault) : '');
-  const heroDesc = landingPage.description || (config.desc ? t(config.desc, config.descDefault) : landingPage.brief || '');
+  const heroBadge = config.badge ? t(config.badge, config.badgeDefault) : (effectiveLandingPage.type || 'LUXURY DESTINATION');
+  const heroTitle = effectiveLandingPage.title || (config.headline ? t(config.headline, config.headlineDefault) : slug.toUpperCase());
+  const heroSubtitle = effectiveLandingPage.subtitle || (config.subtitle ? t(config.subtitle, config.subtitleDefault) : '');
+  const heroDesc = effectiveLandingPage.description || (config.desc ? t(config.desc, config.descDefault) : effectiveLandingPage.brief || '');
   const heroHighlights = config.tags
     ? config.tags.map((tagKey, idx) => t(tagKey, config.tagsDefault?.[idx] || ''))
     : [];
-  const heroImage = landingPage.heroImageUrl || config.heroImage || '/imgs/egyothero.png';
+  const heroImage = effectiveLandingPage.heroImageUrl || config.heroImage || '/imgs/egyothero.png';
 
   // Jordan specific matrices
   const isJordan = slug === 'jordan';
@@ -263,16 +275,16 @@ export default function LandingPageDetails({ destinationOnly = false, slug: slug
   return (
     <main className="bg-obsidian-50 dark:bg-[#0c0d19] pb-24 text-start">
       <Helmet>
-        <title>{`${landingPage.seoTitle || heroTitle} | Dunas Travel`}</title>
-        {landingPage.seoDescription && <meta name="description" content={landingPage.seoDescription} />}
-        {landingPage.seoKeywords && <meta name="keywords" content={landingPage.seoKeywords} />}
+        <title>{`${effectiveLandingPage.seoTitle || heroTitle} | Dunas Travel`}</title>
+        {effectiveLandingPage.seoDescription && <meta name="description" content={effectiveLandingPage.seoDescription} />}
+        {effectiveLandingPage.seoKeywords && <meta name="keywords" content={effectiveLandingPage.seoKeywords} />}
       </Helmet>
 
       {/* Luxury Hero Section */}
-      {landingPage.heroVideoUrl ? (
+      {effectiveLandingPage.heroVideoUrl ? (
         <section className="relative isolate overflow-hidden bg-obsidian-900 text-ivory-50">
           <video
-            src={landingPage.heroVideoUrl}
+            src={effectiveLandingPage.heroVideoUrl}
             poster={heroImage}
             autoPlay
             loop
@@ -295,8 +307,8 @@ export default function LandingPageDetails({ destinationOnly = false, slug: slug
             {heroSubtitle && (
               <p className="mt-3 max-w-2xl text-xl text-gold-300 font-medium">{heroSubtitle}</p>
             )}
-            {landingPage.brief && (
-              <p className="mt-5 max-w-3xl leading-relaxed text-ivory-200 text-body-lg">{landingPage.brief}</p>
+            {effectiveLandingPage.brief && (
+              <p className="mt-5 max-w-3xl leading-relaxed text-ivory-200 text-body-lg">{effectiveLandingPage.brief}</p>
             )}
           </div>
         </section>
@@ -321,11 +333,11 @@ export default function LandingPageDetails({ destinationOnly = false, slug: slug
       )}
 
       {/* Brief Overview Section */}
-      {landingPage.brief && !landingPage.heroVideoUrl && (
+      {effectiveLandingPage.brief && !effectiveLandingPage.heroVideoUrl && (
         <section className="container mx-auto px-6 mt-16" id="overview">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <p className="text-body-lg text-obsidian-600 dark:text-ivory-200 leading-relaxed">
-              {landingPage.brief}
+              {effectiveLandingPage.brief}
             </p>
           </div>
         </section>
@@ -369,8 +381,28 @@ export default function LandingPageDetails({ destinationOnly = false, slug: slug
             ))}
           </motion.div>
         ) : (
-          <div className="rounded-2xl border border-obsidian-200 dark:border-gray-800 bg-white dark:bg-[#1a1a30] p-10 text-center text-obsidian-600 dark:text-ivory-400 shadow-card">
-            <p>{t('destinations.noTours', 'No published tours are currently available for this destination.')}</p>
+          <div className="rounded-3xl border border-gold-500/20 bg-white/80 dark:bg-[#1a1a30]/80 backdrop-blur-xl p-10 md:p-14 text-center text-obsidian-700 dark:text-ivory-300 shadow-xl max-w-3xl mx-auto">
+            <div className="w-16 h-16 rounded-full bg-gold-500/15 border border-gold-500/30 flex items-center justify-center mx-auto mb-6 text-gold-500 text-3xl">
+              🕊️
+            </div>
+            <h3 className="text-2xl font-serif font-bold text-obsidian-900 dark:text-ivory-50 mb-3" style={{ fontFamily: "'Playfair Display', serif" }}>
+              {t('destinations.toursComingSoonTitle', 'رحلات مخصصة قادمة قريباً')}
+            </h3>
+            <p className="text-body-md text-obsidian-600 dark:text-ivory-300 leading-relaxed mb-8 max-w-xl mx-auto">
+              {t('destinations.toursComingSoonDesc', 'يقوم خبراؤنا حالياً بإعداد باقات وجولات حصرية لهذه الوجهة. يمكنك التواصل معنا لتصميم رحلة مخصصة بالكامل وفق رغباتك.')}
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link to="/tailor-a-tour">
+                <Button variant="gold-glow" className="px-8 py-3 font-bold">
+                  {t('home.tailorTour', 'صمّم رحلتك المخصصة')} →
+                </Button>
+              </Link>
+              <Link to="/contact">
+                <Button variant="glass" className="px-8 py-3 font-semibold">
+                  {t('nav.contact', 'تواصل معنا')}
+                </Button>
+              </Link>
+            </div>
           </div>
         )}
       </section>

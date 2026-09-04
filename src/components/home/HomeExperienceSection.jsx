@@ -383,8 +383,8 @@ const HomeExperienceSection = () => {
     morocco: 1,
     greece: 1,
     tunisia: 1,
-    'holy-land': 6,
-    holyland: 6,
+    'holy-land': 0,
+    holyland: 0,
   };
 
   const liveDestinationCards = useMemo(() => {
@@ -401,16 +401,16 @@ const HomeExperienceSection = () => {
       const name = t(`nav.${navKey}`, destination.title || destination.name);
       const subtitle = t(`dest.${navKey}.subtitle`, destination.subtitle || destination.description || '');
 
-      const key = slug === 'holyland' ? 'holy-land' : slug;
+      const key = (slug === 'holyland' || slug === 'holy-land') ? 'holy-land' : slug;
 
       cardMap.set(key, {
-        id: slug,
+        id: slug === 'holy-land' ? 'holyland' : slug,
         name,
         description: subtitle,
         subtitle,
         image: heroImg,
         toursCount: toursCount,
-        link: `/destinations/${slug}`,
+        link: `/destinations/${slug === 'holy-land' ? 'holyland' : slug}`,
       });
     });
 
@@ -423,13 +423,13 @@ const HomeExperienceSection = () => {
       } else {
         const navKey = key === 'holy-land' ? 'holyland' : key;
         result.push({
-          id: key,
+          id: key === 'holy-land' ? 'holyland' : key,
           name: t(`nav.${navKey}`, key.charAt(0).toUpperCase() + key.slice(1)),
           description: t(`dest.${navKey}.subtitle`, ''),
           subtitle: t(`dest.${navKey}.subtitle`, ''),
-          image: DEST_HERO_MAP[key] || '/imgs/egyothero.png',
-          toursCount: DEST_TOUR_COUNTS[key] || 1,
-          link: `/destinations/${key}`,
+          image: DEST_HERO_MAP[key] || '/images/holy-land.webp',
+          toursCount: DEST_TOUR_COUNTS[key] !== undefined ? DEST_TOUR_COUNTS[key] : (DEST_TOUR_COUNTS[navKey] !== undefined ? DEST_TOUR_COUNTS[navKey] : 0),
+          link: `/destinations/${key === 'holy-land' ? 'holyland' : key}`,
         });
       }
     });
