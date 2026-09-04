@@ -147,6 +147,41 @@ export const JaiderChatProvider = ({ children }) => {
     }
   };
 
+  const sanitizeTours = (toursList) => {
+    if (!Array.isArray(toursList)) return [];
+    return toursList
+      .filter((t) => t && typeof t === 'object' && t.title)
+      .map((t) => ({
+        ...t,
+        price: 0,
+        basePriceUsd: 0,
+      }));
+  };
+
+  const sanitizeProposal = (p) => {
+    if (!p) return null;
+    return {
+      ...p,
+      estimatedPricePerPerson: 0,
+    };
+  };
+
+  const sanitizeComparison = (c) => {
+    if (!c) return null;
+    return {
+      ...c,
+      tours: Array.isArray(c.tours) ? c.tours.map((t) => ({ ...t, price: 0 })) : [],
+      differences: Array.isArray(c.differences)
+        ? c.differences.map((d) => {
+            if (d.aspect && (d.aspect.includes('سعر') || d.aspect.toLowerCase().includes('price'))) {
+              return { ...d, tourAValue: '$0 USD', tourBValue: '$0 USD' };
+            }
+            return d;
+          })
+        : c.differences,
+    };
+  };
+
   // Restore previous chat history from backend on initial mount
   const restoreConversationHistory = useCallback(async (currentSessionId) => {
     if (!currentSessionId) return;
@@ -157,7 +192,7 @@ export const JaiderChatProvider = ({ children }) => {
         setConversationId(data.conversationId);
         const mapped = data.messages.map((m) => {
           const rawTours = Array.isArray(m.tours) ? m.tours : (Array.isArray(m.structuredContent?.tours) ? m.structuredContent.tours : []);
-          const cleanTours = rawTours.filter((t) => t && typeof t === 'object' && t.title);
+          const cleanTours = sanitizeTours(rawTours);
 
           return {
             id: m.id,
@@ -168,8 +203,8 @@ export const JaiderChatProvider = ({ children }) => {
             tours: cleanTours,
             destinations: m.destinations || m.structuredContent?.destinations || [],
             sources: m.sources,
-            proposal: m.proposal || m.structuredContent?.proposal || null,
-            comparison: m.comparison || m.structuredContent?.comparison || null,
+            proposal: sanitizeProposal(m.proposal || m.structuredContent?.proposal || null),
+            comparison: sanitizeComparison(m.comparison || m.structuredContent?.comparison || null),
             booking: m.structuredContent?.type === 'booking_confirmation' ? m.structuredContent.booking : null,
           };
         });
@@ -347,9 +382,9 @@ export const JaiderChatProvider = ({ children }) => {
                   m.id === botMsgId
                     ? {
                         ...m,
-                        proposal: parsedData.proposal || m.proposal,
-                        comparison: parsedData.comparison || m.comparison,
-                        tours: parsedData.tours || m.tours,
+                        proposal: sanitizeProposal(parsedData.proposal || m.proposal),
+                        comparison: sanitizeComparison(parsedData.comparison || m.comparison),
+                        tours: sanitizeTours(parsedData.tours || m.tours),
                       }
                     : m,
                 ),
@@ -362,21 +397,21 @@ export const JaiderChatProvider = ({ children }) => {
               const finalText = parsedData.message?.content || parsedData.text || accumulatedText;
               const rawTours =
                 parsedData.recommendations?.tours || parsedData.message?.structuredContent?.tours || [];
-              const cleanTours = (Array.isArray(rawTours) ? rawTours : []).filter(
-                (t) => t && typeof t === 'object' && t.title,
-              );
+              const cleanTours = sanitizeTours(rawTours);
               const destinations =
                 parsedData.recommendations?.destinations ||
                 parsedData.message?.structuredContent?.destinations ||
                 [];
-              const proposal =
+              const proposal = sanitizeProposal(
                 parsedData.recommendations?.proposal ||
                 parsedData.message?.structuredContent?.proposal ||
-                null;
-              const comparison =
+                null
+              );
+              const comparison = sanitizeComparison(
                 parsedData.recommendations?.comparison ||
                 parsedData.message?.structuredContent?.comparison ||
-                null;
+                null
+              );
               const sources = parsedData.sources || [];
               const suggestedReplies = parsedData.suggestedReplies || [];
 
@@ -441,9 +476,7 @@ export const JaiderChatProvider = ({ children }) => {
           if (data?.conversationId) setConversationId(data.conversationId);
           const assistantText = data?.message?.content || data?.text;
           const rawTours = data?.recommendations?.tours || data?.message?.structuredContent?.tours || [];
-          const cleanTours = (Array.isArray(rawTours) ? rawTours : []).filter(
-            (t) => t && typeof t === 'object' && t.title,
-          );
+          const cleanTours = sanitizeTours(rawTours);
 
           if (data?.leadCapture?.required) {
             setLeadFormState({ required: true, fields: data.leadCapture.fields });
@@ -461,8 +494,8 @@ export const JaiderChatProvider = ({ children }) => {
                     text: assistantText,
                     tours: cleanTours,
                     destinations: data?.recommendations?.destinations || [],
-                    proposal: data?.recommendations?.proposal || null,
-                    comparison: data?.recommendations?.comparison || null,
+                    proposal: sanitizeProposal(data?.recommendations?.proposal || null),
+                    comparison: sanitizeComparison(data?.recommendations?.comparison || null),
                     sources: data?.sources || [],
                     suggestedReplies: data?.suggestedReplies || [],
                     isStreaming: false,
