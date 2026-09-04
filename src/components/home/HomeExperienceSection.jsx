@@ -851,7 +851,6 @@ const HomeExperienceSection = () => {
   };
 
   // Transportation State
-  const [vehicleFilter, setVehicleFilter] = useState("all");
   const [resForm, setResForm] = useState({
     vehicle: "",
     date: "",
@@ -922,17 +921,7 @@ const HomeExperienceSection = () => {
 
   useScrollAnimations();
 
-  const filteredVehicles = useMemo(() => {
-    const list = (fallbackTransportation && fallbackTransportation.length > 0) ? fallbackTransportation : (transportationList || []);
-    if (vehicleFilter === "all") return list;
-    return list.filter((v) => {
-      const cat = (v.category || v.vehicleCategory || "").toLowerCase();
-      if (vehicleFilter === "bus") return cat === "bus" || v.seats > 30;
-      if (vehicleFilter === "coaster") return cat === "coaster" || (v.seats > 8 && v.seats <= 30);
-      if (vehicleFilter === "private") return cat === "private" || v.seats <= 8;
-      return cat === vehicleFilter.toLowerCase();
-    });
-  }, [vehicleFilter, transportationList]);
+
 
   // Shared galleryImages and videos retrieved from useMedia hook
 
@@ -1780,110 +1769,15 @@ const HomeExperienceSection = () => {
             ></motion.div>
           </div>
 
-          {/* Filter Tabs */}
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
-            {["all", "bus", "coaster", "private"].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setVehicleFilter(tab)}
-                className={`px-6 py-2 rounded-full border transition-all duration-300 font-medium tracking-wide ${vehicleFilter === tab
-                  ? tab === "all"
-                    ? "bg-obsidian-900/80 text-white border-gold-500"
-                    : "bg-gold-500 text-obsidian-900 border-gold-500 shadow-[0_0_15px_rgba(245,166,35,0.4)]"
-                  : "bg-obsidian-900/80 text-white border-obsidian-900/80"
-                  }`}
-              >
-                {tab === "all"
-                  ? t("home.allVehicles", "All")
-                  : tab === "bus"
-                    ? t("home.buses", "Buses")
-                    : tab === "coaster"
-                      ? t("home.coasters", "Coasters")
-                      : t("home.privateVehicles", "Private Vehicles")}
-              </button>
-            ))}
-          </div>
-
-          {/* Vehicles Strip: Infinite Marquee */}
-          <div dir="ltr" className="w-full relative overflow-hidden mb-12 py-4">
-            <div
-              className="flex w-max"
-              style={{
-                gap: "16px",
-                paddingLeft: "16px",
-                animation: "tourMarquee 75s linear infinite",
-              }}
-              onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
-              onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
+          {/* Link to Dedicated Transportation Page */}
+          <div className="flex justify-center mb-10">
+            <Link
+              to="/programs/transportation"
+              className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-gold-500 hover:bg-gold-400 text-obsidian-950 font-bold shadow-[0_0_20px_rgba(201,162,39,0.3)] transition-all duration-300"
             >
-              {(() => {
-                const repeatedList = Array.from({ length: 4 }).flatMap(() => filteredVehicles);
-                return repeatedList.map((vehicle, idx) => (
-                  <div
-                    key={`veh-${vehicle.id}-${idx}`}
-                    className="flex-shrink-0 flex flex-col rounded-[16px] overflow-hidden group relative w-[280px] h-[360px] md:h-[380px] transition-all duration-[350ms] ease-out hover:scale-[1.05] hover:-translate-y-2 hover:shadow-[0_12px_40px_rgba(245,166,35,0.35)] hover:z-10 border border-obsidian-700/50 hover:border-gold-500 bg-obsidian-900"
-                  >
-                    <img
-                      src={vehicle.heroImage || vehicle.image}
-                      alt={vehicle.name}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900 via-obsidian-900/40 to-transparent"></div>
-
-                    <div className="absolute top-4 left-4 bg-gold-500 text-obsidian-900 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded shadow-md">
-                      {vehicle.category === 'bus' ? t('transportation.filter.buses', 'Buses') :
-                        vehicle.category === 'coaster' ? t('transportation.filter.coasters', 'Coaster Vehicles') :
-                          t('transportation.filter.private', 'Private Vehicles')}
-                    </div>
-
-                    <div className="absolute bottom-0 left-0 right-0 p-5 flex flex-col justify-end">
-                      <h3 className="font-display text-xl text-ivory-50 mb-1 drop-shadow-md">
-                        {vehicle.name}
-                      </h3>
-                      <div className="flex items-center text-xs text-white mb-3 gap-1">
-                        <svg
-                          className="w-4 h-4 text-gold-500"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                          />
-                        </svg>
-                        {vehicle.seats}{" "}
-                        {t("transportation.seatsCount", "Seats")}
-                      </div>
-
-                      <div className="flex items-center justify-between mb-4 border-t border-ivory-50/20 pt-3 mt-1">
-                        <span className="text-xs text-white uppercase tracking-wider">
-                          {t("tourCard.from", "From")}
-                        </span>
-                        <span className="text-lg font-semibold text-gold-500">
-                          {formatPrice(vehicle.pricePerDay)}
-                          <span className="text-xs text-white font-normal">
-                            {" "}
-                            / {t("transportation.day", "day")}
-                          </span>
-                        </span>
-                      </div>
-
-                      <button
-                        onClick={() => handleHomeReserveClick(vehicle.id)}
-                        className="w-full py-2 text-sm font-semibold text-white transition-colors border border-gold-500 rounded-lg flex items-center justify-center bg-obsidian-900/40 backdrop-blur-sm cursor-pointer outline-none hover:bg-gold-500 hover:text-obsidian-950"
-                      >
-                        {t("transportation.reserveNow", "Reserve Now")}
-                      </button>
-                    </div>
-                  </div>
-                ));
-              })()}
-            </div>
+              <span>{t('nav.transportation', 'Transportation')} &mdash; {t('transportation.viewFleet', 'View VIP Fleet')}</span>
+              <span className={isRtl ? 'rotate-180 inline-block' : 'inline-block'}>&rarr;</span>
+            </Link>
           </div>
 
           {/* Reservation Form */}
@@ -2427,7 +2321,7 @@ const HomeExperienceSection = () => {
               <div 
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out group-hover:scale-105"
                 style={{
-                  backgroundImage: "url('https://res.cloudinary.com/degbrq3ck/image/upload/w_800,q_auto,f_auto/v1783071610/bus1_lprkiy.jpg')"
+                  backgroundImage: "url('https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80')"
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-900/60 to-transparent opacity-90 transition-opacity duration-500 group-hover:opacity-95" />
