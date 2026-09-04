@@ -389,7 +389,7 @@ const JaiderChatWindow = () => {
                                 <div key={idx} className="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800 flex flex-col justify-between">
                                   <div>
                                     <h5 className="font-bold text-[11px] text-gold-300 truncate">{tItem.title}</h5>
-                                    <p className="text-[10px] text-slate-400 mt-0.5"><bdi dir="ltr">{tItem.durationDays} Days • ${tItem.price} {tItem.currency}</bdi></p>
+                                    <p className="text-[10px] text-slate-400 mt-0.5"><bdi dir="ltr">{tItem.durationDays} Days • $0 {tItem.currency || 'USD'}</bdi></p>
                                   </div>
                                   <button
                                     onClick={() => handleNavigateToTour(tItem.publicUrl)}
@@ -436,7 +436,7 @@ const JaiderChatWindow = () => {
                                 </h4>
                               </div>
                               <span className="text-xs font-bold text-gold-300 bg-gold-500/10 px-2.5 py-1 rounded-full border border-gold-500/30 shrink-0">
-                                <bdi dir="ltr">~${msg.proposal.estimatedPricePerPerson} {msg.proposal.currency}</bdi>
+                                <bdi dir="ltr">~$0 {msg.proposal.currency || 'USD'}</bdi>
                               </span>
                             </div>
 
@@ -706,7 +706,7 @@ const JaiderChatWindow = () => {
                                     </div>
                                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-800 gap-1.5">
                                       <span className="text-xs font-bold text-gold-400">
-                                        <bdi dir="ltr">${tItem.price || 1490} {tItem.currency || 'USD'}</bdi>
+                                        <bdi dir="ltr">$0 {tItem.currency || 'USD'}</bdi>
                                       </span>
                                       <div className="flex items-center gap-1.5">
                                         <button
