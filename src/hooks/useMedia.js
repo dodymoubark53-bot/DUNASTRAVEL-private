@@ -12,10 +12,10 @@ const DEFAULT_GALLERY_IMAGES = [
   { url: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80', label: 'Red Sea Diving', mimeType: 'image/jpeg' }
 ];
 
-function normalizeAssets(response) {
+function normalizeAssets(response, isSpecific = false) {
   if (!Array.isArray(response) || response.length === 0) {
     return {
-      galleryImages: DEFAULT_GALLERY_IMAGES,
+      galleryImages: isSpecific ? [] : DEFAULT_GALLERY_IMAGES,
       videos: []
     };
   }
@@ -28,7 +28,7 @@ function normalizeAssets(response) {
     .map((asset) => ({ ...asset, url: asset.secureUrl || asset.url, label: asset.altText || asset.label || 'Dunas Travel' }));
 
   return {
-    galleryImages: imgs.length > 0 ? imgs : DEFAULT_GALLERY_IMAGES,
+    galleryImages: imgs.length > 0 ? imgs : (isSpecific ? [] : DEFAULT_GALLERY_IMAGES),
     videos: vids,
   };
 }
@@ -37,11 +37,27 @@ const mediaCache = new Map();
 const pendingMediaRequests = new Map();
 const MEDIA_CACHE_TTL_MS = 300_000; // 5 minutes
 
-export function useMedia(tourId = null) {
-  const cacheKey = tourId ? `tour:${tourId}` : 'global';
+export function useMedia(optionsOrTourId = null) {
+  let tourId = null;
+  let category = null;
+
+  if (typeof optionsOrTourId === 'string') {
+    tourId = optionsOrTourId;
+  } else if (optionsOrTourId && typeof optionsOrTourId === 'object') {
+    tourId = optionsOrTourId.tourId || null;
+    category = optionsOrTourId.category || null;
+  }
+
+  const isSpecific = Boolean(tourId || category);
+  const cacheKey = category
+    ? `category:${category}`
+    : tourId
+    ? `tour:${tourId}`
+    : 'global';
+
   const [galleryImages, setGalleryImages] = useState(() => {
     const cached = mediaCache.get(cacheKey);
-    return cached?.data?.galleryImages || (!tourId ? DEFAULT_GALLERY_IMAGES : []);
+    return cached?.data?.galleryImages || (isSpecific ? [] : DEFAULT_GALLERY_IMAGES);
   });
   const [videos, setVideos] = useState(() => {
     const cached = mediaCache.get(cacheKey);
@@ -72,16 +88,25 @@ export function useMedia(tourId = null) {
         // 2. Deduplicate concurrent requests
         let request = pendingMediaRequests.get(cacheKey);
         if (!request) {
-          const url = tourId ? `/media/tours/${encodeURIComponent(tourId)}` : '/media';
+          let url = '/media';
+          if (category) {
+            url = `/media?category=${encodeURIComponent(category)}`;
+          } else if (tourId) {
+            url = `/media/tours/${encodeURIComponent(tourId)}`;
+          }
+
           request = api
             .get(url)
             .then((raw) => {
-              const result = normalizeAssets(raw);
+              const result = normalizeAssets(raw, isSpecific);
               mediaCache.set(cacheKey, { data: result, timestamp: Date.now() });
               return result;
             })
             .catch(() => {
-              const fallback = { galleryImages: DEFAULT_GALLERY_IMAGES, videos: [] };
+              const fallback = {
+                galleryImages: isSpecific ? [] : DEFAULT_GALLERY_IMAGES,
+                videos: [],
+              };
               mediaCache.set(cacheKey, { data: fallback, timestamp: Date.now() });
               return fallback;
             })
@@ -97,7 +122,7 @@ export function useMedia(tourId = null) {
       } catch (requestError) {
         if (isMounted) {
           setError(requestError?.status === 404 ? null : requestError);
-          if (!tourId) {
+          if (!isSpecific) {
             setGalleryImages(DEFAULT_GALLERY_IMAGES);
           }
         }
@@ -109,7 +134,7 @@ export function useMedia(tourId = null) {
     return () => {
       isMounted = false;
     };
-  }, [cacheKey, tourId]);
+  }, [cacheKey, isSpecific, category, tourId]);
 
   return {
     galleryImages,

@@ -211,6 +211,21 @@ describe('Prompt 02: Tours Catalog, Localization & Reviews Integration', () => {
     expect(result.current.galleryImages.length).toBe(1);
   });
 
+  it('useMedia fetches category photos via GET /media?category=transport', async () => {
+    const mockMedia = [{ id: 'm-2', secureUrl: '/images/transport1.webp', mimeType: 'image/webp' }];
+    vi.spyOn(api, 'get').mockResolvedValue(mockMedia);
+
+    const { result } = renderHook(() => useMedia({ category: 'transport' }));
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(api.get).toHaveBeenCalledWith('/media?category=transport');
+    expect(result.current.galleryImages.length).toBe(1);
+    expect(result.current.galleryImages[0].url).toBe('/images/transport1.webp');
+  });
+
   it('useHotel propagates API error and sets hotel to null instead of mock fallback', async () => {
     vi.spyOn(api, 'get').mockRejectedValue(new Error('Hotel not found'));
 

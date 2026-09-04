@@ -16,6 +16,7 @@ import {
 } from 'react-icons/fa';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import { useServices } from '../../hooks/useServices';
+import { useMedia } from '../../hooks/useMedia';
 import { transportation as fallbackTransportation } from '../../data/transportation';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import ErrorState from '../../components/ui/ErrorState';
@@ -35,6 +36,7 @@ const Transportation = () => {
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
   const { services: rawTransportation = [], loading, error } = useServices('transportation');
+  const { galleryImages: mediaLibraryFleet = [] } = useMedia({ category: 'transport' });
 
   const transportationList = useMemo(() => {
     if (Array.isArray(rawTransportation) && rawTransportation.length > 0) {
@@ -48,11 +50,18 @@ const Transportation = () => {
     return fallbackTransportation;
   }, [rawTransportation]);
 
-  // Gallery marquee images derived dynamically from the 10 vehicles
+  // Gallery marquee images derived dynamically from Media Library "Transportation Fleet" category,
+  // falling back to vehicle fleet cards if no media library assets have been uploaded yet.
   const galleryImages = useMemo(() => {
+    if (Array.isArray(mediaLibraryFleet) && mediaLibraryFleet.length > 0) {
+      const urls = mediaLibraryFleet
+        .map((img) => (typeof img === 'string' ? img : img.url || img.secureUrl))
+        .filter(Boolean);
+      if (urls.length > 0) return urls;
+    }
     const list = transportationList.map((v) => v.image || v.heroImageUrl).filter(Boolean);
     return list.length > 0 ? list : fallbackTransportation.map((v) => v.image);
-  }, [transportationList]);
+  }, [mediaLibraryFleet, transportationList]);
 
   // Autoplay slider effect
   useEffect(() => {
