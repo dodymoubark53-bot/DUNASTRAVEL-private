@@ -12,21 +12,14 @@ const DEFAULT_GALLERY_IMAGES = [
   { url: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80', label: 'Red Sea Diving', mimeType: 'image/jpeg' }
 ];
 
-function normalizeAssets(response, isSpecific = false, category = null) {
+function normalizeAssets(response, isSpecific = false) {
   if (!Array.isArray(response) || response.length === 0) {
     return {
       galleryImages: isSpecific ? [] : DEFAULT_GALLERY_IMAGES,
       videos: []
     };
   }
-  const isTransportCategory = category === 'transport' || category === 'fleet' || category === 'transportation';
-  const assets = isTransportCategory
-    ? response
-    : response.filter((asset) => {
-        const entityId = String(asset?.entityId || '').toLowerCase();
-        return entityId !== 'transport' && entityId !== 'fleet' && entityId !== 'transportation';
-      });
-
+  const assets = response;
   const imgs = assets
     .filter((asset) => String(asset?.mimeType || '').startsWith('image/'))
     .map((asset) => ({ ...asset, url: asset.secureUrl || asset.url, label: asset.altText || asset.label || 'Dunas Travel' }));
@@ -105,7 +98,7 @@ export function useMedia(optionsOrTourId = null) {
           request = api
             .get(url)
             .then((raw) => {
-              const result = normalizeAssets(raw, isSpecific, category);
+              const result = normalizeAssets(raw, isSpecific);
               mediaCache.set(cacheKey, { data: result, timestamp: Date.now() });
               return result;
             })
