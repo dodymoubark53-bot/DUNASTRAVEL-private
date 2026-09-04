@@ -197,9 +197,15 @@ export function useTour(slug) {
         }
       } catch (requestError) {
         if (isMounted) {
-          const errorMsg = requestError?.response?.data?.message || requestError?.message || 'Tour not found';
-          setError(typeof errorMsg === 'string' ? errorMsg : String(errorMsg));
-          setTour(null);
+          const fallback = getFallbackTour(slug, lang);
+          if (fallback) {
+            setTour(fallback);
+            setError(null);
+          } else {
+            const errorMsg = requestError?.response?.data?.message || requestError?.message || 'Tour not found';
+            setError(typeof errorMsg === 'string' ? errorMsg : String(errorMsg));
+            setTour(null);
+          }
         }
       } finally {
         if (isMounted) setLoading(false);
