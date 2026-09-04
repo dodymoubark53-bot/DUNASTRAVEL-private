@@ -9,15 +9,14 @@ import canonicalDb from '../data/database/unified_52_tours.json';
 const allStaticTours = canonicalDb.tours || [];
 
 export function getFallbackTour(slug, lang = 'en') {
-  const lowerSlug = slug ? String(slug).toLowerCase() : 'complete-egypt-8d';
-  const normSlug = (lowerSlug.includes('classic') || lowerSlug === 'classic-program' || !slug) ? 'complete-egypt-8d' : slug;
+  if (!slug) return null;
+  const lowerSlug = String(slug).toLowerCase();
   
   const match = allStaticTours.find(
-    (t) => t.slug === normSlug || t.id === normSlug
-      || t.slug === slug || t.id === slug
-      || String(t.code?.en || t.code?.ar || t.code || t.id).toLowerCase() === String(normSlug).toLowerCase()
-      || String(t.code?.en || t.code?.ar || t.code || t.id).toLowerCase() === String(slug).toLowerCase(),
-  ) || allStaticTours.find((t) => t.destination === 'egypt') || allStaticTours[0];
+    (t) => String(t.slug || '').toLowerCase() === lowerSlug
+      || String(t.id || '').toLowerCase() === lowerSlug
+      || String(t.code?.en || t.code?.ar || t.code || '').toLowerCase() === lowerSlug,
+  );
 
   if (!match) return null;
 
@@ -109,11 +108,19 @@ function normalizeTour(data, lang = 'en') {
           ? fallback.days
           : [];
 
+  const resolveField = (val) => {
+    if (!val) return '';
+    if (typeof val === 'string') return val;
+    if (typeof val === 'object') return val[lang] || val.en || val.ar || Object.values(val)[0] || '';
+    return String(val);
+  };
+
   const itinerary = rawItineraryList.map((item, idx) => ({
     ...item,
     day: item.sortOrder !== undefined ? item.sortOrder + 1 : (item.day || idx + 1),
-    title: item.dayLabel || item.title || '',
-    meals: item.meals || null,
+    title: resolveField(item.title) || resolveField(item.dayLabel) || `Day ${idx + 1}`,
+    description: resolveField(item.description) || resolveField(item.desc) || '',
+    meals: resolveField(item.meals) || null,
   }));
 
   const included = (Array.isArray(data.includedServices) && data.includedServices.length > 0)

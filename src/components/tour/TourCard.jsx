@@ -148,14 +148,22 @@ const TourCard = ({
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-4 border-t border-gold-500/10 dark:border-gray-700 mt-auto">
-          {tourPrice !== null ? <div>
-            <span className="block text-caption text-obsidian-400 dark:text-ivory-400 mb-1">
-              {t('tourCard.from', 'from')}
-            </span>
-            <span className="text-display-md text-gold-700 dark:text-gold-400 font-bold">
-              {formatPrice(tourPrice)}
-            </span>
-          </div> : <span />}
+          {tourPrice !== null && tourPrice > 0 ? (
+            <div>
+              <span className="block text-caption text-obsidian-400 dark:text-ivory-400 mb-1">
+                {t('tourCard.from', 'from')}
+              </span>
+              <span className="text-display-md text-gold-700 dark:text-gold-400 font-bold">
+                {formatPrice(tourPrice)}
+              </span>
+            </div>
+          ) : (
+            <div>
+              <span className="inline-block text-[11px] font-semibold text-gold-600 dark:text-gold-400 uppercase tracking-wider bg-gold-50 dark:bg-gold-950/40 px-2.5 py-1 rounded-md border border-gold-500/20">
+                {t('tourCard.onQuote', 'On Request')}
+              </span>
+            </div>
+          )}
 
           <Link to={detailUrl} aria-label={`${t('tourCard.viewDetails', 'View Details')} - ${title}`}>
             <Button variant="outline-gold" className="px-6 py-2 flex items-center gap-2">

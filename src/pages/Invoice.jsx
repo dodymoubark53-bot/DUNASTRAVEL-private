@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaFileInvoiceDollar, FaSearch, FaTimes, FaPrint } from 'react-icons/fa';
+import { FaFileInvoiceDollar, FaSearch, FaTimes, FaPrint, FaWhatsapp, FaUniversity, FaCreditCard } from 'react-icons/fa';
 import api from '../utils/api';
 import { normalizeInvoiceResponse } from '../utils/invoice';
 import { redirectToPayLinkCheckout } from '../utils/paylink';
@@ -9,18 +9,21 @@ import { redirectToPayLinkCheckout } from '../utils/paylink';
 const Invoice = () => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
+  const isAr = i18n.language === 'ar';
   const [searchParams, setSearchParams] = useSearchParams();
   const [invoiceNum, setInvoiceNum] = useState(searchParams.get('inv') || '');
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showConciergePayment, setShowConciergePayment] = useState(false);
 
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!invoiceNum.trim()) return;
     setLoading(true);
     setError('');
+    setShowConciergePayment(false);
     setBooking(null);
     try {
       const data = await api.get(`/invoices/${invoiceNum.trim()}`);
@@ -42,15 +45,28 @@ const Invoice = () => {
     setPaymentLoading(true);
     setError('');
     try {
-      const data = await api.post('/payments/initiate', { bookingId: booking.bookingId });
+      const guestToken = typeof window !== 'undefined' ? localStorage.getItem('dunas_guest_token') : undefined;
+      const data = await api.post('/payments/initiate', {
+        bookingId: booking.bookingId,
+        guestToken: guestToken || undefined
+      });
       const url = data?.url || data?.sessionUrl || data?.checkoutUrl || data?.session?.url;
       if (url) {
-        redirectToPayLinkCheckout(url);
+        if (url.startsWith('/')) {
+          window.location.href = url;
+        } else {
+          redirectToPayLinkCheckout(url);
+        }
       } else {
         throw new Error('No payment URL returned');
       }
     } catch (err) {
-      setError(err.message || 'Unable to start payment session');
+      const isGatewayOffline = err.status === 503 || err.message?.toLowerCase().includes('not enabled') || err.message?.toLowerCase().includes('not configured');
+      if (isGatewayOffline) {
+        setShowConciergePayment(true);
+      } else {
+        setError(err.message || 'Unable to start payment session');
+      }
     } finally {
       setPaymentLoading(false);
     }
@@ -235,21 +251,51 @@ const Invoice = () => {
                 </div>
               </div>
 
-              {/* Footer */}
+              {/* Payment Actions */}
               {booking.status === 'pending' && (
-                <div className="border-t border-gray-200 pt-6 mt-6 flex justify-center">
-                  <button
-                    onClick={handlePayment}
-                    disabled={paymentLoading}
-                    className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-xl shadow-md hover:scale-105 transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    {paymentLoading ? (
-                      <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <FaFileInvoiceDollar size={18} />
-                    )}
-                    {t('booking.payNow', 'Pay Now')}
-                  </button>
+                <div className="border-t border-gray-200 pt-6 mt-6 space-y-4">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <button
+                      onClick={handlePayment}
+                      disabled={paymentLoading}
+                      className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-xl shadow-md hover:scale-105 transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {paymentLoading ? (
+                        <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <FaCreditCard size={18} />
+                      )}
+                      {t('booking.payNow', 'Pay Online Now')}
+                    </button>
+
+                    <a
+                      href={`https://wa.me/201000000000?text=${encodeURIComponent(
+                        isAr
+                          ? `مرحباً دونس ترافيل، أود تأكيد ودفع الفاتورة رقم #${booking.invoiceNumber || invoiceNum} الخاصة بالحجز (المرجع: ${booking.bookingReference || booking.bookingId})، بقيمة ${booking.currency === 'EUR' ? '€' : '$'}${booking.totalAmount}.`
+                          : `Hello Dunas Travel, I would like to confirm and pay Invoice #${booking.invoiceNumber || invoiceNum} (Ref: ${booking.bookingReference || booking.bookingId}) for amount ${booking.currency === 'EUR' ? '€' : '$'}${booking.totalAmount}.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full sm:w-auto px-6 py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-xl shadow transition-colors flex items-center justify-center gap-2 text-sm"
+                    >
+                      <FaWhatsapp size={18} />
+                      {isAr ? 'الدفع عبر الكونسيرج (واتساب)' : 'Concierge WhatsApp Payment'}
+                    </a>
+                  </div>
+
+                  {showConciergePayment && (
+                    <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs sm:text-sm space-y-2 text-start">
+                      <div className="font-semibold flex items-center gap-2">
+                        <FaUniversity className="text-amber-700" />
+                        <span>{isAr ? 'الدفع المباشر والتحويل البنكي' : 'Direct Bank Transfer & Concierge Settlement'}</span>
+                      </div>
+                      <p>
+                        {isAr
+                          ? 'بوابة الدفع الإلكتروني بالبطاقات تخضع للصيانة أو الحجز يتطلب تأكيداً خاصاً. يُرجى استخدام زر الواتساب أعلاه للتواصل المباشر مع الكونسيرج الخاص بنا أو طلب بيانات الحساب البنكي الرسمي لشركة دونس ترافيل.'
+                          : 'Online card gateway is under scheduled maintenance or requires custom concierge confirmation. Please use the WhatsApp button above to finalize your reservation directly or request official bank transfer details.'}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 

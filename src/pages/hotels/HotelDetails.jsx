@@ -33,15 +33,19 @@ import {
 import { useCurrency } from '../../context/CurrencyContext';
 import { useHotel } from '../../hooks/useHotels';
 import Button from '../../components/ui/Button';
+import SkeletonLoader from '../../components/ui/SkeletonLoader';
+import ErrorState from '../../components/ui/ErrorState';
 
 const HotelDetails = () => {
   const { t, i18n } = useTranslation();
+  const isAr = (i18n.language || '').startsWith('ar');
+  const isRtl = i18n.dir?.() === 'rtl' || isAr;
   const { formatPrice } = useCurrency();
   const { slug } = useParams();
   const location = useLocation();
   const basePath = location.pathname.startsWith('/programs') ? '/programs' : '/services';
   const currentSlug = slug || 'sol-pyramid-hotel';
-  const { hotel: apiHotel } = useHotel(currentSlug);
+  const { hotel: apiHotel, loading, error } = useHotel(currentSlug);
 
   const [activeImage, setActiveImage] = useState(null);
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
@@ -66,24 +70,45 @@ const HotelDetails = () => {
     window.scrollTo(0, 0);
   }, [currentSlug]);
 
+  if (loading) {
+    return (
+      <div className="w-full bg-[#FAF9F5] dark:bg-obsidian-900 min-h-screen pt-32 pb-24 px-6 container mx-auto">
+        <SkeletonLoader count={1} type="card" />
+      </div>
+    );
+  }
+
+  if (error || (!apiHotel && currentSlug !== 'sol-pyramid-hotel')) {
+    return (
+      <div className="w-full bg-[#FAF9F5] dark:bg-obsidian-900 min-h-screen pt-32 pb-24 px-6 container mx-auto flex items-center justify-center">
+        <ErrorState
+          title={t('hotel.notFoundTitle', 'Hotel Not Found')}
+          message={error?.message || t('hotel.notFoundDesc', 'The requested hotel could not be found.')}
+          actionLabel={t('hotel.browseAll', 'Browse Luxury Hotels')}
+          actionLink={basePath}
+        />
+      </div>
+    );
+  }
+
   const hotelInfo = {
     name: apiHotel?.name || 'Sol Pyramid Hotel',
-    stars: apiHotel?.stars || 3,
+    stars: apiHotel?.stars || 5,
     yearBuilt: '2025',
-    totalRooms: t('hotel.overview.roomsCount', '20 rooms (40 more coming soon)'),
+    totalRooms: apiHotel?.rooms?.length ? `${apiHotel.rooms.length} ${t('hotel.roomTypesAvailable', 'room types')}` : t('hotel.overview.roomsCount', '20 rooms'),
     checkIn: apiHotel?.policies?.checkIn || '3:00 PM',
     checkOut: apiHotel?.policies?.checkOut || '12:00 PM',
-    smoking: apiHotel?.policies?.smoking || t('hotel.overview.smokingPolicyVal', 'Non-smoking throughout the entire property'),
+    smoking: apiHotel?.policies?.smoking || t('hotel.overview.smokingPolicyVal', 'Non-smoking throughout property'),
     pets: apiHotel?.policies?.pets || t('hotel.overview.petsPolicyVal', 'Not allowed'),
     location:
       apiHotel?.address ||
-      '05 Rawdet al Ahram, Behind Le Meridien Pyramids St., Old Hadayek al Ahram – Haram – Giza – Egypt (close to the Pyramids of Giza)',
-    telephones: apiHotel?.phone ? [apiHotel.phone] : ['+2 02 33775511', '+2 02 33775522'],
-    cell: '(+2) 01149401111',
-    email: apiHotel?.email || 'info@solpyramid-egypt.com',
-    facebook: 'https://www.facebook.com/share/1aiB2ma5oi/',
-    instagram: 'https://www.instagram.com/solpyramidhotel',
-    website: apiHotel?.website || 'https://www.solpyramid-egypt.com/',
+      (apiHotel?.city ? `${apiHotel.city}, ${apiHotel.destinationSlug || ''}` : '05 Rawdet al Ahram, Haram, Giza, Egypt'),
+    telephones: apiHotel?.phone ? [apiHotel.phone] : ['+2 02 33775511'],
+    cell: apiHotel?.phone || '(+2) 01149401111',
+    email: apiHotel?.email || 'info@dunastravel.com',
+    facebook: 'https://www.facebook.com/dunastravel',
+    instagram: 'https://www.instagram.com/dunastravel',
+    website: apiHotel?.website || 'https://dunastravel.com/',
   };
 
   const defaultRoomTypes = [
@@ -585,7 +610,7 @@ const HotelDetails = () => {
 
           <div className="lg:w-1/2 min-h-[350px] rounded-2xl overflow-hidden shadow-inner border border-slate-200 relative">
             <iframe
-              src="https://maps.google.com/maps?q=29.98536,31.13627&t=&z=15&ie=UTF8&iwloc=&output=embed"
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(hotelInfo.location || `${hotelInfo.name}, ${apiHotel?.city || 'Egypt'}`)}&t=&z=14&ie=UTF8&iwloc=&output=embed`}
               width="100%"
               height="100%"
               frameBorder="0"
@@ -599,59 +624,61 @@ const HotelDetails = () => {
       </section>
 
       {/* Video Walkthrough */}
-      <section className="bg-slate-900 py-20 text-white border-y border-slate-800 text-center">
-        <div className="container mx-auto px-6 max-w-4xl">
-          <span className="text-gold-500 uppercase tracking-widest text-xs font-semibold block mb-2">
-            {t('hotel.video.subtitle', 'CINEMATIC TOUR')}
-          </span>
-          <h2 className="text-3xl md:text-5xl font-display font-semibold text-gold-400 mb-4">
-            {t('hotel.video.title', 'Video Walkthrough')}
-          </h2>
-          <p className="text-sm text-slate-300 max-w-xl mx-auto mb-10">
-            "{t(
-              'hotel.video.desc',
-              'Watch our exclusive video tour to experience the family atmosphere, elegant accommodations, and views of Sol Pyramid Hotel.'
-            )}"
-          </p>
+      {(apiHotel?.amenities?.youtubeId || currentSlug === 'sol-pyramid-hotel') && (
+        <section className="bg-slate-900 py-20 text-white border-y border-slate-800 text-center">
+          <div className="container mx-auto px-6 max-w-4xl">
+            <span className="text-gold-500 uppercase tracking-widest text-xs font-semibold block mb-2">
+              {t('hotel.video.subtitle', 'CINEMATIC TOUR')}
+            </span>
+            <h2 className="text-3xl md:text-5xl font-display font-semibold text-gold-400 mb-4">
+              {t('hotel.video.title', 'Video Walkthrough')}
+            </h2>
+            <p className="text-sm text-slate-300 max-w-xl mx-auto mb-10">
+              "{t(
+                'hotel.video.desc',
+                'Watch our exclusive video tour to experience the atmosphere, elegant accommodations, and views.'
+              )}"
+            </p>
 
-          <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl border border-slate-800 bg-black">
-            {isPlayingVideo ? (
-              <iframe
-                className="w-full h-full absolute inset-0"
-                src="https://www.youtube.com/embed/RFeQ5fjkYt8?autoplay=1"
-                title="Sol Pyramid Hotel Cinematic Video Tour"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
-            ) : (
-              <div
-                className="w-full h-full absolute inset-0 cursor-pointer group focus:outline-none focus:ring-2 focus:ring-gold-500"
-                onClick={() => setIsPlayingVideo(true)}
-                tabIndex={0}
-                role="button"
-                aria-label="Play Sol Pyramid Hotel Cinematic Video Tour"
-              >
-                <img
-                  src="https://img.youtube.com/vi/RFeQ5fjkYt8/hqdefault.jpg"
-                  alt="Sol Pyramid Hotel Cinematic Video Tour Placeholder"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                  width="800"
-                  height="450"
+            <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl border border-slate-800 bg-black">
+              {isPlayingVideo ? (
+                <iframe
+                  className="w-full h-full absolute inset-0"
+                  src={`https://www.youtube.com/embed/${apiHotel?.amenities?.youtubeId || 'RFeQ5fjkYt8'}?autoplay=1`}
+                  title={`${hotelInfo.name} Cinematic Video Tour`}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
                 />
-                <div className="absolute inset-0 bg-slate-950/30 group-hover:bg-slate-950/20 transition-colors flex items-center justify-center">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gold-500/90 text-slate-950 flex items-center justify-center shadow-2xl transition-transform duration-300 group-hover:scale-110 group-hover:bg-gold-400">
-                    <svg className="w-8 h-8 ml-1.5 fill-current" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
+              ) : (
+                <div
+                  className="w-full h-full absolute inset-0 cursor-pointer group focus:outline-none focus:ring-2 focus:ring-gold-500"
+                  onClick={() => setIsPlayingVideo(true)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Play ${hotelInfo.name} Cinematic Video Tour`}
+                >
+                  <img
+                    src={`https://img.youtube.com/vi/${apiHotel?.amenities?.youtubeId || 'RFeQ5fjkYt8'}/hqdefault.jpg`}
+                    alt={`${hotelInfo.name} Cinematic Video Tour Placeholder`}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                    width="800"
+                    height="450"
+                  />
+                  <div className="absolute inset-0 bg-slate-950/30 group-hover:bg-slate-950/20 transition-colors flex items-center justify-center">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gold-500/90 text-slate-950 flex items-center justify-center shadow-2xl transition-transform duration-300 group-hover:scale-110 group-hover:bg-gold-400">
+                      <svg className="w-8 h-8 ml-1.5 fill-current" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Gallery Section */}
       <section className="container mx-auto px-6 py-20 max-w-6xl text-left rtl:text-right">

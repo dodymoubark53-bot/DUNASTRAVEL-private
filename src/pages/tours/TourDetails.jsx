@@ -26,24 +26,13 @@ import RouteMap from '../../components/tour/RouteMap';
 import SuggestedTours from '../../components/tour/SuggestedTours';
 import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 
-const SLUG_ALIASES = {
-  'classic': 'complete-egypt-8d',
-  'classic-program': 'complete-egypt-8d',
-  'honeymoon-in-egypt': 'cairo-cruzeiro-sharm-11d',
-  'honeymooners': 'cairo-cruzeiro-sharm-11d',
-  'journey-of-the-holy-family-10-days': 'egito-historico-10d',
-  'egypt-jordan-combined-14d': 'jewels-of-egypt-and-jordan-11-days'
-};
-
 const TourDetails = () => {
   const { t, i18n } = useTranslation();
   const lang = i18n.language || 'en';
   const { formatPrice } = useCurrency();
   const params = useParams();
-  const rawSlug = params.slug || params['*'] || params.programId || 'complete-egypt-8d';
-  const cleanSlug = String(rawSlug).replace(/^classic\/?/, '').trim();
-  const resolvedSlug = SLUG_ALIASES[cleanSlug] || cleanSlug;
-  const slug = (!resolvedSlug || resolvedSlug === 'classic' || resolvedSlug === 'classic-program') ? 'complete-egypt-8d' : resolvedSlug;
+  const rawSlug = params.slug || params['*'] || params.programId || params.id;
+  const slug = rawSlug ? String(rawSlug).trim() : 'complete-egypt-8d';
 
   const { tour, loading, error } = useTour(slug);
   const tourDestination = tour ? getTourDestinationSlug(tour) : null;

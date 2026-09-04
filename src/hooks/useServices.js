@@ -18,16 +18,19 @@ function requireFiniteNumber(value, field, id, { positive = false } = {}) {
 }
 
 function transformHotelToService(hotel) {
-  if (!hotel?.id || !hotel?.slug || !hotel?.name || !hotel?.destinationSlug || !hotel?.city) {
+  if (!hotel?.id && !hotel?.slug) {
     throw new Error('Invalid hotel catalog item');
   }
-  const stars = requireFiniteNumber(hotel.stars, 'stars', hotel.id, { positive: true });
-  const pricePerNight = hotel.pricePerNight === null || hotel.pricePerNight === undefined
-    ? null
-    : requireFiniteNumber(hotel.pricePerNight, 'pricePerNight', hotel.id);
-  const rating = hotel.rating === null || hotel.rating === undefined
-    ? null
-    : requireFiniteNumber(hotel.rating, 'rating', hotel.id);
+  const id = hotel.id || hotel.slug;
+  const slug = hotel.slug || hotel.id;
+  const name = typeof hotel.name === 'object' ? (hotel.name.en || hotel.name.ar || Object.values(hotel.name)[0]) : (hotel.name || slug);
+  const stars = Number(hotel.stars) > 0 ? Number(hotel.stars) : 5;
+  const rawPrice = hotel.pricePerNight ?? hotel.price ?? 0;
+  const pricePerNight = Number(rawPrice) > 0 ? Number(rawPrice) : null;
+  const rating = Number(hotel.rating) > 0 ? Number(hotel.rating) : stars;
+  const city = hotel.city || 'Egypt';
+  const destinationSlug = hotel.destinationSlug || 'egypt';
+  const heroImage = hotel.heroImageUrl || hotel.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
   const amenities = Array.isArray(hotel.amenities)
     ? hotel.amenities
     : hotel.amenities && typeof hotel.amenities === 'object'
@@ -37,12 +40,15 @@ function transformHotelToService(hotel) {
       : [];
   return {
     ...hotel,
+    id,
+    slug,
     category: 'hotels',
-    title: hotel.name,
-    location: `${hotel.city} - ${hotel.destinationSlug}`,
-    images: hotel.heroImageUrl ? [hotel.heroImageUrl] : [],
-    image: hotel.heroImageUrl || null,
-    rating: rating || stars || 5,
+    title: name,
+    name,
+    location: `${city} - ${destinationSlug}`,
+    images: hotel.heroImageUrl ? [hotel.heroImageUrl] : [heroImage],
+    image: heroImage,
+    rating,
     stars,
     price: pricePerNight,
     pricePerNight,

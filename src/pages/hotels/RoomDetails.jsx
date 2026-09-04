@@ -32,15 +32,18 @@ import {
 import { useCurrency } from '../../context/CurrencyContext';
 import { useHotel } from '../../hooks/useHotels';
 import Button from '../../components/ui/Button';
+import SkeletonLoader from '../../components/ui/SkeletonLoader';
+import ErrorState from '../../components/ui/ErrorState';
 
 const RoomDetails = () => {
   const { t, i18n } = useTranslation();
-  const isRtl = i18n.dir() === 'rtl';
+  const isAr = (i18n.language || '').startsWith('ar');
+  const isRtl = i18n.dir?.() === 'rtl' || isAr;
   const { hotelSlug, roomSlug } = useParams();
   const location = useLocation();
   const { formatPrice } = useCurrency();
   const currentHotelSlug = hotelSlug || 'sol-pyramid-hotel';
-  const { hotel: apiHotel } = useHotel(currentHotelSlug);
+  const { hotel: apiHotel, loading, error } = useHotel(currentHotelSlug);
 
   const [activeImage, setActiveImage] = useState(null);
   const basePath = location.pathname.startsWith('/programs') ? '/programs' : '/services';
@@ -202,7 +205,7 @@ const RoomDetails = () => {
     return diff > 0 ? Math.ceil(diff / (1000 * 60 * 60 * 24)) : 1;
   })();
 
-  const unitPrice = Number(room.price) > 0 ? Number(room.price) : 75;
+  const unitPrice = Number(room?.price) > 0 ? Number(room.price) : 75;
   const estimatedTotal = nightsCount * unitPrice;
 
   const [reviews, setReviews] = useState([
@@ -226,6 +229,27 @@ const RoomDetails = () => {
     window.scrollTo(0, 0);
   }, [roomSlug]);
 
+  if (loading) {
+    return (
+      <div className="w-full bg-[#FAF9F5] dark:bg-obsidian-900 min-h-screen pt-32 pb-24 px-6 container mx-auto">
+        <SkeletonLoader count={4} />
+      </div>
+    );
+  }
+
+  if (error || (!loading && !apiHotel)) {
+    return (
+      <div className="w-full min-h-[60vh] flex items-center justify-center p-6">
+        <ErrorState
+          title={t('hotel.notFound', 'Hotel Not Found')}
+          message={error?.message || t('hotel.notFoundDesc', 'The requested hotel could not be found.')}
+          actionLabel={t('hotel.backToServices', 'Back to Services')}
+          actionLink={`${basePath}/hotels`}
+        />
+      </div>
+    );
+  }
+
   if (!room) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-obsidian-900 flex flex-col items-center justify-center p-6 text-slate-800 dark:text-slate-200">
@@ -235,7 +259,7 @@ const RoomDetails = () => {
         <p className="text-body-md mb-8">
           {t('hotel.room.notFoundDesc', 'The requested room type could not be loaded.')}
         </p>
-        <Link to={`${basePath}/hotels/sol-pyramid-hotel`}>
+        <Link to={`${basePath}/hotels/${hotelSlug || 'sol-pyramid-hotel'}`}>
           <Button variant="gold-glow">{t('hotel.room.backToHotel', 'Back to Hotel Details')}</Button>
         </Link>
       </div>
