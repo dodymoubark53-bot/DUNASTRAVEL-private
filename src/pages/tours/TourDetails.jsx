@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,14 +6,12 @@ import {
   FaChevronRight, FaClock, FaTag,
   FaCheck, FaTimes, FaMapMarkerAlt, FaBed, FaCheckCircle, FaUsers
 } from 'react-icons/fa';
-import TourCard from '../../components/tour/TourCard';
 import { fadeInUp } from '../../animations/variants';
 import BookingForm from '../../components/booking/BookingForm';
 import AdvancedBooking from '../../components/booking/AdvancedBooking';
 import { useCurrency } from '../../context/CurrencyContext';
 
 import { useTour } from '../../hooks/useTour';
-import { useTours } from '../../hooks/useTours';
 import { trackEvent } from '../../utils/analytics';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import ErrorState from '../../components/ui/ErrorState';
@@ -35,10 +33,6 @@ const TourDetails = () => {
   const slug = rawSlug ? String(rawSlug).trim() : 'complete-egypt-8d';
 
   const { tour, loading, error } = useTour(slug);
-  const tourDestination = tour ? getTourDestinationSlug(tour) : null;
-  const { tours: relatedToursList } = useTours(
-    tourDestination ? { destination: tourDestination, limit: 12 } : { limit: 12 }
-  );
 
   useEffect(() => {
     if (tour?.slug) {
@@ -46,26 +40,7 @@ const TourDetails = () => {
     }
   }, [tour?.slug]);
 
-  const shuffledTours = relatedToursList.filter(t => t.slug !== slug);
-
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const carouselRef = useRef(null);
-
-  useEffect(() => {
-    const el = carouselRef.current;
-    if (!el) return;
-    const id = setInterval(() => {
-      const itemW = el.querySelector('.related-carousel-item')?.offsetWidth || 300;
-      const gap = 24;
-      const step = itemW + gap;
-      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) {
-        el.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        el.scrollBy({ left: step, behavior: 'smooth' });
-      }
-    }, 3500);
-    return () => clearInterval(id);
-  }, []);
 
   if (loading) {
     return (
@@ -447,44 +422,6 @@ const TourDetails = () => {
 
       {tour?.slug && <ReviewsMap tourId={tour.slug} />}
 
-      {/* Related Tours */}
-      <section className="container mx-auto px-6 py-24">
-        <div className="text-center mb-16">
-          <h2 className="text-display-lg text-obsidian-900 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
-            {t('tourDetail.relatedTitle', 'You May Also Like')}
-          </h2>
-          <div className="w-24 h-1 bg-gold-500 mx-auto mb-4"></div>
-        </div>
-        <div className="related-carousel" ref={carouselRef}>
-          {shuffledTours.map((tour) => (
-            <div key={tour.id} className="related-carousel-item">
-              <TourCard tour={tour} />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <style>{`
-        .related-carousel {
-          display: flex;
-          overflow-x: auto;
-          gap: 24px;
-          padding-bottom: 16px;
-          scroll-snap-type: x mandatory;
-          -webkit-overflow-scrolling: touch;
-        }
-        .related-carousel-item {
-          flex: 0 0 auto;
-          width: 280px;
-          scroll-snap-align: start;
-        }
-        @media (min-width: 768px) {
-          .related-carousel-item { width: 320px; }
-        }
-        @media (min-width: 1024px) {
-          .related-carousel-item { width: 350px; }
-        }
-      `}</style>
       {/* Lightbox Modal */}
       <AnimatePresence>
         {isLightboxOpen && (
