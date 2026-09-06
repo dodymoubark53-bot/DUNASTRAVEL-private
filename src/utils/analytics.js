@@ -2,7 +2,7 @@
  * analytics.js — First-party Visitor Event Tracking Client
  * Sends privacy-aware visitor events to POST /api/analytics/events
  */
-import { resolveFullUrl } from './api';
+import api from './api';
 
 function getSessionId() {
   if (typeof window === 'undefined') return null;
@@ -58,14 +58,7 @@ export async function trackEvent(eventName, payload = {}) {
       properties: payload.properties,
     };
 
-    const url = resolveFullUrl('/analytics/events');
-
-    await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      keepalive: true,
-    }).catch(() => {});
+    await api.post('/analytics/events', body).catch(() => {});
   } catch (err) {
     // Non-blocking catch
     console.warn('[Analytics] Track event failed:', err);
