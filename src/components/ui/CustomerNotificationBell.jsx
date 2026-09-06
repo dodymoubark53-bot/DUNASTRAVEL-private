@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaBell, FaCheckDouble, FaCalendarCheck, FaCreditCard, FaQuestionCircle, FaTimes } from 'react-icons/fa';
+import { FaBell, FaCheckDouble, FaCalendarCheck, FaCreditCard, FaQuestionCircle, FaTimes, FaVolumeUp } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
@@ -118,15 +118,28 @@ export default function CustomerNotificationBell() {
             <span className="font-bold text-xs">
               {isRtl ? 'الإشعارات' : 'Notifications'} {unreadCount > 0 && `(${unreadCount})`}
             </span>
-            {unreadCount > 0 && (
+            <div className="flex items-center gap-2">
               <button
-                onClick={handleMarkAllRead}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  playNotificationSound();
+                }}
+                title={isRtl ? 'تجربة الصوت' : 'Test sound'}
                 className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold hover:underline flex items-center gap-1"
               >
-                <FaCheckDouble size={10} />
-                <span>{isRtl ? 'قراءة الكل' : 'Mark all read'}</span>
+                <FaVolumeUp size={10} />
+                <span>{isRtl ? 'تجربة الصوت' : 'Test sound'}</span>
               </button>
-            )}
+              {unreadCount > 0 && (
+                <button
+                  onClick={handleMarkAllRead}
+                  className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold hover:underline flex items-center gap-1"
+                >
+                  <FaCheckDouble size={10} />
+                  <span>{isRtl ? 'قراءة الكل' : 'Mark all read'}</span>
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="max-h-72 overflow-y-auto divide-y divide-gray-100 dark:divide-obsidian-800">
