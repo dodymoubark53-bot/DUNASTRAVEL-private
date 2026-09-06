@@ -615,6 +615,10 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route path="account" element={<Navigate to="/dashboard" replace />} />
+                <Route path="account/bookings" element={<Navigate to="/bookings" replace />} />
+                <Route path="account/profile" element={<Navigate to="/profile" replace />} />
+                <Route path="account/*" element={<Navigate to="/dashboard" replace />} />
                 <Route path="honeymooners" element={<PageTransition><Honeymooners /></PageTransition>} />
                 <Route path="honeymooners/:id" element={<PageTransition><TourDetails /></PageTransition>} />
                 <Route path="religious" element={<PageTransition><ReligiousTours /></PageTransition>} />

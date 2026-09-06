@@ -96,6 +96,17 @@ export default function CustomerNotificationBell() {
     setSelectedNotification(item);
   };
 
+  const resolveCustomerLink = (link) => {
+    if (!link || typeof link !== 'string') return null;
+    let clean = link.trim();
+    if (clean.startsWith('/account/bookings')) return '/bookings';
+    if (clean.startsWith('/account/profile')) return '/profile';
+    if (clean.startsWith('/account')) return '/dashboard';
+    if (clean.startsWith('/admin')) return null;
+    if (clean.startsWith('/')) return clean;
+    return '/' + clean;
+  };
+
   return (
     <div className="relative">
       <button
@@ -226,12 +237,12 @@ export default function CustomerNotificationBell() {
 
             {/* Modal Footer */}
             <div className="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 border-t border-gray-100 dark:border-obsidian-800 shrink-0">
-              {selectedNotification.deepLink && !selectedNotification.deepLink.startsWith('/admin') && (
+              {resolveCustomerLink(selectedNotification.deepLink) && (
                 <button
                   onClick={() => {
-                    const target = selectedNotification.deepLink;
+                    const target = resolveCustomerLink(selectedNotification.deepLink);
                     setSelectedNotification(null);
-                    if (target === '/dashboard' || target === '/bookings' || target.startsWith('/')) {
+                    if (target) {
                       navigate(target);
                     }
                   }}
