@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react';
 import api from '../utils/api';
+import { galleryImages as staticGalleryImages } from '../data/media';
 
-const DEFAULT_GALLERY_IMAGES = [
-  { url: 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=800&q=80', label: 'Cairo Pyramids', mimeType: 'image/jpeg' },
-  { url: 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=800&q=80', label: 'Nile Cruise', mimeType: 'image/jpeg' },
-  { url: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=800&q=80', label: 'Cappadocia Balloons', mimeType: 'image/jpeg' },
-  { url: 'https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg', label: 'Petra Wonder', mimeType: 'image/jpeg' },
-  { url: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80', label: 'Dubai Skyline', mimeType: 'image/jpeg' },
-  { url: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200', label: 'Morocco Medina', mimeType: 'image/jpeg' },
-  { url: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80', label: 'Siwa Oasis', mimeType: 'image/jpeg' },
-  { url: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80', label: 'Red Sea Diving', mimeType: 'image/jpeg' }
-];
+const DEFAULT_GALLERY_IMAGES = staticGalleryImages.slice(0, 22).map((img, idx) => ({
+  id: `gen-lib-${idx + 1}`,
+  url: img.src,
+  label: `المكتبة العامة - صورة ${idx + 1}`,
+  altText: `المكتبة العامة - صورة ${idx + 1}`,
+  mimeType: 'image/jpeg',
+  category: 'general'
+}));
 
 function normalizeAssets(response, isSpecific = false) {
   if (!Array.isArray(response) || response.length === 0) {

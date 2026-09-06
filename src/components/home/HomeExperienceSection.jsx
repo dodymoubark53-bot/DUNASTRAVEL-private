@@ -308,7 +308,7 @@ const HomeExperienceSection = () => {
   const [zoomScale, setZoomScale] = useState(1);
   const [isAllToursPopupOpen, setIsAllToursPopupOpen] = useState(false);
   const [activeVideo, setActiveVideo] = useState(null);
-  const { galleryImages = [], videos = [] } = useMedia();
+  const { galleryImages = [], videos = [] } = useMedia({ category: 'general' });
   const {
     tours: allLiveToursRaw,
     loading: toursLoading,
@@ -934,8 +934,9 @@ const HomeExperienceSection = () => {
     });
   }, [vehicleFilter, transportationList]);
 
-  // Shared galleryImages and videos retrieved from useMedia hook
-
+  const generalGalleryImages = useMemo(() => {
+    return (galleryImages || []).slice(0, 22);
+  }, [galleryImages]);
 
   const cloudName = 'degbrq3ck';
 
@@ -949,7 +950,7 @@ const HomeExperienceSection = () => {
     e.stopPropagation();
     setZoomScale(1);
     setActiveGalleryIndex((prev) =>
-      prev === galleryImages.length - 1 ? 0 : prev + 1,
+      prev === generalGalleryImages.length - 1 ? 0 : prev + 1,
     );
   };
 
@@ -957,7 +958,7 @@ const HomeExperienceSection = () => {
     e.stopPropagation();
     setZoomScale(1);
     setActiveGalleryIndex((prev) =>
-      prev === 0 ? galleryImages.length - 1 : prev - 1,
+      prev === 0 ? generalGalleryImages.length - 1 : prev - 1,
     );
   };
 
@@ -2192,9 +2193,9 @@ const HomeExperienceSection = () => {
             onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
           >
             {(() => {
-              const infiniteImages = buildInfiniteMarqueeList(galleryImages, 'gal');
+              const infiniteImages = buildInfiniteMarqueeList(generalGalleryImages, 'gal');
               return infiniteImages.map((img, idx) => {
-                const originalIndex = galleryImages.indexOf(img);
+                const originalIndex = generalGalleryImages.indexOf(img);
                 return (
                   <div
                     key={img.uKey || `gal-${idx}`}
@@ -2912,8 +2913,8 @@ const HomeExperienceSection = () => {
               animate={{ opacity: 1, scale: zoomScale }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.3 }}
-              src={galleryImages[activeGalleryIndex].url}
-              alt={galleryImages[activeGalleryIndex].label}
+              src={generalGalleryImages[activeGalleryIndex]?.url}
+              alt={generalGalleryImages[activeGalleryIndex]?.label}
               className="max-w-[90vw] max-h-[90vh] object-contain shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-md cursor-zoom-in"
               onClick={(e) => e.stopPropagation()}
               onWheel={(e) => {
@@ -2956,8 +2957,8 @@ const HomeExperienceSection = () => {
             <div className="absolute bottom-10 left-0 right-0 text-center text-ivory-50">
               <p className="font-display text-2xl mb-1">
                 {t(
-                  galleryImages[activeGalleryIndex].label,
-                  galleryImages[activeGalleryIndex].label,
+                  generalGalleryImages[activeGalleryIndex]?.label,
+                  generalGalleryImages[activeGalleryIndex]?.label,
                 )}
               </p>
               <p className="text-gold-500 tracking-widest text-xs uppercase">
