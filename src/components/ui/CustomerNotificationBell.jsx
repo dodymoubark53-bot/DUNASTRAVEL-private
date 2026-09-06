@@ -237,7 +237,23 @@ export default function CustomerNotificationBell() {
 
             {/* Modal Footer */}
             <div className="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 border-t border-gray-100 dark:border-obsidian-800 shrink-0">
-              {resolveCustomerLink(selectedNotification.deepLink) && (
+              <button
+                onClick={() => {
+                  const targetId = selectedNotification.id;
+                  setSelectedNotification(null);
+                  if (targetId) {
+                    navigate(`/notifications/${targetId}`);
+                  } else {
+                    navigate('/notifications');
+                  }
+                }}
+                className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-xl transition-all shadow-md active:scale-95 text-center flex items-center justify-center gap-1.5"
+              >
+                <FaBell size={12} />
+                <span>{isRtl ? 'الانتقال إلى الرابط (صفحة التفاصيل)' : 'Go to link (Notification Details)'}</span>
+              </button>
+
+              {resolveCustomerLink(selectedNotification.deepLink) && resolveCustomerLink(selectedNotification.deepLink) !== `/notifications/${selectedNotification.id}` && (
                 <button
                   onClick={() => {
                     const target = resolveCustomerLink(selectedNotification.deepLink);
@@ -246,11 +262,12 @@ export default function CustomerNotificationBell() {
                       navigate(target);
                     }
                   }}
-                  className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-xl transition-all shadow-md active:scale-95 text-center"
+                  className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all shadow-md active:scale-95 text-center"
                 >
-                  {isRtl ? 'الانتقال للرابط' : 'Go to link'}
+                  {isRtl ? 'الصفحة المرتبطة' : 'Related Page'}
                 </button>
               )}
+
               <button
                 onClick={() => setSelectedNotification(null)}
                 className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold bg-gray-100 dark:bg-obsidian-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-obsidian-700 rounded-xl transition-colors active:scale-95 text-center"
