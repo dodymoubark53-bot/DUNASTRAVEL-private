@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaBell, FaCheckDouble, FaCalendarCheck, FaCreditCard, FaQuestionCircle, FaTimes } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
+import { playNotificationSound } from '../../utils/sound';
 
 export default function CustomerNotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,6 +15,9 @@ export default function CustomerNotificationBell() {
   const { user } = useAuth();
   const { i18n } = useTranslation();
   const isRtl = i18n.dir() === 'rtl';
+
+  const isInitializedRef = useRef(false);
+  const prevUnreadCountRef = useRef(0);
 
   const fetchNotifications = useCallback(async () => {
     if (!user) {
@@ -28,7 +32,14 @@ export default function CustomerNotificationBell() {
         throw new Error('Invalid notification collection contract');
       }
       setNotifications(data.items);
+
+      if (isInitializedRef.current && data.unreadCount > prevUnreadCountRef.current) {
+        playNotificationSound();
+      }
+
       setUnreadCount(data.unreadCount);
+      prevUnreadCountRef.current = data.unreadCount;
+      isInitializedRef.current = true;
     } catch (err) {
       console.warn('Customer notification fetch failed', err);
     } finally {
@@ -53,7 +64,11 @@ export default function CustomerNotificationBell() {
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
       );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
+      setUnreadCount((prev) => {
+        const updated = Math.max(0, prev - 1);
+        prevUnreadCountRef.current = updated;
+        return updated;
+      });
     } catch (err) {
       console.warn('Failed to mark read', err);
     }
@@ -64,6 +79,7 @@ export default function CustomerNotificationBell() {
       await api.patch('/in-app-notifications/read-all');
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setUnreadCount(0);
+      prevUnreadCountRef.current = 0;
     } catch (err) {
       console.warn('Failed to mark all read', err);
     }
