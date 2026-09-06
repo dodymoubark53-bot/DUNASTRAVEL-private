@@ -79,4 +79,15 @@ describe('Destination Helper & Safe Error Boundary Handling', () => {
     expect(screen.getByText('Connection timed out')).toBeInTheDocument();
     expect(screen.getByText('Database Error')).toBeInTheDocument();
   });
+
+  it('maps Dubai tour catalog items accurately to destination dubai', () => {
+    const sampleDubaiTours = [
+      { id: 'REG-22', name: { ar: 'استراحة دبي وسفاري الصحراء', en: 'Dubai Stopover' }, country: 'United Arab Emirates' },
+      { id: 'REG-23', name: { ar: 'دبي مدينة المستقبل', en: 'Dubai City of Future' }, destination: 'UAE' }
+    ];
+    sampleDubaiTours.forEach((t) => {
+      const destSlug = resolveDestinationSlug(t.destination || t.country);
+      expect(destSlug).toBe('dubai');
+    });
+  });
 });

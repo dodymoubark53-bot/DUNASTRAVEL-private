@@ -20,6 +20,7 @@ import {
   homeJordanPreviewTours,
   homeDubaiPreviewTours,
 } from "../../data/homePreviewTours";
+import { dubaiTours } from "../../data/dubaiTours";
 import {
   resolveTourTitle,
   resolveTourDuration,
@@ -818,23 +819,80 @@ const HomeExperienceSection = () => {
     img: destination.image,
   }));
 
-  const slugify = (str) => str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  const slugify = (str) => String(str || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
+  const DEST_ALIASES = useMemo(() => ({
+    'united arab emirates': 'dubai',
+    'uae': 'dubai',
+    'emirates': 'dubai',
+    'holy land': 'holyland',
+    'holy-land': 'holyland',
+  }), []);
+
+  const normalizeDest = (d) => {
+    const clean = String(d || '').toLowerCase().trim();
+    return DEST_ALIASES[clean] || clean;
+  };
 
   const getToursForDest = (destId) => {
     const result = [];
+    const seenKeys = new Set();
 
-    const addTour = (tour, baseUrl) => {
-      const slug = tour.slug || slugify((tour.id || '') + "-" + (tour.title || ""));
-      result.push({ label: t(`tour.${tour.id}`, tour.title), url: `${baseUrl}/${slug}`, id: `tour-${slug}` });
+    const addTourItem = (tour, defaultBaseUrl = '/tours', defaultDest = '') => {
+      if (!tour) return;
+      const idStr = tour.id || tour.slug || '';
+      const rawTitle = tour.title || tour.name || '';
+      const titleStr = resolveLocalizedText(rawTitle, t, lang) || (typeof rawTitle === 'string' ? rawTitle : '') || idStr;
+      if (!idStr && !titleStr) return;
+
+      const enTitle = typeof rawTitle === 'object' ? (rawTitle.en || rawTitle.ar || '') : String(rawTitle || '');
+      const slugStr = tour.slug || slugify(`${idStr}-${enTitle || titleStr}`);
+      const destName = normalizeDest(tour.destination || tour.country || defaultDest);
+      const uniqueKey = `${destName}-${idStr || slugStr}`;
+      if (seenKeys.has(uniqueKey)) return;
+      seenKeys.add(uniqueKey);
+
+      let baseUrl = defaultBaseUrl;
+      if (destName === 'dubai') baseUrl = '/programs/dubai';
+      else if (destName === 'turkey') baseUrl = '/programs/turkey';
+      else if (destName === 'jordan') baseUrl = '/programs/jordan';
+
+      result.push({
+        id: `tour-${slugStr}`,
+        label: titleStr,
+        url: `${baseUrl}/${slugStr}`,
+      });
     };
 
-    if (destId === "all") {
-      allLiveTours.forEach((tour) => addTour(tour, "/tours"));
+    const targetDest = normalizeDest(destId);
+
+    if (targetDest === "dubai") {
+      (dubaiTours || []).forEach((tour) => addTourItem(tour, "/programs/dubai", "dubai"));
       return result;
     }
 
-    const filtered = allLiveTours.filter((tour) => tour.destination === destId);
-    filtered.forEach((tour) => addTour(tour, "/tours"));
+    if (targetDest === "all") {
+      (allLiveTours || []).forEach((tour) => addTourItem(tour, "/tours"));
+      (dubaiTours || []).forEach((tour) => addTourItem(tour, "/programs/dubai", "dubai"));
+      (homeTurkeyPreviewTours || []).forEach((tour) => addTourItem(tour, "/programs/turkey", "turkey"));
+      (homeJordanPreviewTours || []).forEach((tour) => addTourItem(tour, "/programs/jordan", "jordan"));
+      return result;
+    }
+
+    // 1. Live tours matching target destination alias
+    const filteredLive = (allLiveTours || []).filter((tour) => {
+      const tourDest = normalizeDest(tour.destination || tour.country);
+      return tourDest === targetDest || tourDest.includes(targetDest) || targetDest.includes(tourDest);
+    });
+    filteredLive.forEach((tour) => addTourItem(tour, "/tours", targetDest));
+
+    // 2. Local fallback datasets per destination
+    if (targetDest === "turkey") {
+      (homeTurkeyPreviewTours || []).forEach((tour) => addTourItem(tour, "/programs/turkey", "turkey"));
+    } else if (targetDest === "jordan") {
+      (homeJordanPreviewTours || []).forEach((tour) => addTourItem(tour, "/programs/jordan", "jordan"));
+    }
+
     return result;
   };
 
@@ -843,10 +901,10 @@ const HomeExperienceSection = () => {
   const handleSearch = () => {
     if (searchTour) {
       const found = destTours.find((tour) => tour.id === searchTour);
-      if (found) { window.location.href = found.url; return; }
+      if (found) { navigate(found.url); return; }
     }
     if (searchDest && searchDest !== "all") {
-      window.location.href = `/destinations/${searchDest}`;
+      navigate(`/destinations/${searchDest}`);
     }
   };
 
@@ -1085,7 +1143,16 @@ const HomeExperienceSection = () => {
                   <select
                     id="search-tour-input"
                     value={searchTour}
-                    onChange={(e) => setSearchTour(e.target.value)}
+                    onChange={(e) => {
+                      const selectedVal = e.target.value;
+                      setSearchTour(selectedVal);
+                      if (selectedVal) {
+                        const found = destTours.find((tour) => tour.id === selectedVal);
+                        if (found?.url) {
+                          navigate(found.url);
+                        }
+                      }
+                    }}
                     disabled={!searchDest || searchDest === "all"}
                     className="w-full px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg border border-white/30 bg-white/20 backdrop-blur-sm text-white text-[13px] sm:text-body-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35] appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed [&>option]:text-obsidian-900 [&>option]:dark:text-ivory-100 [&>option]:dark:bg-obsidian-800"
                   >

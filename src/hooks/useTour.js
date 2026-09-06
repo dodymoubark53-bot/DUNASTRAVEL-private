@@ -5,18 +5,44 @@ import { supportedLocale } from '../utils/locale';
 import { resolveDestinationSlug } from '../utils/destinationHelper';
 
 import canonicalDb from '../data/database/unified_52_tours.json';
+import { dubaiTours } from '../data/dubaiTours';
+import { homeTurkeyPreviewTours, homeJordanPreviewTours, homeDubaiPreviewTours } from '../data/homePreviewTours';
 
 const allStaticTours = canonicalDb.tours || [];
+
+const slugify = (text) => String(text || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
 export function getFallbackTour(slug, lang = 'en') {
   if (!slug) return null;
   const lowerSlug = String(slug).toLowerCase();
   
-  const match = allStaticTours.find(
+  let match = allStaticTours.find(
     (t) => String(t.slug || '').toLowerCase() === lowerSlug
       || String(t.id || '').toLowerCase() === lowerSlug
       || String(t.code?.en || t.code?.ar || t.code || '').toLowerCase() === lowerSlug,
   );
+
+  if (!match) {
+    const additionalDatasets = [
+      ...(dubaiTours || []),
+      ...(homeDubaiPreviewTours || []),
+      ...(homeTurkeyPreviewTours || []),
+      ...(homeJordanPreviewTours || []),
+    ];
+
+    match = additionalDatasets.find((t) => {
+      const idStr = String(t.id || '').toLowerCase();
+      const slugStr = String(t.slug || '').toLowerCase();
+      const enTitle = typeof t.name === 'object' ? (t.name.en || t.name.ar || '') : String(t.name || t.title || '');
+      const genSlug = slugify(`${t.id || ''}-${enTitle}`).toLowerCase();
+      const codeStr = typeof t.code === 'object' ? (t.code.en || t.code.ar || '') : String(t.code || '');
+
+      return lowerSlug === idStr
+        || lowerSlug === slugStr
+        || lowerSlug === genSlug
+        || (codeStr && lowerSlug === codeStr.toLowerCase());
+    });
+  }
 
   if (!match) return null;
 
@@ -33,13 +59,17 @@ export function getFallbackTour(slug, lang = 'en') {
       }).filter(Boolean);
     }
     if (typeof val === 'object' && val !== null) {
-      return (val[lang] || val.en || val.ar || []).map(item => String(item || '')).filter(Boolean);
+      const list = val[lang] || val.en || val.ar || val.es || Object.values(val)[0];
+      if (Array.isArray(list)) return list.map(item => String(item || '')).filter(Boolean);
     }
     return [];
   };
 
-  const price = Number(match.price || match.basePriceUsd || 0);
-  const images = Array.isArray(match.images) && match.images.length > 0 ? match.images : (match.heroImage ? [match.heroImage] : []);
+  const rawPrice = match.price || match.basePriceUsd || match.pricing?.winter?.[0]?.dbl || match.pricing?.summer?.[0]?.dbl || 490;
+  const price = Number(rawPrice);
+  const images = Array.isArray(match.images) && match.images.length > 0
+    ? match.images
+    : (match.heroImage ? [match.heroImage] : ['https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80']);
 
   const rawItinerary = Array.isArray(match.days)
     ? match.days
@@ -48,12 +78,14 @@ export function getFallbackTour(slug, lang = 'en') {
       : (match.itinerary?.[lang] || match.itinerary?.en || match.itinerary?.ar || []);
 
   const itinerary = rawItinerary.map((item, index) => ({
-    id: `day-${index + 1}`,
+    id: `day-${item.day || index + 1}`,
     day: item.day || index + 1,
-    title: resolveText(item.title) || `Day ${index + 1}`,
-    description: resolveText(item.description),
+    title: resolveText(item.title) || (lang === 'ar' ? `اليوم ${item.day || index + 1}` : `Day ${item.day || index + 1}`),
+    description: resolveText(item.description || item.desc),
     meals: resolveText(item.meals),
   }));
+
+  const destName = match.destination || match.country || (String(match.id).startsWith('REG-') || String(match.id).startsWith('HM') ? 'dubai' : 'egypt');
 
   return {
     ...match,
@@ -62,8 +94,8 @@ export function getFallbackTour(slug, lang = 'en') {
     title: resolveText(match.title || match.name),
     overview: resolveText(match.overview),
     duration: resolveText(match.duration),
-    country: match.country || match.destination || 'Egypt',
-    destination: resolveDestinationSlug(match.destination || match.country || 'egypt'),
+    country: match.country || (destName === 'dubai' ? 'United Arab Emirates' : 'Egypt'),
+    destination: resolveDestinationSlug(destName),
     images,
     heroImage: images[0] || '',
     price,
