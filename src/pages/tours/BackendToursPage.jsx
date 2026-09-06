@@ -8,7 +8,7 @@ import ErrorState from '../../components/ui/ErrorState';
 import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 
 /** A catalog page backed exclusively by GET /api/tours with pagination support. */
-export default function BackendToursPage({ titleKey, titleDefault, filters = {}, limit = 12 }) {
+export default function BackendToursPage({ titleKey, titleDefault, filters = {}, limit = 12, bgImage }) {
   const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
   const { tours, total, totalPages, page, hasNextPage, hasPrevPage, loading, error, retry } = useTours({
@@ -17,6 +17,12 @@ export default function BackendToursPage({ titleKey, titleDefault, filters = {},
     ...filters,
   });
   const title = t(titleKey, titleDefault);
+
+  const heroImage = bgImage || (
+    filters.category === 'Religious'
+      ? 'https://images.akhbarelyom.com/UP/20240601193248245.jpg'
+      : 'https://res.cloudinary.com/degbrq3ck/image/upload/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg'
+  );
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -34,7 +40,7 @@ export default function BackendToursPage({ titleKey, titleDefault, filters = {},
         badge={t('tours.catalogBadge', 'EXPLORE THE EXTRAORDINARY')}
         title={title}
         subtitle={total > 0 && !loading ? t('tours.totalCount', '{{total}} Luxury Journeys Available', { total }) : ''}
-        bgImage="https://res.cloudinary.com/degbrq3ck/image/upload/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg"
+        bgImage={heroImage}
         primaryCta={null}
         secondaryCta={null}
       />
