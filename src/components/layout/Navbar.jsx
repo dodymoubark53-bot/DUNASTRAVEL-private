@@ -405,11 +405,42 @@ const Navbar = () => {
               ✈ Tailor
             </Link>
             <button
-              className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all shadow-sm z-50 border-obsidian-300 dark:border-obsidian-600 text-obsidian-700 dark:text-ivory-50 bg-white dark:bg-obsidian-800 hover:text-[#C9A227] hover:border-[#C9A227] hover:bg-amber-50 dark:hover:bg-obsidian-700`}
+              className={`relative group w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 shadow-sm z-50 select-none cursor-pointer outline-none overflow-hidden shrink-0 ${
+                mobileMenuOpen
+                  ? "bg-gradient-to-br from-amber-500/25 via-amber-500/15 to-amber-500/30 border-amber-500 shadow-[0_0_25px_rgba(245,158,11,0.65)] text-amber-500 dark:text-amber-400"
+                  : "bg-white/90 dark:bg-obsidian-800/90 border-obsidian-300 dark:border-amber-500/40 text-obsidian-700 dark:text-amber-400 hover:border-amber-500 hover:text-amber-500 hover:shadow-[0_0_22px_rgba(245,158,11,0.5)] hover:scale-105 active:scale-95"
+              }`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             >
-              {mobileMenuOpen ? <FaTimes size={15} /> : <FaBars size={15} />}
+              {/* Ambient glow background */}
+              <span className="absolute inset-0 rounded-full bg-gradient-to-tr from-amber-500/20 to-amber-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm pointer-events-none" />
+              {/* Ripple ping effect on press */}
+              <span className="absolute inset-0 rounded-full bg-amber-500/40 opacity-0 group-active:opacity-100 group-active:animate-ping transition-all duration-150 pointer-events-none" />
+
+              {/* 3 Horizontal Lines inside Circle */}
+              <svg
+                className="w-5 h-5 relative z-10 transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(245,158,11,0.9)]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line
+                  x1="4" y1="6" x2="20" y2="6"
+                  className={`transition-all duration-300 origin-center ${mobileMenuOpen ? "translate-y-1.5 rotate-45 stroke-amber-500" : ""}`}
+                />
+                <line
+                  x1="4" y1="12" x2="20" y2="12"
+                  className={`transition-all duration-300 ${mobileMenuOpen ? "opacity-0 scale-x-0" : ""}`}
+                />
+                <line
+                  x1="4" y1="18" x2="20" y2="18"
+                  className={`transition-all duration-300 origin-center ${mobileMenuOpen ? "-translate-y-1.5 -rotate-45 stroke-amber-500" : ""}`}
+                />
+              </svg>
             </button>
           </div>
 
