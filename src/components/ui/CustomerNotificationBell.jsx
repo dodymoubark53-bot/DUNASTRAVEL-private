@@ -85,16 +85,14 @@ export default function CustomerNotificationBell() {
     }
   };
 
+  const [selectedNotification, setSelectedNotification] = useState(null);
+
   const handleItemClick = (item) => {
     if (!item.isRead) {
       handleMarkAsRead(item.id);
     }
     setIsOpen(false);
-    if (item.deepLink) {
-      navigate(item.deepLink);
-    } else {
-      navigate('/dashboard');
-    }
+    setSelectedNotification(item);
   };
 
   return (
@@ -172,6 +170,76 @@ export default function CustomerNotificationBell() {
                 </div>
               ))
             )}
+          </div>
+        </div>
+      )}
+
+      {/* NOTIFICATION DETAILS MODAL */}
+      {selectedNotification && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100000] flex items-center justify-center p-4"
+          onClick={() => setSelectedNotification(null)}
+        >
+          <div
+            className="bg-white dark:bg-obsidian-900 border border-gray-200 dark:border-obsidian-700 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 text-gray-900 dark:text-white relative"
+            dir={isRtl ? 'rtl' : 'ltr'}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-obsidian-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-base shrink-0">
+                  <FaBell />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white leading-snug">
+                    {selectedNotification.title}
+                  </h3>
+                  <span className="text-[10px] text-gray-400 block mt-0.5">
+                    {selectedNotification.createdAt
+                      ? new Date(selectedNotification.createdAt).toLocaleString(isRtl ? 'ar-EG' : 'en-US')
+                      : ''}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedNotification(null)}
+                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-obsidian-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center justify-center transition-colors"
+              >
+                <FaTimes size={13} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="py-2 space-y-3">
+              <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-200 leading-relaxed whitespace-pre-line bg-gray-50 dark:bg-obsidian-800/50 p-4 rounded-2xl border border-gray-100 dark:border-obsidian-800">
+                {selectedNotification.message}
+              </p>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="pt-2 flex items-center justify-end gap-2 border-t border-gray-100 dark:border-obsidian-800">
+              {selectedNotification.deepLink && !selectedNotification.deepLink.startsWith('/admin') && (
+                <button
+                  onClick={() => {
+                    const target = selectedNotification.deepLink;
+                    setSelectedNotification(null);
+                    if (target === '/dashboard' || target === '/bookings' || target.startsWith('/')) {
+                      navigate(target);
+                    }
+                  }}
+                  className="px-4 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-xl transition-all shadow-md"
+                >
+                  {isRtl ? 'الانتقال للرابط' : 'Go to link'}
+                </button>
+              )}
+              <button
+                onClick={() => setSelectedNotification(null)}
+                className="px-4 py-2 text-xs font-bold bg-gray-100 dark:bg-obsidian-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-obsidian-700 rounded-xl transition-colors"
+              >
+                {isRtl ? 'إغلاق' : 'Close'}
+              </button>
+            </div>
           </div>
         </div>
       )}
