@@ -60,17 +60,12 @@ export async function trackEvent(eventName, payload = {}) {
 
     const url = resolveFullUrl('/analytics/events');
 
-    if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
-      const blob = new Blob([JSON.stringify(body)], { type: 'application/json' });
-      navigator.sendBeacon(url, blob);
-    } else {
-      await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-        keepalive: true,
-      });
-    }
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      keepalive: true,
+    }).catch(() => {});
   } catch (err) {
     // Non-blocking catch
     console.warn('[Analytics] Track event failed:', err);
