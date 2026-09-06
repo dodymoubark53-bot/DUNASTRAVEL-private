@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { FaBell, FaCheckDouble, FaCalendarCheck, FaCreditCard, FaQuestionCircle, FaTimes, FaVolumeUp } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
@@ -111,7 +112,7 @@ export default function CustomerNotificationBell() {
       </button>
 
       {isOpen && (
-        <div className={`fixed sm:absolute top-16 sm:top-full ${isRtl ? 'left-3 sm:left-0' : 'right-3 sm:right-0'} mt-2 w-[calc(100vw-1.5rem)] sm:w-80 max-w-sm bg-white dark:bg-obsidian-900 border border-gray-200 dark:border-obsidian-700 rounded-2xl shadow-2xl z-[10000] overflow-hidden text-gray-900 dark:text-white transition-all`}>
+        <div className={`fixed sm:absolute top-16 sm:top-full ${isRtl ? 'left-3 sm:left-0' : 'right-3 sm:right-0'} mt-2 w-[calc(100vw-1.5rem)] sm:w-80 max-w-sm bg-white dark:bg-obsidian-900 border border-gray-200 dark:border-obsidian-700 rounded-2xl shadow-2xl z-[999999] overflow-hidden text-gray-900 dark:text-white transition-all`}>
           <div className="p-3 border-b border-gray-100 dark:border-obsidian-800 flex items-center justify-between bg-gray-50 dark:bg-obsidian-800/50">
             <span className="font-bold text-xs">
               {isRtl ? 'الإشعارات' : 'Notifications'} {unreadCount > 0 && `(${unreadCount})`}
@@ -174,14 +175,14 @@ export default function CustomerNotificationBell() {
         </div>
       )}
 
-      {/* NOTIFICATION DETAILS MODAL / MOBILE BOTTOM SHEET */}
-      {selectedNotification && (
+      {/* NOTIFICATION DETAILS MODAL / MOBILE BOTTOM SHEET (PORTAL TO DOCUMENT.BODY) */}
+      {selectedNotification && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed inset-0 bg-black/65 backdrop-blur-sm z-[100000] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto transition-all"
+          className="fixed inset-0 bg-black/75 backdrop-blur-md z-[9999999] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto transition-all"
           onClick={() => setSelectedNotification(null)}
         >
           <div
-            className="bg-white dark:bg-obsidian-900 border-t sm:border border-gray-200 dark:border-obsidian-700 rounded-t-3xl sm:rounded-3xl max-w-md w-full max-h-[85vh] sm:max-h-[85vh] flex flex-col p-4 sm:p-6 shadow-2xl space-y-3.5 text-gray-900 dark:text-white relative animate-in slide-in-from-bottom-5 sm:zoom-in-95 duration-200 my-0 sm:my-auto"
+            className="bg-white dark:bg-obsidian-900 border-t sm:border border-gray-200 dark:border-obsidian-700 rounded-t-3xl sm:rounded-3xl max-w-md w-full max-h-[85vh] sm:max-h-[85vh] flex flex-col p-4 sm:p-6 shadow-2xl space-y-3.5 text-gray-900 dark:text-white relative animate-in slide-in-from-bottom-5 sm:zoom-in-95 duration-200 my-0 sm:my-auto z-[10000000]"
             dir={isRtl ? 'rtl' : 'ltr'}
             onClick={(e) => e.stopPropagation()}
           >
@@ -247,7 +248,8 @@ export default function CustomerNotificationBell() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
