@@ -174,28 +174,34 @@ export default function CustomerNotificationBell() {
         </div>
       )}
 
-      {/* NOTIFICATION DETAILS MODAL */}
+      {/* NOTIFICATION DETAILS MODAL / MOBILE BOTTOM SHEET */}
       {selectedNotification && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100000] flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+          className="fixed inset-0 bg-black/65 backdrop-blur-sm z-[100000] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto transition-all"
           onClick={() => setSelectedNotification(null)}
         >
           <div
-            className="bg-white dark:bg-obsidian-900 border border-gray-200 dark:border-obsidian-700 rounded-2xl sm:rounded-3xl max-w-md w-full max-h-[85vh] flex flex-col p-4 sm:p-5 shadow-2xl space-y-3 text-gray-900 dark:text-white relative animate-in fade-in zoom-in-95 duration-200 my-auto"
+            className="bg-white dark:bg-obsidian-900 border-t sm:border border-gray-200 dark:border-obsidian-700 rounded-t-3xl sm:rounded-3xl max-w-md w-full max-h-[85vh] sm:max-h-[85vh] flex flex-col p-4 sm:p-6 shadow-2xl space-y-3.5 text-gray-900 dark:text-white relative animate-in slide-in-from-bottom-5 sm:zoom-in-95 duration-200 my-0 sm:my-auto"
             dir={isRtl ? 'rtl' : 'ltr'}
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Mobile Touch Bar */}
+            <div className="w-12 h-1 bg-gray-300 dark:bg-obsidian-700 rounded-full mx-auto -mt-1 mb-1 sm:hidden shrink-0" />
+
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-2.5 border-b border-gray-100 dark:border-obsidian-800 shrink-0">
-              <div className="flex items-center gap-2.5 min-w-0 flex-1 me-2">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-sm sm:text-base shrink-0">
+            <div className="flex items-start justify-between pb-3 border-b border-gray-100 dark:border-obsidian-800 shrink-0">
+              <div className="flex items-start gap-3 min-w-0 flex-1 me-2">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-base sm:text-lg shrink-0">
                   <FaBell />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white leading-snug truncate">
+                  <span className="inline-block px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-bold mb-1">
+                    {selectedNotification.category || (isRtl ? 'إشعار' : 'Notification')}
+                  </span>
+                  <h3 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white leading-snug break-words">
                     {selectedNotification.title}
                   </h3>
-                  <span className="text-[10px] text-gray-400 block mt-0.5 truncate">
+                  <span className="text-[10px] text-gray-400 block mt-1">
                     {selectedNotification.createdAt
                       ? new Date(selectedNotification.createdAt).toLocaleString(isRtl ? 'ar-EG' : 'en-US')
                       : ''}
@@ -204,21 +210,21 @@ export default function CustomerNotificationBell() {
               </div>
               <button
                 onClick={() => setSelectedNotification(null)}
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-100 dark:bg-obsidian-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center justify-center transition-colors shrink-0 active:scale-95"
+                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-obsidian-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center justify-center transition-colors shrink-0 active:scale-95"
               >
-                <FaTimes size={12} />
+                <FaTimes size={13} />
               </button>
             </div>
 
             {/* Modal Body */}
             <div className="py-1 overflow-y-auto flex-1 min-h-0 space-y-3">
-              <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-200 leading-relaxed whitespace-pre-line bg-gray-50 dark:bg-obsidian-800/50 p-3.5 sm:p-4 rounded-2xl border border-gray-100 dark:border-obsidian-800 break-words">
+              <div className="text-xs sm:text-sm text-gray-700 dark:text-gray-200 leading-relaxed whitespace-pre-line bg-gray-50 dark:bg-obsidian-800/50 p-4 rounded-2xl border border-gray-100 dark:border-obsidian-800 break-words">
                 {selectedNotification.message}
-              </p>
+              </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="pt-2 flex items-center justify-end gap-2 border-t border-gray-100 dark:border-obsidian-800 shrink-0">
+            <div className="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 border-t border-gray-100 dark:border-obsidian-800 shrink-0">
               {selectedNotification.deepLink && !selectedNotification.deepLink.startsWith('/admin') && (
                 <button
                   onClick={() => {
@@ -228,14 +234,14 @@ export default function CustomerNotificationBell() {
                       navigate(target);
                     }
                   }}
-                  className="px-3.5 sm:px-4 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-xl transition-all shadow-md active:scale-95"
+                  className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-xl transition-all shadow-md active:scale-95 text-center"
                 >
                   {isRtl ? 'الانتقال للرابط' : 'Go to link'}
                 </button>
               )}
               <button
                 onClick={() => setSelectedNotification(null)}
-                className="px-3.5 sm:px-4 py-2 text-xs font-bold bg-gray-100 dark:bg-obsidian-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-obsidian-700 rounded-xl transition-colors active:scale-95"
+                className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold bg-gray-100 dark:bg-obsidian-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-obsidian-700 rounded-xl transition-colors active:scale-95 text-center"
               >
                 {isRtl ? 'إغلاق' : 'Close'}
               </button>
