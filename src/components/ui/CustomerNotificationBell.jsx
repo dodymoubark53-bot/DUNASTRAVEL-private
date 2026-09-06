@@ -177,22 +177,22 @@ export default function CustomerNotificationBell() {
       {/* NOTIFICATION DETAILS MODAL */}
       {selectedNotification && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100000] flex items-center justify-center p-3 sm:p-4"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100000] flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
           onClick={() => setSelectedNotification(null)}
         >
           <div
-            className="bg-white dark:bg-obsidian-900 border border-gray-200 dark:border-obsidian-700 rounded-2xl sm:rounded-3xl max-w-md w-full max-h-[90vh] flex flex-col p-4 sm:p-6 shadow-2xl space-y-3 sm:space-y-4 text-gray-900 dark:text-white relative animate-in fade-in zoom-in-95 duration-200"
+            className="bg-white dark:bg-obsidian-900 border border-gray-200 dark:border-obsidian-700 rounded-2xl sm:rounded-3xl max-w-md w-full max-h-[85vh] flex flex-col p-4 sm:p-5 shadow-2xl space-y-3 text-gray-900 dark:text-white relative animate-in fade-in zoom-in-95 duration-200 my-auto"
             dir={isRtl ? 'rtl' : 'ltr'}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-obsidian-800 shrink-0">
+            <div className="flex items-center justify-between pb-2.5 border-b border-gray-100 dark:border-obsidian-800 shrink-0">
               <div className="flex items-center gap-2.5 min-w-0 flex-1 me-2">
                 <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-sm sm:text-base shrink-0">
                   <FaBell />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="font-bold text-xs sm:text-base text-gray-900 dark:text-white leading-snug truncate">
+                  <h3 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white leading-snug truncate">
                     {selectedNotification.title}
                   </h3>
                   <span className="text-[10px] text-gray-400 block mt-0.5 truncate">
@@ -211,7 +211,7 @@ export default function CustomerNotificationBell() {
             </div>
 
             {/* Modal Body */}
-            <div className="py-1 overflow-y-auto flex-1 max-h-[55vh] sm:max-h-[60vh] space-y-3">
+            <div className="py-1 overflow-y-auto flex-1 min-h-0 space-y-3">
               <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-200 leading-relaxed whitespace-pre-line bg-gray-50 dark:bg-obsidian-800/50 p-3.5 sm:p-4 rounded-2xl border border-gray-100 dark:border-obsidian-800 break-words">
                 {selectedNotification.message}
               </p>
