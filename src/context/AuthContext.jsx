@@ -176,13 +176,17 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * POST /api/auth/verify-email
-   * Body: { token }
+   * Body: { code, email } or { token }
    */
-  const verifyEmail = useCallback(async (tokenOrObj) => {
-    const payload =
-      typeof tokenOrObj === 'object' && tokenOrObj !== null
-        ? tokenOrObj
-        : { token: tokenOrObj };
+  const verifyEmail = useCallback(async (tokenOrCodeOrObj, emailParam) => {
+    let payload;
+    if (typeof tokenOrCodeOrObj === 'object' && tokenOrCodeOrObj !== null) {
+      payload = tokenOrCodeOrObj;
+    } else if (/^\d{6}$/.test(String(tokenOrCodeOrObj).trim())) {
+      payload = { code: String(tokenOrCodeOrObj).trim(), email: emailParam };
+    } else {
+      payload = { token: tokenOrCodeOrObj, email: emailParam };
+    }
 
     const data = await api.post('/auth/verify-email', payload);
     return data;
