@@ -246,6 +246,12 @@ function App() {
   React.useEffect(() => {
     window.scrollTo(0, 0);
     trackEvent('page_view', { pathname: location.pathname });
+
+    const interval = setInterval(() => {
+      trackEvent('heartbeat', { pathname: window.location.pathname });
+    }, 25000);
+
+    return () => clearInterval(interval);
   }, [location.pathname]);
 
   return (
