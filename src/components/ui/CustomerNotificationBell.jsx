@@ -111,7 +111,7 @@ export default function CustomerNotificationBell() {
       </button>
 
       {isOpen && (
-        <div className={`absolute top-full ${isRtl ? 'left-0' : 'right-0'} mt-2 w-72 sm:w-80 bg-white dark:bg-obsidian-900 border border-gray-200 dark:border-obsidian-700 rounded-2xl shadow-2xl z-[10000] overflow-hidden text-gray-900 dark:text-white`}>
+        <div className={`fixed sm:absolute top-16 sm:top-full ${isRtl ? 'left-3 sm:left-0' : 'right-3 sm:right-0'} mt-2 w-[calc(100vw-1.5rem)] sm:w-80 max-w-sm bg-white dark:bg-obsidian-900 border border-gray-200 dark:border-obsidian-700 rounded-2xl shadow-2xl z-[10000] overflow-hidden text-gray-900 dark:text-white transition-all`}>
           <div className="p-3 border-b border-gray-100 dark:border-obsidian-800 flex items-center justify-between bg-gray-50 dark:bg-obsidian-800/50">
             <span className="font-bold text-xs">
               {isRtl ? 'الإشعارات' : 'Notifications'} {unreadCount > 0 && `(${unreadCount})`}
@@ -123,7 +123,7 @@ export default function CustomerNotificationBell() {
                   playNotificationSound();
                 }}
                 title={isRtl ? 'تجربة الصوت' : 'Test sound'}
-                className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold hover:underline flex items-center gap-1"
+                className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold hover:underline flex items-center gap-1 active:scale-95"
               >
                 <FaVolumeUp size={10} />
                 <span>{isRtl ? 'تجربة الصوت' : 'Test sound'}</span>
@@ -131,7 +131,7 @@ export default function CustomerNotificationBell() {
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllRead}
-                  className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold hover:underline flex items-center gap-1"
+                  className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold hover:underline flex items-center gap-1 active:scale-95"
                 >
                   <FaCheckDouble size={10} />
                   <span>{isRtl ? 'قراءة الكل' : 'Mark all read'}</span>
@@ -140,7 +140,7 @@ export default function CustomerNotificationBell() {
             </div>
           </div>
 
-          <div className="max-h-72 overflow-y-auto divide-y divide-gray-100 dark:divide-obsidian-800">
+          <div className="max-h-72 sm:max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-obsidian-800">
             {loading && notifications.length === 0 ? (
               <div className="p-4 text-center text-xs text-gray-400">
                 {isRtl ? 'جاري التحميل...' : 'Loading...'}
@@ -156,7 +156,7 @@ export default function CustomerNotificationBell() {
                   onClick={() => handleItemClick(n)}
                   className={`p-3 text-left cursor-pointer hover:bg-amber-50/50 dark:hover:bg-obsidian-800/60 transition-colors ${!n.isRead ? 'bg-amber-500/10' : ''}`}
                 >
-                  <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center justify-between gap-2 mb-1">
                     <span className="font-bold text-xs text-amber-600 dark:text-amber-400 truncate">
                       {n.title}
                     </span>
@@ -164,7 +164,7 @@ export default function CustomerNotificationBell() {
                       <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
                     )}
                   </div>
-                  <p className="text-[11px] text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed">
+                  <p className="text-[11px] text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed break-words">
                     {n.message}
                   </p>
                 </div>
@@ -177,25 +177,25 @@ export default function CustomerNotificationBell() {
       {/* NOTIFICATION DETAILS MODAL */}
       {selectedNotification && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100000] flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100000] flex items-center justify-center p-3 sm:p-4"
           onClick={() => setSelectedNotification(null)}
         >
           <div
-            className="bg-white dark:bg-obsidian-900 border border-gray-200 dark:border-obsidian-700 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 text-gray-900 dark:text-white relative"
+            className="bg-white dark:bg-obsidian-900 border border-gray-200 dark:border-obsidian-700 rounded-2xl sm:rounded-3xl max-w-md w-full max-h-[90vh] flex flex-col p-4 sm:p-6 shadow-2xl space-y-3 sm:space-y-4 text-gray-900 dark:text-white relative animate-in fade-in zoom-in-95 duration-200"
             dir={isRtl ? 'rtl' : 'ltr'}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-obsidian-800">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-base shrink-0">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-obsidian-800 shrink-0">
+              <div className="flex items-center gap-2.5 min-w-0 flex-1 me-2">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-sm sm:text-base shrink-0">
                   <FaBell />
                 </div>
-                <div>
-                  <h3 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white leading-snug">
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-bold text-xs sm:text-base text-gray-900 dark:text-white leading-snug truncate">
                     {selectedNotification.title}
                   </h3>
-                  <span className="text-[10px] text-gray-400 block mt-0.5">
+                  <span className="text-[10px] text-gray-400 block mt-0.5 truncate">
                     {selectedNotification.createdAt
                       ? new Date(selectedNotification.createdAt).toLocaleString(isRtl ? 'ar-EG' : 'en-US')
                       : ''}
@@ -204,21 +204,21 @@ export default function CustomerNotificationBell() {
               </div>
               <button
                 onClick={() => setSelectedNotification(null)}
-                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-obsidian-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center justify-center transition-colors"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-100 dark:bg-obsidian-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center justify-center transition-colors shrink-0 active:scale-95"
               >
-                <FaTimes size={13} />
+                <FaTimes size={12} />
               </button>
             </div>
 
             {/* Modal Body */}
-            <div className="py-2 space-y-3">
-              <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-200 leading-relaxed whitespace-pre-line bg-gray-50 dark:bg-obsidian-800/50 p-4 rounded-2xl border border-gray-100 dark:border-obsidian-800">
+            <div className="py-1 overflow-y-auto flex-1 max-h-[55vh] sm:max-h-[60vh] space-y-3">
+              <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-200 leading-relaxed whitespace-pre-line bg-gray-50 dark:bg-obsidian-800/50 p-3.5 sm:p-4 rounded-2xl border border-gray-100 dark:border-obsidian-800 break-words">
                 {selectedNotification.message}
               </p>
             </div>
 
             {/* Modal Footer */}
-            <div className="pt-2 flex items-center justify-end gap-2 border-t border-gray-100 dark:border-obsidian-800">
+            <div className="pt-2 flex items-center justify-end gap-2 border-t border-gray-100 dark:border-obsidian-800 shrink-0">
               {selectedNotification.deepLink && !selectedNotification.deepLink.startsWith('/admin') && (
                 <button
                   onClick={() => {
@@ -228,14 +228,14 @@ export default function CustomerNotificationBell() {
                       navigate(target);
                     }
                   }}
-                  className="px-4 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-xl transition-all shadow-md"
+                  className="px-3.5 sm:px-4 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-xl transition-all shadow-md active:scale-95"
                 >
                   {isRtl ? 'الانتقال للرابط' : 'Go to link'}
                 </button>
               )}
               <button
                 onClick={() => setSelectedNotification(null)}
-                className="px-4 py-2 text-xs font-bold bg-gray-100 dark:bg-obsidian-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-obsidian-700 rounded-xl transition-colors"
+                className="px-3.5 sm:px-4 py-2 text-xs font-bold bg-gray-100 dark:bg-obsidian-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-obsidian-700 rounded-xl transition-colors active:scale-95"
               >
                 {isRtl ? 'إغلاق' : 'Close'}
               </button>
