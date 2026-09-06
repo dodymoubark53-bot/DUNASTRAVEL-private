@@ -407,14 +407,14 @@ const Navbar = () => {
             <button
               className={`relative group w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 shadow-sm z-50 select-none cursor-pointer outline-none overflow-hidden shrink-0 ${
                 mobileMenuOpen
-                  ? "bg-gradient-to-br from-amber-500/25 via-amber-500/15 to-amber-500/30 border-amber-500 shadow-[0_0_25px_rgba(245,158,11,0.65)] text-amber-500 dark:text-amber-400"
+                  ? "bg-linear-to-br from-amber-500/25 via-amber-500/15 to-amber-500/30 border-amber-500 shadow-[0_0_25px_rgba(245,158,11,0.65)] text-amber-500 dark:text-amber-400"
                   : "bg-white/90 dark:bg-obsidian-800/90 border-obsidian-300 dark:border-amber-500/40 text-obsidian-700 dark:text-amber-400 hover:border-amber-500 hover:text-amber-500 hover:shadow-[0_0_22px_rgba(245,158,11,0.5)] hover:scale-105 active:scale-95"
               }`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             >
               {/* Ambient glow background */}
-              <span className="absolute inset-0 rounded-full bg-gradient-to-tr from-amber-500/20 to-amber-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm pointer-events-none" />
+              <span className="absolute inset-0 rounded-full bg-linear-to-tr from-amber-500/20 to-amber-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm pointer-events-none" />
               {/* Ripple ping effect on press */}
               <span className="absolute inset-0 rounded-full bg-amber-500/40 opacity-0 group-active:opacity-100 group-active:animate-ping transition-all duration-150 pointer-events-none" />
 
