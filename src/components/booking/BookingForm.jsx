@@ -125,6 +125,12 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
       const rawIntent = sessionStorage.getItem('dunas_pending_booking_intent');
       if (rawIntent) {
         const intent = JSON.parse(rawIntent);
+        const isExpired = !intent?.timestamp || Date.now() - intent.timestamp > 30 * 60 * 1000;
+        if (isExpired) {
+          sessionStorage.removeItem('dunas_pending_booking_intent');
+          return;
+        }
+
         const isMatch =
           intent?.tourId === bookingTourKey ||
           intent?.tourSlug === tourSlug ||
@@ -463,7 +469,7 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
                 : t('booking.successDesc', 'Our private travel concierge will reach out to you within 24 hours.')}
             </p>
 
-            {bookingResult.type === 'booking' && bookingResult.invoiceNumber && (
+            {bookingResult.type === 'booking' && (
               <button
                 type="button"
                 onClick={(e) => {

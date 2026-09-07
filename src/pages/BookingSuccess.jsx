@@ -25,11 +25,22 @@ const BookingSuccess = () => {
   const [showInvoice, setShowInvoice] = useState(false);
   const [bookingData, setBookingData] = useState(null);
 
+  const isUUID = (val) =>
+    typeof val === 'string' &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+
   useEffect(() => {
     let isMounted = true;
     let pollCount = 0;
     const maxPolls = 20;
     let timerId;
+    let activePaymentId = isUUID(paymentId) ? paymentId : null;
+
+    // Fail-fast if provider callback explicitly indicates decline/cancellation
+    if (callbackSuccess !== null && ['0', 'false', false, 0].includes(callbackSuccess)) {
+      setPaymentStatus('FAILED');
+      return undefined;
+    }
 
     const verifyStatus = async () => {
       const hasSignedCallback = Boolean(
@@ -39,14 +50,14 @@ const BookingSuccess = () => {
           callbackMessage !== null &&
           callbackSignature,
       );
-      if (!paymentId && !hasSignedCallback) {
+      if (!activePaymentId && !hasSignedCallback) {
         if (isMounted) setPaymentStatus('FAILED');
         return;
       }
 
       try {
-        const res = paymentId
-          ? await api.get(`/payments/${encodeURIComponent(paymentId)}/status`)
+        const res = activePaymentId
+          ? await api.get(`/payments/${encodeURIComponent(activePaymentId)}/status`)
           : await api.post('/payments/callback/getpayin', {
               success: callbackSuccess,
               invoice_id: callbackInvoiceId,
@@ -54,11 +65,16 @@ const BookingSuccess = () => {
               message: callbackMessage,
               signature: callbackSignature,
             });
+
+        if (res?.paymentId && isUUID(res.paymentId)) {
+          activePaymentId = res.paymentId;
+        }
+
         const status = (res?.status || res?.paymentStatus || 'PENDING').toUpperCase();
         const invNum = res?.invoiceNumber || res?.invoice?.invoiceNumber;
 
         if (isMounted) {
-          setInvoiceNumber(invNum || null);
+          if (invNum) setInvoiceNumber(invNum);
           if (res?.booking) setBookingData(res.booking);
 
           if (status === 'CAPTURED' || status === 'SUCCEEDED' || status === 'PAID' || status === 'CONFIRMED') {
@@ -70,6 +86,8 @@ const BookingSuccess = () => {
             if (pollCount < maxPolls) {
               pollCount++;
               timerId = setTimeout(verifyStatus, 1500);
+            } else {
+              setPaymentStatus('FAILED');
             }
           } else {
             setPaymentStatus('FAILED');
