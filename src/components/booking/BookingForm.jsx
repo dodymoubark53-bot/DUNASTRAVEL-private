@@ -323,6 +323,21 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
       );
       return;
     }
+
+    const totalTravelers = Number(b.adults || 0) + Number(b.children || 0);
+    if (
+      selectedAvailability?.remainingSeats !== undefined &&
+      selectedAvailability.remainingSeats !== null &&
+      selectedAvailability.remainingSeats < totalTravelers
+    ) {
+      setError(
+        t(
+          'booking.insufficientSeats',
+          `Only ${selectedAvailability.remainingSeats} seat(s) remaining for this departure. Please adjust traveler count or select another date.`
+        )
+      );
+      return;
+    }
     setStatus('submitting');
     try {
       const payload = omitEmptyFields({
