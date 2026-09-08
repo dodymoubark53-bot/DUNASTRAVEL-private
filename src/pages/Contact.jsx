@@ -16,8 +16,7 @@ import {
   FaStar, 
   FaPaperPlane,
   FaChevronDown,
-  FaQuestionCircle,
-  FaHeadset
+  FaQuestionCircle
 } from 'react-icons/fa';
 import { staggerContainer, fadeInUp } from '../animations/variants';
 import Button from '../components/ui/Button';
@@ -34,27 +33,43 @@ const Contact = () => {
   const [selectedSubject, setSelectedSubject] = useState('bespoke');
   const [activeFaq, setActiveFaq] = useState(null);
 
-  // Live clocks for international offices
+  // High-Precision Live Clocks (Egypt 🇪🇬, Spain 🇪🇸, Portugal 🇵🇹)
   const [clocks, setClocks] = useState({
-    cairo: '',
-    dubai: '',
-    madrid: ''
+    cairo: { time: '', date: '', status: 'open' },
+    spain: { time: '', date: '', status: 'open' },
+    portugal: { time: '', date: '', status: 'open' }
   });
 
   useEffect(() => {
     const updateTimes = () => {
       const now = new Date();
-      const options = { hour: '2-digit', minute: '2-digit', hour12: true };
+      const formatTZ = (timeZone) => {
+        const time = now.toLocaleTimeString('en-US', {
+          timeZone,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
+        });
+        const date = now.toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
+          timeZone,
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric'
+        });
+        return { time, date };
+      };
+
       setClocks({
-        cairo: now.toLocaleTimeString('en-US', { ...options, timeZone: 'Africa/Cairo' }),
-        dubai: now.toLocaleTimeString('en-US', { ...options, timeZone: 'Asia/Dubai' }),
-        madrid: now.toLocaleTimeString('en-US', { ...options, timeZone: 'Europe/Madrid' })
+        cairo: formatTZ('Africa/Cairo'),
+        spain: formatTZ('Europe/Madrid'),
+        portugal: formatTZ('Europe/Lisbon')
       });
     };
     updateTimes();
-    const interval = setInterval(updateTimes, 30000);
+    const interval = setInterval(updateTimes, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [i18n.language]);
 
   const copyToClipboard = (text, key) => {
     navigator.clipboard.writeText(text);
@@ -96,9 +111,9 @@ const Contact = () => {
       </Helmet>
 
       {/* ========================================================================= */}
-      {/* 1. HERO SECTION WITH DYNAMIC PARALLAX & AMBIENT LIGHTING */}
+      {/* 1. HERO SECTION WITH DYNAMIC PARALLAX & HIGH-VISIBILITY WORLD CLOCKS */}
       {/* ========================================================================= */}
-      <section className="relative min-h-[65vh] md:min-h-[72vh] pt-36 pb-24 flex items-center justify-center overflow-hidden px-4">
+      <section className="relative min-h-[70vh] md:min-h-[78vh] pt-36 pb-24 flex items-center justify-center overflow-hidden px-4">
         {/* Background Image with Cinematic Overlay */}
         <div className="absolute inset-0 z-0">
           <img
@@ -148,27 +163,113 @@ const Contact = () => {
             {t('contact.heroSubtitle', 'نحن هنا لتصميم أدق تفاصيل رحلتك المخصصة لمصر والشرق الأوسط، بخدمة كونسيرج على أعلى مستوى على مدار الساعة.')}
           </motion.p>
 
-          {/* World Clocks Bar */}
+          {/* Ultra High-Visibility Live World Clocks (Egypt 🇪🇬, Spain 🇪🇸, Portugal 🇵🇹) */}
           <motion.div 
             variants={fadeInUp}
-            className="mt-10 inline-flex flex-wrap items-center justify-center gap-4 sm:gap-8 px-6 py-3 rounded-2xl bg-slate-900/80 border border-gold-500/30 backdrop-blur-md text-xs sm:text-sm text-ivory-200 shadow-xl"
+            className="mt-12 max-w-4xl mx-auto"
           >
-            <div className="flex items-center gap-2">
-              <span className="text-base">🇪🇬</span>
-              <span className="font-semibold text-gold-400">{t('contact.cairo', 'القاهرة')}:</span>
-              <span className="font-mono text-ivory-100">{clocks.cairo || '12:00 PM'}</span>
+            {/* Clocks Header Tag */}
+            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-slate-900/90 border border-gold-500/50 text-gold-300 text-xs sm:text-sm font-bold tracking-wider uppercase mb-5 shadow-xl backdrop-blur-xl">
+              <FaClock className="text-gold-400 text-base" />
+              <span>{t('contact.worldClocksHeader', 'التوقيت المحلي الحي لمكاتبنا الدولية')}</span>
             </div>
-            <div className="hidden sm:block w-px h-4 bg-gold-500/30"></div>
-            <div className="flex items-center gap-2">
-              <span className="text-base">🇦🇪</span>
-              <span className="font-semibold text-gold-400">{t('contact.dubai', 'دبي')}:</span>
-              <span className="font-mono text-ivory-100">{clocks.dubai || '02:00 PM'}</span>
-            </div>
-            <div className="hidden sm:block w-px h-4 bg-gold-500/30"></div>
-            <div className="flex items-center gap-2">
-              <span className="text-base">🇪🇸</span>
-              <span className="font-semibold text-gold-400">{t('contact.madrid', 'مدريد')}:</span>
-              <span className="font-mono text-ivory-100">{clocks.madrid || '11:00 AM'}</span>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+              {/* Egypt Clock Card */}
+              <div className="relative bg-gradient-to-b from-slate-900/95 to-slate-950/95 border-2 border-gold-500/60 rounded-3xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.7)] backdrop-blur-2xl hover:border-gold-400 hover:shadow-[0_0_30px_rgba(212,175,55,0.35)] transition-all duration-300 transform hover:-translate-y-1 flex flex-col items-center justify-between group overflow-hidden">
+                <div className="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-red-600 via-amber-400 to-black"></div>
+                <div className="flex items-center justify-between w-full mb-3 pb-3 border-b border-slate-800/80">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl filter drop-shadow">🇪🇬</span>
+                    <div className="text-right">
+                      <h4 className="font-extrabold text-base text-gold-300 tracking-wide">{t('contact.clockEgypt', 'مصر')}</h4>
+                      <p className="text-xs text-ivory-200/90 font-medium">{t('contact.cairoCity', 'القاهرة — المقر الرئيسي')}</p>
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-gold-500/20 text-gold-300 border border-gold-500/40">UTC+3</span>
+                </div>
+
+                <div className="my-3 text-center w-full">
+                  <div className="font-mono text-3xl sm:text-4xl font-black text-ivory-50 tracking-wider drop-shadow-[0_0_18px_rgba(212,175,55,0.6)]">
+                    {clocks.cairo.time || '12:00:00 PM'}
+                  </div>
+                  <div className="text-xs text-gold-300/90 font-medium mt-1.5">
+                    {clocks.cairo.date}
+                  </div>
+                </div>
+
+                <div className="w-full mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-center gap-2 text-xs font-bold text-emerald-400">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                  </span>
+                  <span>{t('contact.officeOpen24', 'مقر القاهرة — خدمة 24h')}</span>
+                </div>
+              </div>
+
+              {/* Spain Clock Card */}
+              <div className="relative bg-gradient-to-b from-slate-900/95 to-slate-950/95 border-2 border-gold-500/60 rounded-3xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.7)] backdrop-blur-2xl hover:border-gold-400 hover:shadow-[0_0_30px_rgba(212,175,55,0.35)] transition-all duration-300 transform hover:-translate-y-1 flex flex-col items-center justify-between group overflow-hidden">
+                <div className="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-red-600 via-yellow-400 to-red-600"></div>
+                <div className="flex items-center justify-between w-full mb-3 pb-3 border-b border-slate-800/80">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl filter drop-shadow">🇪🇸</span>
+                    <div className="text-right">
+                      <h4 className="font-extrabold text-base text-gold-300 tracking-wide">{t('contact.clockSpain', 'إسبانيا')}</h4>
+                      <p className="text-xs text-ivory-200/90 font-medium">{t('contact.madridCity', 'مدريد — فرع أوروبا')}</p>
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-gold-500/20 text-gold-300 border border-gold-500/40">UTC+2</span>
+                </div>
+
+                <div className="my-3 text-center w-full">
+                  <div className="font-mono text-3xl sm:text-4xl font-black text-ivory-50 tracking-wider drop-shadow-[0_0_18px_rgba(212,175,55,0.6)]">
+                    {clocks.spain.time || '11:00:00 AM'}
+                  </div>
+                  <div className="text-xs text-gold-300/90 font-medium mt-1.5">
+                    {clocks.spain.date}
+                  </div>
+                </div>
+
+                <div className="w-full mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-center gap-2 text-xs font-bold text-amber-400">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+                  </span>
+                  <span>{t('contact.spainDeskActive', 'فرع مدريد — متاح الآن')}</span>
+                </div>
+              </div>
+
+              {/* Portugal Clock Card */}
+              <div className="relative bg-gradient-to-b from-slate-900/95 to-slate-950/95 border-2 border-gold-500/60 rounded-3xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.7)] backdrop-blur-2xl hover:border-gold-400 hover:shadow-[0_0_30px_rgba(212,175,55,0.35)] transition-all duration-300 transform hover:-translate-y-1 flex flex-col items-center justify-between group overflow-hidden">
+                <div className="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-green-600 via-red-600 to-amber-400"></div>
+                <div className="flex items-center justify-between w-full mb-3 pb-3 border-b border-slate-800/80">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl filter drop-shadow">🇵🇹</span>
+                    <div className="text-right">
+                      <h4 className="font-extrabold text-base text-gold-300 tracking-wide">{t('contact.clockPortugal', 'البرتغال')}</h4>
+                      <p className="text-xs text-ivory-200/90 font-medium">{t('contact.lisbonCity', 'لشبونة — مكتب الاتصال')}</p>
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-gold-500/20 text-gold-300 border border-gold-500/40">UTC+1</span>
+                </div>
+
+                <div className="my-3 text-center w-full">
+                  <div className="font-mono text-3xl sm:text-4xl font-black text-ivory-50 tracking-wider drop-shadow-[0_0_18px_rgba(212,175,55,0.6)]">
+                    {clocks.portugal.time || '10:00:00 AM'}
+                  </div>
+                  <div className="text-xs text-gold-300/90 font-medium mt-1.5">
+                    {clocks.portugal.date}
+                  </div>
+                </div>
+
+                <div className="w-full mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-center gap-2 text-xs font-bold text-emerald-400">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                  </span>
+                  <span>{t('contact.portugalDeskActive', 'مكتب لشبونة — متاح الآن')}</span>
+                </div>
+              </div>
             </div>
           </motion.div>
         </motion.div>
