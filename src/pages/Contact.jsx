@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaPhone, 
   FaWhatsapp, 
@@ -14,7 +14,10 @@ import {
   FaCheck, 
   FaGlobe, 
   FaStar, 
-  FaPaperPlane 
+  FaPaperPlane,
+  FaChevronDown,
+  FaQuestionCircle,
+  FaHeadset
 } from 'react-icons/fa';
 import { staggerContainer, fadeInUp } from '../animations/variants';
 import Button from '../components/ui/Button';
@@ -28,6 +31,8 @@ const Contact = () => {
   const [feedback, setFeedback] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(null);
+  const [selectedSubject, setSelectedSubject] = useState('bespoke');
+  const [activeFaq, setActiveFaq] = useState(null);
 
   // Live clocks for international offices
   const [clocks, setClocks] = useState({
@@ -58,6 +63,31 @@ const Contact = () => {
     setTimeout(() => setCopiedEmail(null), 2500);
   };
 
+  const subjects = [
+    { id: 'bespoke', label: t('contact.subjBespoke', 'برنامج رحلة مخصص') },
+    { id: 'nile', label: t('contact.subjNile', 'مصر والكروز النيلي') },
+    { id: 'multi', label: t('contact.subjMulti', 'برنامج متعدد الدول') },
+    { id: 'b2b', label: t('contact.subjB2b', 'شراكة وكالات السفر (B2B)') }
+  ];
+
+  const faqs = [
+    {
+      id: 1,
+      q: t('contact.faq1Q', 'كم يستغرق رد مستشار السفر على استفساري؟'),
+      a: t('contact.faq1A', 'نضمن الرد الفوري عبر محادثة الواتساب المباشرة على مدار 24 ساعة، أو خلال أقل من 15 دقيقة عبر البريد الإلكتروني والنماذج الرسمية.')
+    },
+    {
+      id: 2,
+      q: t('contact.faq2Q', 'هل يمكن تصميم وتنسيق رحلات تجمع بين أكثر من دولة؟'),
+      a: t('contact.faq2A', 'بالتأكيد، تمتاز Dunas Travel بالخبرة العالية في تنظيم البرامج المشتركة مثل (مصر والأردن)، (مصر والإمارات)، و(التركيا واليونان) شاملة الطيران والإقامة والتنقلات الخاصة.')
+    },
+    {
+      id: 3,
+      q: t('contact.faq3Q', 'هل توجد خدمات مخصصة لشركات ووكالات السفر العالمية (B2B)؟'),
+      a: t('contact.faq3A', 'نعم، نوفر بوابات مخصصة لشركات السفر المعتمدة برقم ترخيص وزاري 1882، مع عروض أسعار تنافسية ونظام كونسيرج خاص بالوكلاء.')
+    }
+  ];
+
   return (
     <div className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-ivory-50 min-h-screen selection:bg-gold-500 selection:text-obsidian-950 transition-colors duration-300">
       <Helmet>
@@ -68,7 +98,7 @@ const Contact = () => {
       {/* ========================================================================= */}
       {/* 1. HERO SECTION WITH DYNAMIC PARALLAX & AMBIENT LIGHTING */}
       {/* ========================================================================= */}
-      <section className="relative min-h-[62vh] md:min-h-[70vh] pt-36 pb-24 flex items-center justify-center overflow-hidden px-4">
+      <section className="relative min-h-[65vh] md:min-h-[72vh] pt-36 pb-24 flex items-center justify-center overflow-hidden px-4">
         {/* Background Image with Cinematic Overlay */}
         <div className="absolute inset-0 z-0">
           <img
@@ -382,9 +412,30 @@ const Contact = () => {
               <h3 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 dark:text-ivory-50 mb-2">
                 {t('contact.sendMessage', 'أرسل رسالتك مباشرة')}
               </h3>
-              <p className="text-sm text-slate-600 dark:text-ivory-300/80 mb-8 font-light leading-relaxed">
+              <p className="text-sm text-slate-600 dark:text-ivory-300/80 mb-6 font-light leading-relaxed">
                 {t('contact.formDesc', 'يسعدنا الإجابة على جميع تساؤلاتك وتصميم برنامج رحلتك بما يتناسب مع رغباتك.')}
               </p>
+
+              {/* Subject Choice Chips */}
+              <div className="mb-6">
+                <label className="block text-xs uppercase tracking-wider text-slate-700 dark:text-ivory-300 font-medium mb-2">{t('contact.selectSubjectLabel', 'نوع الاستفسار والرحلة')}</label>
+                <div className="flex flex-wrap gap-2">
+                  {subjects.map((subj) => (
+                    <button
+                      key={subj.id}
+                      type="button"
+                      onClick={() => setSelectedSubject(subj.id)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                        selectedSubject === subj.id
+                          ? 'bg-gold-500 text-obsidian-950 shadow-md font-bold'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-ivory-200 hover:bg-gold-500/20'
+                      }`}
+                    >
+                      {subj.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
               
               {feedback && (
                 <div className="mb-6">
@@ -402,6 +453,7 @@ const Contact = () => {
                 const email = form.email.value;
                 const phone = form.phone.value;
                 const message = form.message.value;
+                const subjectText = subjects.find(s => s.id === selectedSubject)?.label || 'General Inquiry';
                 
                 try {
                   const { default: api } = await import('../utils/api');
@@ -410,7 +462,7 @@ const Contact = () => {
                     lastName,
                     email,
                     phone: phone || undefined,
-                    subject: 'Contact Form Submission',
+                    subject: `[${subjectText}] Contact Form Submission`,
                     message: message.length >= 10 ? message : `${message} (Inquiry)`,
                     locale: String(i18n.language || 'en').toLowerCase().split('-')[0],
                   };
@@ -517,7 +569,57 @@ const Contact = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 5. THE DUNAS LUXURY GUARANTEE BADGES */}
+      {/* 5. INTERACTIVE FAQ ACCORDION SECTION */}
+      {/* ========================================================================= */}
+      <section className="container mx-auto px-4 sm:px-6 mb-20 relative z-20">
+        <div className="text-center mb-12">
+          <span className="text-gold-600 dark:text-gold-400 text-xs font-bold uppercase tracking-[4px] block mb-2">
+            ❓ {t('contact.faqBadge', 'QUICK ANSWERS')}
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-slate-900 dark:text-ivory-50">
+            {t('contact.faqTitle', 'الأسئلة الأكثر شيوعاً')}
+          </h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto mt-4 rounded-full" />
+        </div>
+
+        <div className="max-w-3xl mx-auto space-y-4">
+          {faqs.map((faq) => (
+            <div 
+              key={faq.id}
+              className="bg-white dark:bg-slate-900/80 rounded-2xl border border-gray-200 dark:border-gold-500/15 overflow-hidden shadow-sm dark:shadow-md transition-all"
+            >
+              <button
+                onClick={() => setActiveFaq(activeFaq === faq.id ? null : faq.id)}
+                className="w-full p-6 text-start flex items-center justify-between gap-4 font-serif font-bold text-lg text-slate-900 dark:text-ivory-100 hover:text-gold-600 dark:hover:text-gold-300 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <FaQuestionCircle className="text-gold-500 flex-shrink-0 text-xl" />
+                  <span>{faq.q}</span>
+                </div>
+                <FaChevronDown className={`text-gold-500 flex-shrink-0 transition-transform duration-300 ${activeFaq === faq.id ? 'rotate-180' : ''}`} />
+              </button>
+              <AnimatePresence>
+                {activeFaq === faq.id && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-6 pb-6 pt-2 text-sm leading-relaxed text-slate-600 dark:text-ivory-300/90 border-t border-gray-100 dark:border-slate-800">
+                      {faq.a}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 6. THE DUNAS LUXURY GUARANTEE BADGES */}
       {/* ========================================================================= */}
       <section className="container mx-auto px-4 sm:px-6 pb-24 relative z-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
