@@ -362,32 +362,27 @@ const ContactForms = () => {
           margin: 0 auto;
         }
 
-        /* Tabs Switcher styling */
+        /* Tabs Switcher styling - Header Royal Palette */
         .forms-tab-switcher {
           display: flex;
-          background: #F1F5F9;
-          border: 1px solid #CBD5E1;
+          background: linear-gradient(135deg, rgba(9, 13, 31, 0.95) 0%, rgba(5, 8, 26, 0.98) 100%);
+          border: 2px solid rgba(212, 168, 67, 0.5);
           border-radius: 9999px;
           padding: 6px;
           margin-bottom: 2.5rem;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-        .dark .forms-tab-switcher {
-          background: rgba(15, 21, 53, 0.75);
-          border: 1px solid rgba(212, 168, 67, 0.3);
-          box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
-          backdrop-filter: blur(16px);
+          box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(212, 168, 67, 0.15);
+          backdrop-filter: blur(20px);
         }
 
         .forms-tab-btn {
           flex: 1;
           background: transparent;
-          color: #64748B;
+          color: #CBD5E1;
           border: none;
           padding: 16px 24px;
           font-family: 'Inter', sans-serif;
           font-weight: 700;
-          font-size: 11px;
+          font-size: 12px;
           letter-spacing: 3px;
           text-transform: uppercase;
           cursor: pointer;
@@ -395,68 +390,50 @@ const ContactForms = () => {
           text-align: center;
           border-radius: 9999px;
         }
-        .dark .forms-tab-btn {
-          color: #A0A5BC;
-        }
 
         .forms-tab-btn:hover {
-          color: #B88E28;
-        }
-        .dark .forms-tab-btn:hover {
           color: #F0C96A;
         }
 
         .forms-tab-btn.active {
           background: linear-gradient(135deg, #D4A843 0%, #B88E28 100%);
           color: #05081A !important;
-          box-shadow: 0 4px 20px rgba(212, 168, 67, 0.35);
+          box-shadow: 0 4px 25px rgba(212, 168, 67, 0.45);
         }
 
-        /* Form elements */
+        /* Form Card - Exact Header Royal Obsidian & Gold Aesthetic */
         .forms-card {
-          background: #FFFFFF;
-          border: 1px solid #E2E8F0;
+          background: linear-gradient(145deg, #090D1F 0%, #05081A 60%, #0F162E 100%);
+          border: 2px solid rgba(212, 168, 67, 0.45);
           border-radius: 28px;
           padding: 3rem 2.5rem;
           position: relative;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
-        }
-        .dark .forms-card {
-          background: rgba(15, 21, 53, 0.85);
-          border: 1px solid rgba(212, 168, 67, 0.25);
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-          backdrop-filter: blur(20px);
+          box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+          backdrop-filter: blur(24px);
         }
 
         .form-section-title {
-          font-size: 26px;
-          font-weight: 400;
-          color: #B88E28;
+          font-size: 28px;
+          font-weight: 600;
+          color: #F0C96A;
           font-family: 'Cormorant Garamond', serif;
-          border-bottom: 1px solid #E2E8F0;
+          border-bottom: 1px solid rgba(212, 168, 67, 0.25);
           padding-bottom: 12px;
           margin-bottom: 28px;
           display: flex;
           align-items: center;
           gap: 14px;
         }
-        .dark .form-section-title {
-          color: #F0C96A;
-          border-bottom-color: rgba(212, 168, 67, 0.2);
-        }
 
         .form-section-num {
           font-size: 11px;
           font-weight: 800;
           letter-spacing: 3px;
-          color: #B88E28;
-          background: rgba(212, 168, 67, 0.12);
-          border: 1px solid rgba(212, 168, 67, 0.3);
+          color: #F0C96A;
+          background: rgba(212, 168, 67, 0.2);
+          border: 1px solid rgba(212, 168, 67, 0.45);
           padding: 4px 12px;
           border-radius: 9999px;
-        }
-        .dark .form-section-num {
-          color: #D4A843;
         }
 
         .form-field-group {
@@ -467,43 +444,30 @@ const ContactForms = () => {
           display: block;
           font-family: 'Inter', sans-serif;
           font-size: 11px;
-          font-weight: 600;
+          font-weight: 700;
           letter-spacing: 2.5px;
           text-transform: uppercase;
-          color: #475569;
+          color: #F0C96A;
           margin-bottom: 10px;
-        }
-        .dark .form-label {
-          color: #A0A5BC;
         }
 
         .form-input, .form-select, .form-textarea {
           width: 100%;
-          background-color: #F8FAFC;
-          border: 1px solid #CBD5E1;
+          background-color: rgba(5, 8, 26, 0.9);
+          border: 1px solid rgba(212, 168, 67, 0.35);
           padding: 16px 20px;
-          color: #0F172A;
+          color: #F8F6F0;
           font-family: 'Inter', sans-serif;
           font-size: 14px;
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           border-radius: 14px !important;
         }
-        .dark .form-input, .dark .form-select, .dark .form-textarea {
-          background-color: rgba(5, 8, 26, 0.8);
-          border-color: rgba(212, 168, 67, 0.25);
-          color: #F5F2E8;
-        }
 
         .form-input:focus, .form-select:focus, .form-textarea:focus {
-          border-color: #D4A843;
-          background-color: #FFFFFF;
-          outline: none;
-          box-shadow: 0 0 12px rgba(212, 168, 67, 0.2);
-        }
-        .dark .form-input:focus, .dark .form-select:focus, .dark .form-textarea:focus {
           border-color: #F0C96A;
-          background-color: rgba(20, 26, 61, 0.9);
-          box-shadow: 0 0 16px rgba(212, 168, 67, 0.25);
+          background-color: rgba(15, 21, 53, 0.98);
+          outline: none;
+          box-shadow: 0 0 20px rgba(212, 168, 67, 0.35);
         }
 
         .form-input.error, .form-select.error, .form-textarea.error, .dropzone.error {
@@ -518,9 +482,9 @@ const ContactForms = () => {
         }
 
         .pill-btn {
-          background-color: #F1F5F9;
-          border: 1px solid #CBD5E1;
-          color: #475569;
+          background-color: rgba(5, 8, 26, 0.85);
+          border: 1px solid rgba(212, 168, 67, 0.3);
+          color: #E2E8F0;
           padding: 12px 22px;
           font-size: 12px;
           font-weight: 600;
@@ -530,32 +494,19 @@ const ContactForms = () => {
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           border-radius: 12px !important;
         }
-        .dark .pill-btn {
-          background-color: rgba(5, 8, 26, 0.7);
-          border-color: rgba(212, 168, 67, 0.2);
-          color: #A0A5BC;
-        }
 
         .pill-btn:hover {
           border-color: #D4A843;
-          color: #0F172A;
+          color: #F0C96A;
           transform: translateY(-2px);
-        }
-        .dark .pill-btn:hover {
-          border-color: #D4A843;
-          color: #F5F2E8;
+          background-color: rgba(212, 168, 67, 0.15);
         }
 
         .pill-btn.active {
-          border-color: #D4A843;
-          color: #B88E28 !important;
-          background: rgba(212, 168, 67, 0.12);
-          box-shadow: 0 4px 15px rgba(212, 168, 67, 0.15);
-        }
-        .dark .pill-btn.active {
-          color: #D4A843 !important;
-          background: rgba(212, 168, 67, 0.15);
-          box-shadow: 0 4px 15px rgba(212, 168, 67, 0.2);
+          border-color: #F0C96A;
+          color: #F0C96A !important;
+          background: rgba(212, 168, 67, 0.22);
+          box-shadow: 0 4px 18px rgba(212, 168, 67, 0.3);
         }
 
         /* Counter controls styling */
@@ -563,21 +514,17 @@ const ContactForms = () => {
           display: flex;
           align-items: center;
           gap: 16px;
-          background-color: #F8FAFC;
-          border: 1px solid #CBD5E1;
+          background-color: rgba(5, 8, 26, 0.9);
+          border: 1px solid rgba(212, 168, 67, 0.35);
           padding: 8px 18px;
           width: fit-content;
           border-radius: 14px !important;
         }
-        .dark .counter-container {
-          background-color: rgba(5, 8, 26, 0.8);
-          border-color: rgba(212, 168, 67, 0.25);
-        }
 
         .counter-btn {
           background: transparent;
-          border: 1px solid rgba(212, 168, 67, 0.3);
-          color: #B88E28;
+          border: 1px solid rgba(212, 168, 67, 0.4);
+          color: #F0C96A;
           width: 34px;
           height: 34px;
           font-size: 18px;
@@ -588,9 +535,6 @@ const ContactForms = () => {
           transition: all 0.3s ease;
           border-radius: 10px !important;
         }
-        .dark .counter-btn {
-          color: #D4A843;
-        }
 
         .counter-btn:hover {
           background-color: #D4A843;
@@ -600,13 +544,10 @@ const ContactForms = () => {
 
         .counter-value {
           font-size: 16px;
-          font-weight: 600;
+          font-weight: 700;
           min-width: 24px;
           text-align: center;
-          color: #0F172A;
-        }
-        .dark .counter-value {
-          color: #F5F2E8;
+          color: #F8F6F0;
         }
 
         /* Commission Preview box */

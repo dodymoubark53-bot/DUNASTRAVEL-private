@@ -399,30 +399,30 @@ const Contact = () => {
           <div className="w-20 h-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto mt-4 rounded-full" />
         </div>
 
-        <div className="bg-white dark:bg-slate-900/90 rounded-3xl border border-gray-200 dark:border-gold-500/20 shadow-xl dark:shadow-2xl overflow-hidden flex flex-col lg:flex-row backdrop-blur-xl">
+        <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 rounded-3xl border-2 border-gold-500/50 shadow-2xl shadow-black/70 overflow-hidden flex flex-col lg:flex-row backdrop-blur-2xl">
 
           {/* Left Side: Headquarters Details & Embedded Interactive Google Map */}
-          <div className="lg:w-1/2 p-8 sm:p-12 bg-slate-50/90 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gold-500/15">
+          <div className="lg:w-1/2 p-8 sm:p-12 bg-gradient-to-b from-slate-950/95 via-slate-900/90 to-slate-950 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-gold-500/25">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-700 dark:text-gold-400 text-xs font-semibold mb-6">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold-500/15 border border-gold-500/40 text-gold-300 text-xs font-bold mb-6">
                 <FaGlobe />
                 <span>{t('contact.hqLabel', 'Headquarters & Global Concierge')}</span>
               </div>
 
-              <h3 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 dark:text-ivory-50 mb-6">
+              <h3 className="text-2xl sm:text-3xl font-serif font-bold text-ivory-50 mb-6">
                 {t('contact.officeHeader', 'مقر الشركة والمعلومات الرسمية')}
               </h3>
 
-              <div className="space-y-6 mb-8 text-sm text-slate-700 dark:text-ivory-200/90">
+              <div className="space-y-6 mb-8 text-sm text-ivory-200/90">
                 
                 {/* Address Row */}
-                <div className="flex items-start gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-gold-500/10 hover:border-gold-500/30 transition-all shadow-sm dark:shadow-none">
-                  <div className="p-3 rounded-xl bg-gold-500/10 text-gold-600 dark:text-gold-400 text-lg flex-shrink-0">
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-900/80 border border-gold-500/25 hover:border-gold-400 transition-all shadow-md">
+                  <div className="p-3 rounded-xl bg-gold-500/15 text-gold-300 text-lg flex-shrink-0">
                     <FaMapMarkerAlt />
                   </div>
                   <div>
-                    <h4 className="text-xs uppercase tracking-wider text-gold-600 dark:text-gold-400 font-bold mb-1">{t('contact.office', 'العنوان الرسمي')}</h4>
-                    <p className="leading-relaxed text-slate-800 dark:text-ivory-100 font-medium">
+                    <h4 className="text-xs uppercase tracking-wider text-gold-300 font-bold mb-1">{t('contact.office', 'العنوان الرسمي')}</h4>
+                    <p className="leading-relaxed text-ivory-100 font-medium">
                       5 Hussein Said St, Old Hadayk El Ahram First floor Flat 102 – 103<br />
                       Haram - Giza – Egypt
                     </p>
@@ -430,43 +430,43 @@ const Contact = () => {
                 </div>
 
                 {/* Phones Row */}
-                <div className="flex items-start gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-gold-500/10 hover:border-gold-500/30 transition-all shadow-sm dark:shadow-none">
-                  <div className="p-3 rounded-xl bg-gold-500/10 text-gold-600 dark:text-gold-400 text-lg flex-shrink-0">
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-900/80 border border-gold-500/25 hover:border-gold-400 transition-all shadow-md">
+                  <div className="p-3 rounded-xl bg-gold-500/15 text-gold-300 text-lg flex-shrink-0">
                     <FaPhone />
                   </div>
                   <div className="w-full">
-                    <h4 className="text-xs uppercase tracking-wider text-gold-600 dark:text-gold-400 font-bold mb-1">{t('contact.phoneLabel', 'الهواتف المباشرة')}</h4>
+                    <h4 className="text-xs uppercase tracking-wider text-gold-300 font-bold mb-1">{t('contact.phoneLabel', 'الهواتف المباشرة')}</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
-                      <a href="tel:+20233746643" className="flex items-center gap-2 hover:text-gold-600 dark:hover:text-gold-300 font-mono text-sm bg-slate-100 dark:bg-slate-950/60 text-slate-900 dark:text-ivory-50 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gold-500/10">
-                        <FaPhone className="text-gold-600 dark:text-gold-400 text-xs" /> 02 33746643
+                      <a href="tel:+20233746643" className="flex items-center gap-2 hover:text-gold-300 font-mono text-sm bg-slate-950/80 text-ivory-50 px-3 py-1.5 rounded-lg border border-gold-500/20">
+                        <FaPhone className="text-gold-400 text-xs" /> 02 33746643
                       </a>
-                      <a href="tel:+20233746654" className="flex items-center gap-2 hover:text-gold-600 dark:hover:text-gold-300 font-mono text-sm bg-slate-100 dark:bg-slate-950/60 text-slate-900 dark:text-ivory-50 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gold-500/10">
-                        <FaPhone className="text-gold-600 dark:text-gold-400 text-xs" /> 02 33746654
+                      <a href="tel:+20233746654" className="flex items-center gap-2 hover:text-gold-300 font-mono text-sm bg-slate-950/80 text-ivory-50 px-3 py-1.5 rounded-lg border border-gold-500/20">
+                        <FaPhone className="text-gold-400 text-xs" /> 02 33746654
                       </a>
                     </div>
-                    <a href="https://wa.me/201149401111" target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center justify-center gap-2 hover:text-emerald-600 dark:hover:text-emerald-300 font-mono text-sm bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 px-3 py-2 rounded-lg border border-emerald-300 dark:border-emerald-500/20 w-full transition-all">
-                      <FaWhatsapp className="text-emerald-600 dark:text-emerald-400 text-sm" /> WhatsApp VIP: +20 114 940 1111
+                    <a href="https://wa.me/201149401111" target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center justify-center gap-2 hover:text-emerald-300 font-mono text-sm bg-emerald-950/50 text-emerald-300 px-3 py-2 rounded-lg border border-emerald-500/30 w-full transition-all">
+                      <FaWhatsapp className="text-emerald-400 text-sm" /> WhatsApp VIP: +20 114 940 1111
                     </a>
                   </div>
                 </div>
 
                 {/* Emails Row */}
-                <div className="flex items-start gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-gold-500/10 hover:border-gold-500/30 transition-all shadow-sm dark:shadow-none">
-                  <div className="p-3 rounded-xl bg-gold-500/10 text-gold-600 dark:text-gold-400 text-lg flex-shrink-0">
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-900/80 border border-gold-500/25 hover:border-gold-400 transition-all shadow-md">
+                  <div className="p-3 rounded-xl bg-gold-500/15 text-gold-300 text-lg flex-shrink-0">
                     <FaEnvelope />
                   </div>
                   <div className="w-full">
-                    <h4 className="text-xs uppercase tracking-wider text-gold-600 dark:text-gold-400 font-bold mb-1">{t('contact.emailLabel', 'عناوين البريد الإلكتروني')}</h4>
+                    <h4 className="text-xs uppercase tracking-wider text-gold-300 font-bold mb-1">{t('contact.emailLabel', 'عناوين البريد الإلكتروني')}</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
                       {['info@dunas-travel.com', 'booking@dunas-travel.com', 'Spain@dunas-travel.com', 'attia@dunas-travel.com'].map((email) => (
                         <button
                           key={email}
                           onClick={() => copyToClipboard(email, email)}
-                          className="flex items-center justify-between text-xs hover:text-gold-600 dark:hover:text-gold-300 bg-slate-100 dark:bg-slate-950/60 text-slate-900 dark:text-ivory-50 px-3 py-2 rounded-lg border border-gray-200 dark:border-gold-500/10 font-mono truncate transition-all group"
+                          className="flex items-center justify-between text-xs hover:text-gold-300 bg-slate-950/80 text-ivory-50 px-3 py-2 rounded-lg border border-gold-500/20 font-mono truncate transition-all group"
                           title="Click to copy email"
                         >
                           <span className="truncate">{email}</span>
-                          {copiedEmail === email ? <FaCheck className="text-emerald-500 flex-shrink-0 ml-1" /> : <FaCopy className="text-gold-600 dark:text-gold-400 opacity-60 group-hover:opacity-100 flex-shrink-0 ml-1" />}
+                          {copiedEmail === email ? <FaCheck className="text-emerald-500 flex-shrink-0 ml-1" /> : <FaCopy className="text-gold-400 opacity-60 group-hover:opacity-100 flex-shrink-0 ml-1" />}
                         </button>
                       ))}
                     </div>
@@ -481,7 +481,7 @@ const Contact = () => {
               href="https://maps.app.goo.gl/oA84mQGwUsHWo4kt8"
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full h-[240px] rounded-2xl overflow-hidden border border-gold-500/30 shadow-xl relative group cursor-pointer mt-4"
+              className="block w-full h-[240px] rounded-2xl overflow-hidden border border-gold-500/40 shadow-xl relative group cursor-pointer mt-4"
               title={t('contact.openMaps', 'Open location in Google Maps')}
             >
               <iframe
@@ -494,7 +494,7 @@ const Contact = () => {
                 referrerPolicy="no-referrer-when-downgrade"
               ></iframe>
               <div className="absolute inset-0 bg-slate-950/30 group-hover:bg-slate-950/10 transition-all duration-300 flex items-center justify-center">
-                <span className="bg-slate-900/90 backdrop-blur-md text-gold-400 font-bold px-5 py-2.5 rounded-full border border-gold-500/50 text-xs shadow-2xl group-hover:scale-105 transition-all flex items-center gap-2">
+                <span className="bg-slate-900/95 backdrop-blur-md text-gold-300 font-bold px-5 py-2.5 rounded-full border border-gold-500/60 text-xs shadow-2xl group-hover:scale-105 transition-all flex items-center gap-2">
                   <span>📍</span>
                   <span>{t('contact.openGoogleMaps', 'فتح الموقع على خرائط جوجل مباشرة')}</span>
                 </span>
@@ -502,34 +502,34 @@ const Contact = () => {
             </a>
           </div>
 
-          {/* Right Side: Message Form */}
-          <div className="lg:w-1/2 p-8 sm:p-12 flex flex-col justify-between bg-white dark:bg-slate-900/60">
+          {/* Right Side: Message Form (Header Colors Palette) */}
+          <div className="lg:w-1/2 p-8 sm:p-12 flex flex-col justify-between bg-gradient-to-br from-[#090D1F] via-[#05081A] to-[#0F162E]">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-700 dark:text-gold-400 text-xs font-semibold mb-6">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold-500/15 border border-gold-500/40 text-gold-300 text-xs font-bold mb-6">
                 <FaPaperPlane />
                 <span>{t('contact.quickInquiry', 'Instant Concierge Inquiry')}</span>
               </div>
 
-              <h3 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 dark:text-ivory-50 mb-2">
+              <h3 className="text-2xl sm:text-3xl font-serif font-bold text-ivory-50 mb-2">
                 {t('contact.sendMessage', 'أرسل رسالتك مباشرة')}
               </h3>
-              <p className="text-sm text-slate-600 dark:text-ivory-300/80 mb-6 font-light leading-relaxed">
+              <p className="text-sm text-ivory-200/80 mb-6 font-light leading-relaxed">
                 {t('contact.formDesc', 'يسعدنا الإجابة على جميع تساؤلاتك وتصميم برنامج رحلتك بما يتناسب مع رغباتك.')}
               </p>
 
               {/* Subject Choice Chips */}
               <div className="mb-6">
-                <label className="block text-xs uppercase tracking-wider text-slate-700 dark:text-ivory-300 font-medium mb-2">{t('contact.selectSubjectLabel', 'نوع الاستفسار والرحلة')}</label>
+                <label className="block text-xs uppercase tracking-wider text-gold-300 font-bold mb-2">{t('contact.selectSubjectLabel', 'نوع الاستفسار والرحلة')}</label>
                 <div className="flex flex-wrap gap-2">
                   {subjects.map((subj) => (
                     <button
                       key={subj.id}
                       type="button"
                       onClick={() => setSelectedSubject(subj.id)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                         selectedSubject === subj.id
-                          ? 'bg-gold-500 text-obsidian-950 shadow-md font-bold'
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-ivory-200 hover:bg-gold-500/20'
+                          ? 'bg-gradient-to-r from-gold-500 via-amber-400 to-gold-500 text-obsidian-950 shadow-md shadow-gold-500/30 font-black'
+                          : 'bg-slate-900/90 border border-gold-500/30 text-gold-200 hover:border-gold-400 hover:text-gold-300'
                       }`}
                     >
                       {subj.label}
@@ -583,64 +583,64 @@ const Contact = () => {
               }}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-slate-700 dark:text-ivory-300 font-medium mb-1.5">{t('contact.firstNameLabel', 'الاسم الأول *')}</label>
+                    <label className="block text-xs uppercase tracking-wider text-gold-300 font-bold mb-1.5">{t('contact.firstNameLabel', 'الاسم الأول *')}</label>
                     <input 
                       name="firstName" 
                       type="text" 
                       placeholder={t('contact.firstName', 'أدخل الاسم الأول')} 
                       required 
-                      className="w-full p-4 bg-slate-50 dark:bg-slate-950/80 border border-gray-200 dark:border-gold-500/20 rounded-xl text-slate-900 dark:text-ivory-50 placeholder-gray-400 dark:placeholder-ivory-400/50 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-1 focus:ring-gold-400 outline-none transition-all text-sm" 
+                      className="w-full p-4 bg-slate-950/90 border border-gold-500/35 rounded-xl text-ivory-50 placeholder-ivory-300/40 focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 outline-none transition-all text-sm" 
                     />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-slate-700 dark:text-ivory-300 font-medium mb-1.5">{t('contact.lastNameLabel', 'اسم العائلة *')}</label>
+                    <label className="block text-xs uppercase tracking-wider text-gold-300 font-bold mb-1.5">{t('contact.lastNameLabel', 'اسم العائلة *')}</label>
                     <input 
                       name="lastName" 
                       type="text" 
                       placeholder={t('contact.lastName', 'أدخل اسم العائلة')} 
                       required 
-                      className="w-full p-4 bg-slate-50 dark:bg-slate-950/80 border border-gray-200 dark:border-gold-500/20 rounded-xl text-slate-900 dark:text-ivory-50 placeholder-gray-400 dark:placeholder-ivory-400/50 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-1 focus:ring-gold-400 outline-none transition-all text-sm" 
+                      className="w-full p-4 bg-slate-950/90 border border-gold-500/35 rounded-xl text-ivory-50 placeholder-ivory-300/40 focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 outline-none transition-all text-sm" 
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-slate-700 dark:text-ivory-300 font-medium mb-1.5">{t('contact.emailFieldLabel', 'البريد الإلكتروني *')}</label>
+                    <label className="block text-xs uppercase tracking-wider text-gold-300 font-bold mb-1.5">{t('contact.emailFieldLabel', 'البريد الإلكتروني *')}</label>
                     <input 
                       name="email" 
                       type="email" 
                       placeholder={t('contact.emailPlaceholder', 'name@example.com')} 
                       required 
-                      className="w-full p-4 bg-slate-50 dark:bg-slate-950/80 border border-gray-200 dark:border-gold-500/20 rounded-xl text-slate-900 dark:text-ivory-50 placeholder-gray-400 dark:placeholder-ivory-400/50 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-1 focus:ring-gold-400 outline-none transition-all text-sm" 
+                      className="w-full p-4 bg-slate-950/90 border border-gold-500/35 rounded-xl text-ivory-50 placeholder-ivory-300/40 focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 outline-none transition-all text-sm" 
                     />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-slate-700 dark:text-ivory-300 font-medium mb-1.5">{t('contact.phoneFieldLabel', 'رقم الهاتف / الواتساب')}</label>
+                    <label className="block text-xs uppercase tracking-wider text-gold-300 font-bold mb-1.5">{t('contact.phoneFieldLabel', 'رقم الهاتف / الواتساب')}</label>
                     <input 
                       name="phone" 
                       type="tel" 
                       placeholder={t('contact.phonePlaceholder', '+20 1xx xxx xxxx')} 
-                      className="w-full p-4 bg-slate-50 dark:bg-slate-950/80 border border-gray-200 dark:border-gold-500/20 rounded-xl text-slate-900 dark:text-ivory-50 placeholder-gray-400 dark:placeholder-ivory-400/50 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-1 focus:ring-gold-400 outline-none transition-all text-sm font-mono" 
+                      className="w-full p-4 bg-slate-950/90 border border-gold-500/35 rounded-xl text-ivory-50 placeholder-ivory-300/40 focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 outline-none transition-all text-sm font-mono" 
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-slate-700 dark:text-ivory-300 font-medium mb-1.5">{t('contact.messageLabel', 'تفاصيل الاستفسار والرحلة *')}</label>
+                  <label className="block text-xs uppercase tracking-wider text-gold-300 font-bold mb-1.5">{t('contact.messageLabel', 'تفاصيل الاستفسار والرحلة *')}</label>
                   <textarea 
                     name="message" 
                     placeholder={t('contact.messagePlaceholder', 'كيف يمكننا مساعدتك في تخطيط رحلتك الفاخرة المخصصة؟')} 
                     rows="5" 
                     required 
-                    className="w-full p-4 bg-slate-50 dark:bg-slate-950/80 border border-gray-200 dark:border-gold-500/20 rounded-xl text-slate-900 dark:text-ivory-50 placeholder-gray-400 dark:placeholder-ivory-400/50 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-1 focus:ring-gold-400 outline-none transition-all text-sm resize-none"
+                    className="w-full p-4 bg-slate-950/90 border border-gold-500/35 rounded-xl text-ivory-50 placeholder-ivory-300/40 focus:border-gold-400 focus:ring-2 focus:ring-gold-500/30 outline-none transition-all text-sm resize-none"
                   ></textarea>
                 </div>
 
                 <Button 
                   type="submit" 
                   variant="gold-glow" 
-                  className="w-full py-4 rounded-xl font-bold tracking-wide flex items-center justify-center gap-3 text-sm shadow-xl" 
+                  className="w-full py-4 rounded-xl font-black tracking-widest uppercase flex items-center justify-center gap-3 text-sm bg-gradient-to-r from-gold-500 via-amber-400 to-gold-500 text-obsidian-950 shadow-xl hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] transform hover:-translate-y-0.5 transition-all" 
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
