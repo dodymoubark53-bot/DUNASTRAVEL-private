@@ -658,7 +658,7 @@ const Contact = () => {
             </div>
 
             {/* Privacy Promise Notice */}
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gold-500/10 flex items-center gap-3 text-xs text-slate-900 dark:text-ivory-50 font-medium">
+            <div className="mt-8 pt-6 border-t border-gray-700/50 dark:border-gold-500/10 flex items-center gap-3 text-xs text-ivory-50 font-medium">
               <FaShieldAlt className="text-gold-600 dark:text-gold-400 text-lg flex-shrink-0" />
               <p>{t('contact.privacyPromise', 'نعدك بالحفاظ الكامل على خصوصية بياناتك وعدم مشاركتها مع أي طرف ثالث إطلاقاً.')}</p>
             </div>
