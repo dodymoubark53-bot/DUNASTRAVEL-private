@@ -158,7 +158,7 @@ const Contact = () => {
           {/* Subtitle */}
           <motion.p
             variants={fadeInUp}
-            className="text-ivory-200/90 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed font-light drop-shadow"
+            className="text-white text-base sm:text-xl max-w-2xl mx-auto leading-relaxed font-normal drop-shadow"
           >
             {t('contact.heroSubtitle', 'نحن هنا لتصميم أدق تفاصيل رحلتك المخصصة لمصر والشرق الأوسط، بخدمة كونسيرج على أعلى مستوى على مدار الساعة.')}
           </motion.p>
@@ -296,7 +296,7 @@ const Contact = () => {
               </div>
               <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{t('contact.whatsappTitle', 'واتساب الكونسيرج')}</span>
               <h3 className="text-xl font-bold text-slate-900 dark:text-ivory-50 mt-1 mb-2">+20 114 940 1111</h3>
-              <p className="text-xs text-slate-600 dark:text-ivory-300/80 font-light">{t('contact.whatsappDesc', 'متاح على مدار 24 ساعة للمحادثات المباشرة والاستفسارات السريعة.')}</p>
+              <p className="text-xs text-slate-900 dark:text-ivory-300/80 font-medium">{t('contact.whatsappDesc', 'متاح على مدار 24 ساعة للمحادثات المباشرة والاستفسارات السريعة.')}</p>
             </div>
             <div className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 group-hover:translate-x-1 transition-transform">
               <span>{t('contact.chatNow', 'محادثة فورية الان')}</span>
@@ -319,7 +319,7 @@ const Contact = () => {
                 <a href="tel:+20233746643" className="text-lg font-bold text-slate-900 dark:text-ivory-50 hover:text-gold-600 dark:hover:text-gold-300 transition-colors font-mono">02 33746643</a>
                 <a href="tel:+20233746654" className="text-lg font-bold text-slate-900 dark:text-ivory-50 hover:text-gold-600 dark:hover:text-gold-300 transition-colors font-mono">02 33746654</a>
               </div>
-              <p className="text-xs text-slate-600 dark:text-ivory-300/80 font-light mt-2">{t('contact.phoneDesc', 'خطوط هاتفية مباشرة لمكتب القاهرة وممثلي خدمة العملاء.')}</p>
+              <p className="text-xs text-slate-900 dark:text-ivory-300/80 font-medium mt-2">{t('contact.phoneDesc', 'خطوط هاتفية مباشرة لمكتب القاهرة وممثلي خدمة العملاء.')}</p>
             </div>
             <div className="mt-6 flex items-center gap-3">
               <a href="tel:+20233746643" className="text-xs font-bold text-gold-600 dark:text-gold-400 hover:underline">{t('contact.callNow', 'اتصل الآن')}</a>
@@ -338,7 +338,7 @@ const Contact = () => {
               </div>
               <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{t('contact.emailTitle', 'البريد الإلكتروني الرسمى')}</span>
               <h3 className="text-base font-bold text-slate-900 dark:text-ivory-50 mt-1 truncate">info@dunas-travel.com</h3>
-              <p className="text-xs text-slate-600 dark:text-ivory-300/80 font-light mt-2">{t('contact.emailDesc', 'استجابة سريعة للطلبات والحجوزات الرسمية خلال أقل من ساعة.')}</p>
+              <p className="text-xs text-slate-900 dark:text-ivory-300/80 font-medium mt-2">{t('contact.emailDesc', 'استجابة سريعة للطلبات والحجوزات الرسمية خلال أقل من ساعة.')}</p>
             </div>
             <div className="mt-6 flex items-center justify-between">
               <button 
@@ -366,7 +366,7 @@ const Contact = () => {
               </div>
               <span className="text-xs font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">{t('contact.addressTitle', 'المقر الرئيسي')}</span>
               <h3 className="text-sm font-bold text-slate-900 dark:text-ivory-50 mt-1 leading-snug">{t('contact.addressFull', '5 شارع حسين سعيد، حدائق الأهرام القديمة - الجيزة، مصر')}</h3>
-              <p className="text-xs text-slate-600 dark:text-ivory-300/80 font-light mt-2">{t('contact.addressDesc', 'نستقبل العملاء والشركاء في مقر الشركة الرسمي بالجيزة.')}</p>
+              <p className="text-xs text-slate-900 dark:text-ivory-300/80 font-medium mt-2">{t('contact.addressDesc', 'نستقبل العملاء والشركاء في مقر الشركة الرسمي بالجيزة.')}</p>
             </div>
             <div className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-purple-600 dark:text-purple-400 group-hover:translate-x-1 transition-transform">
               <span>📍 {t('contact.viewMaps', 'فتح خريطة جوجل')}</span>
@@ -422,7 +422,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h4 className="text-xs uppercase tracking-wider text-gold-300 font-bold mb-1">{t('contact.office', 'العنوان الرسمي')}</h4>
-                    <p className="leading-relaxed text-ivory-100 font-medium">
+                    <p className="leading-relaxed text-slate-900 dark:text-ivory-100 font-semibold">
                       {t('contact.addressDetails', '5 Hussein Said St, Old Hadayk El Ahram First floor Flat 102 – 103, Haram - Giza – Egypt')}
                     </p>
                   </div>
@@ -509,10 +509,10 @@ const Contact = () => {
                 <span>{t('contact.quickInquiry', 'Instant Concierge Inquiry')}</span>
               </div>
 
-              <h3 className="text-2xl sm:text-3xl font-serif font-bold text-ivory-50 mb-2">
+              <h3 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 dark:text-ivory-50 mb-2">
                 {t('contact.sendMessage', 'أرسل رسالتك مباشرة')}
               </h3>
-              <p className="text-sm text-ivory-200/80 mb-6 font-light leading-relaxed">
+              <p className="text-sm text-slate-900 dark:text-ivory-200/80 mb-6 font-medium leading-relaxed">
                 {t('contact.formDesc', 'يسعدنا الإجابة على جميع تساؤلاتك وتصميم برنامج رحلتك بما يتناسب مع رغباتك.')}
               </p>
 
@@ -528,7 +528,7 @@ const Contact = () => {
                       className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                         selectedSubject === subj.id
                           ? 'bg-gradient-to-r from-gold-500 via-amber-400 to-gold-500 text-obsidian-950 shadow-md shadow-gold-500/30 font-black'
-                          : 'bg-slate-900/90 border border-gold-500/30 text-gold-200 hover:border-gold-400 hover:text-gold-300'
+                          : 'bg-slate-100 dark:bg-slate-900/90 border border-gold-500/30 text-slate-900 dark:text-gold-200 hover:border-gold-400 hover:text-gold-600 dark:hover:text-gold-300'
                       }`}
                     >
                       {subj.label}
@@ -658,7 +658,7 @@ const Contact = () => {
             </div>
 
             {/* Privacy Promise Notice */}
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gold-500/10 flex items-center gap-3 text-xs text-slate-600 dark:text-ivory-50">
+            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gold-500/10 flex items-center gap-3 text-xs text-slate-900 dark:text-ivory-50 font-medium">
               <FaShieldAlt className="text-gold-600 dark:text-gold-400 text-lg flex-shrink-0" />
               <p>{t('contact.privacyPromise', 'نعدك بالحفاظ الكامل على خصوصية بياناتك وعدم مشاركتها مع أي طرف ثالث إطلاقاً.')}</p>
             </div>
@@ -707,7 +707,7 @@ const Contact = () => {
                     transition={{ duration: 0.3 }}
                     className="overflow-hidden"
                   >
-                    <div className="px-6 pb-6 pt-2 text-sm leading-relaxed text-slate-600 dark:text-ivory-50 border-t border-gray-100 dark:border-slate-800">
+                    <div className="px-6 pb-6 pt-2 text-sm leading-relaxed text-slate-900 dark:text-ivory-50 border-t border-gray-100 dark:border-slate-800 font-medium">
                       {faq.a}
                     </div>
                   </motion.div>
@@ -728,7 +728,7 @@ const Contact = () => {
               <FaShieldAlt />
             </div>
             <h4 className="font-serif font-bold text-lg text-slate-900 dark:text-gold-300 mb-1">{t('contact.badge1Title', 'شركة مرخصة رسمياً')}</h4>
-            <p className="text-xs text-slate-600 dark:text-ivory-50 font-light">{t('contact.badge1Desc', 'شركة سياحية مرخصة برقم ترخيص 1882 من وزارة السياحة المصرية.')}</p>
+            <p className="text-xs text-slate-900 dark:text-ivory-50 font-medium">{t('contact.badge1Desc', 'شركة سياحية مرخصة برقم ترخيص 1882 من وزارة السياحة المصرية.')}</p>
           </div>
 
           <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-gold-500/15 shadow-sm dark:shadow-md text-center">
@@ -736,7 +736,7 @@ const Contact = () => {
               <FaUserTie />
             </div>
             <h4 className="font-serif font-bold text-lg text-slate-900 dark:text-gold-300 mb-1">{t('contact.badge2Title', 'كونسيرج فاخر خاص')}</h4>
-            <p className="text-xs text-slate-600 dark:text-ivory-50 font-light">{t('contact.badge2Desc', 'مستشار سفر مخصص يرافق خطوات رحلتك وتخطيطها لحظة بلحظة.')}</p>
+            <p className="text-xs text-slate-900 dark:text-ivory-50 font-medium">{t('contact.badge2Desc', 'مستشار سفر مخصص يرافق خطوات رحلتك وتخطيطها لحظة بلحظة.')}</p>
           </div>
 
           <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-gold-500/15 shadow-sm dark:shadow-md text-center">
@@ -744,7 +744,7 @@ const Contact = () => {
               <FaStar />
             </div>
             <h4 className="font-serif font-bold text-lg text-slate-900 dark:text-gold-300 mb-1">{t('contact.badge3Title', 'برامج 100% مخصصة')}</h4>
-            <p className="text-xs text-slate-600 dark:text-ivory-50 font-light">{t('contact.badge3Desc', 'تجارب فاخرة وحصرية تم تصميمها وتخصيصها بالكامل حسب رغبتك.')}</p>
+            <p className="text-xs text-slate-900 dark:text-ivory-50 font-medium">{t('contact.badge3Desc', 'تجارب فاخرة وحصرية تم تصميمها وتخصيصها بالكامل حسب رغبتك.')}</p>
           </div>
 
           <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-gold-500/15 shadow-sm dark:shadow-md text-center">
@@ -752,7 +752,7 @@ const Contact = () => {
               <FaClock />
             </div>
             <h4 className="font-serif font-bold text-lg text-slate-900 dark:text-gold-300 mb-1">{t('contact.badge4Title', 'استجابة فائقة السرعة')}</h4>
-            <p className="text-xs text-slate-600 dark:text-ivory-50 font-light">{t('contact.badge4Desc', 'نضمن الرد على كافة الطلبات والاستفسارات خلال دقائق معدودة.')}</p>
+            <p className="text-xs text-slate-900 dark:text-ivory-50 font-medium">{t('contact.badge4Desc', 'نضمن الرد على كافة الطلبات والاستفسارات خلال دقائق معدودة.')}</p>
           </div>
         </div>
       </section>
