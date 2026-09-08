@@ -347,7 +347,14 @@ export async function apiRequest(path, options = {}, { raw = false, _retry = fal
   }
 
   if (!res.ok) {
-    // If CSRF token expired/invalid, clear cache and surface the real error
+    // Auto-heal 403 CSRF failures: clear token, fetch a fresh one, and retry mutating request once
+    if (res.status === 403 && !_retry && isMutating) {
+      clearCsrfToken();
+      const freshToken = await fetchCsrfToken();
+      if (freshToken) {
+        return apiRequest(path, options, { raw, _retry: true });
+      }
+    }
     if (res.status === 403) {
       clearCsrfToken();
     }

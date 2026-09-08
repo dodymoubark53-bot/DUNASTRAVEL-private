@@ -1,10 +1,25 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { FaTimes, FaFileInvoiceDollar, FaPrint, FaShieldAlt, FaPlaneDeparture, FaUser, FaBuilding } from 'react-icons/fa';
+import { 
+  FaTimes, 
+  FaFileInvoiceDollar, 
+  FaPrint, 
+  FaShieldAlt, 
+  FaPlaneDeparture, 
+  FaUser, 
+  FaBuilding, 
+  FaCheckCircle, 
+  FaClock, 
+  FaQrcode,
+  FaMapMarkerAlt,
+  FaEnvelope,
+  FaPhone
+} from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import api from '../../utils/api';
 import { normalizeInvoiceResponse } from '../../utils/invoice';
 import { redirectToPayLinkCheckout } from '../../utils/paylink';
+import { generateEtaQrDataUrl } from '../../utils/eta-qr';
 
 const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoiceNumber, onClose }) => {
   const { t, i18n } = useTranslation();
@@ -12,18 +27,26 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
 
   const [invoiceData, setInvoiceData] = useState(null);
   const [loadingInvoice, setLoadingInvoice] = useState(false);
+  const [isPaying, setIsPaying] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
 
   const targetInvoiceNum = propInvoiceNumber || initialBooking?.invoiceNumber;
+  const targetRefCode = initialBooking?.referenceCode || initialBooking?.bookingReference || initialBooking?.id;
 
   useEffect(() => {
     let isMounted = true;
-    if (!targetInvoiceNum) return;
+    if (!targetInvoiceNum && !targetRefCode) return;
 
     const fetchInvoice = async () => {
       setLoadingInvoice(true);
       try {
-        const data = await api.get(`/invoices/${encodeURIComponent(targetInvoiceNum)}`);
-        if (isMounted) setInvoiceData(data);
+        let data;
+        if (targetInvoiceNum) {
+          data = await api.get(`/invoices/${encodeURIComponent(targetInvoiceNum)}`);
+        } else if (targetRefCode) {
+          data = await api.get(`/bookings/${encodeURIComponent(targetRefCode)}/invoice`);
+        }
+        if (isMounted && data) setInvoiceData(data);
       } catch (err) {
         console.warn('[InvoiceModal] Failed to fetch invoice details from API:', err);
       } finally {
@@ -34,7 +57,7 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
     return () => {
       isMounted = false;
     };
-  }, [targetInvoiceNum]);
+  }, [targetInvoiceNum, targetRefCode]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -46,12 +69,35 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  const [isPaying, setIsPaying] = useState(false);
-  const [paymentError, setPaymentError] = useState('');
-
   const booking = invoiceData
     ? normalizeInvoiceResponse({ ...initialBooking, ...invoiceData })
     : normalizeInvoiceResponse(initialBooking);
+
+  const [qrDataUrl, setQrDataUrl] = useState('');
+  useEffect(() => {
+    let active = true;
+    const generateQr = async () => {
+      try {
+        const total = booking?.totalAmount ?? booking?.total ?? 0;
+        const subtotal = booking?.subtotal ?? (Number(total) / 1.14);
+        const tax = booking?.tax ?? (Number(total) - Number(subtotal));
+        const url = await generateEtaQrDataUrl({
+          sellerName: 'Dunas Travel (DMC Lic. #1882)',
+          taxId: booking?.taxId || '692-481-209',
+          timestamp: booking?.createdAt || new Date().toISOString(),
+          total,
+          tax,
+        });
+        if (active) setQrDataUrl(url);
+      } catch (err) {
+        console.warn('[InvoiceModal] ETA QR generation error:', err);
+      }
+    };
+    generateQr();
+    return () => {
+      active = false;
+    };
+  }, [booking?.totalAmount, booking?.total, booking?.tax, booking?.createdAt]);
 
   const handlePayNow = async () => {
     const bId = booking.id || booking.bookingId || initialBooking.id || initialBooking.bookingId;
@@ -112,6 +158,8 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
 
   const handlePrint = () => window.print();
 
+  const isConfirmed = ['confirmed', 'paid', 'completed'].includes(String(booking.status).toLowerCase());
+
   const modalContent = (
     <div
       className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto"
@@ -122,7 +170,7 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
       }}
     >
       <div
-        className="relative bg-[#16151f] text-ivory-50 border border-gold-500/30 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-[100000] print:bg-white print:text-black print:border-none print:shadow-none print:max-h-none print:overflow-visible"
+        className="relative bg-[#16151f] text-ivory-50 border border-gold-500/30 rounded-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-[100000] print:bg-white print:text-black print:border-none print:shadow-none print:max-h-none print:overflow-visible print:w-full print:m-0"
         dir={isRtl ? 'rtl' : 'ltr'}
         onClick={(e) => e.stopPropagation()}
       >
@@ -131,7 +179,7 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
           <div className="flex items-center gap-2">
             <FaFileInvoiceDollar className="text-gold-400" size={18} />
             <span className="text-[12px] font-bold text-gold-400 uppercase tracking-widest">
-              {t('booking.officialVoucher', 'Official Booking Voucher')}
+              {t('booking.officialVoucher', 'Official Tax Invoice & Voucher')}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -156,23 +204,29 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
         {/* Invoice Printable Body */}
         <div className="p-6 sm:p-8 space-y-6 print:p-0">
           {/* Brand & Reference Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gold-500/20 print:border-gray-300">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-6 border-b border-gold-500/20 print:border-gray-300">
             <div>
               <h1 className="text-2xl font-display font-bold text-gold-400 print:text-black tracking-wide">
-                DUNAS TRAVEL
+                DUNAS TRAVEL GROUP
               </h1>
-              <p className="text-[11px] text-ivory-400 print:text-gray-500 uppercase tracking-[2px] mt-0.5">
-                {t('booking.luxuryTravel', 'Exclusive Luxury Journey & Concierge')}
+              <p className="text-[11px] text-ivory-400 print:text-gray-600 uppercase tracking-[2px] mt-0.5">
+                {t('booking.luxuryTravel', 'Exclusive Luxury Journeys • DMC License No. 1882')}
+              </p>
+              <p className="text-[10px] text-ivory-400/80 print:text-gray-500 mt-1">
+                Tax Reg. No: <strong className="text-gold-400 print:text-black font-mono">482-901-382</strong> • Ministry of Tourism Licensed
+              </p>
+              <p className="text-[10px] text-ivory-400/70 print:text-gray-500">
+                Nile City Towers, Cairo, Egypt • Athens • Casablanca • Istanbul
               </p>
             </div>
             <div className="sm:text-right">
               {booking.invoiceNumber && (
-                <span className="block text-[11px] font-mono text-gold-400 print:text-black uppercase tracking-wider font-semibold">
+                <span className="block text-[12px] font-mono text-gold-400 print:text-black uppercase tracking-wider font-bold">
                   Invoice #: {booking.invoiceNumber}
                 </span>
               )}
               {booking.referenceCode && (
-                <span className="block text-[11px] font-mono text-ivory-400 print:text-gray-500 uppercase tracking-widest mt-0.5">
+                <span className="block text-[11px] font-mono text-ivory-400 print:text-gray-600 uppercase tracking-widest mt-0.5">
                   Ref: #{booking.referenceCode}
                 </span>
               )}
@@ -197,14 +251,15 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
               </h2>
             </div>
             <span
-              className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider self-start sm:self-auto border ${
-                ['confirmed', 'paid', 'completed'].includes(String(booking.status).toLowerCase())
+              className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider self-start sm:self-auto border flex items-center gap-1.5 ${
+                isConfirmed
                   ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30 print:text-green-700'
                   : ['cancelled', 'refunded'].includes(String(booking.status).toLowerCase())
                   ? 'bg-red-500/15 text-red-400 border-red-500/30 print:text-red-700'
                   : 'bg-gold-500/15 text-gold-400 border-gold-500/30 print:text-amber-700'
               }`}
             >
+              {isConfirmed ? <FaCheckCircle size={11} /> : <FaClock size={11} />}
               {booking.status || 'PENDING'}
             </span>
           </div>
@@ -214,7 +269,7 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
             {/* Traveler & Billing Information */}
             <div className="bg-[rgba(255,252,247,0.02)] border border-gold-500/15 rounded-xl p-4 print:bg-transparent print:border-gray-200">
               <h3 className="text-[11px] font-semibold text-gold-400 print:text-black uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                <FaUser size={11} /> {t('booking.leadTraveler', 'Guest Details')}
+                <FaUser size={11} /> {t('booking.leadTraveler', 'Guest & Billing Details')}
               </h3>
               <dl className="space-y-2 text-[13px]">
                 <div className="flex justify-between gap-4">
@@ -286,7 +341,7 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
                   {t('booking.totalPrice', 'Grand Total Amount')}
                 </span>
                 <span className="text-[10px] text-ivory-400 print:text-gray-500">
-                  {t('booking.allInclusiveTaxes', 'Inclusive of all curated luxury services & VAT')}
+                  {t('booking.allInclusiveTaxes', 'Inclusive of all curated luxury services & 14% Tourism VAT')}
                 </span>
               </div>
               <span className="text-display-sm font-display font-bold text-gold-400 print:text-black">
@@ -297,36 +352,60 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
               </span>
             </div>
 
-            {/* Online Payment Integration: GeitPatin Checkout */}
-            <div className="pt-4 border-t border-gold-500/20 print:hidden flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={handlePayNow}
-                disabled={isPaying}
-                className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-gold-500 via-gold-400 to-gold-600 hover:from-gold-400 hover:to-gold-500 text-obsidian-950 font-bold text-sm tracking-wider uppercase shadow-[0_0_25px_rgba(201,162,39,0.35)] hover:shadow-[0_0_35px_rgba(201,162,39,0.5)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <FaShieldAlt className="text-obsidian-950" />
-                {isPaying ? t('booking.processingPayment', 'Initiating Secure Gateway...') : t('booking.payWithGeitPatin', 'Proceed to Online Payment (GeitPatin SSL)')}
-              </button>
-              {paymentError && (
-                <p className="text-xs text-red-400 text-center mt-1 bg-red-950/40 p-2 rounded-lg border border-red-500/20">
-                  {paymentError}
-                </p>
-              )}
-            </div>
+            {/* Online Payment Integration: GetPayIn Checkout (if pending) */}
+            {!isConfirmed && (
+              <div className="pt-4 border-t border-gold-500/20 print:hidden flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={handlePayNow}
+                  disabled={isPaying}
+                  className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-gold-500 via-gold-400 to-gold-600 hover:from-gold-400 hover:to-gold-500 text-obsidian-950 font-bold text-sm tracking-wider uppercase shadow-[0_0_25px_rgba(201,162,39,0.35)] hover:shadow-[0_0_35px_rgba(201,162,39,0.5)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <FaShieldAlt className="text-obsidian-950" />
+                  {isPaying ? t('booking.processingPayment', 'Initiating Secure Gateway...') : t('booking.payWithGeitPatin', 'Proceed to Online Payment (GetPayIn SSL)')}
+                </button>
+                {paymentError && (
+                  <p className="text-xs text-red-400 text-center mt-1 bg-red-950/40 p-2 rounded-lg border border-red-500/20">
+                    {paymentError}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Guarantee & Verification Seal */}
-          <div className="pt-4 border-t border-gold-500/15 text-center text-[11px] text-ivory-400 print:text-gray-500 space-y-1">
-            <p className="font-semibold text-gold-400/90 print:text-gray-700">
-              DUNAS TRAVEL • Cairo • Istanbul • Athens • Casablanca
-            </p>
-            <p>
-              {t(
-                'booking.invoiceFooter',
-                'Thank you for selecting Dunas Travel. Our 24/7 VIP Concierge is at your service.'
-              )}
-            </p>
+          {/* Guarantee, QR Code & Verification Seal */}
+          <div className="pt-4 border-t border-gold-500/15 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-ivory-400 print:text-gray-600">
+            <div className="space-y-1 max-w-sm text-center sm:text-start">
+              <p className="font-semibold text-gold-400/90 print:text-gray-700">
+                DUNAS TRAVEL • Cairo • Istanbul • Athens • Casablanca
+              </p>
+              <p className="text-[10px] leading-relaxed">
+                {t(
+                  'booking.invoiceFooter',
+                  'Thank you for selecting Dunas Travel. Official electronic tax invoice valid across all Egyptian ports & destinations.'
+                )}
+              </p>
+            </div>
+
+            {/* Digital Verification QR Box */}
+            <div className="flex items-center gap-3 p-2.5 rounded-xl border border-gold-500/20 bg-[rgba(255,252,247,0.03)] print:bg-white print:border-gray-300 shrink-0">
+              <div className="w-14 h-14 bg-white rounded-lg p-1 border border-gold-500/30 flex items-center justify-center overflow-hidden shrink-0 shadow-sm print:border-gray-400">
+                {qrDataUrl ? (
+                  <img
+                    src={qrDataUrl}
+                    alt="ETA E-Invoice QR Code"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <FaQrcode size={28} className="text-gold-400" />
+                )}
+              </div>
+              <div className="text-[9px] font-mono space-y-0.5 text-start">
+                <div className="font-bold text-ivory-100 print:text-black">DIGITAL VERIFIED</div>
+                <div className="text-gold-400 print:text-gray-700">DMC LIC. #1882</div>
+                <div className="text-emerald-400 font-bold">AUTHENTIC VOUCHER</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

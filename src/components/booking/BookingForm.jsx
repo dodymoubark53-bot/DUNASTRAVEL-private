@@ -50,7 +50,7 @@ const languages = [
 
 const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTransportChoice, initialPrice = 0 }) => {
   const { t, i18n } = useTranslation();
-  const { user } = useAuth();
+  const { user, resendVerification } = useAuth();
   const bookingTourKey = tourSlug || tourId;
 
   useEffect(() => {
@@ -68,8 +68,26 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
   const [pricePreview, setPricePreview] = useState(null);
   const [availabilities, setAvailabilities] = useState([]);
   const [availabilityStatus, setAvailabilityStatus] = useState('loading');
+  const [isResendingOtp, setIsResendingOtp] = useState(false);
+  const [otpResentSuccess, setOtpResentSuccess] = useState('');
   const langRef = useRef(null);
   const activityRef = useRef(null);
+
+  const handleResendOtpFromBooking = async () => {
+    if (!user?.email) return;
+    setIsResendingOtp(true);
+    setOtpResentSuccess('');
+    try {
+      if (typeof resendVerification === 'function') {
+        const res = await resendVerification(user.email);
+        setOtpResentSuccess(res?.message || t('auth.verificationResent', 'Verification code sent to your email!'));
+      }
+    } catch (err) {
+      setError(err?.message || t('auth.resendFailed', 'Failed to resend verification code'));
+    } finally {
+      setIsResendingOtp(false);
+    }
+  };
 
   useEffect(() => {
     const onClick = (e) => {
@@ -307,6 +325,25 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
       return;
     }
 
+    // Require real email verification before booking
+    if (user && user.isVerified === false) {
+      if (typeof window !== 'undefined') {
+        const draftIntent = {
+          tourId: bookingTourKey,
+          tourSlug,
+          tourTitle,
+          transportChoice,
+          b,
+          passengerNames,
+          timestamp: Date.now(),
+        };
+        sessionStorage.setItem('dunas_pending_booking_intent', JSON.stringify(draftIntent));
+        const verifyUrl = `/verify-email?email=${encodeURIComponent(user.email)}`;
+        window.location.assign(verifyUrl);
+      }
+      return;
+    }
+
     if (requireTransportChoice && !transportChoice) {
       setTransportAlert(true);
       const el = document.getElementById('transport-selector');
@@ -374,7 +411,20 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
           typeof window !== 'undefined' ? sessionStorage.getItem('dunas_origin_interface') : undefined,
       });
 
-      const data = await api.post('/bookings', payload);
+      const idempotencyKey =
+        typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `bkg_ui_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+
+      const data = await api.post('/bookings', payload, {
+        headers: {
+          'Idempotency-Key': idempotencyKey,
+        },
+      });
+      const tokenToSave = data?.guestToken || data?.data?.guestToken;
+      if (tokenToSave && typeof window !== 'undefined') {
+        localStorage.setItem('dunas_guest_token', tokenToSave);
+      }
 
       const bookingResultData = { ...data, type: 'booking' };
       if ((data?.id || data?.referenceCode) && data?.paymentRequired !== false) {
@@ -383,7 +433,10 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
           if (readiness?.enabled && readiness?.configured) {
             const targetId = data?.id || data?.data?.id;
             if (targetId) {
-              const payData = await api.post('/payments/initiate', { bookingId: targetId });
+              const payData = await api.post('/payments/initiate', {
+                bookingId: targetId,
+                guestToken: tokenToSave || undefined,
+              });
               const sessionUrl = payData?.sessionUrl || payData?.url;
               if (sessionUrl) {
                 redirectToPayLinkCheckout(sessionUrl);
@@ -395,7 +448,6 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
             bookingResultData.paymentProvider = readiness?.provider || 'GETPAYIN';
           }
         } catch (payErr) {
-          console.error('Payment initiation failed', payErr);
           bookingResultData.paymentUnavailable = true;
           bookingResultData.paymentProvider = 'GETPAYIN';
         }
@@ -452,7 +504,6 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
 
   return (
     <div
-      ref={langRef}
       className="bg-[#121118]/95 backdrop-blur-xl text-ivory-50 rounded-2xl shadow-[0_16px_50px_rgba(0,0,0,0.55)] border border-[rgba(201,162,39,0.22)] hover:border-gold-500/40 transition-all duration-300 overflow-hidden"
     >
       <AnimatePresence mode="wait">
@@ -479,7 +530,7 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
               {bookingResult.paymentUnavailable
                 ? t(
                     'payment.getPayInPending',
-                    'Your reservation is securely created. An official GatePayIn payment invoice will be dispatched to your email.'
+                    'Your reservation is securely created. An official GetPayIn payment invoice will be dispatched to your email.'
                   )
                 : t('booking.successDesc', 'Our private travel concierge will reach out to you within 24 hours.')}
             </p>
@@ -589,16 +640,30 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
                         })}
                       </select>
                     ) : (
-                      <input
-                        id="arrival-date-input"
-                        type="date"
-                        value={b.arrivalDate}
-                        min={todayStr}
-                        onChange={(e) => updateB('arrivalDate', e.target.value)}
-                        required
-                        className={inputClass}
-                        disabled={availabilityStatus === 'loading'}
-                      />
+                      <>
+                        <input
+                          id="arrival-date-input"
+                          type="date"
+                          value={b.arrivalDate}
+                          min={todayStr}
+                          onChange={(e) => updateB('arrivalDate', e.target.value)}
+                          required
+                          className={inputClass}
+                          disabled={availabilityStatus === 'loading'}
+                        />
+                        {availabilityStatus === 'empty' && (
+                          <p className="mt-1.5 text-[11px] text-amber-400/90 leading-tight">
+                            {t('booking.noOnlineSlots', 'No online departures available.')}{' '}
+                            <button
+                              type="button"
+                              onClick={() => setTab('inquiry')}
+                              className="text-gold-400 underline hover:text-gold-300 font-semibold cursor-pointer"
+                            >
+                              {t('booking.switchToInquiry', 'Request tailor-made inquiry')}
+                            </button>
+                          </p>
+                        )}
+                      </>
                     )}
                   </div>
                   <div>
@@ -651,7 +716,7 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
 
                 {/* Language & Activity Preferences */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="relative">
+                  <div ref={langRef} className="relative">
                     <label htmlFor="language-btn" className={labelClass}>
                       <FaGlobeAmericas className="text-gold-400" size={11} />
                       {t('booking.preferredLanguage', 'Tour Language')}
@@ -1044,6 +1109,51 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
                   );
                 })()}
 
+                {/* Unverified Email Warning Banner */}
+                {user && user.isVerified === false && (
+                  <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-2 text-center">
+                    <div className="flex items-center justify-center gap-1.5 font-semibold text-gold-400">
+                      <FaShieldAlt />
+                      <span>{t('booking.emailVerificationRequired', 'Email Verification Required')}</span>
+                    </div>
+                    <p className="text-[11.5px] text-ivory-300/90 leading-relaxed">
+                      {t('booking.verifyEmailPrompt', 'Please confirm the 6-digit verification code sent to')} <strong className="text-gold-400 font-mono">{user.email}</strong> {t('booking.beforeBookingFinal', 'before confirming your reservation.')}
+                    </p>
+                    <div className="flex items-center justify-center gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const draftIntent = {
+                            tourId: bookingTourKey,
+                            tourSlug,
+                            tourTitle,
+                            transportChoice,
+                            b,
+                            passengerNames,
+                            timestamp: Date.now(),
+                          };
+                          sessionStorage.setItem('dunas_pending_booking_intent', JSON.stringify(draftIntent));
+                          window.location.assign(`/verify-email?email=${encodeURIComponent(user.email)}`);
+                        }}
+                        className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-gold-500 to-gold-700 text-obsidian-900 font-bold text-[11px] uppercase tracking-wider cursor-pointer"
+                      >
+                        {t('auth.enterOtpBtn', 'Enter Verification Code')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleResendOtpFromBooking}
+                        disabled={isResendingOtp}
+                        className="px-3 py-1.5 rounded-lg bg-gold-500/10 border border-gold-500/30 text-gold-400 hover:bg-gold-500/20 text-[11px] font-medium transition-all cursor-pointer"
+                      >
+                        {isResendingOtp ? t('common.loading', 'Sending...') : t('auth.resendCodeBtn', 'Resend Code')}
+                      </button>
+                    </div>
+                    {otpResentSuccess && (
+                      <p className="text-[11px] text-emerald-400 mt-1">{otpResentSuccess}</p>
+                    )}
+                  </div>
+                )}
+
                 {/* Submit Action */}
                 <button
                   type="submit"
@@ -1059,6 +1169,11 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, transportChoice, requireTran
                     <>
                       <FaUserCheck size={13} />
                       {t('booking.signInToBook', 'Sign in & Confirm Booking')}
+                    </>
+                  ) : user.isVerified === false ? (
+                    <>
+                      <FaShieldAlt size={13} />
+                      {t('booking.verifyEmailToBook', 'Verify Email & Confirm Booking')}
                     </>
                   ) : (
                     <>

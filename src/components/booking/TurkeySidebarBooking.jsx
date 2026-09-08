@@ -16,7 +16,8 @@ import {
   FaCheckCircle,
   FaBuilding,
   FaMapMarkerAlt,
-  FaUserCheck
+  FaUserCheck,
+  FaShieldAlt
 } from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
 import api from '../../utils/api';
@@ -49,7 +50,7 @@ const LANGUAGES = [
 
 export default function TurkeySidebarBooking({ tourTitle, transportChoice, requireTransportChoice }) {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, resendVerification } = useAuth();
   const [tab, setTab] = useState('booking'); // 'booking' | 'inquiry'
   const [submitStatus, setSubmitStatus] = useState('idle'); // 'idle' | 'submitting' | 'success'
   const [openDropdown, setOpenDropdown] = useState(null); // 'booking' | 'inquiry' | null
@@ -58,6 +59,24 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
   const [submittedData, setSubmittedData] = useState(null);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isResendingOtp, setIsResendingOtp] = useState(false);
+  const [otpResentSuccess, setOtpResentSuccess] = useState('');
+
+  const handleResendOtpFromBooking = async () => {
+    if (!user?.email) return;
+    setIsResendingOtp(true);
+    setOtpResentSuccess('');
+    try {
+      if (typeof resendVerification === 'function') {
+        const res = await resendVerification(user.email);
+        setOtpResentSuccess(res?.message || t('auth.verificationResent', 'Verification code sent to your email!'));
+      }
+    } catch (err) {
+      setErrorMessage(err?.message || t('auth.resendFailed', 'Failed to resend verification code'));
+    } finally {
+      setIsResendingOtp(false);
+    }
+  };
 
   const langRef = useRef(null);
   const actRef = useRef(null);
@@ -121,7 +140,9 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
           if (intent.passengerNames) {
             setPassengerNames(intent.passengerNames);
           }
-          sessionStorage.removeItem('dunas_pending_booking_intent');
+          if (user && user.isVerified !== false) {
+            sessionStorage.removeItem('dunas_pending_booking_intent');
+          }
         }
       }
     } catch {
@@ -185,6 +206,24 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
       return;
     }
 
+    // Require real email verification before booking
+    if (user && user.isVerified === false) {
+      if (typeof window !== 'undefined') {
+        const draftIntent = {
+          tourId: tourTitle,
+          tourTitle,
+          transportChoice,
+          b: bookingForm,
+          passengerNames,
+          timestamp: Date.now(),
+        };
+        sessionStorage.setItem('dunas_pending_booking_intent', JSON.stringify(draftIntent));
+        const verifyUrl = `/verify-email?email=${encodeURIComponent(user.email)}`;
+        window.location.assign(verifyUrl);
+      }
+      return;
+    }
+
     if (requireTransportChoice && !transportChoice) {
       setShowTransportError(true);
       const el = document.getElementById('transport-selector');
@@ -223,6 +262,10 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
       };
 
       const data = await api.post('/bookings', payload);
+      const tokenToSave = data?.guestToken || data?.data?.guestToken;
+      if (tokenToSave && typeof window !== 'undefined') {
+        localStorage.setItem('dunas_guest_token', tokenToSave);
+      }
 
       const bookingResultData = { ...data, type: 'booking' };
       if ((data?.id || data?.referenceCode) && data?.paymentRequired !== false) {
@@ -231,7 +274,10 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
           if (readiness?.enabled && readiness?.configured) {
             const targetId = data?.id || data?.data?.id;
             if (targetId) {
-              const payData = await api.post('/payments/initiate', { bookingId: targetId });
+              const payData = await api.post('/payments/initiate', {
+                bookingId: targetId,
+                guestToken: tokenToSave || undefined,
+              });
               const sessionUrl = payData?.sessionUrl || payData?.url;
               if (sessionUrl) {
                 redirectToPayLinkCheckout(sessionUrl);
@@ -786,6 +832,50 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
                 </div>
               )}
 
+              {/* Unverified Email Warning Banner */}
+              {user && user.isVerified === false && (
+                <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-2 text-center">
+                  <div className="flex items-center justify-center gap-1.5 font-semibold text-gold-400">
+                    <FaShieldAlt />
+                    <span>{t('booking.emailVerificationRequired', 'Email Verification Required')}</span>
+                  </div>
+                  <p className="text-[11.5px] text-ivory-300/90 leading-relaxed">
+                    {t('booking.verifyEmailPrompt', 'Please confirm the 6-digit verification code sent to')} <strong className="text-gold-400 font-mono">{user.email}</strong> {t('booking.beforeBookingFinal', 'before confirming your reservation.')}
+                  </p>
+                  <div className="flex items-center justify-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const draftIntent = {
+                          tourId: tourTitle,
+                          tourTitle,
+                          transportChoice,
+                          b: bookingForm,
+                          passengerNames,
+                          timestamp: Date.now(),
+                        };
+                        sessionStorage.setItem('dunas_pending_booking_intent', JSON.stringify(draftIntent));
+                        window.location.assign(`/verify-email?email=${encodeURIComponent(user.email)}`);
+                      }}
+                      className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-gold-500 to-gold-700 text-obsidian-900 font-bold text-[11px] uppercase tracking-wider cursor-pointer"
+                    >
+                      {t('auth.enterOtpBtn', 'Enter Verification Code')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleResendOtpFromBooking}
+                      disabled={isResendingOtp}
+                      className="px-3 py-1.5 rounded-lg bg-gold-500/10 border border-gold-500/30 text-gold-400 hover:bg-gold-500/20 text-[11px] font-medium transition-all cursor-pointer"
+                    >
+                      {isResendingOtp ? t('common.loading', 'Sending...') : t('auth.resendCodeBtn', 'Resend Code')}
+                    </button>
+                  </div>
+                  {otpResentSuccess && (
+                    <p className="text-[11px] text-emerald-400 font-medium">{otpResentSuccess}</p>
+                  )}
+                </div>
+              )}
+
               {/* Submit Button */}
               <button
                 type="submit"
@@ -801,6 +891,11 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
                   <>
                     <FaUserCheck size={13} />
                     {t('booking.signInToBook', 'Sign in & Book')}
+                  </>
+                ) : user.isVerified === false ? (
+                  <>
+                    <FaShieldAlt size={13} />
+                    {t('booking.verifyEmailToBook', 'Verify Email & Book')}
                   </>
                 ) : (
                   <>

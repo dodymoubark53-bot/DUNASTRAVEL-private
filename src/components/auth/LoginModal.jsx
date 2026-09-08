@@ -121,11 +121,16 @@ const LoginModal = ({ isOpen, onClose }) => {
     setIsLoading(true);
     try {
       const account = await register(name, email, phone, password);
-      setSuccess(account?.isVerified === false
-        ? t('auth.accountCreatedVerification', 'Account created. Please verify your email before logging in.')
-        : t('auth.accountCreatedSuccess', 'Account created successfully! Please log in.'));
-      // Keep the email for the next step; users with verification enabled can resend from login.
-      setTimeout(() => switchView('login'), 2200);
+      if (account?.isVerified === false) {
+        setSuccess(t('auth.accountCreatedVerification', 'Account created. Please enter the verification code sent to your email.'));
+        setTimeout(() => {
+          onClose();
+          window.location.assign(`/verify-email?email=${encodeURIComponent(email)}`);
+        }, 1200);
+      } else {
+        setSuccess(t('auth.accountCreatedSuccess', 'Account created successfully! Please log in.'));
+        setTimeout(() => switchView('login'), 2200);
+      }
     } catch (err_) {
       const message = err_?.message || t('common.errorOccurred', 'An error occurred');
       if (message.toLowerCase().includes('already exists') || message.toLowerCase().includes('duplicate')) {
@@ -214,14 +219,26 @@ const LoginModal = ({ isOpen, onClose }) => {
                 <div className="mb-5 p-3.5 rounded-xl bg-red-500/15 border border-red-500/50 text-red-400 text-caption text-center space-y-2">
                   <p>{typeof error === 'object' && error !== null ? (error.message || String(error)) : error}</p>
                   {showResendBtn && (
-                    <button
-                      type="button"
-                      onClick={handleResendVerification}
-                      disabled={isResending}
-                      className="inline-block mt-1 px-3 py-1 rounded-lg bg-gold-500/20 text-gold-400 hover:bg-gold-500/30 text-xs font-semibold transition-all border border-gold-500/30"
-                    >
-                      {isResending ? t('common.loading', 'Sending...') : t('auth.resendVerificationBtn', 'Resend Verification Email')}
-                    </button>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-2 pt-2 border-t border-red-500/20">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onClose();
+                          window.location.assign(`/verify-email?email=${encodeURIComponent(email)}`);
+                        }}
+                        className="inline-block px-3 py-1 rounded-lg bg-gradient-to-r from-gold-500 to-gold-700 text-obsidian-900 text-xs font-bold uppercase tracking-wider"
+                      >
+                        {t('auth.enterOtpBtn', 'Enter Verification Code')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleResendVerification}
+                        disabled={isResending}
+                        className="inline-block px-3 py-1 rounded-lg bg-gold-500/10 text-gold-400 hover:bg-gold-500/20 text-xs font-semibold transition-all border border-gold-500/30"
+                      >
+                        {isResending ? t('common.loading', 'Sending...') : t('auth.resendVerificationBtn', 'Resend Code')}
+                      </button>
+                    </div>
                   )}
                 </div>
               )}

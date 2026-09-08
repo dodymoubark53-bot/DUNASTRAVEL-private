@@ -22,6 +22,7 @@ import {
 import InvoiceModal from './InvoiceModal';
 import api from '../../utils/api';
 import { redirectToPayLinkCheckout } from '../../utils/paylink';
+import { useAuth } from '../../context/AuthContext';
 
 const inputStyle =
   'w-full px-3.5 py-3 rounded-xl bg-[rgba(255,252,247,0.03)] text-ivory-50 placeholder:text-ivory-400/40 border border-[rgba(201,162,39,0.18)] focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 focus:outline-none text-[13.5px] transition-all [color-scheme:dark]';
@@ -49,11 +50,30 @@ export default function AdvancedBooking({
   basePricePerPerson = 0,
 }) {
   const { t, i18n } = useTranslation();
+  const { user, resendVerification } = useAuth();
   const [activeTab, setActiveTab] = useState(initialTab);
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const [bookingResult, setBookingResult] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
+  const [isResendingOtp, setIsResendingOtp] = useState(false);
+  const [otpResentSuccess, setOtpResentSuccess] = useState('');
+
+  const handleResendOtpFromBooking = async () => {
+    if (!user?.email) return;
+    setIsResendingOtp(true);
+    setOtpResentSuccess('');
+    try {
+      if (typeof resendVerification === 'function') {
+        const res = await resendVerification(user.email);
+        setOtpResentSuccess(res?.message || t('auth.verificationResent', 'Verification code sent to your email!'));
+      }
+    } catch (err) {
+      setError(err?.message || t('auth.resendFailed', 'Failed to resend verification code'));
+    } finally {
+      setIsResendingOtp(false);
+    }
+  };
 
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [activityDropdownOpen, setActivityDropdownOpen] = useState(false);
@@ -101,6 +121,18 @@ export default function AdvancedBooking({
   };
 
   useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: prev.fullName || user.name || '',
+        email: prev.email || user.email || '',
+        phone: prev.phone || user.phone || '',
+        language: prev.language || user.preferredLanguage || i18n.language || 'en',
+      }));
+    }
+  }, [user, i18n.language]);
+
+  useEffect(() => {
     const handleOutsideClick = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
         setLangDropdownOpen(false);
@@ -114,6 +146,41 @@ export default function AdvancedBooking({
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (activeTab === 'booking') {
+      if (!user) {
+        if (typeof window !== 'undefined') {
+          const draftIntent = {
+            tourId: predefinedTourId || tourTitle,
+            tourTitle,
+            transportChoice,
+            b: formData,
+            timestamp: Date.now(),
+          };
+          sessionStorage.setItem('dunas_pending_booking_intent', JSON.stringify(draftIntent));
+          const redirectUrl = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+          window.location.assign(redirectUrl);
+        }
+        return;
+      }
+
+      if (user && user.isVerified === false) {
+        if (typeof window !== 'undefined') {
+          const draftIntent = {
+            tourId: predefinedTourId || tourTitle,
+            tourTitle,
+            transportChoice,
+            b: formData,
+            timestamp: Date.now(),
+          };
+          sessionStorage.setItem('dunas_pending_booking_intent', JSON.stringify(draftIntent));
+          const verifyUrl = `/verify-email?email=${encodeURIComponent(user.email)}`;
+          window.location.assign(verifyUrl);
+        }
+        return;
+      }
+    }
+
     setStatus('submitting');
 
     try {
@@ -189,7 +256,6 @@ export default function AdvancedBooking({
               bookingResultData.paymentProvider = readiness?.provider || 'GETPAYIN';
             }
           } catch (payErr) {
-            console.error('Payment initiation failed', payErr);
             bookingResultData.paymentUnavailable = true;
             bookingResultData.paymentProvider = 'GETPAYIN';
           }
@@ -202,7 +268,12 @@ export default function AdvancedBooking({
       if (err.status === 409) {
         setError(t('booking.errorConflict', 'A booking conflict exists for the selected dates. Please adjust your itinerary.'));
       } else if (err.status === 422) {
-        setError(t('booking.errorValidation', 'Please verify passenger and date information before proceeding.'));
+        const isAvailError = typeof err.message === 'string' && (err.message.toLowerCase().includes('availab') || err.message.toLowerCase().includes('slot'));
+        setError(
+          isAvailError
+            ? t('booking.noAvailability', 'No bookable departure is available for this date. Please select another date or send a private inquiry.')
+            : t('booking.errorValidation', 'Please verify passenger and date information before proceeding.')
+        );
       } else {
         setError(err.message || t('common.errorOccurred', 'Error processing request'));
       }
@@ -245,7 +316,7 @@ export default function AdvancedBooking({
             {bookingResult.paymentUnavailable
               ? t(
                   'payment.getPayInPending',
-                  'Your reservation is securely created. An official GatePayIn payment invoice will be dispatched to your email.'
+                  'Your reservation is securely created. An official GetPayIn payment invoice will be dispatched to your email.'
                 )
               : t('booking.successDesc', 'Our private travel concierge will reach out to you within 24 hours.')}
           </p>
@@ -620,6 +691,49 @@ export default function AdvancedBooking({
                 );
               })()}
 
+              {/* Unverified Email Warning Banner */}
+              {user && user.isVerified === false && (
+                <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-2 text-center mt-3">
+                  <div className="flex items-center justify-center gap-1.5 font-semibold text-gold-400">
+                    <FaShieldAlt />
+                    <span>{t('booking.emailVerificationRequired', 'Email Verification Required')}</span>
+                  </div>
+                  <p className="text-[11.5px] text-ivory-300/90 leading-relaxed">
+                    {t('booking.verifyEmailPrompt', 'Please confirm the 6-digit verification code sent to')} <strong className="text-gold-400 font-mono">{user.email}</strong> {t('booking.beforeBookingFinal', 'before confirming your reservation.')}
+                  </p>
+                  <div className="flex items-center justify-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const draftIntent = {
+                          tourId: predefinedTourId || tourTitle,
+                          tourTitle,
+                          transportChoice,
+                          b: formData,
+                          timestamp: Date.now(),
+                        };
+                        sessionStorage.setItem('dunas_pending_booking_intent', JSON.stringify(draftIntent));
+                        window.location.assign(`/verify-email?email=${encodeURIComponent(user.email)}`);
+                      }}
+                      className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-gold-500 to-gold-700 text-obsidian-900 font-bold text-[11px] uppercase tracking-wider cursor-pointer"
+                    >
+                      {t('auth.enterOtpBtn', 'Enter Verification Code')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleResendOtpFromBooking}
+                      disabled={isResendingOtp}
+                      className="px-3 py-1.5 rounded-lg bg-gold-500/10 border border-gold-500/30 text-gold-400 hover:bg-gold-500/20 text-[11px] font-medium transition-all cursor-pointer"
+                    >
+                      {isResendingOtp ? t('common.loading', 'Sending...') : t('auth.resendCodeBtn', 'Resend Code')}
+                    </button>
+                  </div>
+                  {otpResentSuccess && (
+                    <p className="text-[11px] text-emerald-400 font-medium">{otpResentSuccess}</p>
+                  )}
+                </div>
+              )}
+
               {/* Submit Button */}
               <button
                 type="submit"
@@ -631,6 +745,16 @@ export default function AdvancedBooking({
                     <span className="w-4 h-4 border-2 border-obsidian-900 border-t-transparent rounded-full animate-spin" />
                     {t('booking.sending', 'Locking Reservation...')}
                   </span>
+                ) : !user ? (
+                  <>
+                    <FaUserCheck size={13} />
+                    {t('booking.signInToBook', 'Sign in & Book')}
+                  </>
+                ) : user.isVerified === false ? (
+                  <>
+                    <FaShieldAlt size={13} />
+                    {t('booking.verifyEmailToBook', 'Verify Email & Book')}
+                  </>
                 ) : (
                   <>
                     <FaPaperPlane size={12} />

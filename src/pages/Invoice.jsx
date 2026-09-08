@@ -52,7 +52,7 @@ const Invoice = () => {
       });
       const url = data?.url || data?.sessionUrl || data?.checkoutUrl || data?.session?.url;
       if (url) {
-        if (url.startsWith('/')) {
+        if (url.startsWith('/') && !url.startsWith('//')) {
           window.location.href = url;
         } else {
           redirectToPayLinkCheckout(url);
@@ -154,17 +154,25 @@ const Invoice = () => {
                 <span className="text-gray-500">
                   {t('booking.date', 'Date')}: {d.toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                 </span>
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  booking.status === 'confirmed' ? 'bg-green-100 text-green-700' :
-                  booking.status === 'cancelled' ? 'bg-red-100 text-red-700' :
-                  booking.status === 'completed' ? 'bg-blue-100 text-blue-700' :
-                  'bg-yellow-100 text-yellow-700'
-                }`}>
-                  {booking.status === 'pending' ? t('booking.pending', 'Pending') :
-                   booking.status === 'confirmed' ? t('booking.confirmed', 'Confirmed') :
-                   booking.status === 'cancelled' ? t('booking.cancelled', 'Cancelled') :
-                   t('booking.completed', 'Completed')}
-                </span>
+                {(() => {
+                  const s = String(booking.status || booking.invoiceStatus || '').toUpperCase();
+                  const isPaid = ['CONFIRMED', 'PAID', 'COMPLETED'].includes(s);
+                  const isCancelled = ['CANCELLED', 'VOID'].includes(s);
+                  const isRefunded = ['REFUNDED', 'CREDIT_NOTE', 'PARTIALLY_REFUNDED'].includes(s);
+                  return (
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      isPaid ? 'bg-green-100 text-green-700' :
+                      isCancelled ? 'bg-red-100 text-red-700' :
+                      isRefunded ? 'bg-purple-100 text-purple-700' :
+                      'bg-yellow-100 text-yellow-700'
+                    }`}>
+                      {isPaid ? t('booking.paid', 'Paid') :
+                       isCancelled ? t('booking.cancelled', 'Cancelled') :
+                       isRefunded ? t('booking.refunded', 'Refunded') :
+                       t('booking.pending', 'Pending Payment')}
+                    </span>
+                  );
+                })()}
               </div>
 
               {/* Tour Info */}
@@ -252,7 +260,7 @@ const Invoice = () => {
               </div>
 
               {/* Payment Actions */}
-              {booking.status === 'pending' && (
+              {!['CONFIRMED', 'PAID', 'COMPLETED', 'CANCELLED', 'VOID', 'REFUNDED', 'CREDIT_NOTE'].includes(String(booking.status || booking.invoiceStatus || '').toUpperCase()) && (
                 <div className="border-t border-gray-200 pt-6 mt-6 space-y-4">
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                     <button
@@ -302,7 +310,7 @@ const Invoice = () => {
               <div className="border-t border-gray-200 pt-6 mt-6 text-center text-xs text-gray-400 space-y-1">
                 <p className="font-semibold text-gray-500">DUNAS TRAVEL</p>
                 <p>{t('booking.invoiceFooter', 'Thank you for choosing DUNAS TRAVEL. We look forward to providing you with an unforgettable experience.')}</p>
-                {booking.status === 'pending' && (
+                {!['CONFIRMED', 'PAID', 'COMPLETED', 'CANCELLED', 'VOID', 'REFUNDED', 'CREDIT_NOTE'].includes(String(booking.status || booking.invoiceStatus || '').toUpperCase()) && (
                   <p className="mt-2 text-red-500">{t('booking.invoiceNote', 'This is a booking confirmation invoice. Please complete your payment to secure your reservation.')}</p>
                 )}
               </div>

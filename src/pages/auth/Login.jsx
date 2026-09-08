@@ -96,14 +96,22 @@ const Login = () => {
           <div className="mb-6 p-4 rounded-xl bg-red-500/15 border border-red-500/40 text-red-400 text-body-sm text-center space-y-2">
             <p>{typeof error === 'object' && error !== null ? (error.message || String(error)) : error}</p>
             {showResendBtn && (
-              <button
-                type="button"
-                onClick={handleResend}
-                disabled={isResending}
-                className="inline-block mt-2 px-4 py-1.5 rounded-lg bg-gold-500/20 text-gold-400 hover:bg-gold-500/30 text-xs font-semibold transition-all border border-gold-500/30"
-              >
-                {isResending ? t('common.loading', 'Sending...') : t('auth.resendVerificationBtn', 'Resend Verification Email')}
-              </button>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-3 pt-2 border-t border-red-500/20">
+                <Link
+                  to={`/verify-email?email=${encodeURIComponent(email)}`}
+                  className="inline-flex items-center justify-center px-4 py-1.5 rounded-lg bg-gradient-to-r from-gold-500 to-gold-700 text-obsidian-900 text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-sm"
+                >
+                  {t('auth.enterOtpBtn', 'Enter Verification Code')}
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={isResending}
+                  className="inline-block px-3 py-1.5 rounded-lg bg-gold-500/10 text-gold-400 hover:bg-gold-500/20 text-xs font-semibold transition-all border border-gold-500/30"
+                >
+                  {isResending ? t('common.loading', 'Sending...') : t('auth.resendVerificationBtn', 'Resend Code')}
+                </button>
+              </div>
             )}
           </div>
         )}

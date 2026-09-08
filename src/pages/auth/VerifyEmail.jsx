@@ -27,7 +27,7 @@ const VerifyEmail = () => {
   const [countdown, setCountdown] = useState(60);
   const [canResend, setCanResend] = useState(false);
 
-  const { verifyEmail, resendVerification } = useAuth();
+  const { verifyEmail, resendVerification, getMe } = useAuth();
 
   // If code is provided in URL, automatically attempt verification
   useEffect(() => {
@@ -39,11 +39,34 @@ const VerifyEmail = () => {
       setError('');
       try {
         await verifyEmail({ code: codeFromUrl, email: emailFromUrl });
+        if (typeof getMe === 'function') {
+          try {
+            await getMe();
+          } catch {}
+        }
         if (isMounted) {
-          setSuccess(t('auth.verifyEmailSuccess', 'Your account has been verified successfully! You can now sign in.'));
+          const rawPending = typeof window !== 'undefined' ? sessionStorage.getItem('dunas_pending_booking_intent') : null;
+          let targetUrl = '/dashboard';
+          let isResumingBooking = false;
+          if (rawPending) {
+            try {
+              const parsed = JSON.parse(rawPending);
+              const tourKey = parsed?.tourSlug || parsed?.tourId;
+              if (tourKey) {
+                targetUrl = `/tours/${tourKey}`;
+                isResumingBooking = true;
+              }
+            } catch {}
+          }
+
+          setSuccess(
+            isResumingBooking
+              ? t('auth.verifyEmailSuccessBooking', 'Account activated! Resuming your tour reservation...')
+              : t('auth.verifyEmailSuccess', 'Your account has been verified successfully! You can now proceed.')
+          );
           setTimeout(() => {
-            if (isMounted) navigate('/login');
-          }, 3000);
+            if (isMounted) navigate(targetUrl, { replace: true });
+          }, 2000);
         }
       } catch (err) {
         if (isMounted) {
@@ -59,7 +82,7 @@ const VerifyEmail = () => {
     return () => {
       isMounted = false;
     };
-  }, [codeFromUrl, emailFromUrl, verifyEmail, navigate, t]);
+  }, [codeFromUrl, emailFromUrl, verifyEmail, getMe, navigate, t]);
 
   // Handle resend countdown timer
   useEffect(() => {
@@ -120,11 +143,35 @@ const VerifyEmail = () => {
     setSuccess('');
 
     try {
-      await verifyEmail({ code: fullCode, email: resendEmail.trim() });
-      setSuccess(t('auth.verifyEmailSuccess', 'Your account has been verified successfully! You can now sign in.'));
+      const result = await verifyEmail({ code: fullCode, email: resendEmail.trim() });
+      if (typeof getMe === 'function') {
+        try {
+          await getMe();
+        } catch {}
+      }
+
+      const rawPending = typeof window !== 'undefined' ? sessionStorage.getItem('dunas_pending_booking_intent') : null;
+      let targetUrl = '/dashboard';
+      let isResumingBooking = false;
+      if (rawPending) {
+        try {
+          const parsed = JSON.parse(rawPending);
+          const tourKey = parsed?.tourSlug || parsed?.tourId;
+          if (tourKey) {
+            targetUrl = `/tours/${tourKey}`;
+            isResumingBooking = true;
+          }
+        } catch {}
+      }
+
+      setSuccess(
+        isResumingBooking
+          ? t('auth.verifyEmailSuccessBooking', 'Account activated! Resuming your tour reservation...')
+          : (result?.message || t('auth.verifyEmailSuccess', 'Your account has been verified successfully!'))
+      );
       setTimeout(() => {
-        navigate('/login');
-      }, 2500);
+        navigate(targetUrl, { replace: true });
+      }, 2000);
     } catch (err) {
       setError(err.message || t('auth.verifyEmailError', 'Invalid or expired 6-digit verification code.'));
     } finally {
