@@ -408,7 +408,7 @@ const Navbar = () => {
               className={`relative group w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 shadow-sm z-50 select-none cursor-pointer outline-none overflow-hidden shrink-0 ${
                 mobileMenuOpen
                   ? "bg-linear-to-br from-amber-500/25 via-amber-500/15 to-amber-500/30 border-amber-500 shadow-[0_0_25px_rgba(245,158,11,0.65)] text-amber-500 dark:text-amber-400"
-                  : "bg-white/90 dark:bg-obsidian-800/90 border-obsidian-300 dark:border-amber-500/40 text-obsidian-700 dark:text-amber-400 hover:border-amber-500 hover:text-amber-500 hover:shadow-[0_0_22px_rgba(245,158,11,0.5)] hover:scale-105 active:scale-95"
+                  : "bg-white/90 dark:bg-obsidian-800/90 border-amber-500/50 text-amber-500 dark:text-amber-400 hover:border-amber-500 hover:text-amber-500 hover:shadow-[0_0_22px_rgba(245,158,11,0.5)] hover:scale-105 active:scale-95"
               }`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
