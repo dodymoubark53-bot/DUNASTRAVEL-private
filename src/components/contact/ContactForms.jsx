@@ -346,8 +346,8 @@ const ContactForms = () => {
     <>
       <style dangerouslySetInnerHTML={{ __html: `
         .contact-forms-section {
-          background-color: #05081A;
-          color: #F5F2E8;
+          background-color: #ffffff;
+          color: #05081A;
           font-family: 'Inter', sans-serif;
           position: relative;
         }
@@ -686,7 +686,7 @@ const ContactForms = () => {
             <span className="text-caption text-gold-500 uppercase tracking-[4px] font-semibold block mb-3">
               {t('contactForms.subtitle', 'TAILOR-MADE LUXURY EXPERIENCES')}
             </span>
-            <h2 className="text-display-lg text-gold-500 mb-4" style={{ fontWeight: 300, fontFamily: "'Cormorant Garamond', serif" }}>
+            <h2 className="text-display-lg text-obsidian-900 mb-4" style={{ fontWeight: 300, fontFamily: "'Cormorant Garamond', serif" }}>
               {t('contactForms.title', 'Request Your Bespoke Itinerary')}
             </h2>
             <div className="w-20 h-[1px] bg-gold-500/40 mx-auto"></div>
