@@ -509,10 +509,10 @@ const Contact = () => {
                 <span>{t('contact.quickInquiry', 'Instant Concierge Inquiry')}</span>
               </div>
 
-              <h3 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 dark:text-ivory-50 mb-2">
+              <h3 className="text-2xl sm:text-3xl font-serif font-bold text-ivory-50 mb-2">
                 {t('contact.sendMessage', 'أرسل رسالتك مباشرة')}
               </h3>
-              <p className="text-sm text-slate-900 dark:text-ivory-200/80 mb-6 font-medium leading-relaxed">
+              <p className="text-sm text-ivory-200/90 mb-6 font-normal leading-relaxed">
                 {t('contact.formDesc', 'يسعدنا الإجابة على جميع تساؤلاتك وتصميم برنامج رحلتك بما يتناسب مع رغباتك.')}
               </p>
 
