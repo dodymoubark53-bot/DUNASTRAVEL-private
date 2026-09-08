@@ -296,12 +296,12 @@ const Login = () => {
       {/* Main Container Layout */}
       <div className="relative z-10 w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
         
-        {/* ── LEFT PANEL: Futuristic Destination & Brand VIP Portal (Desktop) ── */}
+        {/* ── LEFT PANEL: Futuristic Destination & Brand VIP Portal ── */}
         <motion.div
           initial={{ opacity: 0, x: isRtl ? 40 : -40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="hidden lg:flex lg:col-span-5 flex-col justify-between h-[640px] rounded-3xl p-8 relative overflow-hidden border border-gold-500/20 shadow-[0_0_80px_rgba(201,162,39,0.12)] backdrop-blur-xl group"
+          className="flex lg:col-span-5 flex-col justify-between min-h-[460px] lg:h-[640px] rounded-3xl p-6 sm:p-8 relative overflow-hidden border border-gold-500/20 shadow-[0_0_80px_rgba(201,162,39,0.12)] backdrop-blur-xl group"
         >
           {/* Background Image Carousel with Smooth Fade */}
           <AnimatePresence mode="wait">
@@ -321,33 +321,33 @@ const Login = () => {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(201,162,39,0.2),transparent_70%)]" />
 
           {/* Top Brand Header Badge */}
-          <div className="relative z-10 space-y-4">
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-400 text-xs font-semibold uppercase tracking-[2px] backdrop-blur-md shadow-[0_0_20px_rgba(201,162,39,0.2)]">
+          <div className="relative z-10 space-y-3 sm:space-y-4">
+            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-400 text-[11px] sm:text-xs font-semibold uppercase tracking-[2px] backdrop-blur-md shadow-[0_0_20px_rgba(201,162,39,0.2)]">
               <span className="w-2 h-2 rounded-full bg-gold-400 animate-ping" />
               <FaCrown className="text-gold-400 animate-pulse" />
               {t('auth.vipPortal', 'DUNAS VIP WORLD PORTAL')}
             </div>
 
-            <h2 className="text-3xl font-display font-bold text-white tracking-wide leading-tight">
+            <h2 className="text-2xl sm:text-3xl font-display font-bold text-white tracking-wide leading-tight">
               {t('auth.journeyTitle', 'Unlock The Realm of Bespoke Luxury')}
             </h2>
-            <p className="text-ivory-300 text-sm leading-relaxed font-light">
+            <p className="text-ivory-300 text-xs sm:text-sm leading-relaxed font-light">
               {t('auth.journeySubtitle', 'Enter your private sanctuary to manage tailored itineraries, exclusive desert sanctuaries, and royal yacht charters.')}
             </p>
           </div>
 
           {/* Middle Dynamic Destination Feature Spotlight */}
-          <div className="relative z-10 my-auto">
-            <div className="p-5 rounded-2xl bg-black/40 border border-gold-500/20 backdrop-blur-md space-y-3 relative overflow-hidden group-hover:border-gold-500/40 transition-colors">
+          <div className="relative z-10 my-4 sm:my-auto">
+            <div className="p-4 sm:p-5 rounded-2xl bg-black/40 border border-gold-500/20 backdrop-blur-md space-y-2.5 sm:space-y-3 relative overflow-hidden group-hover:border-gold-500/40 transition-colors">
               <div className="flex items-center justify-between text-xs text-gold-400 font-medium">
-                <span className="flex items-center gap-1.5">
+                <span className="flex items-center gap-1.5 text-[11px] sm:text-xs">
                   <FaCompass className="text-gold-400 animate-bounce" /> {DESTINATIONS[currentSlide].tag}
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-gold-500/20 text-gold-300 border border-gold-500/30">
+                <span className="px-2.5 py-0.5 rounded-full bg-gold-500/20 text-gold-300 border border-gold-500/30 text-[10px] sm:text-xs">
                   {DESTINATIONS[currentSlide].rating}
                 </span>
               </div>
-              <h4 className="text-lg font-semibold text-white font-display">
+              <h4 className="text-base sm:text-lg font-semibold text-white font-display">
                 {DESTINATIONS[currentSlide].title}
               </h4>
               <p className="text-xs text-ivory-400 flex items-center gap-1">
@@ -368,9 +368,9 @@ const Login = () => {
           </div>
 
           {/* Bottom Security & Encryption Guarantee Pill */}
-          <div className="relative z-10 pt-4 border-t border-gold-500/20 flex items-center justify-between text-xs text-ivory-400">
+          <div className="relative z-10 pt-3 sm:pt-4 border-t border-gold-500/20 flex items-center justify-between text-xs text-ivory-400 gap-2">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-gold-400">
+              <div className="w-7 h-7 rounded-full bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-gold-400 shrink-0">
                 <FaShieldAlt size={13} />
               </div>
               <div>
@@ -379,7 +379,7 @@ const Login = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-1 text-gold-400 font-semibold text-[11px]">
+            <div className="flex items-center gap-1 text-gold-400 font-semibold text-[10px] sm:text-[11px] shrink-0">
               <FaCheckCircle /> {t('auth.liveStatus', 'System Online')}
             </div>
           </div>
@@ -395,15 +395,6 @@ const Login = () => {
           <div className="w-full max-w-xl bg-gradient-to-b from-[#151221]/95 via-[#0F0C1B]/95 to-[#090712]/95 border border-[rgba(201,162,39,0.3)] rounded-3xl p-5 sm:p-8 lg:p-10 shadow-[0_0_60px_rgba(0,0,0,0.9),0_0_30px_rgba(201,162,39,0.15)] relative overflow-hidden backdrop-blur-2xl group">
             {/* Shimmering Animated Glowing Edge Beam */}
             <div className="absolute inset-0 rounded-3xl pointer-events-none p-[1px] bg-gradient-to-r from-transparent via-gold-500/40 to-transparent opacity-70 group-hover:opacity-100 transition-opacity" />
-
-            {/* Mobile Top Brand Badge */}
-            <div className="lg:hidden text-center mb-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-400 text-[10px] font-semibold uppercase tracking-[1.5px] backdrop-blur-md shadow-sm">
-                <span className="w-1.5 h-1.5 rounded-full bg-gold-400 animate-ping" />
-                <FaCrown size={10} className="text-gold-400" />
-                <span>{t('auth.vipPortal', 'DUNAS VIP WORLD PORTAL')}</span>
-              </div>
-            </div>
 
             {/* Glowing Golden Crest Badge */}
             <div className="text-center mb-6 sm:mb-8 relative z-10">
