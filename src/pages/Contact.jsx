@@ -20,10 +20,48 @@ const Contact = () => {
         <title>{t('contact.title', 'Contact Us | Luxury Travel')}</title>
         <meta name="description" content={t('contact.seoDesc', 'Get in touch with our luxury travel concierges to start crafting your bespoke journey to Egypt, Jordan, and Turkey.')} />
       </Helmet>
-      <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-obsidian-900"></div>
-        <motion.div className="relative z-10 text-center" variants={staggerContainer} initial="hidden" animate="visible">
-          <motion.h1 variants={fadeInUp} className="text-display-xl text-ivory-50">{t('nav.contact')}</motion.h1>
+      <section className="relative min-h-[42vh] md:min-h-[48vh] pt-32 pb-16 flex items-center justify-center overflow-hidden px-4">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1920&q=80"
+            alt="Dunas Travel Concierge Contact"
+            className="w-full h-full object-cover object-center scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-obsidian-950/90 via-obsidian-900/85 to-obsidian-950"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.15)_0%,transparent_70%)] pointer-events-none"></div>
+        </div>
+
+        {/* Ambient Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        {/* Content */}
+        <motion.div
+          className="relative z-10 text-center max-w-3xl mx-auto px-4"
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/90 border border-gold-500/40 text-gold-300 text-xs font-semibold uppercase tracking-widest mb-4 shadow-lg backdrop-blur-md">
+            <span>✨</span>
+            <span>{t('contact.subtitleBadge', 'Dunas Travel Concierge')}</span>
+          </motion.div>
+
+          <motion.h1
+            variants={fadeInUp}
+            className="text-3xl sm:text-5xl md:text-6xl font-bold font-serif text-ivory-50 tracking-wide drop-shadow-lg leading-tight"
+          >
+            {t('contact.heroTitle', t('nav.contact', 'اتصل بنا'))}
+          </motion.h1>
+
+          <motion.div variants={fadeInUp} className="w-20 h-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto my-4 rounded-full" />
+
+          <motion.p
+            variants={fadeInUp}
+            className="text-ivory-200/90 text-sm sm:text-base md:text-lg max-w-xl mx-auto leading-relaxed font-light drop-shadow"
+          >
+            {t('contact.heroSubtitle', 'نحن هنا لمساعدتك في تخطيط وتصميم رحلتك الفاخرة المخصصة بحرفية عالية.')}
+          </motion.p>
         </motion.div>
       </section>
 
