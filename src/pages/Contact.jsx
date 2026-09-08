@@ -24,7 +24,7 @@ const Contact = () => {
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1920&q=80"
+            src="https://igtsservice.com/uploads/files/67995_1649936390.jpg"
             alt="Dunas Travel Concierge Contact"
             className="w-full h-full object-cover object-center scale-105"
           />
