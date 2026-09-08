@@ -347,7 +347,6 @@ const ContactForms = () => {
       <style dangerouslySetInnerHTML={{ __html: `
         .contact-forms-section {
           background-color: transparent;
-          color: #F5F2E8;
           font-family: 'Inter', sans-serif;
           position: relative;
         }
@@ -366,19 +365,24 @@ const ContactForms = () => {
         /* Tabs Switcher styling */
         .forms-tab-switcher {
           display: flex;
-          background: rgba(15, 21, 53, 0.75);
-          border: 1px solid rgba(212, 168, 67, 0.3);
+          background: #F1F5F9;
+          border: 1px solid #CBD5E1;
           border-radius: 9999px;
           padding: 6px;
           margin-bottom: 2.5rem;
-          backdrop-filter: blur(16px);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .dark .forms-tab-switcher {
+          background: rgba(15, 21, 53, 0.75);
+          border: 1px solid rgba(212, 168, 67, 0.3);
           box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+          backdrop-filter: blur(16px);
         }
 
         .forms-tab-btn {
           flex: 1;
           background: transparent;
-          color: #A0A5BC;
+          color: #64748B;
           border: none;
           padding: 16px 24px;
           font-family: 'Inter', sans-serif;
@@ -391,50 +395,68 @@ const ContactForms = () => {
           text-align: center;
           border-radius: 9999px;
         }
+        .dark .forms-tab-btn {
+          color: #A0A5BC;
+        }
 
         .forms-tab-btn:hover {
+          color: #B88E28;
+        }
+        .dark .forms-tab-btn:hover {
           color: #F0C96A;
         }
 
         .forms-tab-btn.active {
           background: linear-gradient(135deg, #D4A843 0%, #B88E28 100%);
-          color: #05081A;
+          color: #05081A !important;
           box-shadow: 0 4px 20px rgba(212, 168, 67, 0.35);
         }
 
         /* Form elements */
         .forms-card {
-          background: rgba(15, 21, 53, 0.85);
-          border: 1px solid rgba(212, 168, 67, 0.25);
+          background: #FFFFFF;
+          border: 1px solid #E2E8F0;
           border-radius: 28px;
           padding: 3rem 2.5rem;
           position: relative;
-          backdrop-filter: blur(20px);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+        }
+        .dark .forms-card {
+          background: rgba(15, 21, 53, 0.85);
+          border: 1px solid rgba(212, 168, 67, 0.25);
           box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(20px);
         }
 
         .form-section-title {
           font-size: 26px;
-          font-weight: 300;
-          color: #F0C96A;
+          font-weight: 400;
+          color: #B88E28;
           font-family: 'Cormorant Garamond', serif;
-          border-bottom: 1px solid rgba(212, 168, 67, 0.2);
+          border-bottom: 1px solid #E2E8F0;
           padding-bottom: 12px;
           margin-bottom: 28px;
           display: flex;
           align-items: center;
           gap: 14px;
         }
+        .dark .form-section-title {
+          color: #F0C96A;
+          border-bottom-color: rgba(212, 168, 67, 0.2);
+        }
 
         .form-section-num {
           font-size: 11px;
           font-weight: 800;
           letter-spacing: 3px;
-          color: #D4A843;
+          color: #B88E28;
           background: rgba(212, 168, 67, 0.12);
           border: 1px solid rgba(212, 168, 67, 0.3);
           padding: 4px 12px;
           border-radius: 9999px;
+        }
+        .dark .form-section-num {
+          color: #D4A843;
         }
 
         .form-field-group {
@@ -448,26 +470,39 @@ const ContactForms = () => {
           font-weight: 600;
           letter-spacing: 2.5px;
           text-transform: uppercase;
-          color: #A0A5BC;
+          color: #475569;
           margin-bottom: 10px;
+        }
+        .dark .form-label {
+          color: #A0A5BC;
         }
 
         .form-input, .form-select, .form-textarea {
           width: 100%;
-          background-color: rgba(5, 8, 26, 0.8);
-          border: 1px solid rgba(212, 168, 67, 0.25);
+          background-color: #F8FAFC;
+          border: 1px solid #CBD5E1;
           padding: 16px 20px;
-          color: #F5F2E8;
+          color: #0F172A;
           font-family: 'Inter', sans-serif;
           font-size: 14px;
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           border-radius: 14px !important;
         }
+        .dark .form-input, .dark .form-select, .dark .form-textarea {
+          background-color: rgba(5, 8, 26, 0.8);
+          border-color: rgba(212, 168, 67, 0.25);
+          color: #F5F2E8;
+        }
 
         .form-input:focus, .form-select:focus, .form-textarea:focus {
+          border-color: #D4A843;
+          background-color: #FFFFFF;
+          outline: none;
+          box-shadow: 0 0 12px rgba(212, 168, 67, 0.2);
+        }
+        .dark .form-input:focus, .dark .form-select:focus, .dark .form-textarea:focus {
           border-color: #F0C96A;
           background-color: rgba(20, 26, 61, 0.9);
-          outline: none;
           box-shadow: 0 0 16px rgba(212, 168, 67, 0.25);
         }
 
@@ -483,9 +518,9 @@ const ContactForms = () => {
         }
 
         .pill-btn {
-          background-color: rgba(5, 8, 26, 0.7);
-          border: 1px solid rgba(212, 168, 67, 0.2);
-          color: #A0A5BC;
+          background-color: #F1F5F9;
+          border: 1px solid #CBD5E1;
+          color: #475569;
           padding: 12px 22px;
           font-size: 12px;
           font-weight: 600;
@@ -495,16 +530,30 @@ const ContactForms = () => {
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           border-radius: 12px !important;
         }
+        .dark .pill-btn {
+          background-color: rgba(5, 8, 26, 0.7);
+          border-color: rgba(212, 168, 67, 0.2);
+          color: #A0A5BC;
+        }
 
         .pill-btn:hover {
           border-color: #D4A843;
-          color: #F5F2E8;
+          color: #0F172A;
           transform: translateY(-2px);
+        }
+        .dark .pill-btn:hover {
+          border-color: #D4A843;
+          color: #F5F2E8;
         }
 
         .pill-btn.active {
           border-color: #D4A843;
-          color: #D4A843;
+          color: #B88E28 !important;
+          background: rgba(212, 168, 67, 0.12);
+          box-shadow: 0 4px 15px rgba(212, 168, 67, 0.15);
+        }
+        .dark .pill-btn.active {
+          color: #D4A843 !important;
           background: rgba(212, 168, 67, 0.15);
           box-shadow: 0 4px 15px rgba(212, 168, 67, 0.2);
         }
@@ -514,17 +563,21 @@ const ContactForms = () => {
           display: flex;
           align-items: center;
           gap: 16px;
-          background-color: rgba(5, 8, 26, 0.8);
-          border: 1px solid rgba(212, 168, 67, 0.25);
+          background-color: #F8FAFC;
+          border: 1px solid #CBD5E1;
           padding: 8px 18px;
           width: fit-content;
           border-radius: 14px !important;
+        }
+        .dark .counter-container {
+          background-color: rgba(5, 8, 26, 0.8);
+          border-color: rgba(212, 168, 67, 0.25);
         }
 
         .counter-btn {
           background: transparent;
           border: 1px solid rgba(212, 168, 67, 0.3);
-          color: #D4A843;
+          color: #B88E28;
           width: 34px;
           height: 34px;
           font-size: 18px;
@@ -534,6 +587,9 @@ const ContactForms = () => {
           cursor: pointer;
           transition: all 0.3s ease;
           border-radius: 10px !important;
+        }
+        .dark .counter-btn {
+          color: #D4A843;
         }
 
         .counter-btn:hover {
@@ -547,34 +603,49 @@ const ContactForms = () => {
           font-weight: 600;
           min-width: 24px;
           text-align: center;
+          color: #0F172A;
+        }
+        .dark .counter-value {
+          color: #F5F2E8;
         }
 
         /* Commission Preview box */
         .commission-preview-box {
-          background: rgba(26, 47, 122, 0.3);
-          border: 1px solid rgba(61, 92, 199, 0.4);
+          background: rgba(26, 47, 122, 0.05);
+          border: 1px solid rgba(61, 92, 199, 0.2);
           padding: 24px;
           border-radius: 16px;
           margin-bottom: 24px;
+        }
+        .dark .commission-preview-box {
+          background: rgba(26, 47, 122, 0.3);
+          border-color: rgba(61, 92, 199, 0.4);
         }
 
         .commission-rate {
           font-family: 'Cormorant Garamond', serif;
           font-size: 32px;
-          color: #D4A843;
+          color: #B88E28;
           font-weight: 400;
           margin-top: 6px;
+        }
+        .dark .commission-rate {
+          color: #D4A843;
         }
 
         /* Drag and Drop Zone */
         .dropzone {
-          border: 2px dashed rgba(212, 168, 67, 0.3);
-          background-color: rgba(5, 8, 26, 0.8);
+          border: 2px dashed #CBD5E1;
+          background-color: #F8FAFC;
           padding: 28px;
           text-align: center;
           cursor: pointer;
           transition: all 0.3s ease;
           border-radius: 16px !important;
+        }
+        .dark .dropzone {
+          border-color: rgba(212, 168, 67, 0.3);
+          background-color: rgba(5, 8, 26, 0.8);
         }
 
         .dropzone.dragover {
@@ -584,14 +655,20 @@ const ContactForms = () => {
 
         .dropzone-text {
           font-size: 13px;
+          color: #64748B;
+        }
+        .dark .dropzone-text {
           color: #8A8FA8;
         }
 
         .dropzone-filename {
           font-size: 13px;
-          color: #D4A843;
+          color: #B88E28;
           font-weight: 600;
           margin-top: 6px;
+        }
+        .dark .dropzone-filename {
+          color: #D4A843;
         }
 
         /* Urgency bar */
@@ -599,27 +676,43 @@ const ContactForms = () => {
           background-color: rgba(212, 168, 67, 0.08);
           border-left: 3px solid #D4A843;
           padding: 16px;
-          color: #F0C96A;
+          color: #B88E28;
           font-size: 13px;
           border-radius: 0 12px 12px 0;
           margin-bottom: 24px;
           line-height: 1.5;
         }
+        .dark .urgency-bar {
+          color: #F0C96A;
+        }
 
         /* Summary panel styling */
         .price-summary-panel {
-          background: linear-gradient(135deg, rgba(20, 26, 61, 0.9) 0%, rgba(10, 14, 38, 0.95) 100%);
-          border-left: 3px solid #D4A843;
+          background: #F8FAFC;
+          border-left: 4px solid #D4A843;
           padding: 24px;
           border-radius: 0 16px 16px 0;
           margin-bottom: 24px;
+          border-top: 1px solid #E2E8F0;
+          border-right: 1px solid #E2E8F0;
+          border-bottom: 1px solid #E2E8F0;
+        }
+        .dark .price-summary-panel {
+          background: linear-gradient(135deg, rgba(20, 26, 61, 0.9) 0%, rgba(10, 14, 38, 0.95) 100%);
+          border-left: 3px solid #D4A843;
+          border-top: none;
+          border-right: none;
+          border-bottom: none;
           box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
 
         .price-value {
           font-size: 32px;
-          color: #F0C96A;
+          color: #B88E28;
           font-weight: 600;
+        }
+        .dark .price-value {
+          color: #F0C96A;
         }
 
         /* Secure badges */
@@ -638,8 +731,11 @@ const ContactForms = () => {
           gap: 8px;
           font-size: 11px;
           letter-spacing: 1.5px;
-          color: #A0A5BC;
+          color: #64748B;
           text-transform: uppercase;
+        }
+        .dark .secure-badge {
+          color: #A0A5BC;
         }
 
         .secure-badge svg {
@@ -706,10 +802,10 @@ const ContactForms = () => {
         <div className="contact-forms-container">
           
           <div className="text-center mb-12">
-            <span className="text-caption text-gold-400 uppercase tracking-[4px] font-semibold block mb-3">
+            <span className="text-caption text-gold-600 dark:text-gold-400 uppercase tracking-[4px] font-semibold block mb-3">
               ✨ {t('contactForms.subtitle', 'TAILOR-MADE LUXURY EXPERIENCES')}
             </span>
-            <h2 className="text-3xl sm:text-5xl font-serif text-ivory-50 mb-4" style={{ fontWeight: 400 }}>
+            <h2 className="text-3xl sm:text-5xl font-serif text-slate-900 dark:text-ivory-50 mb-4" style={{ fontWeight: 400 }}>
               {t('contactForms.title', 'Request Your Bespoke Itinerary')}
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto rounded-full"></div>

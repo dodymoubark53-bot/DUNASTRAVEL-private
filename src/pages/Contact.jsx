@@ -59,7 +59,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="w-full bg-slate-950 text-ivory-50 min-h-screen selection:bg-gold-500 selection:text-obsidian-950">
+    <div className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-ivory-50 min-h-screen selection:bg-gold-500 selection:text-obsidian-950 transition-colors duration-300">
       <Helmet>
         <title>{t('contact.title', 'Contact Us | Dunas Travel Luxury Concierge')}</title>
         <meta name="description" content={t('contact.seoDesc', 'Get in touch with our luxury travel concierges to start crafting your bespoke journey to Egypt, Jordan, and Turkey.')} />
@@ -121,7 +121,7 @@ const Contact = () => {
           {/* World Clocks Bar */}
           <motion.div 
             variants={fadeInUp}
-            className="mt-10 inline-flex flex-wrap items-center justify-center gap-4 sm:gap-8 px-6 py-3 rounded-2xl bg-slate-900/70 border border-gold-500/20 backdrop-blur-md text-xs sm:text-sm text-ivory-200"
+            className="mt-10 inline-flex flex-wrap items-center justify-center gap-4 sm:gap-8 px-6 py-3 rounded-2xl bg-slate-900/80 border border-gold-500/30 backdrop-blur-md text-xs sm:text-sm text-ivory-200 shadow-xl"
           >
             <div className="flex items-center gap-2">
               <span className="text-base">🇪🇬</span>
@@ -156,18 +156,18 @@ const Contact = () => {
             target="_blank"
             rel="noopener noreferrer"
             whileHover={{ y: -6, scale: 1.02 }}
-            className="group relative bg-slate-900/90 border border-emerald-500/30 hover:border-emerald-400 p-6 rounded-2xl shadow-2xl backdrop-blur-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
+            className="group relative bg-white dark:bg-slate-900/90 border border-emerald-500/30 hover:border-emerald-500 p-6 rounded-2xl shadow-lg dark:shadow-2xl backdrop-blur-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
           >
             <div className="absolute -right-8 -top-8 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-all"></div>
             <div>
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-2xl mb-4 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-2xl mb-4 group-hover:scale-110 transition-transform">
                 <FaWhatsapp />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">{t('contact.whatsappTitle', 'واتساب الكونسيرج')}</span>
-              <h3 className="text-xl font-bold text-ivory-50 mt-1 mb-2">+20 114 940 1111</h3>
-              <p className="text-xs text-ivory-300/80 font-light">{t('contact.whatsappDesc', 'متاح على مدار 24 ساعة للمحادثات المباشرة والاستفسارات السريعة.')}</p>
+              <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{t('contact.whatsappTitle', 'واتساب الكونسيرج')}</span>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-ivory-50 mt-1 mb-2">+20 114 940 1111</h3>
+              <p className="text-xs text-slate-600 dark:text-ivory-300/80 font-light">{t('contact.whatsappDesc', 'متاح على مدار 24 ساعة للمحادثات المباشرة والاستفسارات السريعة.')}</p>
             </div>
-            <div className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-emerald-400 group-hover:translate-x-1 transition-transform">
+            <div className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 group-hover:translate-x-1 transition-transform">
               <span>{t('contact.chatNow', 'محادثة فورية الان')}</span>
               <span className="text-base">→</span>
             </div>
@@ -176,45 +176,45 @@ const Contact = () => {
           {/* Direct Phone Call */}
           <motion.div
             whileHover={{ y: -6, scale: 1.02 }}
-            className="group relative bg-slate-900/90 border border-gold-500/30 hover:border-gold-400 p-6 rounded-2xl shadow-2xl backdrop-blur-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
+            className="group relative bg-white dark:bg-slate-900/90 border border-gold-500/30 hover:border-gold-500 p-6 rounded-2xl shadow-lg dark:shadow-2xl backdrop-blur-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
           >
             <div className="absolute -right-8 -top-8 w-24 h-24 bg-gold-500/10 rounded-full blur-xl group-hover:bg-gold-500/20 transition-all"></div>
             <div>
-              <div className="w-12 h-12 rounded-xl bg-gold-500/20 border border-gold-500/40 flex items-center justify-center text-gold-400 text-xl mb-4 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-xl bg-gold-500/10 dark:bg-gold-500/20 border border-gold-500/40 flex items-center justify-center text-gold-600 dark:text-gold-400 text-xl mb-4 group-hover:scale-110 transition-transform">
                 <FaPhone />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-gold-400">{t('contact.phoneTitle', 'الاتصال المباشر')}</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gold-600 dark:text-gold-400">{t('contact.phoneTitle', 'الاتصال المباشر')}</span>
               <div className="mt-1 flex flex-col gap-1">
-                <a href="tel:+20233746643" className="text-lg font-bold text-ivory-50 hover:text-gold-300 transition-colors font-mono">02 33746643</a>
-                <a href="tel:+20233746654" className="text-lg font-bold text-ivory-50 hover:text-gold-300 transition-colors font-mono">02 33746654</a>
+                <a href="tel:+20233746643" className="text-lg font-bold text-slate-900 dark:text-ivory-50 hover:text-gold-600 dark:hover:text-gold-300 transition-colors font-mono">02 33746643</a>
+                <a href="tel:+20233746654" className="text-lg font-bold text-slate-900 dark:text-ivory-50 hover:text-gold-600 dark:hover:text-gold-300 transition-colors font-mono">02 33746654</a>
               </div>
-              <p className="text-xs text-ivory-300/80 font-light mt-2">{t('contact.phoneDesc', 'خطوط هاتفية مباشرة لمكتب القاهرة وممثلي خدمة العملاء.')}</p>
+              <p className="text-xs text-slate-600 dark:text-ivory-300/80 font-light mt-2">{t('contact.phoneDesc', 'خطوط هاتفية مباشرة لمكتب القاهرة وممثلي خدمة العملاء.')}</p>
             </div>
             <div className="mt-6 flex items-center gap-3">
-              <a href="tel:+20233746643" className="text-xs font-bold text-gold-400 hover:underline">{t('contact.callNow', 'اتصل الآن')}</a>
+              <a href="tel:+20233746643" className="text-xs font-bold text-gold-600 dark:text-gold-400 hover:underline">{t('contact.callNow', 'اتصل الآن')}</a>
             </div>
           </motion.div>
 
           {/* Official Email */}
           <motion.div
             whileHover={{ y: -6, scale: 1.02 }}
-            className="group relative bg-slate-900/90 border border-blue-500/30 hover:border-blue-400 p-6 rounded-2xl shadow-2xl backdrop-blur-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
+            className="group relative bg-white dark:bg-slate-900/90 border border-blue-500/30 hover:border-blue-500 p-6 rounded-2xl shadow-lg dark:shadow-2xl backdrop-blur-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
           >
             <div className="absolute -right-8 -top-8 w-24 h-24 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all"></div>
             <div>
-              <div className="w-12 h-12 rounded-xl bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400 text-xl mb-4 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-600 dark:text-blue-400 text-xl mb-4 group-hover:scale-110 transition-transform">
                 <FaEnvelope />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-blue-400">{t('contact.emailTitle', 'البريد الإلكتروني الرسمى')}</span>
-              <h3 className="text-base font-bold text-ivory-50 mt-1 truncate">info@dunas-travel.com</h3>
-              <p className="text-xs text-ivory-300/80 font-light mt-2">{t('contact.emailDesc', 'استجابة سريعة للطلبات والحجوزات الرسمية خلال أقل من ساعة.')}</p>
+              <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">{t('contact.emailTitle', 'البريد الإلكتروني الرسمى')}</span>
+              <h3 className="text-base font-bold text-slate-900 dark:text-ivory-50 mt-1 truncate">info@dunas-travel.com</h3>
+              <p className="text-xs text-slate-600 dark:text-ivory-300/80 font-light mt-2">{t('contact.emailDesc', 'استجابة سريعة للطلبات والحجوزات الرسمية خلال أقل من ساعة.')}</p>
             </div>
             <div className="mt-6 flex items-center justify-between">
               <button 
                 onClick={() => copyToClipboard('info@dunas-travel.com', 'info')}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
               >
-                {copiedEmail === 'info' ? <FaCheck className="text-emerald-400" /> : <FaCopy />}
+                {copiedEmail === 'info' ? <FaCheck className="text-emerald-500" /> : <FaCopy />}
                 <span>{copiedEmail === 'info' ? t('contact.copied', 'تم النسخ') : t('contact.copyEmail', 'نسخ الإيميل')}</span>
               </button>
             </div>
@@ -226,18 +226,18 @@ const Contact = () => {
             target="_blank"
             rel="noopener noreferrer"
             whileHover={{ y: -6, scale: 1.02 }}
-            className="group relative bg-slate-900/90 border border-purple-500/30 hover:border-purple-400 p-6 rounded-2xl shadow-2xl backdrop-blur-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
+            className="group relative bg-white dark:bg-slate-900/90 border border-purple-500/30 hover:border-purple-500 p-6 rounded-2xl shadow-lg dark:shadow-2xl backdrop-blur-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
           >
             <div className="absolute -right-8 -top-8 w-24 h-24 bg-purple-500/10 rounded-full blur-xl group-hover:bg-purple-500/20 transition-all"></div>
             <div>
-              <div className="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 text-xl mb-4 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-xl bg-purple-500/10 dark:bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-600 dark:text-purple-400 text-xl mb-4 group-hover:scale-110 transition-transform">
                 <FaMapMarkerAlt />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-purple-400">{t('contact.addressTitle', 'المقر الرئيسي')}</span>
-              <h3 className="text-sm font-bold text-ivory-50 mt-1 leading-snug">5 شارع حسين سعيد، حدائق الأهرام - الجيزة، مصر</h3>
-              <p className="text-xs text-ivory-300/80 font-light mt-2">{t('contact.addressDesc', 'نستقبل العملاء والشركاء في مقر الشركة الرسمي بالجيزة.')}</p>
+              <span className="text-xs font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">{t('contact.addressTitle', 'المقر الرئيسي')}</span>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-ivory-50 mt-1 leading-snug">5 شارع حسين سعيد، حدائق الأهرام - الجيزة، مصر</h3>
+              <p className="text-xs text-slate-600 dark:text-ivory-300/80 font-light mt-2">{t('contact.addressDesc', 'نستقبل العملاء والشركاء في مقر الشركة الرسمي بالجيزة.')}</p>
             </div>
-            <div className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-purple-400 group-hover:translate-x-1 transition-transform">
+            <div className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-purple-600 dark:text-purple-400 group-hover:translate-x-1 transition-transform">
               <span>📍 {t('contact.viewMaps', 'فتح خريطة جوجل')}</span>
             </div>
           </motion.a>
@@ -259,39 +259,39 @@ const Contact = () => {
         
         {/* Section Heading */}
         <div className="text-center mb-14">
-          <span className="text-gold-400 text-xs font-bold uppercase tracking-[4px] block mb-2">
+          <span className="text-gold-600 dark:text-gold-400 text-xs font-bold uppercase tracking-[4px] block mb-2">
             ✨ {t('contact.sectionBadge', 'DIRECT CONCIERGE DESK')}
           </span>
-          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-ivory-50">
+          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-slate-900 dark:text-ivory-50">
             {t('contact.getInTouch', 'تواصل معنا مباشرة')}
           </h2>
           <div className="w-20 h-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto mt-4 rounded-full" />
         </div>
 
-        <div className="bg-slate-900/90 rounded-3xl border border-gold-500/20 shadow-2xl overflow-hidden flex flex-col lg:flex-row backdrop-blur-xl">
+        <div className="bg-white dark:bg-slate-900/90 rounded-3xl border border-gray-200 dark:border-gold-500/20 shadow-xl dark:shadow-2xl overflow-hidden flex flex-col lg:flex-row backdrop-blur-xl">
 
           {/* Left Side: Headquarters Details & Embedded Interactive Google Map */}
-          <div className="lg:w-1/2 p-8 sm:p-12 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-gold-500/15">
+          <div className="lg:w-1/2 p-8 sm:p-12 bg-slate-50/90 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gold-500/15">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-400 text-xs font-semibold mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-700 dark:text-gold-400 text-xs font-semibold mb-6">
                 <FaGlobe />
                 <span>{t('contact.hqLabel', 'Headquarters & Global Concierge')}</span>
               </div>
 
-              <h3 className="text-2xl sm:text-3xl font-serif font-bold text-ivory-50 mb-6">
+              <h3 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 dark:text-ivory-50 mb-6">
                 {t('contact.officeHeader', 'مقر الشركة والمعلومات الرسمية')}
               </h3>
 
-              <div className="space-y-6 mb-8 text-sm text-ivory-200/90">
+              <div className="space-y-6 mb-8 text-sm text-slate-700 dark:text-ivory-200/90">
                 
                 {/* Address Row */}
-                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-900/60 border border-gold-500/10 hover:border-gold-500/30 transition-all">
-                  <div className="p-3 rounded-xl bg-gold-500/10 text-gold-400 text-lg flex-shrink-0">
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-gold-500/10 hover:border-gold-500/30 transition-all shadow-sm dark:shadow-none">
+                  <div className="p-3 rounded-xl bg-gold-500/10 text-gold-600 dark:text-gold-400 text-lg flex-shrink-0">
                     <FaMapMarkerAlt />
                   </div>
                   <div>
-                    <h4 className="text-xs uppercase tracking-wider text-gold-400 font-bold mb-1">{t('contact.office', 'العنوان الرسمي')}</h4>
-                    <p className="leading-relaxed text-ivory-100 font-medium">
+                    <h4 className="text-xs uppercase tracking-wider text-gold-600 dark:text-gold-400 font-bold mb-1">{t('contact.office', 'العنوان الرسمي')}</h4>
+                    <p className="leading-relaxed text-slate-800 dark:text-ivory-100 font-medium">
                       5 Hussein Said St, Old Hadayk El Ahram First floor Flat 102 – 103<br />
                       Haram - Giza – Egypt
                     </p>
@@ -299,43 +299,43 @@ const Contact = () => {
                 </div>
 
                 {/* Phones Row */}
-                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-900/60 border border-gold-500/10 hover:border-gold-500/30 transition-all">
-                  <div className="p-3 rounded-xl bg-gold-500/10 text-gold-400 text-lg flex-shrink-0">
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-gold-500/10 hover:border-gold-500/30 transition-all shadow-sm dark:shadow-none">
+                  <div className="p-3 rounded-xl bg-gold-500/10 text-gold-600 dark:text-gold-400 text-lg flex-shrink-0">
                     <FaPhone />
                   </div>
                   <div className="w-full">
-                    <h4 className="text-xs uppercase tracking-wider text-gold-400 font-bold mb-1">{t('contact.phoneLabel', 'الهواتف المباشرة')}</h4>
+                    <h4 className="text-xs uppercase tracking-wider text-gold-600 dark:text-gold-400 font-bold mb-1">{t('contact.phoneLabel', 'الهواتف المباشرة')}</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
-                      <a href="tel:+20233746643" className="flex items-center gap-2 hover:text-gold-300 font-mono text-sm bg-slate-950/60 px-3 py-1.5 rounded-lg border border-gold-500/10">
-                        <FaPhone className="text-gold-400 text-xs" /> 02 33746643
+                      <a href="tel:+20233746643" className="flex items-center gap-2 hover:text-gold-600 dark:hover:text-gold-300 font-mono text-sm bg-slate-100 dark:bg-slate-950/60 text-slate-900 dark:text-ivory-50 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gold-500/10">
+                        <FaPhone className="text-gold-600 dark:text-gold-400 text-xs" /> 02 33746643
                       </a>
-                      <a href="tel:+20233746654" className="flex items-center gap-2 hover:text-gold-300 font-mono text-sm bg-slate-950/60 px-3 py-1.5 rounded-lg border border-gold-500/10">
-                        <FaPhone className="text-gold-400 text-xs" /> 02 33746654
+                      <a href="tel:+20233746654" className="flex items-center gap-2 hover:text-gold-600 dark:hover:text-gold-300 font-mono text-sm bg-slate-100 dark:bg-slate-950/60 text-slate-900 dark:text-ivory-50 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gold-500/10">
+                        <FaPhone className="text-gold-600 dark:text-gold-400 text-xs" /> 02 33746654
                       </a>
                     </div>
-                    <a href="https://wa.me/201149401111" target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center justify-center gap-2 hover:text-emerald-300 font-mono text-sm bg-emerald-950/40 text-emerald-400 px-3 py-2 rounded-lg border border-emerald-500/20 w-full transition-all">
-                      <FaWhatsapp className="text-emerald-400 text-sm" /> WhatsApp VIP: +20 114 940 1111
+                    <a href="https://wa.me/201149401111" target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center justify-center gap-2 hover:text-emerald-600 dark:hover:text-emerald-300 font-mono text-sm bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 px-3 py-2 rounded-lg border border-emerald-300 dark:border-emerald-500/20 w-full transition-all">
+                      <FaWhatsapp className="text-emerald-600 dark:text-emerald-400 text-sm" /> WhatsApp VIP: +20 114 940 1111
                     </a>
                   </div>
                 </div>
 
                 {/* Emails Row */}
-                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-900/60 border border-gold-500/10 hover:border-gold-500/30 transition-all">
-                  <div className="p-3 rounded-xl bg-gold-500/10 text-gold-400 text-lg flex-shrink-0">
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-gold-500/10 hover:border-gold-500/30 transition-all shadow-sm dark:shadow-none">
+                  <div className="p-3 rounded-xl bg-gold-500/10 text-gold-600 dark:text-gold-400 text-lg flex-shrink-0">
                     <FaEnvelope />
                   </div>
                   <div className="w-full">
-                    <h4 className="text-xs uppercase tracking-wider text-gold-400 font-bold mb-1">{t('contact.emailLabel', 'عناوين البريد الإلكتروني')}</h4>
+                    <h4 className="text-xs uppercase tracking-wider text-gold-600 dark:text-gold-400 font-bold mb-1">{t('contact.emailLabel', 'عناوين البريد الإلكتروني')}</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
                       {['info@dunas-travel.com', 'booking@dunas-travel.com', 'Spain@dunas-travel.com', 'attia@dunas-travel.com'].map((email) => (
                         <button
                           key={email}
                           onClick={() => copyToClipboard(email, email)}
-                          className="flex items-center justify-between text-xs hover:text-gold-300 bg-slate-950/60 px-3 py-2 rounded-lg border border-gold-500/10 font-mono truncate transition-all group"
+                          className="flex items-center justify-between text-xs hover:text-gold-600 dark:hover:text-gold-300 bg-slate-100 dark:bg-slate-950/60 text-slate-900 dark:text-ivory-50 px-3 py-2 rounded-lg border border-gray-200 dark:border-gold-500/10 font-mono truncate transition-all group"
                           title="Click to copy email"
                         >
                           <span className="truncate">{email}</span>
-                          {copiedEmail === email ? <FaCheck className="text-emerald-400 flex-shrink-0 ml-1" /> : <FaCopy className="text-gold-400 opacity-60 group-hover:opacity-100 flex-shrink-0 ml-1" />}
+                          {copiedEmail === email ? <FaCheck className="text-emerald-500 flex-shrink-0 ml-1" /> : <FaCopy className="text-gold-600 dark:text-gold-400 opacity-60 group-hover:opacity-100 flex-shrink-0 ml-1" />}
                         </button>
                       ))}
                     </div>
@@ -350,7 +350,7 @@ const Contact = () => {
               href="https://maps.app.goo.gl/oA84mQGwUsHWo4kt8"
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full h-[240px] rounded-2xl overflow-hidden border border-gold-500/30 shadow-2xl relative group cursor-pointer mt-4"
+              className="block w-full h-[240px] rounded-2xl overflow-hidden border border-gold-500/30 shadow-xl relative group cursor-pointer mt-4"
               title={t('contact.openMaps', 'Open location in Google Maps')}
             >
               <iframe
@@ -362,8 +362,8 @@ const Contact = () => {
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               ></iframe>
-              <div className="absolute inset-0 bg-slate-950/40 group-hover:bg-slate-950/20 transition-all duration-300 flex items-center justify-center">
-                <span className="bg-slate-950/90 backdrop-blur-md text-gold-400 font-bold px-5 py-2.5 rounded-full border border-gold-500/50 text-xs shadow-2xl group-hover:scale-105 transition-all flex items-center gap-2">
+              <div className="absolute inset-0 bg-slate-950/30 group-hover:bg-slate-950/10 transition-all duration-300 flex items-center justify-center">
+                <span className="bg-slate-900/90 backdrop-blur-md text-gold-400 font-bold px-5 py-2.5 rounded-full border border-gold-500/50 text-xs shadow-2xl group-hover:scale-105 transition-all flex items-center gap-2">
                   <span>📍</span>
                   <span>{t('contact.openGoogleMaps', 'فتح الموقع على خرائط جوجل مباشرة')}</span>
                 </span>
@@ -372,17 +372,17 @@ const Contact = () => {
           </div>
 
           {/* Right Side: Message Form */}
-          <div className="lg:w-1/2 p-8 sm:p-12 flex flex-col justify-between bg-slate-900/60">
+          <div className="lg:w-1/2 p-8 sm:p-12 flex flex-col justify-between bg-white dark:bg-slate-900/60">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-400 text-xs font-semibold mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-700 dark:text-gold-400 text-xs font-semibold mb-6">
                 <FaPaperPlane />
                 <span>{t('contact.quickInquiry', 'Instant Concierge Inquiry')}</span>
               </div>
 
-              <h3 className="text-2xl sm:text-3xl font-serif font-bold text-ivory-50 mb-2">
+              <h3 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 dark:text-ivory-50 mb-2">
                 {t('contact.sendMessage', 'أرسل رسالتك مباشرة')}
               </h3>
-              <p className="text-sm text-ivory-300/80 mb-8 font-light leading-relaxed">
+              <p className="text-sm text-slate-600 dark:text-ivory-300/80 mb-8 font-light leading-relaxed">
                 {t('contact.formDesc', 'يسعدنا الإجابة على جميع تساؤلاتك وتصميم برنامج رحلتك بما يتناسب مع رغباتك.')}
               </p>
               
@@ -430,57 +430,57 @@ const Contact = () => {
               }}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-ivory-300 font-medium mb-1.5">{t('contact.firstNameLabel', 'الاسم الأول *')}</label>
+                    <label className="block text-xs uppercase tracking-wider text-slate-700 dark:text-ivory-300 font-medium mb-1.5">{t('contact.firstNameLabel', 'الاسم الأول *')}</label>
                     <input 
                       name="firstName" 
                       type="text" 
                       placeholder={t('contact.firstName', 'أدخل الاسم الأول')} 
                       required 
-                      className="w-full p-4 bg-slate-950/80 border border-gold-500/20 rounded-xl text-ivory-50 placeholder-ivory-400/50 focus:border-gold-400 focus:ring-1 focus:ring-gold-400 outline-none transition-all text-sm" 
+                      className="w-full p-4 bg-slate-50 dark:bg-slate-950/80 border border-gray-200 dark:border-gold-500/20 rounded-xl text-slate-900 dark:text-ivory-50 placeholder-gray-400 dark:placeholder-ivory-400/50 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-1 focus:ring-gold-400 outline-none transition-all text-sm" 
                     />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-ivory-300 font-medium mb-1.5">{t('contact.lastNameLabel', 'اسم العائلة *')}</label>
+                    <label className="block text-xs uppercase tracking-wider text-slate-700 dark:text-ivory-300 font-medium mb-1.5">{t('contact.lastNameLabel', 'اسم العائلة *')}</label>
                     <input 
                       name="lastName" 
                       type="text" 
                       placeholder={t('contact.lastName', 'أدخل اسم العائلة')} 
                       required 
-                      className="w-full p-4 bg-slate-950/80 border border-gold-500/20 rounded-xl text-ivory-50 placeholder-ivory-400/50 focus:border-gold-400 focus:ring-1 focus:ring-gold-400 outline-none transition-all text-sm" 
+                      className="w-full p-4 bg-slate-50 dark:bg-slate-950/80 border border-gray-200 dark:border-gold-500/20 rounded-xl text-slate-900 dark:text-ivory-50 placeholder-gray-400 dark:placeholder-ivory-400/50 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-1 focus:ring-gold-400 outline-none transition-all text-sm" 
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-ivory-300 font-medium mb-1.5">{t('contact.emailFieldLabel', 'البريد الإلكتروني *')}</label>
+                    <label className="block text-xs uppercase tracking-wider text-slate-700 dark:text-ivory-300 font-medium mb-1.5">{t('contact.emailFieldLabel', 'البريد الإلكتروني *')}</label>
                     <input 
                       name="email" 
                       type="email" 
                       placeholder={t('contact.emailPlaceholder', 'name@example.com')} 
                       required 
-                      className="w-full p-4 bg-slate-950/80 border border-gold-500/20 rounded-xl text-ivory-50 placeholder-ivory-400/50 focus:border-gold-400 focus:ring-1 focus:ring-gold-400 outline-none transition-all text-sm" 
+                      className="w-full p-4 bg-slate-50 dark:bg-slate-950/80 border border-gray-200 dark:border-gold-500/20 rounded-xl text-slate-900 dark:text-ivory-50 placeholder-gray-400 dark:placeholder-ivory-400/50 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-1 focus:ring-gold-400 outline-none transition-all text-sm" 
                     />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-ivory-300 font-medium mb-1.5">{t('contact.phoneFieldLabel', 'رقم الهاتف / الواتساب')}</label>
+                    <label className="block text-xs uppercase tracking-wider text-slate-700 dark:text-ivory-300 font-medium mb-1.5">{t('contact.phoneFieldLabel', 'رقم الهاتف / الواتساب')}</label>
                     <input 
                       name="phone" 
                       type="tel" 
                       placeholder={t('contact.phonePlaceholder', '+20 1xx xxx xxxx')} 
-                      className="w-full p-4 bg-slate-950/80 border border-gold-500/20 rounded-xl text-ivory-50 placeholder-ivory-400/50 focus:border-gold-400 focus:ring-1 focus:ring-gold-400 outline-none transition-all text-sm font-mono" 
+                      className="w-full p-4 bg-slate-50 dark:bg-slate-950/80 border border-gray-200 dark:border-gold-500/20 rounded-xl text-slate-900 dark:text-ivory-50 placeholder-gray-400 dark:placeholder-ivory-400/50 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-1 focus:ring-gold-400 outline-none transition-all text-sm font-mono" 
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-ivory-300 font-medium mb-1.5">{t('contact.messageLabel', 'تفاصيل الاستفسار والرحلة *')}</label>
+                  <label className="block text-xs uppercase tracking-wider text-slate-700 dark:text-ivory-300 font-medium mb-1.5">{t('contact.messageLabel', 'تفاصيل الاستفسار والرحلة *')}</label>
                   <textarea 
                     name="message" 
                     placeholder={t('contact.messagePlaceholder', 'كيف يمكننا مساعدتك في تخطيط رحلتك الفاخرة المخصصة؟')} 
                     rows="5" 
                     required 
-                    className="w-full p-4 bg-slate-950/80 border border-gold-500/20 rounded-xl text-ivory-50 placeholder-ivory-400/50 focus:border-gold-400 focus:ring-1 focus:ring-gold-400 outline-none transition-all text-sm resize-none"
+                    className="w-full p-4 bg-slate-50 dark:bg-slate-950/80 border border-gray-200 dark:border-gold-500/20 rounded-xl text-slate-900 dark:text-ivory-50 placeholder-gray-400 dark:placeholder-ivory-400/50 focus:border-gold-500 dark:focus:border-gold-400 focus:ring-1 focus:ring-gold-400 outline-none transition-all text-sm resize-none"
                   ></textarea>
                 </div>
 
@@ -506,8 +506,8 @@ const Contact = () => {
             </div>
 
             {/* Privacy Promise Notice */}
-            <div className="mt-8 pt-6 border-t border-gold-500/10 flex items-center gap-3 text-xs text-ivory-300/70">
-              <FaShieldAlt className="text-gold-400 text-lg flex-shrink-0" />
+            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gold-500/10 flex items-center gap-3 text-xs text-slate-600 dark:text-ivory-300/70">
+              <FaShieldAlt className="text-gold-600 dark:text-gold-400 text-lg flex-shrink-0" />
               <p>{t('contact.privacyPromise', 'نعدك بالحفاظ الكامل على خصوصية بياناتك وعدم مشاركتها مع أي طرف ثالث إطلاقاً.')}</p>
             </div>
 
@@ -521,36 +521,36 @@ const Contact = () => {
       {/* ========================================================================= */}
       <section className="container mx-auto px-4 sm:px-6 pb-24 relative z-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="p-6 rounded-2xl bg-slate-900/60 border border-gold-500/15 backdrop-blur-md text-center">
-            <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-400 text-xl mx-auto flex items-center justify-center mb-3">
+          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-gold-500/15 shadow-sm dark:shadow-md text-center">
+            <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-600 dark:text-gold-400 text-xl mx-auto flex items-center justify-center mb-3">
               <FaShieldAlt />
             </div>
-            <h4 className="font-serif font-bold text-lg text-ivory-100 mb-1">{t('contact.badge1Title', 'شركة مرخصة رسمياً')}</h4>
-            <p className="text-xs text-ivory-300/70 font-light">{t('contact.badge1Desc', 'شركة سياحية مرخصة برقم ترخيص 1882 من وزارة السياحة المصرية.')}</p>
+            <h4 className="font-serif font-bold text-lg text-slate-900 dark:text-ivory-100 mb-1">{t('contact.badge1Title', 'شركة مرخصة رسمياً')}</h4>
+            <p className="text-xs text-slate-600 dark:text-ivory-300/70 font-light">{t('contact.badge1Desc', 'شركة سياحية مرخصة برقم ترخيص 1882 من وزارة السياحة المصرية.')}</p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-slate-900/60 border border-gold-500/15 backdrop-blur-md text-center">
-            <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-400 text-xl mx-auto flex items-center justify-center mb-3">
+          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-gold-500/15 shadow-sm dark:shadow-md text-center">
+            <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-600 dark:text-gold-400 text-xl mx-auto flex items-center justify-center mb-3">
               <FaUserTie />
             </div>
-            <h4 className="font-serif font-bold text-lg text-ivory-100 mb-1">{t('contact.badge2Title', 'كونسيرج فاخر خاص')}</h4>
-            <p className="text-xs text-ivory-300/70 font-light">{t('contact.badge2Desc', 'مستشار سفر مخصص يرافق خطوات رحلتك وتخطيطها لحظة بلحظة.')}</p>
+            <h4 className="font-serif font-bold text-lg text-slate-900 dark:text-ivory-100 mb-1">{t('contact.badge2Title', 'كونسيرج فاخر خاص')}</h4>
+            <p className="text-xs text-slate-600 dark:text-ivory-300/70 font-light">{t('contact.badge2Desc', 'مستشار سفر مخصص يرافق خطوات رحلتك وتخطيطها لحظة بلحظة.')}</p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-slate-900/60 border border-gold-500/15 backdrop-blur-md text-center">
-            <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-400 text-xl mx-auto flex items-center justify-center mb-3">
+          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-gold-500/15 shadow-sm dark:shadow-md text-center">
+            <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-600 dark:text-gold-400 text-xl mx-auto flex items-center justify-center mb-3">
               <FaStar />
             </div>
-            <h4 className="font-serif font-bold text-lg text-ivory-100 mb-1">{t('contact.badge3Title', 'برامج 100% مخصصة')}</h4>
-            <p className="text-xs text-ivory-300/70 font-light">{t('contact.badge3Desc', 'تجارب فاخرة وحصرية تم تصميمها وتخصيصها بالكامل حسب رغبتك.')}</p>
+            <h4 className="font-serif font-bold text-lg text-slate-900 dark:text-ivory-100 mb-1">{t('contact.badge3Title', 'برامج 100% مخصصة')}</h4>
+            <p className="text-xs text-slate-600 dark:text-ivory-300/70 font-light">{t('contact.badge3Desc', 'تجارب فاخرة وحصرية تم تصميمها وتخصيصها بالكامل حسب رغبتك.')}</p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-slate-900/60 border border-gold-500/15 backdrop-blur-md text-center">
-            <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-400 text-xl mx-auto flex items-center justify-center mb-3">
+          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-gold-500/15 shadow-sm dark:shadow-md text-center">
+            <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-600 dark:text-gold-400 text-xl mx-auto flex items-center justify-center mb-3">
               <FaClock />
             </div>
-            <h4 className="font-serif font-bold text-lg text-ivory-100 mb-1">{t('contact.badge4Title', 'استجابة فائقة السرعة')}</h4>
-            <p className="text-xs text-ivory-300/70 font-light">{t('contact.badge4Desc', 'نضمن الرد على كافة الطلبات والاستفسارات خلال دقائق معدودة.')}</p>
+            <h4 className="font-serif font-bold text-lg text-slate-900 dark:text-ivory-100 mb-1">{t('contact.badge4Title', 'استجابة فائقة السرعة')}</h4>
+            <p className="text-xs text-slate-600 dark:text-ivory-300/70 font-light">{t('contact.badge4Desc', 'نضمن الرد على كافة الطلبات والاستفسارات خلال دقائق معدودة.')}</p>
           </div>
         </div>
       </section>
