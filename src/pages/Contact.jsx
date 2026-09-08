@@ -20,7 +20,7 @@ const Contact = () => {
         <title>{t('contact.title', 'Contact Us | Luxury Travel')}</title>
         <meta name="description" content={t('contact.seoDesc', 'Get in touch with our luxury travel concierges to start crafting your bespoke journey to Egypt, Jordan, and Turkey.')} />
       </Helmet>
-      <section className="relative min-h-[42vh] md:min-h-[48vh] pt-32 pb-16 flex items-center justify-center overflow-hidden px-4">
+      <section className="relative min-h-[55vh] md:min-h-[65vh] pt-36 pb-24 flex items-center justify-center overflow-hidden px-4">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <img
@@ -28,8 +28,8 @@ const Contact = () => {
             alt="Dunas Travel Concierge Contact"
             className="w-full h-full object-cover object-center scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-obsidian-950/90 via-obsidian-900/85 to-obsidian-950"></div>
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.15)_0%,transparent_70%)] pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-obsidian-950/75 via-obsidian-900/50 to-obsidian-950/85"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.12)_0%,transparent_70%)] pointer-events-none"></div>
         </div>
 
         {/* Ambient Glow */}
