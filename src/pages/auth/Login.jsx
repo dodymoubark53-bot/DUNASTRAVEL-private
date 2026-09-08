@@ -191,11 +191,6 @@ const Login = () => {
   // Active Destination Slide index
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // 3D Card Tilt state
-  const cardRef = useRef(null);
-  const [rotateX, setRotateX] = useState(0);
-  const [rotateY, setRotateY] = useState(0);
-
   const { login, resendVerification, user } = useAuth();
 
   // Redirect if already logged in
@@ -212,21 +207,6 @@ const Login = () => {
     }, 6000);
     return () => clearInterval(timer);
   }, []);
-
-  // Handle 3D Mouse Parallax Tilt
-  const handleMouseMove = (e) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    setRotateX(-y / 25);
-    setRotateY(x / 25);
-  };
-
-  const handleMouseLeave = () => {
-    setRotateX(0);
-    setRotateY(0);
-  };
 
   const handleSubmit = async (e) => {
     e?.preventDefault();
@@ -412,16 +392,7 @@ const Login = () => {
           transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
           className="lg:col-span-7 flex justify-center"
         >
-          <div
-            ref={cardRef}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            style={{
-              transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
-              transition: 'transform 0.15s ease-out',
-            }}
-            className="w-full max-w-xl bg-gradient-to-b from-[#151221]/90 via-[#0F0C1B]/95 to-[#090712]/95 border border-[rgba(201,162,39,0.3)] rounded-3xl p-8 sm:p-10 shadow-[0_0_60px_rgba(0,0,0,0.9),0_0_30px_rgba(201,162,39,0.15)] relative overflow-hidden backdrop-blur-2xl group"
-          >
+          <div className="w-full max-w-xl bg-gradient-to-b from-[#151221]/90 via-[#0F0C1B]/95 to-[#090712]/95 border border-[rgba(201,162,39,0.3)] rounded-3xl p-8 sm:p-10 shadow-[0_0_60px_rgba(0,0,0,0.9),0_0_30px_rgba(201,162,39,0.15)] relative overflow-hidden backdrop-blur-2xl group">
             {/* Shimmering Animated Glowing Edge Beam */}
             <div className="absolute inset-0 rounded-3xl pointer-events-none p-[1px] bg-gradient-to-r from-transparent via-gold-500/40 to-transparent opacity-70 group-hover:opacity-100 transition-opacity" />
 

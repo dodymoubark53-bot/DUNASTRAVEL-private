@@ -207,13 +207,13 @@ const Navbar = () => {
                     <span className="font-bold text-[10px] text-[#F5A623]">{user.avatar || user.name?.charAt(0)?.toUpperCase() || 'U'}</span>
                   </button>
                 ) : (
-                  <button
-                    onClick={() => setIsLoginModalOpen(true)}
+                  <Link
+                    to="/login"
                     aria-label="Sign in"
                     className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/20 hover:border-[#F5A623]/40 transition-all duration-300 hover:scale-110"
                   >
                     <FaUserCircle size={11} className="text-[#F5A623]" />
-                  </button>
+                  </Link>
                 )}
               </div>
 
@@ -620,15 +620,13 @@ const Navbar = () => {
                   </div>
                 ) : (
                   <div className="flex flex-col gap-3 mt-4">
-                    <button
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        setIsLoginModalOpen(true);
-                      }}
-                      className="w-full py-3.5 px-4 bg-gradient-to-r from-gold-500/20 to-gold-600/20 text-gold-500 rounded-xl text-lg font-semibold flex items-center justify-center gap-2 border border-gold-500/30 hover:bg-gold-500/30 transition-all"
+                    <Link
+                      to="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full py-3.5 px-4 bg-gradient-to-r from-gold-500/20 to-gold-600/20 text-gold-500 rounded-xl text-lg font-semibold flex items-center justify-center gap-2 border border-gold-500/30 hover:bg-gold-500/30 transition-all text-center"
                     >
                       <FaUserCircle size={18} /> {t('auth.signIn', 'Sign In / Register')}
-                    </button>
+                    </Link>
                   </div>
                 )}
               </div>
