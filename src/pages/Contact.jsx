@@ -526,7 +526,7 @@ const Contact = () => {
               <FaShieldAlt />
             </div>
             <h4 className="font-serif font-bold text-lg text-ivory-100 mb-1">{t('contact.badge1Title', 'شركة مرخصة رسمياً')}</h4>
-            <p className="text-xs text-ivory-300/70 font-light">{t('contact.badge1Desc', 'شركة تورستية مرخصة برقم ترخيص 1417 من وزارة السياحة المصرية.')}</p>
+            <p className="text-xs text-ivory-300/70 font-light">{t('contact.badge1Desc', 'شركة سياحية مرخصة برقم ترخيص 1882 من وزارة السياحة المصرية.')}</p>
           </div>
 
           <div className="p-6 rounded-2xl bg-slate-900/60 border border-gold-500/15 backdrop-blur-md text-center">
