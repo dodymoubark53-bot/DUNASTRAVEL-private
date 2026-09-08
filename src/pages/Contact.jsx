@@ -658,7 +658,7 @@ const Contact = () => {
             </div>
 
             {/* Privacy Promise Notice */}
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gold-500/10 flex items-center gap-3 text-xs text-slate-600 dark:text-ivory-300/70">
+            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gold-500/10 flex items-center gap-3 text-xs text-slate-600 dark:text-ivory-50">
               <FaShieldAlt className="text-gold-600 dark:text-gold-400 text-lg flex-shrink-0" />
               <p>{t('contact.privacyPromise', 'نعدك بالحفاظ الكامل على خصوصية بياناتك وعدم مشاركتها مع أي طرف ثالث إطلاقاً.')}</p>
             </div>
@@ -690,7 +690,7 @@ const Contact = () => {
             >
               <button
                 onClick={() => setActiveFaq(activeFaq === faq.id ? null : faq.id)}
-                className="w-full p-6 text-start flex items-center justify-between gap-4 font-serif font-bold text-lg text-slate-900 dark:text-ivory-100 hover:text-gold-600 dark:hover:text-gold-300 transition-colors"
+                className="w-full p-6 text-start flex items-center justify-between gap-4 font-serif font-bold text-lg text-slate-900 dark:text-gold-300 hover:text-gold-600 dark:hover:text-gold-400 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <FaQuestionCircle className="text-gold-500 flex-shrink-0 text-xl" />
@@ -707,7 +707,7 @@ const Contact = () => {
                     transition={{ duration: 0.3 }}
                     className="overflow-hidden"
                   >
-                    <div className="px-6 pb-6 pt-2 text-sm leading-relaxed text-slate-600 dark:text-ivory-300/90 border-t border-gray-100 dark:border-slate-800">
+                    <div className="px-6 pb-6 pt-2 text-sm leading-relaxed text-slate-600 dark:text-ivory-50 border-t border-gray-100 dark:border-slate-800">
                       {faq.a}
                     </div>
                   </motion.div>
@@ -727,32 +727,32 @@ const Contact = () => {
             <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-600 dark:text-gold-400 text-xl mx-auto flex items-center justify-center mb-3">
               <FaShieldAlt />
             </div>
-            <h4 className="font-serif font-bold text-lg text-slate-900 dark:text-ivory-100 mb-1">{t('contact.badge1Title', 'شركة مرخصة رسمياً')}</h4>
-            <p className="text-xs text-slate-600 dark:text-ivory-300/70 font-light">{t('contact.badge1Desc', 'شركة سياحية مرخصة برقم ترخيص 1882 من وزارة السياحة المصرية.')}</p>
+            <h4 className="font-serif font-bold text-lg text-slate-900 dark:text-gold-300 mb-1">{t('contact.badge1Title', 'شركة مرخصة رسمياً')}</h4>
+            <p className="text-xs text-slate-600 dark:text-ivory-50 font-light">{t('contact.badge1Desc', 'شركة سياحية مرخصة برقم ترخيص 1882 من وزارة السياحة المصرية.')}</p>
           </div>
 
           <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-gold-500/15 shadow-sm dark:shadow-md text-center">
             <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-600 dark:text-gold-400 text-xl mx-auto flex items-center justify-center mb-3">
               <FaUserTie />
             </div>
-            <h4 className="font-serif font-bold text-lg text-slate-900 dark:text-ivory-100 mb-1">{t('contact.badge2Title', 'كونسيرج فاخر خاص')}</h4>
-            <p className="text-xs text-slate-600 dark:text-ivory-300/70 font-light">{t('contact.badge2Desc', 'مستشار سفر مخصص يرافق خطوات رحلتك وتخطيطها لحظة بلحظة.')}</p>
+            <h4 className="font-serif font-bold text-lg text-slate-900 dark:text-gold-300 mb-1">{t('contact.badge2Title', 'كونسيرج فاخر خاص')}</h4>
+            <p className="text-xs text-slate-600 dark:text-ivory-50 font-light">{t('contact.badge2Desc', 'مستشار سفر مخصص يرافق خطوات رحلتك وتخطيطها لحظة بلحظة.')}</p>
           </div>
 
           <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-gold-500/15 shadow-sm dark:shadow-md text-center">
             <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-600 dark:text-gold-400 text-xl mx-auto flex items-center justify-center mb-3">
               <FaStar />
             </div>
-            <h4 className="font-serif font-bold text-lg text-slate-900 dark:text-ivory-100 mb-1">{t('contact.badge3Title', 'برامج 100% مخصصة')}</h4>
-            <p className="text-xs text-slate-600 dark:text-ivory-300/70 font-light">{t('contact.badge3Desc', 'تجارب فاخرة وحصرية تم تصميمها وتخصيصها بالكامل حسب رغبتك.')}</p>
+            <h4 className="font-serif font-bold text-lg text-slate-900 dark:text-gold-300 mb-1">{t('contact.badge3Title', 'برامج 100% مخصصة')}</h4>
+            <p className="text-xs text-slate-600 dark:text-ivory-50 font-light">{t('contact.badge3Desc', 'تجارب فاخرة وحصرية تم تصميمها وتخصيصها بالكامل حسب رغبتك.')}</p>
           </div>
 
           <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/60 border border-gray-200 dark:border-gold-500/15 shadow-sm dark:shadow-md text-center">
             <div className="w-12 h-12 rounded-full bg-gold-500/10 text-gold-600 dark:text-gold-400 text-xl mx-auto flex items-center justify-center mb-3">
               <FaClock />
             </div>
-            <h4 className="font-serif font-bold text-lg text-slate-900 dark:text-ivory-100 mb-1">{t('contact.badge4Title', 'استجابة فائقة السرعة')}</h4>
-            <p className="text-xs text-slate-600 dark:text-ivory-300/70 font-light">{t('contact.badge4Desc', 'نضمن الرد على كافة الطلبات والاستفسارات خلال دقائق معدودة.')}</p>
+            <h4 className="font-serif font-bold text-lg text-slate-900 dark:text-gold-300 mb-1">{t('contact.badge4Title', 'استجابة فائقة السرعة')}</h4>
+            <p className="text-xs text-slate-600 dark:text-ivory-50 font-light">{t('contact.badge4Desc', 'نضمن الرد على كافة الطلبات والاستفسارات خلال دقائق معدودة.')}</p>
           </div>
         </div>
       </section>
