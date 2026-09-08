@@ -79,8 +79,8 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
     const generateQr = async () => {
       try {
         const total = booking?.totalAmount ?? booking?.total ?? 0;
-        const subtotal = booking?.subtotal ?? (Number(total) / 1.14);
-        const tax = booking?.tax ?? (Number(total) - Number(subtotal));
+        const subtotal = booking?.subtotal ?? total;
+        const tax = booking?.tax ?? '0.00';
         const url = await generateEtaQrDataUrl({
           sellerName: 'Dunas Travel (DMC Lic. #1882)',
           taxId: booking?.taxId || '692-481-209',
@@ -341,7 +341,7 @@ const InvoiceModal = ({ booking: initialBooking = {}, invoiceNumber: propInvoice
                   {t('booking.totalPrice', 'Grand Total Amount')}
                 </span>
                 <span className="text-[10px] text-ivory-400 print:text-gray-500">
-                  {t('booking.allInclusiveTaxes', 'Inclusive of all curated luxury services & 14% Tourism VAT')}
+                  {t('booking.allInclusiveTaxes', 'Final all-inclusive pricing • All luxury services & taxes included')}
                 </span>
               </div>
               <span className="text-display-sm font-display font-bold text-gold-400 print:text-black">

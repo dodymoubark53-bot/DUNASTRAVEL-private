@@ -194,11 +194,15 @@ describe('Prompt 04: Booking Engine & Customer Inquiries Integration', () => {
       fireEvent.submit(form);
     });
 
-    expect(api.post).toHaveBeenCalledWith('/bookings', expect.objectContaining({
-      tourId: 'tour-1',
-      availabilityId: 'availability-2027-05-10',
-      arrivalDate: '2027-05-10',
-    }));
+    expect(api.post).toHaveBeenCalledWith(
+      '/bookings',
+      expect.objectContaining({
+        tourId: 'tour-1',
+        availabilityId: 'availability-2027-05-10',
+        arrivalDate: '2027-05-10',
+      }),
+      expect.anything(),
+    );
     expect(api.get).toHaveBeenCalledWith('/payments/readiness');
     expect(api.post).not.toHaveBeenCalledWith(
       '/payments/initiate',
