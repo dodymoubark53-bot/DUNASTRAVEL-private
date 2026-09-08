@@ -365,7 +365,7 @@ const Contact = () => {
                 <FaMapMarkerAlt />
               </div>
               <span className="text-xs font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">{t('contact.addressTitle', 'المقر الرئيسي')}</span>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-ivory-50 mt-1 leading-snug">5 شارع حسين سعيد، حدائق الأهرام - الجيزة، مصر</h3>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-ivory-50 mt-1 leading-snug">{t('contact.addressFull', '5 شارع حسين سعيد، حدائق الأهرام القديمة - الجيزة، مصر')}</h3>
               <p className="text-xs text-slate-600 dark:text-ivory-300/80 font-light mt-2">{t('contact.addressDesc', 'نستقبل العملاء والشركاء في مقر الشركة الرسمي بالجيزة.')}</p>
             </div>
             <div className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-purple-600 dark:text-purple-400 group-hover:translate-x-1 transition-transform">
@@ -423,8 +423,7 @@ const Contact = () => {
                   <div>
                     <h4 className="text-xs uppercase tracking-wider text-gold-300 font-bold mb-1">{t('contact.office', 'العنوان الرسمي')}</h4>
                     <p className="leading-relaxed text-ivory-100 font-medium">
-                      5 Hussein Said St, Old Hadayk El Ahram First floor Flat 102 – 103<br />
-                      Haram - Giza – Egypt
+                      {t('contact.addressDetails', '5 Hussein Said St, Old Hadayk El Ahram First floor Flat 102 – 103, Haram - Giza – Egypt')}
                     </p>
                   </div>
                 </div>

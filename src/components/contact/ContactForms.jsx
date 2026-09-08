@@ -1292,7 +1292,7 @@ const ContactForms = () => {
                               </div>
                               {verifiedCompany.commissionRate > 0 && (
                                 <div className="text-end flex-shrink-0">
-                                  <span className="text-[9px] text-muted-foreground uppercase block">العمولة المعتمدة</span>
+                                  <span className="text-[9px] text-muted-foreground uppercase block">{t('contactForms.approvedCommission', 'العمولة المعتمدة')}</span>
                                   <span className="text-xs font-bold text-gold-400">{verifiedCompany.commissionRate}%</span>
                                 </div>
                               )}
