@@ -422,7 +422,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h4 className="text-xs uppercase tracking-wider text-gold-300 font-bold mb-1">{t('contact.office', 'العنوان الرسمي')}</h4>
-                    <p className="leading-relaxed text-slate-900 dark:text-ivory-100 font-semibold">
+                    <p className="leading-relaxed text-ivory-50 font-semibold">
                       {t('contact.addressDetails', '5 Hussein Said St, Old Hadayk El Ahram First floor Flat 102 – 103, Haram - Giza – Egypt')}
                     </p>
                   </div>
