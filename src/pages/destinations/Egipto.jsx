@@ -65,7 +65,7 @@ export default function Egipto() {
           text: t('dest.egypt.ctaSecondary', 'صمّم رحلتك الخاصة'),
           link: '/tailor-tour'
         }}
-        bgImage="/imgs/egyothero.png"
+        bgImage="/imgs/egyothero.webp"
         zoomDuration={12}
       />
 
@@ -396,7 +396,7 @@ export default function Egipto() {
       <section className="relative py-24 mt-24 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(/imgs/egyothero.png)' }}
+          style={{ backgroundImage: 'url(/imgs/egyothero.webp)' }}
         />
         <div className="absolute inset-0 bg-obsidian-900/80" />
         <div className="relative z-10 container mx-auto px-6 text-center max-w-3xl">

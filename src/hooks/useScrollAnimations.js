@@ -28,7 +28,9 @@ const useScrollAnimations = () => {
       scrollTriggerInstance = ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
-      ctx = gsap.context(() => {
+      requestAnimationFrame(() => {
+        if (isReverted) return;
+        ctx = gsap.context(() => {
         const sections = document.querySelectorAll('.gsap-reveal');
         sections.forEach((section) => {
           const children = section.children;
@@ -67,7 +69,8 @@ const useScrollAnimations = () => {
           });
         });
       });
-    };
+    });
+  };
 
     const scheduleInit = () => {
       if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {

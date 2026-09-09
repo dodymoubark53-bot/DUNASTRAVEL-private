@@ -44,7 +44,7 @@ const DEST_FALLBACK_DATA = {
     descDefault: 'من منحوتات السيق الوردية في البتراء إلى هدوء البحر الميت الذي لا يُقاوم، وصولاً إلى التخييم الفاخر تحت قبة نجوم وادي رم. تجربة استكشافية تجمع بين المغامرة والراحة الاستثنائية.',
     tags: ['dest.jordan.tag1', 'dest.jordan.tag2', 'dest.jordan.tag3'],
     tagsDefault: ['🏛️ زيارة البتراء ودخول خاص', '🌌 مخيمات البابليك الفاخرة بوادي رم', '🌊 منتجعات علاجية على البحر الميت'],
-    heroImage: 'https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg',
+    heroImage: '/images/jordan-petra.webp',
     hotelCities: ['amman', 'petra', 'wadiRum', 'aqaba', 'deadSea'],
   },
   turkey: {
@@ -262,7 +262,7 @@ export default function LandingPageDetails({ destinationOnly = false, slug: slug
   const heroHighlights = config.tags
     ? config.tags.map((tagKey, idx) => t(tagKey, config.tagsDefault?.[idx] || ''))
     : [];
-  const heroImage = effectiveLandingPage.heroImageUrl || config.heroImage || '/imgs/egyothero.png';
+  const heroImage = effectiveLandingPage.heroImageUrl || config.heroImage || '/imgs/egyothero.webp';
 
   // Jordan specific matrices
   const isJordan = slug === 'jordan';

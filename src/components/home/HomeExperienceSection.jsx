@@ -113,7 +113,7 @@ const _packagesData = [
     tag2Key: "egyptPackages.honeymooners.tag2",
     tag3Key: "egyptPackages.honeymooners.tag3",
     price: 1650,
-    image: "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=600&q=75&fm=webp",
     link: "/programs/honeymooners",
     featured: false,
   },
@@ -131,7 +131,7 @@ const _packagesData = [
     tag2Key: "egyptPackages.religious.tag2",
     tag3Key: "egyptPackages.religious.tag3",
     price: 1390,
-    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=75&fm=webp",
     link: "/programs/religious",
     featured: false,
   },
@@ -149,7 +149,7 @@ const _packagesData = [
     tag2Key: "egyptPackages.multiCountry.tag2",
     tag3Key: "egyptPackages.multiCountry.tag3",
     price: 2450,
-    image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=75&fm=webp",
     link: "/programs/multi-country",
     featured: false,
   },
@@ -167,7 +167,7 @@ const _packagesData = [
     tag2Key: "egyptPackages.extension.tag2",
     tag3Key: "egyptPackages.extension.tag3",
     price: 0,
-    image: "https://res.cloudinary.com/degbrq3ck/image/upload/w_800,h_600,c_fill,q_auto,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.jpg",
+    image: "https://res.cloudinary.com/degbrq3ck/image/upload/w_600,h_450,c_fill,q_auto:eco,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.jpg",
     link: "/programs/extension",
     featured: false,
   }
@@ -273,7 +273,7 @@ const getOptimizedImageUrl = (url, width = 400, height = 450) => {
 };
 
 const tourImageUrl = (tour) => {
-  if (!tour) return '/imgs/egyothero.png';
+  if (!tour) return '/imgs/egyothero.webp';
   const firstImage = Array.isArray(tour?.images) ? tour.images[0] : null;
   if (typeof firstImage === 'string' && firstImage.trim()) return firstImage;
   if (firstImage && typeof firstImage.imageUrl === 'string' && firstImage.imageUrl.trim()) {
@@ -282,7 +282,7 @@ const tourImageUrl = (tour) => {
   if (typeof tour?.heroImage === 'string' && tour.heroImage.trim()) return tour.heroImage;
   if (typeof tour?.image === 'string' && tour.image.trim()) return tour.image;
   if (typeof tour?.heroImageUrl === 'string' && tour.heroImageUrl.trim()) return tour.heroImageUrl;
-  return '/imgs/egyothero.png';
+  return '/imgs/egyothero.webp';
 };
 
 const buildInfiniteMarqueeList = (items, prefix = 'tour') => {
@@ -365,15 +365,15 @@ const HomeExperienceSection = () => {
   } = useDestinations();
   const liveDestinations = useMemo(() => Array.isArray(liveDestinationsRaw) ? liveDestinationsRaw : [], [liveDestinationsRaw]);
   const DEST_HERO_MAP = {
-    egypt: '/imgs/egyothero.png',
-    turkey: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1920&q=80',
-    jordan: 'https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg',
-    dubai: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80',
-    morocco: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200',
-    greece: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200',
-    tunisia: 'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=1200&q=80',
-    'holy-land': 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=1920&q=80',
-    holyland: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=1920&q=80',
+    egypt: '/imgs/egyothero.webp',
+    turkey: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=600&q=75&fm=webp',
+    jordan: '/images/jordan-petra.webp',
+    dubai: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=600&q=75&fm=webp',
+    morocco: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=600&q=75&fm=webp',
+    greece: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=400&q=75&fm=webp',
+    tunisia: 'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=600&q=75&fm=webp',
+    'holy-land': 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=75&fm=webp',
+    holyland: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=75&fm=webp',
   };
 
   const DEST_TOUR_COUNTS = {
@@ -716,7 +716,7 @@ const HomeExperienceSection = () => {
         title: resolveTourTitle(tourItem, t, lang),
         duration: resolveTourDuration(tourItem, t, lang),
         destination: 'egypt',
-        images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : [tourItem.heroImage || tourItem.image || '/imgs/egyothero.png'],
+        images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : [tourItem.heroImage || tourItem.image || '/imgs/egyothero.webp'],
         link: `/tours/${tourItem.slug || tourItem.id}`,
       }));
 
@@ -730,7 +730,7 @@ const HomeExperienceSection = () => {
       price: tourItem.price || 0,
       rating: 4.9,
       reviewCount: 45,
-      images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : ['https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=800&q=80'],
+      images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : ['https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=500&q=75&fm=webp'],
       link: `/programs/turkey/${tourItem.slug || tourItem.id}`,
     }));
 
@@ -744,7 +744,7 @@ const HomeExperienceSection = () => {
       price: tourItem.price || 0,
       rating: 4.95,
       reviewCount: 38,
-      images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : ['https://cdn.al-ain.com/lg/images/2022/11/24/62-021616-best-tourist-areas-jordan-4.jpeg'],
+      images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : ['/images/jordan-petra.webp'],
       link: `/programs/jordan/${tourItem.slug || tourItem.id}`,
     }));
 
@@ -758,7 +758,7 @@ const HomeExperienceSection = () => {
       price: tourItem.price || 0,
       rating: 4.88,
       reviewCount: 52,
-      images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : ['https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80'],
+      images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : ['https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=500&q=75&fm=webp'],
       link: `/programs/dubai/${tourItem.slug || tourItem.id}`,
     }));
 
@@ -770,7 +770,7 @@ const HomeExperienceSection = () => {
         title: resolveTourTitle(tourItem, t, lang),
         duration: resolveTourDuration(tourItem, t, lang),
         destination: tourItem.destination,
-        images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : [tourItem.heroImage || tourItem.image || '/imgs/egyothero.png'],
+        images: Array.isArray(tourItem.images) && tourItem.images.length > 0 ? tourItem.images : [tourItem.heroImage || tourItem.image || '/imgs/egyothero.webp'],
         link: `/tours/${tourItem.slug || tourItem.id}`,
       }));
 
@@ -1099,7 +1099,13 @@ const HomeExperienceSection = () => {
         {/* Background Image */}
         <div className="absolute inset-0">
           <img
-            src="https://res.cloudinary.com/degbrq3ck/image/upload/w_1440,h_600,c_fill,q_auto,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.jpg"
+            src="https://res.cloudinary.com/degbrq3ck/image/upload/w_1200,h_550,c_fill,q_auto:eco,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.jpg"
+            srcSet="
+              https://res.cloudinary.com/degbrq3ck/image/upload/w_640,h_400,c_fill,q_auto:eco,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.jpg 640w,
+              https://res.cloudinary.com/degbrq3ck/image/upload/w_1024,h_500,c_fill,q_auto:eco,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.jpg 1024w,
+              https://res.cloudinary.com/degbrq3ck/image/upload/w_1440,h_600,c_fill,q_auto:eco,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.jpg 1440w
+            "
+            sizes="100vw"
             alt="Search tours and holiday packages background"
             className="w-full h-full object-cover object-center"
             fetchPriority="high"
@@ -1441,13 +1447,13 @@ const HomeExperienceSection = () => {
             style={{
               gap: "24px",
               paddingLeft: "24px",
-              animation: "tourMarquee 110s linear infinite",
+              animation: "tourMarquee 45s linear infinite",
             }}
             onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
             onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
           >
             {(() => {
-              const sliced = destinationToursForMarquee;
+              const sliced = (destinationToursForMarquee || []).slice(0, 8);
               return [
                 ...sliced.map(tData => ({ ...tData, isDuplicate: false })),
                 ...sliced.map(tData => ({ ...tData, isDuplicate: true }))
@@ -1744,7 +1750,7 @@ const HomeExperienceSection = () => {
             {(() => {
               const infiniteList = buildInfiniteMarqueeList(packagesToursForMarquee, 'pkg');
               return infiniteList.map((tData, idx) => {
-                const tourImg = (Array.isArray(tData.images) && tData.images[0]) || tData.heroImage || tData.image || '/imgs/egyothero.png';
+                const tourImg = (Array.isArray(tData.images) && tData.images[0]) || tData.heroImage || tData.image || '/imgs/egyothero.webp';
                 return (
                   <Link
                     key={tData.uKey || `pkg-tour-${idx}`}

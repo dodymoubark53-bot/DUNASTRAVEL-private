@@ -28,7 +28,7 @@ export default function LuxuryHeroSection({
   highlights = [],
   primaryCta = { text: 'استكشف الباقات', link: '#tours' },
   secondaryCta = { text: 'صمّم رحلتك الخاصة', link: '/tailor-tour' },
-  bgImage = '/imgs/egyothero.png',
+  bgImage = '/imgs/egyothero.webp',
   stats = [],
   breadcrumbs = null,
   onImageClick = null,

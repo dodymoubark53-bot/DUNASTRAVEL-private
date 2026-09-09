@@ -46,12 +46,20 @@ export default function JordanProgramDetails() {
     const el = carouselRef.current;
     if (!el) return;
     const interval = setInterval(() => {
-      const itemWidth = (el.querySelector('.related-carousel-item')?.offsetWidth || 300) + 24;
-      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) {
-        el.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        el.scrollBy({ left: itemWidth, behavior: 'smooth' });
-      }
+      requestAnimationFrame(() => {
+        const item = el.querySelector('.related-carousel-item');
+        const itemWidth = (item ? item.offsetWidth : 300) + 24;
+        const currentScroll = el.scrollLeft;
+        const visibleWidth = el.clientWidth;
+        const totalWidth = el.scrollWidth;
+        const isEnd = currentScroll + visibleWidth >= totalWidth - 10;
+
+        if (isEnd) {
+          el.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          el.scrollBy({ left: itemWidth, behavior: 'smooth' });
+        }
+      });
     }, 3500);
     return () => clearInterval(interval);
   }, []);

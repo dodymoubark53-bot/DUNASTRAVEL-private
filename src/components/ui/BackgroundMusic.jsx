@@ -29,6 +29,73 @@ const BackgroundMusic = () => {
     hasInteractedRef.current = hasInteracted;
   }, [hasInteracted]);
 
+  const loadAndInitYT = (callback) => {
+    if (isLocalAudio) {
+      if (callback) callback();
+      return;
+    }
+
+    const createPlayer = () => {
+      if (playerRef.current) {
+        if (callback) callback();
+        return;
+      }
+      try {
+        playerRef.current = new window.YT.Player('webflow-bg-music-player', {
+          height: '1',
+          width: '1',
+          videoId: DEFAULT_YOUTUBE_ID,
+          playerVars: {
+            autoplay: 1,
+            controls: 0,
+            loop: 1,
+            playlist: DEFAULT_YOUTUBE_ID,
+            showinfo: 0,
+            rel: 0,
+            enablejsapi: 1,
+          },
+          events: {
+            onReady: (event) => {
+              if (callback) callback(event);
+            },
+            onStateChange: (event) => {
+              if (event.data === window.YT.PlayerState.PLAYING) {
+                setIsPlaying(true);
+                sessionStorage.setItem('musicPlaying', 'true');
+              } else if (event.data === window.YT.PlayerState.PAUSED) {
+                setIsPlaying(false);
+              }
+            },
+          },
+        });
+      } catch (e) {
+        console.warn('Failed to init YT player:', e);
+      }
+    };
+
+    if (window.YT && window.YT.Player) {
+      createPlayer();
+    } else {
+      if (!document.getElementById('yt-iframe-api-script')) {
+        const tag = document.createElement('script');
+        tag.id = 'yt-iframe-api-script';
+        tag.src = 'https://www.youtube.com/iframe_api';
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        if (firstScriptTag && firstScriptTag.parentNode) {
+          firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        } else {
+          document.head.appendChild(tag);
+        }
+      }
+
+      const previousCallback = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        if (typeof previousCallback === 'function') previousCallback();
+        createPlayer();
+      };
+    }
+  };
+
   const playMusic = () => {
     sessionStorage.removeItem('userExplicitlyPaused');
     if (isLocalAudio && audioRef.current) {
@@ -46,6 +113,22 @@ const BackgroundMusic = () => {
       } catch (e) {
         console.warn('YT play error:', e);
       }
+    } else {
+      // Lazy load YouTube player on user action
+      loadAndInitYT((event) => {
+        try {
+          if (event && event.target) {
+            event.target.unMute();
+            event.target.playVideo();
+          } else if (playerRef.current) {
+            playerRef.current.unMute();
+            playerRef.current.playVideo();
+          }
+          setIsPlaying(true);
+        } catch {
+          // browser blocked
+        }
+      });
     }
     sessionStorage.setItem('musicPlaying', 'true');
   };
@@ -85,117 +168,16 @@ const BackgroundMusic = () => {
     }
   };
 
-  // Initialize YouTube Iframe API if using YouTube video
+  // Only resume playback across routes if the user previously actively started it
   useEffect(() => {
-    if (isLocalAudio) return;
+    const musicWasPlaying = sessionStorage.getItem('musicPlaying') === 'true';
+    const explicitlyPaused = sessionStorage.getItem('userExplicitlyPaused') === 'true';
 
-    const initYTPlayer = () => {
-      if (playerRef.current) return;
-      try {
-        playerRef.current = new window.YT.Player('webflow-bg-music-player', {
-          height: '1',
-          width: '1',
-          videoId: DEFAULT_YOUTUBE_ID,
-          playerVars: {
-            autoplay: 0,
-            controls: 0,
-            loop: 1,
-            playlist: DEFAULT_YOUTUBE_ID,
-            showinfo: 0,
-            rel: 0,
-            enablejsapi: 1,
-          },
-          events: {
-            onReady: (event) => {
-              const explicitlyPaused = sessionStorage.getItem('userExplicitlyPaused') === 'true';
-              if (isHomePage && !explicitlyPaused) {
-                try {
-                  event.target.unMute();
-                  event.target.playVideo();
-                  setIsPlaying(true);
-                } catch {
-                  // browser blocked
-                }
-              }
-            },
-            onStateChange: (event) => {
-              if (event.data === window.YT.PlayerState.PLAYING) {
-                setIsPlaying(true);
-                sessionStorage.setItem('musicPlaying', 'true');
-              } else if (event.data === window.YT.PlayerState.PAUSED) {
-                setIsPlaying(false);
-              }
-            },
-          },
-        });
-      } catch (e) {
-        console.warn('Failed to init YT player:', e);
-      }
-    };
-
-    if (window.YT && window.YT.Player) {
-      initYTPlayer();
-    } else {
-      if (!document.getElementById('yt-iframe-api-script')) {
-        const tag = document.createElement('script');
-        tag.id = 'yt-iframe-api-script';
-        tag.src = 'https://www.youtube.com/iframe_api';
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-      }
-
-      const previousCallback = window.onYouTubeIframeAPIReady;
-      window.onYouTubeIframeAPIReady = () => {
-        if (typeof previousCallback === 'function') previousCallback();
-        initYTPlayer();
-      };
-    }
-  }, [isHomePage]);
-
-  // Autoplay on Home Page upon mount, scrolling, or user interaction
-  useEffect(() => {
     if (isHomePage) {
-      const explicitlyPaused = sessionStorage.getItem('userExplicitlyPaused') === 'true';
-      if (explicitlyPaused) return;
-
-      const mountTimer = setTimeout(() => {
-        if (!isPlayingRef.current) {
-          playMusic();
-        }
-      }, 600);
-
-      const triggerPlayOnScroll = () => {
-        const currentlyPaused = sessionStorage.getItem('userExplicitlyPaused') === 'true';
-        if (!isPlayingRef.current && !currentlyPaused) {
-          playMusic();
-        }
-        cleanupListeners();
-      };
-
-      const cleanupListeners = () => {
-        window.removeEventListener('scroll', triggerPlayOnScroll);
-        window.removeEventListener('wheel', triggerPlayOnScroll);
-        window.removeEventListener('touchmove', triggerPlayOnScroll);
-        window.removeEventListener('pointerdown', triggerPlayOnScroll);
-        window.removeEventListener('keydown', triggerPlayOnScroll);
-      };
-
-      window.addEventListener('scroll', triggerPlayOnScroll, { passive: true });
-      window.addEventListener('wheel', triggerPlayOnScroll, { passive: true });
-      window.addEventListener('touchmove', triggerPlayOnScroll, { passive: true });
-      window.addEventListener('pointerdown', triggerPlayOnScroll, { passive: true });
-      window.addEventListener('keydown', triggerPlayOnScroll, { passive: true });
-
-      if (window.scrollY > 0) {
-        triggerPlayOnScroll();
+      if (musicWasPlaying && !explicitlyPaused) {
+        playMusic();
       }
-
-      return () => {
-        clearTimeout(mountTimer);
-        cleanupListeners();
-      };
     } else {
-      // Non-home page: pause music unless manually started by user on non-home page
       const manualNonHomePlay = sessionStorage.getItem('userManualPlayNonHome') === 'true';
       if (!manualNonHomePlay && isPlayingRef.current) {
         pauseMusic();
