@@ -166,7 +166,7 @@ const _packagesData = [
     tag2Key: "egyptPackages.extension.tag2",
     tag3Key: "egyptPackages.extension.tag3",
     price: 0,
-    image: "https://res.cloudinary.com/degbrq3ck/image/upload/w_600,h_450,c_fill,q_auto:eco,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp",
+    image: "https://res.cloudinary.com/degbrq3ck/image/upload/w_600,h_450,c_fill,q_60,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp",
     link: "/programs/extension",
     featured: false,
   }
@@ -279,15 +279,15 @@ const getThumbnailUrl = (url, size = 48) => {
       parsedUrl.searchParams.set('w', size.toString());
       parsedUrl.searchParams.set('h', size.toString());
       parsedUrl.searchParams.set('fit', 'crop');
-      parsedUrl.searchParams.set('q', '65');
+      parsedUrl.searchParams.set('q', '60');
       parsedUrl.searchParams.set('fm', 'webp');
       return parsedUrl.toString();
     }
     if (url.includes('cloudinary.com')) {
       if (url.includes('/upload/w_') || url.includes('/upload/f_auto')) {
-        return url.replace(/\/upload\/[^/]+\//, `/upload/w_${size},h_${size},c_fill,q_auto,f_auto/`);
+        return url.replace(/\/upload\/[^/]+\//, `/upload/w_${size},h_${size},c_fill,q_60,f_auto/`);
       }
-      return url.replace('/image/upload/', `/image/upload/w_${size},h_${size},c_fill,q_auto,f_auto/`);
+      return url.replace('/image/upload/', `/image/upload/w_${size},h_${size},c_fill,q_60,f_auto/`);
     }
   } catch (e) {
     return url;
@@ -308,7 +308,7 @@ const tourImageUrl = (tour) => {
   return '/imgs/egyothero.webp';
 };
 
-const buildInfiniteMarqueeList = (items, prefix = 'tour', maxVisible = 8) => {
+const buildInfiniteMarqueeList = (items, prefix = 'tour', maxVisible = 6) => {
   if (!Array.isArray(items) || items.length === 0) return [];
   let base = items.slice(0, maxVisible);
   while (base.length < 4 && items.length > 0) {
@@ -389,14 +389,14 @@ const HomeExperienceSection = () => {
   const liveDestinations = useMemo(() => Array.isArray(liveDestinationsRaw) ? liveDestinationsRaw : [], [liveDestinationsRaw]);
   const DEST_HERO_MAP = {
     egypt: '/imgs/egyothero.webp',
-    turkey: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=480&h=320&q=75&fm=webp',
+    turkey: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=480&h=320&q=60&fm=webp',
     jordan: '/images/jordan-petra.webp',
-    dubai: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=480&h=320&q=75&fm=webp',
-    morocco: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=480&h=320&q=75&fm=webp',
-    greece: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=480&h=320&q=75&fm=webp',
-    tunisia: 'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=480&h=320&q=75&fm=webp',
-    'holy-land': 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=480&h=320&q=75&fm=webp',
-    holyland: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=480&h=320&q=75&fm=webp',
+    dubai: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=480&h=320&q=60&fm=webp',
+    morocco: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=480&h=320&q=60&fm=webp',
+    greece: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=480&h=320&q=60&fm=webp',
+    tunisia: 'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=480&h=320&q=60&fm=webp',
+    'holy-land': 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=480&h=320&q=60&fm=webp',
+    holyland: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=480&h=320&q=60&fm=webp',
   };
 
   const DEST_TOUR_COUNTS = {
@@ -1135,11 +1135,11 @@ const HomeExperienceSection = () => {
         {/* Background Image */}
         <div className="absolute inset-0">
           <img
-            src="https://res.cloudinary.com/degbrq3ck/image/upload/w_640,h_400,c_fill,q_auto:eco,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp"
+            src="https://res.cloudinary.com/degbrq3ck/image/upload/w_640,h_400,c_fill,q_60,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp"
             srcSet="
-              https://res.cloudinary.com/degbrq3ck/image/upload/w_640,h_400,c_fill,q_auto:eco,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp 640w,
-              https://res.cloudinary.com/degbrq3ck/image/upload/w_1024,h_500,c_fill,q_auto:eco,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp 1024w,
-              https://res.cloudinary.com/degbrq3ck/image/upload/w_1440,h_600,c_fill,q_auto:eco,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp 1440w
+              https://res.cloudinary.com/degbrq3ck/image/upload/w_640,h_400,c_fill,q_60,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp 640w,
+              https://res.cloudinary.com/degbrq3ck/image/upload/w_1024,h_500,c_fill,q_60,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp 1024w,
+              https://res.cloudinary.com/degbrq3ck/image/upload/w_1440,h_600,c_fill,q_60,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp 1440w
             "
             sizes="100vw"
             alt="Search tours and holiday packages background"
