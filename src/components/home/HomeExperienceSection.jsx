@@ -271,6 +271,30 @@ const getOptimizedImageUrl = (url, width = 400, height = 450) => {
   return url;
 };
 
+const getThumbnailUrl = (url, size = 48) => {
+  if (!url || typeof url !== 'string') return url;
+  try {
+    if (url.includes('images.unsplash.com')) {
+      const parsedUrl = new URL(url);
+      parsedUrl.searchParams.set('w', size.toString());
+      parsedUrl.searchParams.set('h', size.toString());
+      parsedUrl.searchParams.set('fit', 'crop');
+      parsedUrl.searchParams.set('q', '65');
+      parsedUrl.searchParams.set('fm', 'webp');
+      return parsedUrl.toString();
+    }
+    if (url.includes('cloudinary.com')) {
+      if (url.includes('/upload/w_') || url.includes('/upload/f_auto')) {
+        return url.replace(/\/upload\/[^/]+\//, `/upload/w_${size},h_${size},c_fill,q_auto,f_auto/`);
+      }
+      return url.replace('/image/upload/', `/image/upload/w_${size},h_${size},c_fill,q_auto,f_auto/`);
+    }
+  } catch (e) {
+    return url;
+  }
+  return url;
+};
+
 const tourImageUrl = (tour) => {
   if (!tour) return '/imgs/egyothero.webp';
   const firstImage = Array.isArray(tour?.images) ? tour.images[0] : null;
@@ -1068,7 +1092,6 @@ const HomeExperienceSection = () => {
           content="Premium luxury travel agency — Egypt, Jordan, Turkey, Tunisia, Greece, Holy Land, Morocco & Dubai"
         />
         <meta property="og:image" content="/dunas-travel-logo.png" />
-        <link rel="icon" type="image/png" href="/dunas-travel-logo.png" />
       </Helmet>
 
       {/* Hero Section */}
@@ -1108,7 +1131,7 @@ const HomeExperienceSection = () => {
         {/* Background Image */}
         <div className="absolute inset-0">
           <img
-            src="https://res.cloudinary.com/degbrq3ck/image/upload/w_1200,h_550,c_fill,q_auto:eco,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp"
+            src="https://res.cloudinary.com/degbrq3ck/image/upload/w_640,h_400,c_fill,q_auto:eco,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp"
             srcSet="
               https://res.cloudinary.com/degbrq3ck/image/upload/w_640,h_400,c_fill,q_auto:eco,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp 640w,
               https://res.cloudinary.com/degbrq3ck/image/upload/w_1024,h_500,c_fill,q_auto:eco,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp 1024w,
@@ -1226,7 +1249,7 @@ const HomeExperienceSection = () => {
                   className="group flex items-center gap-1.5 sm:gap-2 bg-white/25 hover:bg-white/40 backdrop-blur-md border border-white/30 hover:border-[#FF6B35] rounded-full px-2.5 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 transition-all shadow-lg"
                 >
                   <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-full overflow-hidden shrink-0 ring-2 ring-white/50 shadow-md">
-                    <img src={d.img} alt="" className="w-full h-full object-cover" width="28" height="28" />
+                    <img src={getThumbnailUrl(d.img, 48)} alt="" className="w-full h-full object-cover" width="24" height="24" loading="lazy" decoding="async" />
                   </span>
                   <span className="text-white text-[11px] sm:text-body-sm font-semibold drop-shadow-lg group-hover:text-[#FF6B35] transition-colors">
                     {d.label}
@@ -1407,11 +1430,9 @@ const HomeExperienceSection = () => {
                   <img
                     src={dest.image}
                     srcSet={dest.image && dest.image.includes('images.unsplash.com') ? `
-                      ${dest.image.replace('w=480&h=320', 'w=480&h=320')} 480w,
-                      ${dest.image.replace('w=480&h=320', 'w=768&h=512')} 768w,
-                      ${dest.image.replace('w=480&h=320', 'w=960&h=640')} 960w
+                      ${dest.image.replace(/w=\d+&h=\d+/, 'w=480&h=320')} 480w
                     ` : undefined}
-                    sizes={dest.image && dest.image.includes('images.unsplash.com') ? "(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 480px" : undefined}
+                    sizes="(max-width: 768px) 480px, 480px"
                     alt={dest.name}
                     width="480"
                     height="320"
@@ -1445,7 +1466,7 @@ const HomeExperienceSection = () => {
       </section>
 
       {/* Destination Tours Marquee Section */}
-      <section className="py-12 bg-ivory-100 dark:bg-obsidian-950 overflow-hidden relative">
+      <section className="py-12 bg-ivory-100 dark:bg-obsidian-950 overflow-hidden relative content-auto">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12 max-w-3xl mx-auto">
             <span className="text-gold-600 dark:text-gold-400 uppercase tracking-widest text-caption block mb-3 font-semibold">
@@ -1727,7 +1748,7 @@ const HomeExperienceSection = () => {
       </section>
 
       {/* Packages Tours Marquee */}
-      <section className="py-16 md:py-20 relative overflow-hidden bg-ivory-100 dark:bg-obsidian-950">
+      <section className="py-16 md:py-20 relative overflow-hidden bg-ivory-100 dark:bg-obsidian-950 content-auto">
         <div className="container mx-auto px-6 mb-12">
           <div className="text-center max-w-4xl mx-auto">
             <motion.span 
@@ -1833,7 +1854,7 @@ const HomeExperienceSection = () => {
       </section>
 
       {/* Transportation & Transfers */}
-      <section className="py-12 bg-ivory-50 relative overflow-hidden">
+      <section className="py-12 bg-ivory-50 relative overflow-hidden content-auto">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <motion.span
@@ -2242,7 +2263,7 @@ const HomeExperienceSection = () => {
       </section>
 
       {/* Photo Gallery */}
-      <section className="py-10 bg-[#1E3A8A] overflow-hidden">
+      <section className="py-10 bg-[#1E3A8A] overflow-hidden content-auto">
         <div className="container mx-auto px-6 mb-8 text-center">
           <motion.span
             initial={{ opacity: 0, y: 20 }}
@@ -2331,7 +2352,7 @@ const HomeExperienceSection = () => {
       </section>
 
       {/* Render this only when the provider returns persisted video assets. */}
-      {videos.length > 0 && <section className="py-16" style={{ background: 'linear-gradient(180deg, rgb(10,25,105) 0%, rgb(6,29,93) 50%, rgb(10,21,53) 100%)' }}>
+      {videos.length > 0 && <section className="py-16 content-auto" style={{ background: 'linear-gradient(180deg, rgb(10,25,105) 0%, rgb(6,29,93) 50%, rgb(10,21,53) 100%)' }}>
         <div className="container mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -2413,7 +2434,7 @@ const HomeExperienceSection = () => {
       </section>}
 
       {/* Services Section */}
-      <section className="py-24 lg:py-32 relative overflow-hidden" style={{ background: 'linear-gradient(160deg, rgb(4,20,70) 0%, rgb(6,29,93) 50%, rgb(8,16,50) 100%)' }}>
+      <section className="py-24 lg:py-32 relative overflow-hidden content-auto" style={{ background: 'linear-gradient(160deg, rgb(4,20,70) 0%, rgb(6,29,93) 50%, rgb(8,16,50) 100%)' }}>
         {/* Decorative backdrop elements */}
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.05]" 
           style={{ 
@@ -2572,7 +2593,7 @@ const HomeExperienceSection = () => {
       </section>
 
       {/* Contact Info Section */}
-      <section className="py-20 lg:py-32 relative overflow-hidden bg-obsidian-900">
+      <section className="py-20 lg:py-32 relative overflow-hidden bg-obsidian-900 content-auto">
         {/* Glow Effects */}
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-primary-500/10 blur-[120px] pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-gold-500/5 blur-[100px] pointer-events-none" />
@@ -2762,7 +2783,7 @@ const HomeExperienceSection = () => {
       </section>
 
       {/* Destinations Section */}
-      <section className="py-28 lg:py-36 bg-[#FEFCF7] relative overflow-hidden" dir={isRtl ? "rtl" : "ltr"}>
+      <section className="py-28 lg:py-36 bg-[#FEFCF7] relative overflow-hidden content-auto" dir={isRtl ? "rtl" : "ltr"}>
         {/* Soft Background Gradients */}
         <div className="absolute inset-0 opacity-[0.05] pointer-events-none" 
           style={{ 

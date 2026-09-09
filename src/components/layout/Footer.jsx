@@ -13,9 +13,20 @@ const Footer = () => {
   const { isOpen, setIsOpen } = useJaiderChat();
 
   useEffect(() => {
+    let ticking = false;
+    let lastState = false;
+
     const handleScroll = () => {
-      const isOver = window.scrollY > 480;
-      setShowBackToTop((prev) => (prev !== isOver ? isOver : prev));
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const isOver = window.scrollY > 480;
+        if (isOver !== lastState) {
+          lastState = isOver;
+          setShowBackToTop(isOver);
+        }
+        ticking = false;
+      });
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);

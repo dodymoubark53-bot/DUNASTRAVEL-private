@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
 import { supportedLocale } from '../utils/locale';
-import canonicalDb from '../data/database/unified_52_tours.json';
 
 const toursCache = new Map();
 const pendingRequests = new Map();
@@ -17,7 +16,18 @@ const ALLOWED_FILTERS = new Set([
   'isFeatured',
 ]);
 
-const staticTours = canonicalDb.tours || [];
+let staticToursCache = null;
+async function getStaticTours() {
+  if (!staticToursCache) {
+    try {
+      const db = await import('../data/database/unified_52_tours.json');
+      staticToursCache = db.default?.tours || db.tours || [];
+    } catch {
+      staticToursCache = [];
+    }
+  }
+  return staticToursCache;
+}
 
 const DEST_ALIASES = {
   'united arab emirates': 'dubai',
@@ -158,7 +168,8 @@ function mapStaticTour(t, lang) {
   };
 }
 
-function getFallbackTours(filters, lang) {
+async function getFallbackTours(filters, lang) {
+  const staticTours = await getStaticTours();
   let items = staticTours.map((t) => mapStaticTour(t, lang));
 
   if (filters.destination) {
@@ -298,18 +309,18 @@ export function useTours(filters = {}) {
           request = api
             .get(`/tours?${params.toString()}`)
             .then((response) => parseToursResponse(response, currentFilters, lang))
-            .then(({ items, meta }) => {
+            .then(async ({ items, meta }) => {
               const result = items.length > 0
                 ? { tours: items, ...meta }
-                : (() => {
-                    const fallback = getFallbackTours(currentFilters, lang);
+                : await (async () => {
+                    const fallback = await getFallbackTours(currentFilters, lang);
                     return { tours: fallback.items, ...fallback.meta };
                   })();
               toursCache.set(cacheKey, { data: result, timestamp: Date.now() });
               return result;
             })
-            .catch(() => {
-              const fallback = getFallbackTours(currentFilters, lang);
+            .catch(async () => {
+              const fallback = await getFallbackTours(currentFilters, lang);
               return { tours: fallback.items, ...fallback.meta };
             })
             .finally(() => pendingRequests.delete(cacheKey));
@@ -319,7 +330,7 @@ export function useTours(filters = {}) {
         if (isMounted) setToursState(resultData);
       } catch (requestError) {
         if (isMounted) {
-          const fallback = getFallbackTours(currentFilters, lang);
+          const fallback = await getFallbackTours(currentFilters, lang);
           setToursState({ tours: fallback.items, ...fallback.meta });
           if (fallback.items.length === 0) setError(requestError);
         }

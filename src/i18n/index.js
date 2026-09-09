@@ -59,11 +59,6 @@ export const initI18n = async () => {
         [lng]: { translation: initialData }
       };
 
-      if (lng !== 'en') {
-        const enData = await loadLocaleResource('en');
-        resources.en = { translation: enData };
-      }
-
       await i18n.init({
         resources,
         fallbackLng: 'en',
@@ -73,6 +68,26 @@ export const initI18n = async () => {
       });
 
       syncDocumentDirection(lng);
+
+      // Defer fallback 'en' loading to idle time so initial paint is not blocked
+      if (lng !== 'en') {
+        const loadFallback = async () => {
+          try {
+            if (!i18n.hasResourceBundle('en', 'translation')) {
+              const enData = await loadLocaleResource('en');
+              i18n.addResourceBundle('en', 'translation', enData, true, false);
+            }
+          } catch (e) {
+            console.warn('Deferred English fallback load warning:', e);
+          }
+        };
+
+        if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+          window.requestIdleCallback(loadFallback, { timeout: 2500 });
+        } else {
+          setTimeout(loadFallback, 1500);
+        }
+      }
 
       i18n.on('languageChanged', async (newLng) => {
         syncDocumentDirection(newLng);

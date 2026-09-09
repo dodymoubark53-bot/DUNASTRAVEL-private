@@ -657,27 +657,12 @@ html[dir="rtl"] .dropdown-item:hover {
 }
 
 /* ── Hardware-Accelerated Performance Animations & Marquees ──────── */
-@keyframes tourMarquee {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-50%, 0, 0); }
-}
-
 @keyframes scrollStrip {
   0% { transform: translate3d(0, 0, 0); }
   100% { transform: translate3d(-50%, 0, 0); }
 }
 
 @keyframes scrollStripRTL {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(50%, 0, 0); }
-}
-
-@keyframes marqueeVideo {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-50%, 0, 0); }
-}
-
-@keyframes marqueeVideoRTL {
   0% { transform: translate3d(0, 0, 0); }
   100% { transform: translate3d(50%, 0, 0); }
 }

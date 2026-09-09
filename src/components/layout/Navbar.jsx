@@ -396,7 +396,7 @@ const Navbar = () => {
           <div className="lg:hidden flex items-center gap-1.5 z-50">
             <Link
               to="/tailor-a-tour"
-              className="px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-wider transition-all duration-300 shadow-lg whitespace-nowrap"
+              className="h-7 min-w-[70px] inline-flex items-center justify-center px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-wider transition-all duration-300 shadow-lg whitespace-nowrap text-center"
               style={{
                 background: 'linear-gradient(135deg, #FF6B35, rgb(6, 29, 93))',
                 color: '#fff'

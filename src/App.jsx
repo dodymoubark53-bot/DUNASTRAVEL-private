@@ -1,6 +1,6 @@
 import React, { Suspense, lazy } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
-import { AnimatePresence, motion, useScroll } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import Layout from "./components/layout/Layout";
 import Logo from "./components/ui/Logo";
@@ -225,11 +225,47 @@ const FallbackLoader = () => (
 );
 
 const ScrollProgressBar = React.memo(function ScrollProgressBar() {
-  const { scrollYProgress } = useScroll();
+  const barRef = React.useRef(null);
+
+  React.useEffect(() => {
+    let ticking = false;
+    let docHeight = 0;
+
+    const measureHeight = () => {
+      docHeight = (document.documentElement.scrollHeight || document.body.scrollHeight) - window.innerHeight;
+    };
+
+    measureHeight();
+
+    const updateProgress = () => {
+      if (!barRef.current) return;
+      if (docHeight <= 0) measureHeight();
+      const scrollY = window.scrollY || window.pageYOffset;
+      const progress = docHeight > 0 ? Math.min(Math.max(scrollY / docHeight, 0), 1) : 0;
+      barRef.current.style.transform = `scaleX(${progress})`;
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(updateProgress);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', measureHeight, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', measureHeight);
+    };
+  }, []);
+
   return (
-    <motion.div
-      style={{ scaleX: scrollYProgress, transformOrigin: "0%", willChange: "transform" }}
-      className="fixed top-0 left-0 right-0 h-[3px] z-[9999] bg-gradient-to-r from-gold-500 via-gold-300 to-gold-500 pointer-events-none"
+    <div
+      ref={barRef}
+      style={{ transform: "scaleX(0)", transformOrigin: "0%", willChange: "transform" }}
+      className="fixed top-0 left-0 right-0 h-[3px] z-[9999] bg-gradient-to-r from-gold-500 via-gold-300 to-gold-500 pointer-events-none transition-transform duration-75 ease-out"
     />
   );
 });
