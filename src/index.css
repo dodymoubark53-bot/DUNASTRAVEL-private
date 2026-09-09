@@ -831,4 +831,10 @@ html[dir="rtl"] .dropdown-item:hover {
   }
 }
 
+/* Off-screen rendering optimization: skips rendering work until scrolled into view */
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 600px;
+}
+
 

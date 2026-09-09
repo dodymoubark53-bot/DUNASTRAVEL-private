@@ -30,7 +30,7 @@ export const homeTurkeyPreviewTours = [
       ar: "اكتشف عظمة تركيا في رحلة مدتها 11 يومًا تجمع بين التاريخ والثقافة والمناظر الطبيعية الفريدة.",
     },
     price: 1190,
-    images: ["https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=500&q=75&fm=webp"],
+    images: ["https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=500&q=65&fm=webp"],
   },
   {
     id: "REG-04",
@@ -57,7 +57,7 @@ export const homeTurkeyPreviewTours = [
       ar: "استكشف مداخن الجنيات الساحرة في كابادوكيا وإسطنبول التاريخية وساحل إيجه.",
     },
     price: 980,
-    images: ["https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=500&q=75&fm=webp"],
+    images: ["https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=500&q=65&fm=webp"],
   },
   {
     id: "REG-07",
@@ -84,7 +84,7 @@ export const homeTurkeyPreviewTours = [
       ar: "انغمس في روعة مدرجات باموكالي الحرارية وأطلال أفسس الرومانية وقصور العثمانيين.",
     },
     price: 1090,
-    images: ["https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=500&q=75&fm=webp"],
+    images: ["https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=500&q=65&fm=webp"],
   },
 ];
 
@@ -141,7 +141,7 @@ export const homeJordanPreviewTours = [
       ar: "رحلة منتقاة تشمل خزنة البتراء والضيافة البدوية في الصحراء وجرش الرومانية.",
     },
     price: 1150,
-    images: ["https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=500&q=75&fm=webp"],
+    images: ["https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=500&q=65&fm=webp"],
   },
 ];
 
@@ -171,7 +171,7 @@ export const homeDubaiPreviewTours = [
       ar: "إقامة فاخرة في دبي تشمل سفاري بسيارات 4x4 في الكثبان الرملية وعشاء شرقي وإطلالات مذهلة.",
     },
     price: 490,
-    images: ["https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=500&q=75&fm=webp"],
+    images: ["https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=500&q=65&fm=webp"],
   },
   {
     id: "REG-23",
@@ -198,6 +198,6 @@ export const homeDubaiPreviewTours = [
       ar: "استكشف متحف المستقبل وأسواق الذهب والتوابل التاريخية في البستكية وسفاري صحراوي ساحر.",
     },
     price: 690,
-    images: ["https://images.unsplash.com/photo-1580674684081-7617fbf3d745?auto=format&fit=crop&w=500&q=75&fm=webp"],
+    images: ["https://images.unsplash.com/photo-1580674684081-7617fbf3d745?auto=format&fit=crop&w=500&q=65&fm=webp"],
   },
 ];

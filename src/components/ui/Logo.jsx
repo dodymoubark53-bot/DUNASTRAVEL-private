@@ -4,7 +4,7 @@ const Logo = ({ height = 60 }) => {
 
   return (
     <img
-      src="https://res.cloudinary.com/degbrq3ck/image/upload/w_240,h_120,c_limit,q_auto,f_auto/v1783033035/dunas-travel-logo-removebg-preview_mjfl90.png"
+      src={`https://res.cloudinary.com/degbrq3ck/image/upload/w_${width},h_${height},c_limit,q_auto,f_webp/v1783033035/dunas-travel-logo-removebg-preview_mjfl90.webp`}
       alt="Dunas Travel"
       className="flex-shrink-0 object-contain"
       width={width}

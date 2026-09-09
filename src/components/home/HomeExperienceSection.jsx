@@ -113,7 +113,7 @@ const _packagesData = [
     tag2Key: "egyptPackages.honeymooners.tag2",
     tag3Key: "egyptPackages.honeymooners.tag3",
     price: 1650,
-    image: "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=600&q=75&fm=webp",
+    image: "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=600&q=65&fm=webp",
     link: "/programs/honeymooners",
     featured: false,
   },
@@ -131,7 +131,7 @@ const _packagesData = [
     tag2Key: "egyptPackages.religious.tag2",
     tag3Key: "egyptPackages.religious.tag3",
     price: 1390,
-    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=75&fm=webp",
+    image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=65&fm=webp",
     link: "/programs/religious",
     featured: false,
   },
@@ -149,7 +149,7 @@ const _packagesData = [
     tag2Key: "egyptPackages.multiCountry.tag2",
     tag3Key: "egyptPackages.multiCountry.tag3",
     price: 2450,
-    image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=75&fm=webp",
+    image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=65&fm=webp",
     link: "/programs/multi-country",
     featured: false,
   },
@@ -167,7 +167,7 @@ const _packagesData = [
     tag2Key: "egyptPackages.extension.tag2",
     tag3Key: "egyptPackages.extension.tag3",
     price: 0,
-    image: "https://res.cloudinary.com/degbrq3ck/image/upload/w_600,h_450,c_fill,q_auto:eco,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.jpg",
+    image: "https://res.cloudinary.com/degbrq3ck/image/upload/w_600,h_450,c_fill,q_auto:eco,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp",
     link: "/programs/extension",
     featured: false,
   }
@@ -285,11 +285,11 @@ const tourImageUrl = (tour) => {
   return '/imgs/egyothero.webp';
 };
 
-const buildInfiniteMarqueeList = (items, prefix = 'tour') => {
+const buildInfiniteMarqueeList = (items, prefix = 'tour', maxVisible = 8) => {
   if (!Array.isArray(items) || items.length === 0) return [];
-  let base = [...items];
-  while (base.length < 8) {
-    base = [...base, ...items];
+  let base = items.slice(0, maxVisible);
+  while (base.length < 4 && items.length > 0) {
+    base = [...base, ...items].slice(0, maxVisible);
   }
   return [
     ...base.map((tItem, i) => ({ ...tItem, isDuplicate: false, uKey: `${prefix}-set1-${tItem.id || tItem.slug || i}-${i}` })),
@@ -366,14 +366,14 @@ const HomeExperienceSection = () => {
   const liveDestinations = useMemo(() => Array.isArray(liveDestinationsRaw) ? liveDestinationsRaw : [], [liveDestinationsRaw]);
   const DEST_HERO_MAP = {
     egypt: '/imgs/egyothero.webp',
-    turkey: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=600&q=75&fm=webp',
+    turkey: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=600&q=65&fm=webp',
     jordan: '/images/jordan-petra.webp',
-    dubai: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=600&q=75&fm=webp',
-    morocco: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=600&q=75&fm=webp',
-    greece: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=400&q=75&fm=webp',
-    tunisia: 'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=600&q=75&fm=webp',
-    'holy-land': 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=75&fm=webp',
-    holyland: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=75&fm=webp',
+    dubai: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=600&q=65&fm=webp',
+    morocco: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=600&q=65&fm=webp',
+    greece: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=400&q=65&fm=webp',
+    tunisia: 'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=600&q=65&fm=webp',
+    'holy-land': 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=65&fm=webp',
+    holyland: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=65&fm=webp',
   };
 
   const DEST_TOUR_COUNTS = {
@@ -579,7 +579,7 @@ const HomeExperienceSection = () => {
       destination: "egypt",
       rating: 4.95,
       reviewCount: 189,
-      images: ["https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=800&q=80"],
+      images: ["https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=800&q=65&fm=webp"],
       link: "/programs/honeymooners"
     },
 
@@ -587,7 +587,7 @@ const HomeExperienceSection = () => {
     {
       id: "religious-tour-1",
       slug: "religious",
-      title: isAr ? "برنامج مسار العائلة المقدسة والتراث الديني" : "Holy Family & Sacred Journeys",
+      title: isAr ? "باقة مسار العائلة المقدسة والتراث الديني" : "Holy Family & Sacred Journeys",
       overview: isAr ? "مسار إيماني وثقافي عريق يمتد عبر الكنائس والأديرة الأثرية في مصر." : "Spiritual path along Coptic monasteries & ancient holy shrines.",
       duration: isAr ? "9 أيام / 8 ليالي" : "9 Days / 8 Nights",
       price: 1390,
@@ -595,7 +595,7 @@ const HomeExperienceSection = () => {
       destination: "egypt",
       rating: 4.85,
       reviewCount: 176,
-      images: ["https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=800&q=80"],
+      images: ["https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=800&q=65&fm=webp"],
       link: "/programs/religious"
     },
 
@@ -683,7 +683,7 @@ const HomeExperienceSection = () => {
       destination: "egypt",
       rating: 4.84,
       reviewCount: 135,
-      images: ["https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80"],
+      images: ["https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=65&fm=webp"],
       link: "/programs/extension/sharm-4d3n"
     },
     {
@@ -697,13 +697,13 @@ const HomeExperienceSection = () => {
       destination: "egypt",
       rating: 4.88,
       reviewCount: 110,
-      images: ["https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80"],
+      images: ["https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=65&fm=webp"],
       link: "/programs/extension/siwa-oasis-alexandria"
     }
   ], [isAr]);
 
   const packagesToursForMarquee = useMemo(() => {
-    return defaultPackageTours;
+    return (defaultPackageTours || []).slice(0, 8);
   }, [defaultPackageTours]);
 
   const destinationToursForMarquee = useMemo(() => {
@@ -993,7 +993,7 @@ const HomeExperienceSection = () => {
   }, [vehicleFilter, transportationList]);
 
   const generalGalleryImages = useMemo(() => {
-    return (galleryImages || []).slice(0, 22);
+    return (galleryImages || []).slice(0, 8);
   }, [galleryImages]);
 
   const cloudName = 'degbrq3ck';
@@ -1099,18 +1099,18 @@ const HomeExperienceSection = () => {
         {/* Background Image */}
         <div className="absolute inset-0">
           <img
-            src="https://res.cloudinary.com/degbrq3ck/image/upload/w_1200,h_550,c_fill,q_auto:eco,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.jpg"
+            src="https://res.cloudinary.com/degbrq3ck/image/upload/w_1200,h_550,c_fill,q_auto:eco,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp"
             srcSet="
-              https://res.cloudinary.com/degbrq3ck/image/upload/w_640,h_400,c_fill,q_auto:eco,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.jpg 640w,
-              https://res.cloudinary.com/degbrq3ck/image/upload/w_1024,h_500,c_fill,q_auto:eco,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.jpg 1024w,
-              https://res.cloudinary.com/degbrq3ck/image/upload/w_1440,h_600,c_fill,q_auto:eco,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.jpg 1440w
+              https://res.cloudinary.com/degbrq3ck/image/upload/w_640,h_400,c_fill,q_auto:eco,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp 640w,
+              https://res.cloudinary.com/degbrq3ck/image/upload/w_1024,h_500,c_fill,q_auto:eco,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp 1024w,
+              https://res.cloudinary.com/degbrq3ck/image/upload/w_1440,h_600,c_fill,q_auto:eco,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp 1440w
             "
             sizes="100vw"
             alt="Search tours and holiday packages background"
             className="w-full h-full object-cover object-center"
             fetchPriority="high"
             loading="eager"
-            decoding="async"
+            decoding="sync"
             width="1440"
             height="600"
           />
@@ -3133,24 +3133,24 @@ const HomeExperienceSection = () => {
       </AnimatePresence>
 
       {/* Our Brands Logos - White Background */}
-      <section className="w-full bg-white py-12 sm:py-16">
+      <section className="w-full bg-white py-12 sm:py-16 content-auto">
         <div className="max-w-6xl mx-auto px-6">
           <h3 className="text-center text-obsidian-900 text-xl sm:text-2xl font-bold mb-10">{t('ourBrands.title', 'Our Brands')}</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 md:gap-12 lg:gap-16 items-center justify-items-center">
             {[
-              { src: "https://res.cloudinary.com/degbrq3ck/image/upload/w_400,h_240,c_limit,q_auto,f_auto/v1783033035/dunas-travel-logo-removebg-preview_mjfl90.png", alt: "Logo 1" },
-              { src: "https://res.cloudinary.com/degbrq3ck/image/upload/w_400,h_240,c_limit,q_auto,f_auto/v1783033441/logo20_f5rfsz.png", alt: "Logo 2" },
-              { src: "https://res.cloudinary.com/degbrq3ck/image/upload/w_400,h_240,c_limit,q_auto,f_auto/v1783033442/logo3_sk0tns.png", alt: "Logo 3" },
-              { src: "https://res.cloudinary.com/degbrq3ck/image/upload/w_400,h_240,c_limit,q_auto,f_auto/v1783033442/logo4_tso9ey.png", alt: "Logo 4" },
-              { src: "https://res.cloudinary.com/degbrq3ck/image/upload/w_400,h_240,c_limit,q_auto,f_auto/v1783033440/logo5_qpuki9.png", alt: "Logo 5" },
-              { src: "https://res.cloudinary.com/degbrq3ck/image/upload/w_400,h_240,c_limit,q_auto,f_auto/v1783074195/drilldown-removebg-preview_z9np4k.png", alt: "Logo 6" },
+              { src: "https://res.cloudinary.com/degbrq3ck/image/upload/w_200,h_120,c_limit,q_auto,f_webp/v1783033035/dunas-travel-logo-removebg-preview_mjfl90.webp", alt: "Logo 1" },
+              { src: "https://res.cloudinary.com/degbrq3ck/image/upload/w_200,h_120,c_limit,q_auto,f_auto/v1783033441/logo20_f5rfsz.png", alt: "Logo 2" },
+              { src: "https://res.cloudinary.com/degbrq3ck/image/upload/w_200,h_120,c_limit,q_auto,f_auto/v1783033442/logo3_sk0tns.png", alt: "Logo 3" },
+              { src: "https://res.cloudinary.com/degbrq3ck/image/upload/w_200,h_120,c_limit,q_auto,f_auto/v1783033442/logo4_tso9ey.png", alt: "Logo 4" },
+              { src: "https://res.cloudinary.com/degbrq3ck/image/upload/w_200,h_120,c_limit,q_auto,f_auto/v1783033440/logo5_qpuki9.png", alt: "Logo 5" },
+              { src: "https://res.cloudinary.com/degbrq3ck/image/upload/w_200,h_120,c_limit,q_auto,f_auto/v1783074195/drilldown-removebg-preview_z9np4k.png", alt: "Logo 6" },
             ].map((logo, idx) => (
               <div key={idx} className="flex items-center justify-center w-full h-28 select-none">
                 <img
                   src={logo.src}
                   alt={logo.alt}
-                  width={400}
-                  height={240}
+                  width={200}
+                  height={120}
                   loading="lazy"
                   decoding="async"
                   className="max-h-20 md:max-h-24 max-w-[180px] md:max-w-[220px] w-auto h-auto object-contain hover:scale-105 transition-all duration-300"
