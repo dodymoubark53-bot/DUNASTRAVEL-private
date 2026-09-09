@@ -10,6 +10,7 @@ import Logo from '../ui/Logo';
 import CurrencySelector from '../ui/CurrencySelector';
 import CustomerNotificationBell from '../ui/CustomerNotificationBell';
 import { useActiveLocales } from '../../hooks/useActiveLocales';
+import { syncDocumentDirection } from '../../i18n';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -41,8 +42,7 @@ const Navbar = () => {
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
     localStorage.setItem('i18nextLng', lng);
-    document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr';
-    document.documentElement.lang = lng;
+    syncDocumentDirection(lng);
     setLangDropdownOpen(false);
   };
 

@@ -6,6 +6,19 @@ html {
   scroll-behavior: smooth;
 }
 
+/* ── RTL & Arabic Typography Global Enhancements ────────────────────────── */
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+html[lang="ar"],
+html[lang^="ar"],
+body.rtl,
+[dir="rtl"] {
+  font-family: "Cairo", "Tajawal", "Montserrat", sans-serif;
+}
+
 body {
   pointer-events: auto !important;
 }

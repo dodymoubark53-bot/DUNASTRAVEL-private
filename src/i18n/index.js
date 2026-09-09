@@ -2,20 +2,16 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-import ar from './locales/ar.json';
-import en from './locales/en.json';
-import es from './locales/es.json';
-import it from './locales/it.json';
-import pt from './locales/pt.json';
-
 const supportedLngs = ['en', 'ar', 'es', 'pt', 'it'];
 
-const resources = {
-  ar: { translation: ar },
-  en: { translation: en },
-  es: { translation: es },
-  it: { translation: it },
-  pt: { translation: pt },
+const loadLocaleResource = async (lng) => {
+  switch (lng) {
+    case 'ar': return (await import('./locales/ar.json')).default;
+    case 'es': return (await import('./locales/es.json')).default;
+    case 'it': return (await import('./locales/it.json')).default;
+    case 'pt': return (await import('./locales/pt.json')).default;
+    case 'en': default: return (await import('./locales/en.json')).default;
+  }
 };
 
 const getDefaultLng = () => {
@@ -32,6 +28,22 @@ const getDefaultLng = () => {
   return supportedLngs.includes(navLng) ? navLng : 'en';
 };
 
+export const syncDocumentDirection = (lng) => {
+  if (typeof document === 'undefined') return;
+  const isAr = lng && (lng === 'ar' || lng.startsWith('ar'));
+  const dir = isAr ? 'rtl' : 'ltr';
+  document.documentElement.dir = dir;
+  document.documentElement.lang = lng || 'en';
+  if (document.body) {
+    document.body.dir = dir;
+    if (isAr) {
+      document.body.classList.add('rtl');
+    } else {
+      document.body.classList.remove('rtl');
+    }
+  }
+};
+
 i18n.use(LanguageDetector).use(initReactI18next);
 
 let initPromise = null;
@@ -41,12 +53,34 @@ export const initI18n = async () => {
   initPromise = (async () => {
     try {
       const lng = getDefaultLng();
+      const initialData = await loadLocaleResource(lng);
+      
+      const resources = {
+        [lng]: { translation: initialData }
+      };
+
+      if (lng !== 'en') {
+        const enData = await loadLocaleResource('en');
+        resources.en = { translation: enData };
+      }
+
       await i18n.init({
         resources,
         fallbackLng: 'en',
         lng,
         interpolation: { escapeValue: false },
         keySeparator: false,
+      });
+
+      syncDocumentDirection(lng);
+
+      i18n.on('languageChanged', async (newLng) => {
+        syncDocumentDirection(newLng);
+        const lang = newLng.split('-')[0];
+        if (supportedLngs.includes(lang) && !i18n.hasResourceBundle(lang, 'translation')) {
+          const data = await loadLocaleResource(lang);
+          i18n.addResourceBundle(lang, 'translation', data, true, true);
+        }
       });
     } catch (err) {
       console.warn('initI18n fallback triggered:', err);
@@ -56,3 +90,5 @@ export const initI18n = async () => {
 };
 
 export default i18n;
+
+

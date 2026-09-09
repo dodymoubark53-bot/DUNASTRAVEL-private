@@ -234,14 +234,14 @@ const ScrollProgressBar = React.memo(function ScrollProgressBar() {
   );
 });
 
+import { syncDocumentDirection } from "./i18n";
+
 function App() {
   const location = useLocation();
   const { i18n } = useTranslation();
 
   React.useEffect(() => {
-    const dir = i18n.language === "ar" ? "rtl" : "ltr";
-    document.documentElement.dir = dir;
-    document.documentElement.lang = i18n.language;
+    syncDocumentDirection(i18n.language);
   }, [i18n.language]);
 
   React.useEffect(() => {
