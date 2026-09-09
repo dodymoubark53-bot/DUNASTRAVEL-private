@@ -237,9 +237,16 @@ const ScrollProgressBar = React.memo(function ScrollProgressBar() {
 
     measureHeight();
 
+    let resizeObserver = null;
+    if (typeof ResizeObserver !== 'undefined' && document.body) {
+      resizeObserver = new ResizeObserver(() => {
+        measureHeight();
+      });
+      resizeObserver.observe(document.body);
+    }
+
     const updateProgress = () => {
       if (!barRef.current) return;
-      if (docHeight <= 0) measureHeight();
       const scrollY = window.scrollY || window.pageYOffset;
       const progress = docHeight > 0 ? Math.min(Math.max(scrollY / docHeight, 0), 1) : 0;
       barRef.current.style.transform = `scaleX(${progress})`;
@@ -258,6 +265,7 @@ const ScrollProgressBar = React.memo(function ScrollProgressBar() {
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', measureHeight);
+      if (resizeObserver) resizeObserver.disconnect();
     };
   }, []);
 

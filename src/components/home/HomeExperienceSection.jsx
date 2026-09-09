@@ -1135,11 +1135,11 @@ const HomeExperienceSection = () => {
         {/* Background Image */}
         <div className="absolute inset-0">
           <img
-            src="https://res.cloudinary.com/degbrq3ck/image/upload/w_640,h_400,c_fill,q_60,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp"
+            src="https://res.cloudinary.com/degbrq3ck/image/upload/w_640,h_400,c_fill,q_auto:eco,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.webp"
             srcSet="
-              https://res.cloudinary.com/degbrq3ck/image/upload/w_640,h_400,c_fill,q_60,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp 640w,
-              https://res.cloudinary.com/degbrq3ck/image/upload/w_1024,h_500,c_fill,q_60,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp 1024w,
-              https://res.cloudinary.com/degbrq3ck/image/upload/w_1440,h_600,c_fill,q_60,f_webp/v1783067135/grand_tour_of_turkey_lxb1f4.webp 1440w
+              https://res.cloudinary.com/degbrq3ck/image/upload/w_640,h_400,c_fill,q_auto:eco,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.webp 640w,
+              https://res.cloudinary.com/degbrq3ck/image/upload/w_1024,h_500,c_fill,q_auto:eco,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.webp 1024w,
+              https://res.cloudinary.com/degbrq3ck/image/upload/w_1440,h_600,c_fill,q_auto:eco,f_auto/v1783067135/grand_tour_of_turkey_lxb1f4.webp 1440w
             "
             sizes="100vw"
             alt="Search tours and holiday packages background"
@@ -1470,7 +1470,7 @@ const HomeExperienceSection = () => {
       </section>
 
       {/* Destination Tours Marquee Section */}
-      <section className="py-12 bg-ivory-100 dark:bg-obsidian-950 overflow-hidden relative content-auto">
+      <section className="py-12 bg-ivory-100 dark:bg-obsidian-950 overflow-hidden relative" style={{ contentVisibility: 'auto', containIntrinsicSize: '1px 500px' }}>
         <div className="container mx-auto px-6">
           <div className="text-center mb-12 max-w-3xl mx-auto">
             <span className="text-gold-600 dark:text-gold-400 uppercase tracking-widest text-caption block mb-3 font-semibold">
