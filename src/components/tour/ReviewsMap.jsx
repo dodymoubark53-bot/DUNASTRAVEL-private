@@ -42,7 +42,7 @@ function Stars({ rating, onRate, onHover, onLeave, readOnly = false, size = 'md'
   const sizeClasses = size === 'lg' ? 'w-5 h-5' : size === 'xl' ? 'w-6 h-6' : 'w-4 h-4';
   return (
     <div
-      className="flex gap-1.5 dir-ltr inline-flex items-center"
+      className="inline-flex gap-1.5 dir-ltr items-center"
       aria-label={`${rating} out of 5 stars`}
       onMouseLeave={onLeave}
     >
