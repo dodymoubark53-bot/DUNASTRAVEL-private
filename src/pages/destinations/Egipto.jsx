@@ -140,7 +140,7 @@ export default function Egipto() {
           >
             <Link to="/programs/classic/classic-program" className="block relative h-[240px] overflow-hidden">
               <img
-                src="https://res.cloudinary.com/degbrq3ck/image/upload/v1783029636/Classic_Program_gfal0s.jpg"
+                src="https://res.cloudinary.com/degbrq3ck/image/upload/w_600,h_450,c_fill,q_60,f_webp/v1783029636/Classic_Program_gfal0s.jpg"
                 alt="Classic Program"
                 className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700"
                 loading="lazy"

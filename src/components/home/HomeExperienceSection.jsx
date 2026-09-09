@@ -94,7 +94,7 @@ const _packagesData = [
     tag2Key: "egyptPackages.classic.tag2",
     tag3Key: "egyptPackages.classic.tag3",
     price: 1290,
-    image: "https://res.cloudinary.com/degbrq3ck/image/upload/v1783029636/Classic_Program_gfal0s.jpg",
+    image: "https://res.cloudinary.com/degbrq3ck/image/upload/w_600,h_450,c_fill,q_60,f_webp/v1783029636/Classic_Program_gfal0s.jpg",
     link: "/programs/classic/classic-program",
     featured: true,
   },
@@ -586,7 +586,7 @@ const HomeExperienceSection = () => {
       destination: "egypt",
       rating: 4.9,
       reviewCount: 312,
-      images: ["https://res.cloudinary.com/degbrq3ck/image/upload/v1783029636/Classic_Program_gfal0s.jpg"],
+      images: ["https://res.cloudinary.com/degbrq3ck/image/upload/w_600,h_450,c_fill,q_60,f_webp/v1783029636/Classic_Program_gfal0s.jpg"],
       link: "/programs/classic/classic-program"
     },
 

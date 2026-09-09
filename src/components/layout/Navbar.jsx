@@ -282,7 +282,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Nav (Hover) */}
-          <nav className="hidden lg:flex items-center gap-8 flex-shrink-0">
+          <nav className="hidden lg:flex items-center gap-8 flex-shrink-0 min-h-[40px]">
             {navLinks.map((link) => (
               <div
                 key={link.name}
