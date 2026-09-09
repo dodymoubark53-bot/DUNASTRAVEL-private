@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,10 +19,11 @@ import { resolveTourTitle, resolveTourDuration, resolveTourOverview, resolveLoca
 import { getTourDestinationSlug, getDestinationName, getDestinationUrl } from '../../utils/destinationHelper';
 
 import SEOHead from '../../components/seo/SEOHead';
-import ReviewsMap from '../../components/tour/ReviewsMap';
-import RouteMap from '../../components/tour/RouteMap';
 import SuggestedTours from '../../components/tour/SuggestedTours';
 import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
+
+const ReviewsMap = lazy(() => import('../../components/tour/ReviewsMap'));
+const RouteMap = lazy(() => import('../../components/tour/RouteMap'));
 
 const TourDetails = () => {
   const { t, i18n } = useTranslation();
@@ -348,7 +349,9 @@ const TourDetails = () => {
             {/* Interactive Route Map */}
             {tour.itinerary && tour.itinerary.length > 0 && (
               <div className="mt-16">
-                <RouteMap itinerary={tour.itinerary} tourTitle={title} />
+                <Suspense fallback={<div className="h-64 flex items-center justify-center text-gold-500 font-semibold bg-obsidian-900/50 rounded-2xl animate-pulse">Loading map route...</div>}>
+                  <RouteMap itinerary={tour.itinerary} tourTitle={title} />
+                </Suspense>
               </div>
             )}
 
@@ -423,7 +426,11 @@ const TourDetails = () => {
         )}
       </section>
 
-      {tour?.slug && <ReviewsMap tourId={tour.slug} />}
+      {tour?.slug && (
+        <Suspense fallback={<div className="py-12 text-center text-gold-500 font-semibold">Loading guest feedback...</div>}>
+          <ReviewsMap tourId={tour.slug} />
+        </Suspense>
+      )}
 
       {/* Lightbox Modal */}
       <AnimatePresence>
@@ -435,7 +442,13 @@ const TourDetails = () => {
             className="fixed inset-0 z-[100] bg-obsidian-900/95 flex items-center justify-center backdrop-blur-sm"
             onClick={() => setIsLightboxOpen(false)}
           >
-            <button className="absolute top-6 right-6 text-ivory-50 hover:text-gold-500 z-[101]"><FaTimes size={32} /></button>
+            <button
+              type="button"
+              aria-label="Close image preview"
+              className="absolute top-6 right-6 text-ivory-50 hover:text-gold-500 z-[101]"
+            >
+              <FaTimes size={32} />
+            </button>
             <img src={heroImg} alt={title} className="max-w-[90vw] max-h-[90vh] object-contain" onClick={e => e.stopPropagation()} />
           </motion.div>
         )}

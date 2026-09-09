@@ -541,6 +541,7 @@ const JaiderChatWindow = () => {
                                     </span>
                                     <button
                                       type="button"
+                                      aria-label="Close trip request form"
                                       onClick={() => setCustomTripFormOpenId(null)}
                                       className="text-slate-400 hover:text-white text-xs cursor-pointer"
                                     >
@@ -838,7 +839,7 @@ const JaiderChatWindow = () => {
               <div className="p-3 bg-slate-900 border-t border-gold-500/30 flex flex-col gap-2">
                 <div className="flex items-center justify-between text-xs font-bold text-gold-300">
                   <span>{isRtl ? 'ما المشكلة في هذه الإجابة؟' : 'What was wrong with this answer?'}</span>
-                  <button onClick={() => setActiveFeedbackModal(null)} className="text-slate-400 hover:text-white cursor-pointer">
+                  <button type="button" aria-label="Close feedback modal" onClick={() => setActiveFeedbackModal(null)} className="text-slate-400 hover:text-white cursor-pointer">
                     <FaTimes size={11} />
                   </button>
                 </div>

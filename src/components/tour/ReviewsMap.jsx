@@ -51,6 +51,7 @@ function Stars({ rating, onRate, onHover, onLeave, readOnly = false, size = 'md'
           key={star}
           type="button"
           disabled={readOnly}
+          aria-label={readOnly ? `${star} star rating` : `Rate ${star} out of 5 stars`}
           onClick={() => onRate?.(star)}
           onMouseEnter={() => onHover?.(star)}
           className={`${
