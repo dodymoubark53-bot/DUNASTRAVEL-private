@@ -2,12 +2,13 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 
-const LOCAL_STORAGE_KEY = 'dunas_local_favorites';
+const GUEST_STORAGE_KEY = 'dunas_local_favorites';
+const getUserStorageKey = (userId) => (userId ? `dunas_favorites_user_${userId}` : null);
 
-const readLocalFavorites = () => {
+const readGuestFavorites = () => {
   if (typeof window === 'undefined') return [];
   try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+    const raw = localStorage.getItem(GUEST_STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
@@ -16,14 +17,21 @@ const readLocalFavorites = () => {
   }
 };
 
-const writeLocalFavorites = (items) => {
+const writeGuestFavorites = (items) => {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items));
+    localStorage.setItem(GUEST_STORAGE_KEY, JSON.stringify(items));
     window.dispatchEvent(new CustomEvent('dunas_favorites_updated', { detail: items }));
   } catch (err) {
     console.warn('Failed to save favorites to localStorage:', err);
   }
+};
+
+const clearGuestFavorites = () => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.removeItem(GUEST_STORAGE_KEY);
+  } catch {}
 };
 
 const normalizeTour = (tourOrId) => {
@@ -39,6 +47,22 @@ const normalizeTour = (tourOrId) => {
     slug,
     title: tourOrId.title,
     titleJsonb: tourOrId.titleJsonb,
+    subtitle: tourOrId.subtitle,
+    subtitleJsonb: tourOrId.subtitleJsonb,
+    overview: tourOrId.overview,
+    overviewJsonb: tourOrId.overviewJsonb,
+    duration: tourOrId.duration,
+    durationJsonb: tourOrId.durationJsonb,
+    category: tourOrId.category,
+    city: tourOrId.city,
+    country: tourOrId.country,
+    destination: tourOrId.destination || tourOrId.city || tourOrId.country || '',
+    market: tourOrId.market,
+    badge: tourOrId.badge || tourOrId.customBadge,
+    minPax: tourOrId.minPax,
+    minPaxJsonb: tourOrId.minPaxJsonb,
+    rating: tourOrId.rating ?? (tourOrId.sourceRating ? Number(tourOrId.sourceRating) : 5),
+    reviewsCount: tourOrId.reviewsCount ?? tourOrId.sourceReviewCount ?? 0,
     price: tourOrId.price ?? tourOrId.basePriceUsd,
     basePriceUsd: tourOrId.basePriceUsd ?? tourOrId.price,
     heroImage:
@@ -48,20 +72,32 @@ const normalizeTour = (tourOrId) => {
           ? tourOrId.images[0]
           : tourOrId.images[0]?.imageUrl
         : null),
+    images: Array.isArray(tourOrId.images) ? tourOrId.images : [],
   };
 };
 
 export const useWishlist = () => {
   const { user } = useAuth();
+  const userKey = getUserStorageKey(user?.id);
+
   const [favorites, setFavorites] = useState(() => {
-    return readLocalFavorites();
+    if (userKey && typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem(userKey);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch {}
+    }
+    return readGuestFavorites();
   });
   const [loading, setLoading] = useState(true);
   const isSyncingRef = useRef(false);
 
   const fetchFavorites = useCallback(async () => {
     if (!user) {
-      const local = readLocalFavorites();
+      const local = readGuestFavorites();
       setFavorites(local);
       setLoading(false);
       return;
@@ -70,10 +106,12 @@ export const useWishlist = () => {
     try {
       setLoading(true);
 
-      // If user has guest favorites stored locally before login, sync them to backend
-      const guestFavs = readLocalFavorites();
+      // If user had guest favorites stored locally before login, sync them once to backend
+      const guestFavs = readGuestFavorites();
       if (guestFavs.length > 0 && !isSyncingRef.current) {
         isSyncingRef.current = true;
+        // Immediately clear guest favorites so they are never resynced on subsequent calls
+        clearGuestFavorites();
         try {
           await Promise.allSettled(
             guestFavs.map((fav) => {
@@ -91,15 +129,22 @@ export const useWishlist = () => {
       const data = await api.get('/auth/favorites');
       const backendFavs = Array.isArray(data) ? data : [];
       setFavorites(backendFavs);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(backendFavs));
+      if (userKey && typeof window !== 'undefined') {
+        localStorage.setItem(userKey, JSON.stringify(backendFavs));
       }
     } catch {
-      setFavorites(readLocalFavorites());
+      if (userKey && typeof window !== 'undefined') {
+        try {
+          const cached = localStorage.getItem(userKey);
+          if (cached) setFavorites(JSON.parse(cached));
+        } catch {}
+      } else {
+        setFavorites(readGuestFavorites());
+      }
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, userKey]);
 
   useEffect(() => {
     fetchFavorites();
@@ -116,7 +161,8 @@ export const useWishlist = () => {
     };
 
     const handleStorageUpdate = (e) => {
-      if (e.key === LOCAL_STORAGE_KEY) {
+      const activeKey = userKey || GUEST_STORAGE_KEY;
+      if (e.key === activeKey) {
         try {
           const parsed = e.newValue ? JSON.parse(e.newValue) : [];
           setFavorites(Array.isArray(parsed) ? parsed : []);
@@ -133,7 +179,7 @@ export const useWishlist = () => {
       window.removeEventListener('dunas_favorites_updated', handleCustomUpdate);
       window.removeEventListener('storage', handleStorageUpdate);
     };
-  }, [fetchFavorites]);
+  }, [fetchFavorites, userKey]);
 
   const isFavorite = useCallback(
     (tourOrId) => {
@@ -165,7 +211,7 @@ export const useWishlist = () => {
 
       if (!user) {
         // Guest mode: save to localStorage with live event broadcast
-        const currentLocal = readLocalFavorites();
+        const currentLocal = readGuestFavorites();
         const exists = currentLocal.some(
           (item) =>
             item?.id === normalized.id ||
@@ -190,7 +236,7 @@ export const useWishlist = () => {
         }
 
         setFavorites(updatedList);
-        writeLocalFavorites(updatedList);
+        writeGuestFavorites(updatedList);
         return;
       }
 
@@ -205,7 +251,9 @@ export const useWishlist = () => {
             item !== targetKey
         );
         setFavorites(nextFavorites);
-        writeLocalFavorites(nextFavorites);
+        if (userKey && typeof window !== 'undefined') {
+          localStorage.setItem(userKey, JSON.stringify(nextFavorites));
+        }
 
         try {
           await api.delete(`/tours/${targetKey}/favorite`);
@@ -216,7 +264,9 @@ export const useWishlist = () => {
       } else {
         const nextFavorites = [normalized, ...favorites];
         setFavorites(nextFavorites);
-        writeLocalFavorites(nextFavorites);
+        if (userKey && typeof window !== 'undefined') {
+          localStorage.setItem(userKey, JSON.stringify(nextFavorites));
+        }
 
         try {
           await api.post(`/tours/${targetKey}/favorite`, {});
@@ -228,7 +278,7 @@ export const useWishlist = () => {
         }
       }
     },
-    [favorites, user, fetchFavorites]
+    [favorites, user, userKey, fetchFavorites]
   );
 
   return {

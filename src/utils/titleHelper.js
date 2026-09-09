@@ -186,20 +186,20 @@ export function resolveTourTitle(tour, t, lang = 'en') {
     const translated = safeT(tour.titleKey);
     if (translated && translated !== tour.titleKey) return translated;
   }
-  return resolveLocalizedText(tour.title || tour.name || tour.slug, safeT, lang);
+  return resolveLocalizedText(tour.titleJsonb || tour.title || tour.name || tour.slug, safeT, lang);
 }
 
 export function resolveTourOverview(tour, t, lang = 'en') {
   if (!tour) return '';
   const safeT = typeof t === 'function' ? t : (k) => k;
-  const val = tour.overview || tour.description || tour.desc || tour.overviewKey;
+  const val = tour.overviewJsonb || tour.overview || tour.description || tour.desc || tour.overviewKey;
   return resolveLocalizedText(val, safeT, lang);
 }
 
 export function resolveTourDuration(tour, t, lang = 'en') {
   if (!tour) return '';
   const safeT = typeof t === 'function' ? t : (k) => k;
-  const val = tour.duration || tour.durationKey;
+  const val = tour.durationJsonb || tour.duration || tour.durationKey;
   return resolveLocalizedText(val, safeT, lang);
 }
 
