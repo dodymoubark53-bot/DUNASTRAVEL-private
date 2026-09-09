@@ -818,13 +818,17 @@ const HomeExperienceSection = () => {
   const [isMuted, setIsMuted] = useState(true);
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
 
-  // Defer hero video loading after first paint so initial bundle and LCP paint are not blocked
+  // Load hero video only on desktop viewports (>= 768px) after first paint to save 1.78 MB payload on mobile
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      const handle = window.requestIdleCallback(() => setShouldLoadVideo(true), { timeout: 1200 });
+    if (typeof window === 'undefined') return;
+    const isDesktop = window.innerWidth >= 768;
+    if (!isDesktop) return;
+
+    if ('requestIdleCallback' in window) {
+      const handle = window.requestIdleCallback(() => setShouldLoadVideo(true), { timeout: 1500 });
       return () => window.cancelIdleCallback(handle);
     } else {
-      const timer = setTimeout(() => setShouldLoadVideo(true), 800);
+      const timer = setTimeout(() => setShouldLoadVideo(true), 1000);
       return () => clearTimeout(timer);
     }
   }, []);
