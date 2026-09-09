@@ -11,7 +11,6 @@ import { useMedia } from "../../hooks/useMedia";
 import { useDestinations } from "../../hooks/useDestinations";
 import { useServices } from "../../hooks/useServices";
 import { transportation as fallbackTransportation } from "../../data/transportation";
-import useScrollAnimations from "../../hooks/useScrollAnimations";
 import AnimatedCounter from "../common/AnimatedCounter";
 import { useCurrency } from "../../context/CurrencyContext";
 import api from "../../utils/api";
@@ -366,14 +365,14 @@ const HomeExperienceSection = () => {
   const liveDestinations = useMemo(() => Array.isArray(liveDestinationsRaw) ? liveDestinationsRaw : [], [liveDestinationsRaw]);
   const DEST_HERO_MAP = {
     egypt: '/imgs/egyothero.webp',
-    turkey: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=600&q=65&fm=webp',
+    turkey: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=480&h=320&q=75&fm=webp',
     jordan: '/images/jordan-petra.webp',
-    dubai: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=600&q=65&fm=webp',
-    morocco: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=600&q=65&fm=webp',
-    greece: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=400&q=65&fm=webp',
-    tunisia: 'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=600&q=65&fm=webp',
-    'holy-land': 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=65&fm=webp',
-    holyland: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=65&fm=webp',
+    dubai: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=480&h=320&q=75&fm=webp',
+    morocco: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=480&h=320&q=75&fm=webp',
+    greece: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=480&h=320&q=75&fm=webp',
+    tunisia: 'https://images.unsplash.com/photo-1580502304784-8985b7eb7260?auto=format&fit=crop&w=480&h=320&q=75&fm=webp',
+    'holy-land': 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=480&h=320&q=75&fm=webp',
+    holyland: 'https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=480&h=320&q=75&fm=webp',
   };
 
   const DEST_TOUR_COUNTS = {
@@ -793,6 +792,18 @@ const HomeExperienceSection = () => {
   // Hero Video State
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
+
+  // Defer hero video loading after first paint so initial bundle and LCP paint are not blocked
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      const handle = window.requestIdleCallback(() => setShouldLoadVideo(true), { timeout: 1200 });
+      return () => window.cancelIdleCallback(handle);
+    } else {
+      const timer = setTimeout(() => setShouldLoadVideo(true), 800);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Sync muted state to video DOM element (reliable approach)
   useEffect(() => {
@@ -978,8 +989,6 @@ const HomeExperienceSection = () => {
     }
   };
 
-  useScrollAnimations();
-
   const filteredVehicles = useMemo(() => {
     const list = (fallbackTransportation && fallbackTransportation.length > 0) ? fallbackTransportation : (transportationList || []);
     if (vehicleFilter === "all") return list;
@@ -1072,15 +1081,15 @@ const HomeExperienceSection = () => {
             loop
             muted={isMuted}
             playsInline
-            preload="auto"
-            fetchPriority="high"
+            preload="none"
             poster="/imgs/hero-poster.webp"
             className="w-full h-full object-contain"
             width="1440"
             height="812"
           >
-            <source src="/imgs/hero.webm" type="video/webm" />
-            <source src="/imgs/hero.mp4" type="video/mp4" />
+            {shouldLoadVideo && (
+              <source src="/imgs/hero.webm" type="video/webm" />
+            )}
           </video>
           <div className="absolute inset-0 bg-obsidian-900/50 pointer-events-none"></div>
         </div>
@@ -1257,7 +1266,7 @@ const HomeExperienceSection = () => {
       </section>
 
       {/* About the Company */}
-      <section className="py-12 bg-ivory-50 gsap-reveal">
+      <section className="py-12 bg-ivory-50">
         <div className="container mx-auto px-6">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
             <motion.div
@@ -1397,7 +1406,15 @@ const HomeExperienceSection = () => {
                 >
                   <img
                     src={dest.image}
+                    srcSet={dest.image && dest.image.includes('images.unsplash.com') ? `
+                      ${dest.image.replace('w=480&h=320', 'w=480&h=320')} 480w,
+                      ${dest.image.replace('w=480&h=320', 'w=768&h=512')} 768w,
+                      ${dest.image.replace('w=480&h=320', 'w=960&h=640')} 960w
+                    ` : undefined}
+                    sizes={dest.image && dest.image.includes('images.unsplash.com') ? "(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 480px" : undefined}
                     alt={dest.name}
+                    width="480"
+                    height="320"
                     className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.08] transition-transform duration-700"
                     loading="lazy"
                     decoding="async"
@@ -1891,7 +1908,7 @@ const HomeExperienceSection = () => {
               onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
             >
               {(() => {
-                const repeatedList = Array.from({ length: 4 }).flatMap(() => filteredVehicles);
+                const repeatedList = buildInfiniteMarqueeList(filteredVehicles, 'veh', 8);
                 return repeatedList.map((vehicle, idx) => (
                   <div
                     key={`veh-${vehicle.id}-${idx}`}

@@ -88,6 +88,10 @@ const Footer = () => {
               <img
                 src="/imgs/iata-logo.svg"
                 alt="IATA Accredited Agent"
+                width="112"
+                height="112"
+                loading="lazy"
+                decoding="async"
                 className="h-20 sm:h-28 w-auto object-contain filter brightness-0 invert opacity-95 hover:opacity-100 transition-all hover:scale-105"
                 onError={(e) => {
                   e.currentTarget.src = "https://cdn.svgrepo.com/show/306218/iata.svg";
