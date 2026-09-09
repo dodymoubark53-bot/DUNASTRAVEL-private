@@ -43,6 +43,9 @@ export default function BackendToursPage({ titleKey, titleDefault, filters = {},
         bgImage={heroImage}
         primaryCta={null}
         secondaryCta={null}
+        zoomDuration={6}
+        zoomScale={1.25}
+        ease="easeInOut"
       />
 
       <section className="container mx-auto px-6 mt-16" id="tours-grid">

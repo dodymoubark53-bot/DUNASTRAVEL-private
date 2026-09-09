@@ -32,7 +32,9 @@ export default function LuxuryHeroSection({
   stats = [],
   breadcrumbs = null,
   onImageClick = null,
-  zoomDuration = 6
+  zoomDuration = 12,
+  zoomScale = 1.15,
+  ease = 'easeOut'
 }) {
   const isRtl = document.dir === 'rtl' || true;
 
@@ -58,14 +60,15 @@ export default function LuxuryHeroSection({
       >
         <motion.img
           initial={{ scale: 1 }}
-          animate={{ scale: 1.15 }}
-          transition={{ duration: zoomDuration, ease: 'easeOut', repeat: Infinity, repeatType: 'reverse' }}
+          animate={{ scale: zoomScale }}
+          transition={{ duration: zoomDuration, ease: ease, repeat: Infinity, repeatType: 'reverse' }}
           src={bgImage || 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg'}
           onError={(e) => {
             e.currentTarget.src = 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg';
           }}
           alt={title}
-          className={`w-full h-full object-cover object-center filter brightness-110 contrast-105 saturate-[1.08] ${onImageClick ? 'transition-transform duration-700 group-hover:scale-105' : ''}`}
+          style={{ willChange: 'transform' }}
+          className={`w-full h-full object-cover object-center ${onImageClick ? 'transition-transform duration-700 group-hover:scale-105' : ''}`}
           loading="eager"
         />
 
@@ -75,15 +78,15 @@ export default function LuxuryHeroSection({
           style={{
             background: `linear-gradient(
               to bottom,
-              rgba(6, 13, 26, 0.08) 0%,
-              rgba(6, 13, 26, 0.22) 50%,
-              rgba(6, 13, 26, 0.55) 100%
+              rgba(6, 13, 26, 0.04) 0%,
+              rgba(6, 13, 26, 0.18) 50%,
+              rgba(6, 13, 26, 0.45) 100%
             )`
           }}
         />
 
         {/* Ambient Gold Radial Flare */}
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gold-500/15 blur-[120px] rounded-full pointer-events-none z-10" />
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gold-500/10 blur-[90px] rounded-full pointer-events-none z-10" />
       </div>
 
       {/* Main Content Area */}

@@ -22,7 +22,7 @@ const Destinations = () => {
     <LuxuryHeroSection
       badge={t('destinations.worldCurated', 'The World, Curated')}
       title={t('destinations.heading', 'Our Destinations')}
-      bgImage="https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1600,c_fill/v1783026771/5_upvijm.jpg"
+      bgImage="https://res.cloudinary.com/degbrq3ck/image/upload/e_upscale,e_enhance,e_sharpen:120,f_auto,q_auto:best/v1783026771/5_upvijm.jpg"
       primaryCta={null}
       secondaryCta={null}
       zoomDuration={12}

@@ -123,6 +123,9 @@ const TourDetails = () => {
         title={title}
         subtitle={duration}
         bgImage={heroImg}
+        zoomDuration={6}
+        zoomScale={1.25}
+        ease="easeInOut"
         onImageClick={() => setIsLightboxOpen(true)}
         breadcrumbs={
           <div className="flex flex-wrap items-center justify-center gap-2 text-caption text-gold-400 mb-2 tracking-wider text-xs md:text-sm font-semibold">
