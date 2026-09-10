@@ -1386,8 +1386,9 @@ const HomeExperienceSection = () => {
               className="w-full lg:w-1/2"
             >
               <img
-                src="/images/crafting-journeys.webp"
-                alt="Crafting Journeys"
+                src="https://alrahhal.net/wp-content/uploads/2026/01/%D8%A3%D9%81%D8%B6%D9%84-%D8%A7%D9%84%D8%A3%D9%85%D8%A7%D9%83%D9%86-%D9%84%D8%B9%D8%B4%D8%A7%D9%82-%D8%A7%D9%84%D8%AA%D8%B5%D9%88%D9%8A%D8%B1-%D8%A7%D9%84%D9%84%D9%8A%D9%84%D9%8A-%D9%81%D9%8A-%D8%A7%D9%84%D9%82%D8%A7%D9%87%D8%B1%D8%A9.webp"
+                onError={(e) => { e.currentTarget.src = "/images/cairo-night-photo.webp"; }}
+                alt="Cairo Night Photography - Crafting Luxury Journeys"
                 className="w-full h-[300px] lg:h-[480px] object-cover rounded-[16px] shadow-[0_0_40px_rgba(245,166,35,0.25)] transition-transform duration-400 ease hover:-translate-y-[8px]"
                 width="600"
                 height="480"
