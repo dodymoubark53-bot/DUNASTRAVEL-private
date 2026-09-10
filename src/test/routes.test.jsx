@@ -31,7 +31,8 @@ describe('Frontend destination and program routes', () => {
   });
 
   it('shows an honest unavailable state for unpublished, missing, or inactive public slugs', async () => {
-    useLandingPage.mockReturnValue({ landingPage: null, loading: false, error: new Error('Not found') });
+    const notFoundError = Object.assign(new Error('Not found'), { status: 404 });
+    useLandingPage.mockReturnValue({ landingPage: null, loading: false, error: notFoundError });
     render(<HelmetProvider><MemoryRouter initialEntries={['/destinations/missing']}><Routes><Route path="/destinations/:slug" element={<LandingPageDetails destinationOnly />} /></Routes></MemoryRouter></HelmetProvider>);
     await waitFor(() => expect(screen.getByText('This destination is unavailable')).toBeInTheDocument());
   });
@@ -45,5 +46,11 @@ describe('Frontend destination and program routes', () => {
   it('renders the existing 404 page for routes outside the registry', async () => {
     render(<HelmetProvider><MemoryRouter initialEntries={['/invalid-unknown-page']}><Routes><Route path="*" element={<NotFound />} /></Routes></MemoryRouter></HelmetProvider>);
     await waitFor(() => expect(screen.getByText('Destination Not Found')).toBeInTheDocument());
+  });
+
+  it('extracts slug from pathname fallback when static route or prop is used', async () => {
+    useLandingPage.mockReturnValue({ landingPage: { ...persistedDestination, slug: 'egypt', title: 'Egypt' }, loading: false, error: null });
+    render(<HelmetProvider><MemoryRouter initialEntries={['/destinations/egypt']}><Routes><Route path="/destinations/*" element={<LandingPageDetails destinationOnly />} /></Routes></MemoryRouter></HelmetProvider>);
+    await waitFor(() => expect(screen.getByText('Egypt')).toBeInTheDocument());
   });
 });

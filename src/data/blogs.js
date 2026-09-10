@@ -1,3 +1,4 @@
+// Cleaned and synchronized blogs catalog from luxury-project-one.vercel.app
 export const blogs = [
   {
     "id": "b-001",
@@ -5,7 +6,11 @@ export const blogs = [
     "title": "The Hidden Temples of Luxor",
     "category": "History",
     "date": "Oct 12, 2023",
-    "relatedTour": { "slug": "cairo-express-4d", "label": "Cairo Express", "path": "/tours/cairo-express-4d" },
+    "relatedTour": {
+      "slug": "cairo-express-4d",
+      "label": "Cairo Express",
+      "path": "/tours/cairo-express-4d"
+    },
     "hidden": true,
     "excerpt": "Beyond Karnak and the Valley of the Kings lie incredible, lesser-known temples waiting to be explored. Discover the secrets of ancient Thebes without the crowds.",
     "img": "https://images.unsplash.com/photo-1596130535979-eedea4278d29?w=800&q=80&fit=crop",
@@ -22,7 +27,11 @@ export const blogs = [
     "title": "Petra by Night",
     "category": "Travel Guide",
     "date": "Nov 05, 2023",
-    "relatedTour": { "slug": "reg-15", "label": "Classic Jordan", "path": "/programs/jordan/reg-15" },
+    "relatedTour": {
+      "slug": "reg-15",
+      "label": "Classic Jordan",
+      "path": "/programs/jordan/reg-15"
+    },
     "excerpt": "Experiencing the rose-red city illuminated by thousands of candles is a bucket-list event. Here is everything you need to know to plan your magical evening.",
     "img": "https://images.unsplash.com/photo-1662747974561-f2f5ea3825a6?w=800&q=80&fit=crop",
     "content": [
@@ -38,7 +47,11 @@ export const blogs = [
     "title": "Istanbul's Grand Bazaar",
     "category": "Culture & Shopping",
     "date": "Dec 18, 2023",
-    "relatedTour": { "slug": "reg-01-legendary-turkey", "label": "Legendary Turkey", "path": "/programs/turkey/reg-01-legendary-turkey" },
+    "relatedTour": {
+      "slug": "reg-01-legendary-turkey",
+      "label": "Legendary Turkey",
+      "path": "/programs/turkey/reg-01-legendary-turkey"
+    },
     "excerpt": "Navigate the labyrinthine alleys of one of the world's oldest and largest covered markets. From Turkish delight to antique kilims, here is your ultimate shopping guide.",
     "img": "https://images.unsplash.com/photo-1547057365-90f38124c65b?w=800&q=80&fit=crop",
     "content": [
@@ -54,7 +67,11 @@ export const blogs = [
     "title": "Sailing the Nile",
     "category": "Adventure",
     "date": "Jan 22, 2024",
-    "relatedTour": { "slug": "cairo-express-4d", "label": "Cairo Express", "path": "/tours/cairo-express-4d" },
+    "relatedTour": {
+      "slug": "cairo-express-4d",
+      "label": "Cairo Express",
+      "path": "/tours/cairo-express-4d"
+    },
     "excerpt": "Step away from the massive cruise ships and experience the lifeblood of Egypt on a traditional wooden felucca. A peaceful, authentic journey awaits.",
     "img": "https://images.unsplash.com/photo-1684100096410-fd39cdff91a3?w=800&q=80&fit=crop",
     "content": [
@@ -70,7 +87,11 @@ export const blogs = [
     "title": "Wadi Rum Desert",
     "category": "Nature & Camping",
     "date": "Feb 14, 2024",
-    "relatedTour": { "slug": "reg-15", "label": "Classic Jordan", "path": "/programs/jordan/reg-15" },
+    "relatedTour": {
+      "slug": "reg-15",
+      "label": "Classic Jordan",
+      "path": "/programs/jordan/reg-15"
+    },
     "hidden": true,
     "excerpt": "Towering sandstone mountains, crimson sands, and a sky exploding with stars. Discover why camping in Jordan's Valley of the Moon is the ultimate desert escape.",
     "img": "https://images.unsplash.com/photo-1612892483236-52d32a0e0ac1?w=800&q=80&fit=crop",
@@ -87,7 +108,11 @@ export const blogs = [
     "title": "Turkish Cuisine",
     "category": "Food & Drink",
     "date": "Mar 08, 2024",
-    "relatedTour": { "slug": "reg-01-legendary-turkey", "label": "Legendary Turkey", "path": "/programs/turkey/reg-01-legendary-turkey" },
+    "relatedTour": {
+      "slug": "reg-01-legendary-turkey",
+      "label": "Legendary Turkey",
+      "path": "/programs/turkey/reg-01-legendary-turkey"
+    },
     "excerpt": "Turkish food is a rich fusion of Central Asian, Middle Eastern, and Mediterranean flavors. Here are the iconic dishes you absolutely must taste during your visit.",
     "img": "https://images.unsplash.com/photo-1748540459503-19efc015143b?w=800&q=80&fit=crop",
     "content": [
@@ -103,7 +128,11 @@ export const blogs = [
     "title": "Best Time to Visit Egypt",
     "category": "Travel Tips",
     "date": "Mar 25, 2024",
-    "relatedTour": { "slug": "cairo-express-4d", "label": "Cairo Express", "path": "/tours/cairo-express-4d" },
+    "relatedTour": {
+      "slug": "cairo-express-4d",
+      "label": "Cairo Express",
+      "path": "/tours/cairo-express-4d"
+    },
     "excerpt": "Planning your dream trip to the Pyramids? Weather plays a crucial role. Read our comprehensive month-by-month guide to choosing the perfect season.",
     "img": "https://images.unsplash.com/photo-1623674587543-9c7564de99d1?w=800&q=80&fit=crop",
     "content": [
@@ -119,7 +148,11 @@ export const blogs = [
     "title": "Dead Sea Experience",
     "category": "Wellness",
     "date": "Apr 02, 2024",
-    "relatedTour": { "slug": "reg-15", "label": "Classic Jordan", "path": "/programs/jordan/reg-15" },
+    "relatedTour": {
+      "slug": "reg-15",
+      "label": "Classic Jordan",
+      "path": "/programs/jordan/reg-15"
+    },
     "excerpt": "It is the lowest point on earth and the world's largest natural spa. Discover the incredible health benefits of floating in Jordan's hypersaline lake.",
     "img": "https://images.unsplash.com/photo-1743943932415-947f79353387?w=800&q=80&fit=crop",
     "content": [
@@ -135,7 +168,11 @@ export const blogs = [
     "title": "Cappadocia Hot Air Balloons",
     "category": "Adventure",
     "date": "Apr 15, 2024",
-    "relatedTour": { "slug": "reg-01-legendary-turkey", "label": "Legendary Turkey", "path": "/programs/turkey/reg-01-legendary-turkey" },
+    "relatedTour": {
+      "slug": "reg-01-legendary-turkey",
+      "label": "Legendary Turkey",
+      "path": "/programs/turkey/reg-01-legendary-turkey"
+    },
     "excerpt": "Drifting silently over fairy chimneys at sunrise is a transcendent experience. Here is everything you need to know about booking a balloon flight in Turkey.",
     "img": "https://images.unsplash.com/photo-1559783510-c448bd7d686b?w=800&q=80&fit=crop",
     "content": [
@@ -151,9 +188,13 @@ export const blogs = [
     "title": "The Ultimate Guide to Cairo Express: A Luxury Travel Itinerary",
     "category": "History",
     "date": "Jul 12, 2026",
-    "relatedTour": { "slug": "cairo-express-4d", "label": "Cairo Express", "path": "/tours/cairo-express-4d" },
+    "relatedTour": {
+      "slug": "cairo-express-4d",
+      "label": "Cairo Express",
+      "path": "/tours/cairo-express-4d"
+    },
     "excerpt": "Explore the luxury of our custom Cairo Express program in Egypt. Discover why this 4 Dias / 3 Noites itinerary is perfect for your travel dreams with Dunas Trav",
-    "img": "/imgs/Brazil/Cairo Express.jpg",
+    "img": "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Cairo Express\" package by Dunas Travel offers a carefully curated 4 Dias / 3 Noites itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -174,9 +215,13 @@ export const blogs = [
     "title": "The Ultimate Guide to Cairo Express com Alexandria: A Luxury Travel Itinerary",
     "category": "History",
     "date": "Jul 20, 2026",
-    "relatedTour": { "slug": "cairo-express-alexandria-5d", "label": "Cairo Express com Alexandria", "path": "/tours/cairo-express-alexandria-5d" },
+    "relatedTour": {
+      "slug": "cairo-express-alexandria-5d",
+      "label": "Cairo Express com Alexandria",
+      "path": "/tours/cairo-express-alexandria-5d"
+    },
     "excerpt": "Explore the luxury of our custom Cairo Express com Alexandria program in Egypt. Discover why this 5 Dias / 4 Noites itinerary is perfect for your travel dreams ",
-    "img": "/imgs/Brazil/Cairo Express with Alexandria.jpeg",
+    "img": "https://images.unsplash.com/photo-1572252009286-268acec5ca0a?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Cairo Express com Alexandria\" package by Dunas Travel offers a carefully curated 5 Dias / 4 Noites itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -197,9 +242,13 @@ export const blogs = [
     "title": "The Ultimate Guide to Egito Clássico: Cairo + Cruzeiro no Nilo: A Luxury Travel Itinerary",
     "category": "History",
     "date": "Aug 02, 2026",
-    "relatedTour": { "slug": "egito-classico-8d", "label": "Egito Clássico", "path": "/tours/egito-classico-8d" },
+    "relatedTour": {
+      "slug": "egito-classico-8d",
+      "label": "Egito Clássico",
+      "path": "/tours/egito-classico-8d"
+    },
     "excerpt": "Explore the luxury of our custom Egito Clássico: Cairo + Cruzei... program in Egypt. Discover why this 8 Dias / 7 Noites itinerary is perfect for your travel dr",
-    "img": "/imgs/Brazil/egito-classico-cairo-cruzeiro-no-nilo.jpg",
+    "img": "https://images.unsplash.com/photo-1596130535979-eedea4278d29?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Egito Clássico: Cairo + Cruzeiro no Nilo\" package by Dunas Travel offers a carefully curated 8 Dias / 7 Noites itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -220,9 +269,13 @@ export const blogs = [
     "title": "The Ultimate Guide to Egito Clássico II: Cairo + Cruzeiro no Nilo: A Luxury Travel Itinerary",
     "category": "History",
     "date": "Aug 18, 2026",
-    "relatedTour": { "slug": "egito-classico-ii-9d", "label": "Egito Clássico II", "path": "/tours/egito-classico-ii-9d" },
+    "relatedTour": {
+      "slug": "egito-classico-ii-9d",
+      "label": "Egito Clássico II",
+      "path": "/tours/egito-classico-ii-9d"
+    },
     "excerpt": "Explore the luxury of our custom Egito Clássico II: Cairo + Cru... program in Egypt. Discover why this 9 Dias / 8 Noites itinerary is perfect for your travel dr",
-    "img": "/imgs/Brazil/cairo-with-cruise-sharm-el-sheikh.jpg",
+    "img": "https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Egito Clássico II: Cairo + Cruzeiro no Nilo\" package by Dunas Travel offers a carefully curated 9 Dias / 8 Noites itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -243,9 +296,13 @@ export const blogs = [
     "title": "The Ultimate Guide to Egito Histórico: Cairo + Cruzeiro + Mar Vermelho: A Luxury Travel Itinerary",
     "category": "History",
     "date": "Sep 05, 2026",
-    "relatedTour": { "slug": "egito-historico-10d", "label": "Egito Histórico", "path": "/tours/egito-historico-10d" },
+    "relatedTour": {
+      "slug": "egito-historico-10d",
+      "label": "Egito Histórico",
+      "path": "/tours/egito-historico-10d"
+    },
     "excerpt": "Explore the luxury of our custom Egito Histórico: Cairo + Cruze... program in Egypt. Discover why this 10 Dias / 9 Noites itinerary is perfect for your travel d",
-    "img": "/imgs/Brazil/cairo-cruzeiro-mar-vermelho.jpg",
+    "img": "https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Egito Histórico: Cairo + Cruzeiro + Mar Vermelho\" package by Dunas Travel offers a carefully curated 10 Dias / 9 Noites itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -266,9 +323,13 @@ export const blogs = [
     "title": "The Ultimate Guide to Cairo c/ Cruzeiro + Sharm El Sheikh: A Luxury Travel Itinerary",
     "category": "History",
     "date": "May 15, 2026",
-    "relatedTour": { "slug": "cairo-cruzeiro-sharm-11d", "label": "Cairo c/ Cruzeiro + Sharm El Sheikh", "path": "/tours/cairo-cruzeiro-sharm-11d" },
+    "relatedTour": {
+      "slug": "cairo-cruzeiro-sharm-11d",
+      "label": "Cairo c/ Cruzeiro + Sharm El Sheikh",
+      "path": "/tours/cairo-cruzeiro-sharm-11d"
+    },
     "excerpt": "Explore the luxury of our custom Cairo c/ Cruzeiro + Sharm El S... program in Egypt. Discover why this 11 Dias / 10 Noites itinerary is perfect for your travel ",
-    "img": "/imgs/Brazil/cairo-with-cruise-sharm-el-sheikh-detail.jpg",
+    "img": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Cairo c/ Cruzeiro + Sharm El Sheikh\" package by Dunas Travel offers a carefully curated 11 Dias / 10 Noites itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -289,9 +350,13 @@ export const blogs = [
     "title": "The Ultimate Guide to O GRANDE RAMSES - DESCRITIVO COMPLETO (09 Noites / 10 Dias): A Luxury Travel Itinerary",
     "category": "History",
     "date": "Jun 10, 2026",
-    "relatedTour": { "slug": "grande-ramses-10d", "label": "O Grande Ramses", "path": "/tours/grande-ramses-10d" },
+    "relatedTour": {
+      "slug": "grande-ramses-10d",
+      "label": "O Grande Ramses",
+      "path": "/tours/grande-ramses-10d"
+    },
     "excerpt": "Explore the luxury of our custom O GRANDE RAMSES - DESCRITIVO C... program in Egypt. Discover why this 10 Dias / 9 Noites itinerary is perfect for your travel d",
-    "img": "/imgs/Brazil/The Great Ramses.png",
+    "img": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"O GRANDE RAMSES - DESCRITIVO COMPLETO (09 Noites / 10 Dias)\" package by Dunas Travel offers a carefully curated 10 Dias / 9 Noites itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -312,9 +377,13 @@ export const blogs = [
     "title": "The Ultimate Guide to Tesouros do Egito com Alexandria: A Luxury Travel Itinerary",
     "category": "History",
     "date": "Jul 05, 2026",
-    "relatedTour": { "slug": "tesouros-egipto-9d", "label": "Tesouros do Egito com Alexandria", "path": "/tours/tesouros-egipto-9d" },
+    "relatedTour": {
+      "slug": "tesouros-egipto-9d",
+      "label": "Tesouros do Egito com Alexandria",
+      "path": "/tours/tesouros-egipto-9d"
+    },
     "excerpt": "Explore the luxury of our custom Tesouros do Egito com Alexandr... program in Egypt. Discover why this 9 Dias / 8 Noites itinerary is perfect for your travel dr",
-    "img": "/imgs/Brazil/Treasures of Egypt with Alexandria.jpg",
+    "img": "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Few places on earth capture the imagination quite like Egypt. From the towering heights of the Great Pyramid of Giza to the serene flow of the Nile River, this ancient land is a living testament to human history and architectural grandeur. The \"Tesouros do Egito com Alexandria\" package by Dunas Travel offers a carefully curated 9 Dias / 8 Noites itinerary designed to immerse you in the magic of the pharaohs. Whether you are gazing at the Sphinx, exploring the subterranean tombs in the Valley of the Kings, or relaxing by the crystal-clear waters of the Red Sea, every moment of this journey promises to be extraordinary. Written in a captivating storytelling tone, this travel guide will walk you through the key experiences that make this trip a must-book experience.",
       "## Why Visit Egypt",
@@ -335,7 +404,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Lo Mejor de Grecia – 09 Días: A Luxury Travel Itinerary",
     "category": "Travel Guide",
     "date": "Jul 12, 2026",
-    "relatedTour": { "slug": "lo-mejor-de-grecia-9d", "label": "Lo Mejor de Grecia", "path": "/tours/lo-mejor-de-grecia-9d" },
+    "relatedTour": {
+      "slug": "lo-mejor-de-grecia-9d",
+      "label": "Lo Mejor de Grecia",
+      "path": "/tours/lo-mejor-de-grecia-9d"
+    },
     "excerpt": "Explore the luxury of our custom Lo Mejor de Grecia – 09 Días program in Greece. Discover why this 9 Días / 8 Noches itinerary is perfect for your travel dreams",
     "img": "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1920&q=80",
     "content": [
@@ -358,7 +431,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Turquía Legendaria en Tren de Alta Velocidad: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Aug 18, 2026",
-    "relatedTour": { "slug": "reg-01-legendary-turkey", "label": "Turquía Legendaria", "path": "/programs/turkey/reg-01-legendary-turkey" },
+    "relatedTour": {
+      "slug": "reg-01-legendary-turkey",
+      "label": "Turquía Legendaria",
+      "path": "/programs/turkey/reg-01-legendary-turkey"
+    },
     "excerpt": "Explore the luxury of our custom Turquía Legendaria en Tren de ... program in Turkey. Discover why this 11 Días / 10 Noches itinerary is perfect for your travel",
     "img": "https://blog.raynatours.com/wp-content/uploads/2025/01/sea-view-istanbul.webp",
     "content": [
@@ -381,7 +458,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Legendary Turkey: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "May 15, 2026",
-    "relatedTour": { "slug": "reg-01-legendary-turkey", "label": "Legendary Turkey", "path": "/programs/turkey/reg-01-legendary-turkey" },
+    "relatedTour": {
+      "slug": "reg-01-legendary-turkey",
+      "label": "Legendary Turkey",
+      "path": "/programs/turkey/reg-01-legendary-turkey"
+    },
     "excerpt": "Explore the luxury of our custom Legendary Turkey program in Turkey. Discover why this 11 days / 10 nights itinerary is perfect for your travel dreams with Duna",
     "img": "https://images.unsplash.com/photo-1565552645632-d725f8bfc19a?w=800&q=80&fit=crop",
     "content": [
@@ -404,7 +485,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Legendary Cappadocia: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Oct 15, 2026",
-    "relatedTour": { "slug": "reg-04-legendary-cappadocia", "label": "Legendary Cappadocia", "path": "/programs/turkey/reg-04-legendary-cappadocia" },
+    "relatedTour": {
+      "slug": "reg-04-legendary-cappadocia",
+      "label": "Legendary Cappadocia",
+      "path": "/programs/turkey/reg-04-legendary-cappadocia"
+    },
     "excerpt": "Explore the luxury of our custom Legendary Cappadocia program in Turkey. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Du",
     "img": "https://images.unsplash.com/photo-1559783510-c448bd7d686b?w=800&q=80&fit=crop",
     "content": [
@@ -427,7 +512,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Best of Istanbul: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Nov 5, 2026",
-    "relatedTour": { "slug": "ist-01-best-of-istanbul", "label": "Best of Istanbul", "path": "/programs/turkey/ist-01-best-of-istanbul" },
+    "relatedTour": {
+      "slug": "ist-01-best-of-istanbul",
+      "label": "Best of Istanbul",
+      "path": "/programs/turkey/ist-01-best-of-istanbul"
+    },
     "excerpt": "Explore the luxury of our custom Best of Istanbul program in Turkey. Discover why this 4 days / 3 nights itinerary is perfect for your travel dreams with Dunas ",
     "img": "https://images.unsplash.com/photo-1547057365-90f38124c65b?w=800&q=80&fit=crop",
     "content": [
@@ -450,7 +539,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Passion of Turkey: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Dec 3, 2026",
-    "relatedTour": { "slug": "reg-03-passion-of-turkey", "label": "Passion of Turkey", "path": "/programs/turkey/reg-03-passion-of-turkey" },
+    "relatedTour": {
+      "slug": "reg-03-passion-of-turkey",
+      "label": "Passion of Turkey",
+      "path": "/programs/turkey/reg-03-passion-of-turkey"
+    },
     "excerpt": "Explore the luxury of our custom Passion of Turkey program in Turkey. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Dunas",
     "img": "https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=800&q=80&fit=crop",
     "content": [
@@ -473,7 +566,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Classic Jordan: A Luxury Travel Itinerary",
     "category": "Adventure",
     "date": "Jul 20, 2026",
-    "relatedTour": { "slug": "reg-15", "label": "Classic Jordan", "path": "/programs/jordan/reg-15" },
+    "relatedTour": {
+      "slug": "reg-15",
+      "label": "Classic Jordan",
+      "path": "/programs/jordan/reg-15"
+    },
     "excerpt": "Explore the luxury of our custom Classic Jordan program in Jordan. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Dunas Tr",
     "img": "https://tse2.mm.bing.net/th/id/OIP.U7ZoEoRbqGqgDwZPt20THAHaDa?r=0&cb=thfvnextfalcon4&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -496,7 +593,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Jordan with Desert: A Luxury Travel Itinerary",
     "category": "Adventure",
     "date": "Aug 02, 2026",
-    "relatedTour": { "slug": "reg-16", "label": "Jordan with Desert", "path": "/programs/jordan/reg-16" },
+    "relatedTour": {
+      "slug": "reg-16",
+      "label": "Jordan with Desert",
+      "path": "/programs/jordan/reg-16"
+    },
     "excerpt": "Explore the luxury of our custom Jordan with Desert program in Jordan. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Duna",
     "img": "https://tse2.mm.bing.net/th/id/OIP.dEVfKhTjpPk1CkKT6GODTwHaI3?r=0&cb=thfvnextfalcon4&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -519,7 +620,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Jordan with Desert and Dead Sea: A Luxury Travel Itinerary",
     "category": "Adventure",
     "date": "Aug 18, 2026",
-    "relatedTour": { "slug": "reg-17", "label": "Jordan with Desert and Dead Sea", "path": "/programs/jordan/reg-17" },
+    "relatedTour": {
+      "slug": "reg-17",
+      "label": "Jordan with Desert and Dead Sea",
+      "path": "/programs/jordan/reg-17"
+    },
     "excerpt": "Explore the luxury of our custom Jordan with Desert and Dead Se... program in Jordan. Discover why this 8 days / 7 nights itinerary is perfect for your travel d",
     "img": "https://tse3.mm.bing.net/th/id/OIP.JMDqRgBCiKtJTi5IcGyTPAHaFj?r=0&cb=thfvnextfalcon4&w=1300&h=974&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -542,7 +647,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Complete Jordan: A Luxury Travel Itinerary",
     "category": "Adventure",
     "date": "Sep 05, 2026",
-    "relatedTour": { "slug": "reg-18", "label": "Complete Jordan", "path": "/programs/jordan/reg-18" },
+    "relatedTour": {
+      "slug": "reg-18",
+      "label": "Complete Jordan",
+      "path": "/programs/jordan/reg-18"
+    },
     "excerpt": "Explore the luxury of our custom Complete Jordan program in Jordan. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Dunas T",
     "img": "https://tse1.mm.bing.net/th/id/OIP.M-Olyoj_L0aPWSFeY_OWiwHaFM?r=0&cb=thfvnextfalcon4&w=840&h=590&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -565,7 +674,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Jordan Red Sea: A Luxury Travel Itinerary",
     "category": "Adventure",
     "date": "May 15, 2026",
-    "relatedTour": { "slug": "reg-19", "label": "Jordan Red Sea", "path": "/programs/jordan/reg-19" },
+    "relatedTour": {
+      "slug": "reg-19",
+      "label": "Jordan Red Sea",
+      "path": "/programs/jordan/reg-19"
+    },
     "excerpt": "Explore the luxury of our custom Jordan Red Sea program in Jordan. Discover why this 8 days / 7 nights itinerary is perfect for your travel dreams with Dunas Tr",
     "img": "https://tse1.mm.bing.net/th/id/OIP.QxUELTwEUmu3EPeD4KawoAHaHa?r=0&cb=thfvnextfalcon4&w=736&h=736&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -588,7 +701,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Jordan Extension - 5 Days: A Luxury Travel Itinerary",
     "category": "Adventure",
     "date": "Jun 10, 2026",
-    "relatedTour": { "slug": "reg-20", "label": "Jordan Extension 5 Days", "path": "/programs/jordan/reg-20" },
+    "relatedTour": {
+      "slug": "reg-20",
+      "label": "Jordan Extension 5 Days",
+      "path": "/programs/jordan/reg-20"
+    },
     "excerpt": "Explore the luxury of our custom Jordan Extension - 5 Days program in Jordan. Discover why this 5 days / 4 nights itinerary is perfect for your travel dreams wi",
     "img": "https://res.cloudinary.com/tibx70zb/image/upload/v1783627377/290040df138540fc22dd1060f6343ee1bf59c5f4f25651338f3c4740dcf9ee8f_f6nmtv.avif",
     "content": [
@@ -611,9 +728,13 @@ export const blogs = [
     "title": "The Ultimate Guide to Jordan Extension - 4 Days: A Luxury Travel Itinerary",
     "category": "Adventure",
     "date": "Jul 05, 2026",
-    "relatedTour": { "slug": "reg-21", "label": "Jordan Extension 4 Days", "path": "/programs/jordan/reg-21" },
+    "relatedTour": {
+      "slug": "reg-21",
+      "label": "Jordan Extension 4 Days",
+      "path": "/programs/jordan/reg-21"
+    },
     "excerpt": "Explore the luxury of our custom Jordan Extension - 4 Days program in Jordan. Discover why this 4 days / 3 nights itinerary is perfect for your travel dreams wi",
-    "img": "https://thfvnext.bing.com/th/id/R.b1f125aef15f0f1bb5787f4512144559?rik=KFVFQJwh12yFXw&riu=http%3a%2f%2flineandbox.com%2fblog%2fwp-content%2fuploads%2f2019%2f03%2fjordan20.jpg&ehk=ifo9XIN2nDLNZF%2b5LFeaUMRPsbdb5OEARUgLHn3kWQw%3d&risl=&pid=ImgRaw&r=0",
+    "img": "https://images.unsplash.com/photo-1544885935-98dd03b09034?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Jordan is a land of mesmerizing contrasts, where ancient history whispers from rose-red sandstone cliffs and modern luxury cradles you in the heart of the desert. The \"Jordan Extension - 4 Days\" tour is an exquisite 4 days / 3 nights adventure that invites you to uncover the secrets of the Nabateans, float in the therapeutic waters of the Dead Sea, and explore the vast, Martian landscapes of Wadi Rum. Designed for travelers who refuse to compromise on comfort, this itinerary brings you face-to-face with legendary hospitality, Roman archeological wonders, and natural marvels. In this guide, we dive deep into what makes Jordan a bucket-list destination and why this specific program is the ultimate way to experience it.",
       "## Why Visit Jordan",
@@ -634,7 +755,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Stop Over Dubai: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Jul 12, 2026",
-    "relatedTour": { "slug": "reg-22", "label": "Stop Over Dubai", "path": "/programs/dubai/reg-22" },
+    "relatedTour": {
+      "slug": "reg-22",
+      "label": "Stop Over Dubai",
+      "path": "/programs/dubai/reg-22"
+    },
     "excerpt": "Explore the luxury of our custom Stop Over Dubai program in Dubai. Discover why this 2 Nights / 3 Days itinerary is perfect for your travel dreams with Dunas Tr",
     "img": "https://www.topsarabia.com/wp-content/uploads/2020/09/%D8%AF%D8%A8%D9%8A-1024x692.jpg",
     "content": [
@@ -657,7 +782,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Dubai and Its History: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Jul 20, 2026",
-    "relatedTour": { "slug": "reg-23", "label": "Dubai and Its History", "path": "/programs/dubai/reg-23" },
+    "relatedTour": {
+      "slug": "reg-23",
+      "label": "Dubai and Its History",
+      "path": "/programs/dubai/reg-23"
+    },
     "excerpt": "Explore the luxury of our custom Dubai and Its History program in Dubai. Discover why this 3 Nights / 4 Days itinerary is perfect for your travel dreams with Du",
     "img": "https://fiverr-res.cloudinary.com/images/t_main1,q_auto,f_auto,q_auto,f_auto/gigs/142838092/original/9191ee298e5274a3b4a36a5eb7208ee112c42c04/help-to-travel-to-dubai.jpg",
     "content": [
@@ -680,7 +809,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Dubai, City of the Future: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Aug 02, 2026",
-    "relatedTour": { "slug": "reg-24", "label": "Dubai, City of the Future", "path": "/programs/dubai/reg-24" },
+    "relatedTour": {
+      "slug": "reg-24",
+      "label": "Dubai, City of the Future",
+      "path": "/programs/dubai/reg-24"
+    },
     "excerpt": "Explore the luxury of our custom Dubai, City of the Future program in Dubai. Discover why this 4 Nights / 5 Days itinerary is perfect for your travel dreams wit",
     "img": "https://www.traveloptimizer.de/wp-content/uploads/2024/09/uae-dubai-skyline-im-sonnenuntergang-1000x667.jpg",
     "content": [
@@ -703,9 +836,13 @@ export const blogs = [
     "title": "The Ultimate Guide to Dubai and Abu Dhabi: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Aug 18, 2026",
-    "relatedTour": { "slug": "reg-25", "label": "Dubai and Abu Dhabi", "path": "/programs/dubai/reg-25" },
+    "relatedTour": {
+      "slug": "reg-25",
+      "label": "Dubai and Abu Dhabi",
+      "path": "/programs/dubai/reg-25"
+    },
     "excerpt": "Explore the luxury of our custom Dubai and Abu Dhabi program in Dubai. Discover why this 5 Nights / 6 Days itinerary is perfect for your travel dreams with Duna",
-    "img": "https://www.timeoutdubai.com/cloud/timeoutdubai/2024/03/04/Dubai-skyline-1-768x576.png",
+    "img": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "In the heart of the Arabian Gulf, Dubai stands as a glittering oasis of futuristic architecture, world-class shopping, and ultra-luxury lifestyle. The \"Dubai and Abu Dhabi\" tour package offers a spectacular 5 Nights / 6 Days itinerary that bridges the rich heritage of the old spice markets with the towering wonders of the modern skyline. From the breathtaking heights of the Burj Khalifa and the tranquility of a desert safari to the historic alleys of the Al Fahidi district, this trip is a masterclass in luxury exploration. This guide details the marvelous highlights of this journey and explains why traveling with Dunas Travel ensures a premium, seamless experience in the City of Gold.",
       "## Why Visit Dubai",
@@ -726,9 +863,13 @@ export const blogs = [
     "title": "The Ultimate Guide to Dubai with Overnight in Abu Dhabi: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Sep 05, 2026",
-    "relatedTour": { "slug": "reg-26", "label": "Dubai with Overnight in Abu Dhabi", "path": "/programs/dubai/reg-26" },
+    "relatedTour": {
+      "slug": "reg-26",
+      "label": "Dubai with Overnight in Abu Dhabi",
+      "path": "/programs/dubai/reg-26"
+    },
     "excerpt": "Explore the luxury of our custom Dubai with Overnight in Abu Dh... program in Dubai. Discover why this 5 Nights / 6 Days itinerary is perfect for your travel dr",
-    "img": "https://www.timeoutdubai.com/cloud/timeoutdubai/2022/09/29/Dubai-skyline_4-1024x768.jpg",
+    "img": "https://images.unsplash.com/photo-1578895101408-1a36b834405b?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "In the heart of the Arabian Gulf, Dubai stands as a glittering oasis of futuristic architecture, world-class shopping, and ultra-luxury lifestyle. The \"Dubai with Overnight in Abu Dhabi\" tour package offers a spectacular 5 Nights / 6 Days itinerary that bridges the rich heritage of the old spice markets with the towering wonders of the modern skyline. From the breathtaking heights of the Burj Khalifa and the tranquility of a desert safari to the historic alleys of the Al Fahidi district, this trip is a masterclass in luxury exploration. This guide details the marvelous highlights of this journey and explains why traveling with Dunas Travel ensures a premium, seamless experience in the City of Gold.",
       "## Why Visit Dubai",
@@ -749,7 +890,11 @@ export const blogs = [
     "title": "The Ultimate Guide to One Week in Dubai: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "May 15, 2026",
-    "relatedTour": { "slug": "reg-27", "label": "One Week in Dubai", "path": "/programs/dubai/reg-27" },
+    "relatedTour": {
+      "slug": "reg-27",
+      "label": "One Week in Dubai",
+      "path": "/programs/dubai/reg-27"
+    },
     "excerpt": "Explore the luxury of our custom One Week in Dubai program in Dubai. Discover why this 7 Nights / 8 Days itinerary is perfect for your travel dreams with Dunas ",
     "img": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80&fit=crop",
     "content": [
@@ -772,7 +917,11 @@ export const blogs = [
     "title": "The Ultimate Guide to The Complete Emirates: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Jun 10, 2026",
-    "relatedTour": { "slug": "reg-28", "label": "The Complete Emirates", "path": "/programs/dubai/reg-28" },
+    "relatedTour": {
+      "slug": "reg-28",
+      "label": "The Complete Emirates",
+      "path": "/programs/dubai/reg-28"
+    },
     "excerpt": "Explore the luxury of our custom The Complete Emirates program in Dubai. Discover why this 7 Nights / 8 Days itinerary is perfect for your travel dreams with Du",
     "img": "https://tse3.mm.bing.net/th/id/OIP.HAgTsJwf5ApVRx1dUamh1AHaI6?r=0&cb=thfvnextfalcon4&w=488&h=587&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -795,9 +944,13 @@ export const blogs = [
     "title": "The Ultimate Guide to Honeymoon in Dubai: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Jul 05, 2026",
-    "relatedTour": { "slug": "hm001", "label": "Honeymoon in Dubai", "path": "/programs/dubai/hm001" },
+    "relatedTour": {
+      "slug": "hm001",
+      "label": "Honeymoon in Dubai",
+      "path": "/programs/dubai/hm001"
+    },
     "excerpt": "Explore the luxury of our custom Honeymoon in Dubai program in Dubai. Discover why this 4 Nights / 5 Days itinerary is perfect for your travel dreams with Dunas",
-    "img": "https://www.aroohatours.com/resources/dubai-tour-inner-pages/images/burj-al-arab-beach-1.webp",
+    "img": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "In the heart of the Arabian Gulf, Dubai stands as a glittering oasis of futuristic architecture, world-class shopping, and ultra-luxury lifestyle. The \"Honeymoon in Dubai\" tour package offers a spectacular 4 Nights / 5 Days itinerary that bridges the rich heritage of the old spice markets with the towering wonders of the modern skyline. From the breathtaking heights of the Burj Khalifa and the tranquility of a desert safari to the historic alleys of the Al Fahidi district, this trip is a masterclass in luxury exploration. This guide details the marvelous highlights of this journey and explains why traveling with Dunas Travel ensures a premium, seamless experience in the City of Gold.",
       "## Why Visit Dubai",
@@ -818,7 +971,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Honeymoon in Dubai with Dinner at Burj Al Arab: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Jul 12, 2026",
-    "relatedTour": { "slug": "hm002", "label": "Honeymoon in Dubai with Dinner at Burj Al Arab", "path": "/programs/dubai/hm002" },
+    "relatedTour": {
+      "slug": "hm002",
+      "label": "Honeymoon in Dubai with Dinner at Burj Al Arab",
+      "path": "/programs/dubai/hm002"
+    },
     "excerpt": "Explore the luxury of our custom Honeymoon in Dubai with Dinner... program in Dubai. Discover why this 4 Nights / 5 Days itinerary is perfect for your travel dr",
     "img": "https://tse2.mm.bing.net/th/id/OIP.SLY7b_wtA1vx_U3UUihFjgHaEA?r=0&cb=thfvnextfalcon4&w=1920&h=1037&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -841,7 +998,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Admirable Turkey: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Jul 20, 2026",
-    "relatedTour": { "slug": "reg-05-admirable-turkey", "label": "Admirable Turkey", "path": "/programs/turkey/reg-05-admirable-turkey" },
+    "relatedTour": {
+      "slug": "reg-05-admirable-turkey",
+      "label": "Admirable Turkey",
+      "path": "/programs/turkey/reg-05-admirable-turkey"
+    },
     "excerpt": "Explore the luxury of our custom Admirable Turkey program in Turkey. Discover why this 10 days / 9 nights itinerary is perfect for your travel dreams with Dunas",
     "img": "https://images.unsplash.com/photo-1655832975303-9c474a06ed56?w=800&q=80&fit=crop",
     "content": [
@@ -864,7 +1025,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Heart of Turkey - Istanbul with Cappadocia: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Aug 02, 2026",
-    "relatedTour": { "slug": "reg-06-heart-of-turkey", "label": "Heart of Turkey", "path": "/programs/turkey/reg-06-heart-of-turkey" },
+    "relatedTour": {
+      "slug": "reg-06-heart-of-turkey",
+      "label": "Heart of Turkey",
+      "path": "/programs/turkey/reg-06-heart-of-turkey"
+    },
     "excerpt": "Explore the luxury of our custom Heart of Turkey - Istanbul wit... program in Turkey. Discover why this 7 days / 6 nights itinerary is perfect for your travel d",
     "img": "https://tse2.mm.bing.net/th/id/OIP.C69bjtvZ6VkAFR_W4KXezQHaE8?r=0&cb=thfvnextfalcon4&w=720&h=480&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -887,7 +1052,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Turkish Riviera: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Aug 18, 2026",
-    "relatedTour": { "slug": "reg-07-turkish-riviera", "label": "Turkish Riviera", "path": "/programs/turkey/reg-07-turkish-riviera" },
+    "relatedTour": {
+      "slug": "reg-07-turkish-riviera",
+      "label": "Turkish Riviera",
+      "path": "/programs/turkey/reg-07-turkish-riviera"
+    },
     "excerpt": "Explore the luxury of our custom Turkish Riviera program in Turkey. Discover why this 12 Days / 11 Nights itinerary is perfect for your travel dreams with Dunas",
     "img": "https://tse3.mm.bing.net/th/id/OIP.Xs7wxyl_IbKiONSQkkDalgHaEE?r=0&cb=thfvnextfalcon4&w=4240&h=2332&rs=1&pid=ImgDetMain&o=7&rm=3",
     "content": [
@@ -910,7 +1079,11 @@ export const blogs = [
     "title": "The Ultimate Guide to Stop Over — Stop in Istanbul: A Luxury Travel Itinerary",
     "category": "Culture & Shopping",
     "date": "Sep 05, 2026",
-    "relatedTour": { "slug": "reg-08-stop-over", "label": "Stop Over Istanbul", "path": "/programs/turkey/reg-08-stop-over" },
+    "relatedTour": {
+      "slug": "reg-08-stop-over",
+      "label": "Stop Over Istanbul",
+      "path": "/programs/turkey/reg-08-stop-over"
+    },
     "excerpt": "Explore the luxury of our custom Stop Over — Stop in Istanbul program in Turkey. Discover why this 3 Days / 2 Nights itinerary is perfect for your travel dreams",
     "img": "https://a.loveholidays.com/media-library/~production/83edbfb1a54a48fa35b9042e6ff8463e322b9371-6690x3763.jpg?width=1200&height=630&fit=crop",
     "content": [
@@ -1088,7 +1261,7 @@ export const blogs = [
     "category": "Culture & Shopping",
     "date": "Sep 05, 2026",
     "excerpt": "Explore the luxury of our custom Spices of Morocco program in Morocco. Discover why this 05 Days / 04 Nights itinerary is perfect for your travel dreams with Du",
-    "img": "https://www.i7lm.com/wp-content/uploads/2020/11/%D8%A7%D9%84%D9%85%D8%BA%D8%B1%D8%A8.jpg",
+    "img": "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=1200&q=80",
     "content": [
       "Morocco is a sensory masterpiece, a land where vibrant colors, rich aromas, and historic architecture come together to create an unforgettable travel experience. The \"Spices of Morocco\" tour is a carefully crafted 05 Days / 04 Nights journey that guides you through imperial cities, historic medinas, and breathtaking landscapes. From the bustling market squares of Marrakech and the medieval alleys of Fez to the coastal allure of Casablanca, this itinerary is designed to show you the soul of the Maghreb. Dive into this guide to discover the highlights of our Moroccan program and learn practical tips to make your journey through this North African kingdom truly seamless.",
       "## Why Visit Morocco",
@@ -1236,3 +1409,5 @@ export const blogs = [
     ]
   }
 ];
+
+export default blogs;

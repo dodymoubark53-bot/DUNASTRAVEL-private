@@ -28,8 +28,13 @@ export default function LuxuryHeroSection({
   highlights = [],
   primaryCta = { text: 'استكشف الباقات', link: '#tours' },
   secondaryCta = { text: 'صمّم رحلتك الخاصة', link: '/tailor-tour' },
-  bgImage = '/imgs/egyothero.png',
-  stats = []
+  bgImage = '/imgs/egyothero.webp',
+  stats = [],
+  breadcrumbs = null,
+  onImageClick = null,
+  zoomDuration = 12,
+  zoomScale = 1.15,
+  ease = 'easeOut'
 }) {
   const isRtl = document.dir === 'rtl' || true;
 
@@ -49,32 +54,39 @@ export default function LuxuryHeroSection({
   return (
     <section className="relative w-full min-h-[580px] md:min-h-[680px] flex items-center justify-center overflow-hidden bg-obsidian-950 text-ivory-50 select-none">
       {/* Background Image Container with Cinematic Zoom & Multi-layer Overlay */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
+      <div
+        className={`absolute inset-0 z-0 overflow-hidden bg-obsidian-950 ${onImageClick ? 'cursor-pointer group' : ''}`}
+        onClick={onImageClick || undefined}
+      >
         <motion.img
-          initial={{ scale: 1.15 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 10, ease: 'easeOut', repeat: Infinity, repeatType: 'reverse' }}
-          src={bgImage}
+          initial={{ scale: 1 }}
+          animate={{ scale: zoomScale }}
+          transition={{ duration: zoomDuration, ease: ease, repeat: Infinity, repeatType: 'reverse' }}
+          src={bgImage || 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg'}
+          onError={(e) => {
+            e.currentTarget.src = 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920/v1783023886/3776ecde-249e-4183-9840-e9fd900ad96b_xvmumu.jpg';
+          }}
           alt={title}
-          className="w-full h-full object-cover object-center filter brightness-[0.85]"
+          style={{ willChange: 'transform' }}
+          className={`w-full h-full object-cover object-center ${onImageClick ? 'transition-transform duration-700 group-hover:scale-105' : ''}`}
           loading="eager"
         />
 
-        {/* Gradient Layer: Top shadow, center dark glow, bottom obsidian fade */}
+        {/* Ultra-Light Gradient Layer: High image clarity while preserving text legibility */}
         <div
           className="absolute inset-0 z-10"
           style={{
             background: `linear-gradient(
               to bottom,
-              rgba(6, 13, 26, 0.55) 0%,
-              rgba(6, 13, 26, 0.70) 50%,
-              rgba(6, 13, 26, 0.95) 100%
+              rgba(6, 13, 26, 0.04) 0%,
+              rgba(6, 13, 26, 0.18) 50%,
+              rgba(6, 13, 26, 0.45) 100%
             )`
           }}
         />
 
         {/* Ambient Gold Radial Flare */}
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gold-500/15 blur-[120px] rounded-full pointer-events-none z-10" />
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gold-500/10 blur-[90px] rounded-full pointer-events-none z-10" />
       </div>
 
       {/* Main Content Area */}
@@ -82,8 +94,17 @@ export default function LuxuryHeroSection({
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-20 container mx-auto px-4 sm:px-6 text-center max-w-5xl pt-24 pb-16"
+        className="relative z-20 container mx-auto px-4 sm:px-6 text-center max-w-5xl pt-24 sm:pt-28 md:pt-32 pb-16"
       >
+        {/* Breadcrumb Slot */}
+        {breadcrumbs && (
+          <motion.div variants={itemVariants} className="mb-6 flex justify-center">
+            <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-obsidian-950/80 border border-gold-500/30 backdrop-blur-md shadow-lg shadow-black/40">
+              {breadcrumbs}
+            </div>
+          </motion.div>
+        )}
+
         {/* Eyebrow Glass Badge */}
         {badge && (
           <motion.div variants={itemVariants} className="inline-block mb-6">

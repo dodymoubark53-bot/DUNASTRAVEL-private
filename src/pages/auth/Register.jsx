@@ -5,6 +5,11 @@ import { Helmet } from 'react-helmet-async';
 import { FaEye, FaEyeSlash, FaUserCircle, FaEnvelope, FaLock, FaUser, FaPhone } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button';
+import {
+  getPasswordValidationErrors,
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+} from '../../utils/passwordPolicy';
 
 const Register = () => {
   const { t } = useTranslation();
@@ -25,13 +30,18 @@ const Register = () => {
 
   const { register } = useAuth();
 
-  // Password Complexity Metrics
-  const hasLength = password.length >= 8;
+  // This must match the policy enforced by the API.
+  const passwordErrors = getPasswordValidationErrors(password);
+  const hasLength = password.length >= PASSWORD_MIN_LENGTH && password.length <= PASSWORD_MAX_LENGTH;
   const hasUpper = /[A-Z]/.test(password);
   const hasLower = /[a-z]/.test(password);
   const hasDigit = /\d/.test(password);
-  const strengthScore = [hasLength, hasUpper, hasLower, hasDigit].filter(Boolean).length;
-  const isPasswordValid = hasLength && hasUpper && hasLower && hasDigit;
+  const hasSymbol = /[^A-Za-z0-9]/.test(password);
+  const hasThreeClasses = [hasUpper, hasLower, hasDigit, hasSymbol].filter(Boolean).length >= 3;
+  const isPredictable = passwordErrors.includes('predictable');
+  const hasRepeatedSequence = passwordErrors.includes('repeatedSequence');
+  const strengthScore = [hasLength, hasUpper, hasLower, hasDigit, hasSymbol].filter(Boolean).length;
+  const isPasswordValid = passwordErrors.length === 0;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,7 +52,7 @@ const Register = () => {
       return setError(t('auth.allFieldsRequired', 'All fields are required'));
     }
     if (!isPasswordValid) {
-      return setError(t('auth.passwordComplexityError', 'Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, and a number'));
+      return setError(t('auth.passwordComplexityError', 'Use 12–128 characters, at least three character types, and avoid predictable words or long repeated sequences.'));
     }
     if (password !== confirmPassword) {
       return setError(t('auth.passwordsDoNotMatch', 'Passwords do not match'));
@@ -53,9 +63,12 @@ const Register = () => {
 
     setIsLoading(true);
     try {
-      await register(name, email, phone, password);
-      setSuccess(t('auth.accountCreatedSuccess', 'Account created successfully! Redirecting to login...'));
-      setTimeout(() => navigate('/login'), 1800);
+      const account = await register(name, email, phone, password);
+      const verificationRequired = account?.isVerified === false;
+      setSuccess(verificationRequired
+        ? t('auth.accountCreatedVerification', 'Account created. Please verify your email before logging in.')
+        : t('auth.accountCreatedSuccess', 'Account created successfully! Redirecting to login...'));
+      setTimeout(() => navigate(verificationRequired ? `/verify-email?email=${encodeURIComponent(email)}` : '/login'), 1800);
     } catch (err) {
       if (err.message?.toLowerCase().includes('already exists') || err.message?.toLowerCase().includes('duplicate')) {
         setError(t('auth.emailInUse', 'This email is already in use'));
@@ -69,6 +82,17 @@ const Register = () => {
 
   return (
     <div className="min-h-screen pt-28 pb-16 bg-obsidian-900 flex items-center justify-center px-4 font-body">
+      <style>{`
+        .auth-input:-webkit-autofill,
+        .auth-input:-webkit-autofill:hover,
+        .auth-input:-webkit-autofill:focus {
+          -webkit-text-fill-color: #fefcf7 !important;
+          caret-color: #fefcf7;
+          -webkit-box-shadow: 0 0 0 1000px #17151f inset !important;
+          box-shadow: 0 0 0 1000px #17151f inset !important;
+          transition: background-color 9999s ease-out 0s;
+        }
+      `}</style>
       <Helmet>
         <title>{t('auth.registerTitle', 'Create Account | Dunas Travel')}</title>
       </Helmet>
@@ -88,7 +112,7 @@ const Register = () => {
 
         {error && (
           <div className="mb-6 p-4 rounded-xl bg-red-500/15 border border-red-500/40 text-red-400 text-body-sm text-center">
-            {error}
+            {typeof error === 'object' && error !== null ? (error.message || String(error)) : error}
           </div>
         )}
         {success && (
@@ -109,10 +133,12 @@ const Register = () => {
               <input
                 type="text"
                 required
+                name="name"
+                autoComplete="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={t('auth.fullNamePlaceholder', 'Enter your full name')}
-                className="w-full p-3 pl-10 rounded-xl bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-gold-500 outline-none transition-all text-[14px]"
+                className="auth-input w-full p-3 pl-10 rounded-xl bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-gold-500 outline-none transition-all text-[14px]"
               />
             </div>
           </div>
@@ -128,10 +154,12 @@ const Register = () => {
               <input
                 type="email"
                 required
+                name="email"
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t('auth.emailPlaceholder', 'Enter your email')}
-                className="w-full p-3 pl-10 rounded-xl bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-gold-500 outline-none transition-all text-[14px]"
+                className="auth-input w-full p-3 pl-10 rounded-xl bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-gold-500 outline-none transition-all text-[14px]"
               />
             </div>
           </div>
@@ -147,10 +175,12 @@ const Register = () => {
               <input
                 type="tel"
                 required
+                name="phone"
+                autoComplete="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder={t('auth.phonePlaceholder', 'Enter your phone number')}
-                className="w-full p-3 pl-10 rounded-xl bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-gold-500 outline-none transition-all text-[14px]"
+                className="auth-input w-full p-3 pl-10 rounded-xl bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-gold-500 outline-none transition-all text-[14px]"
               />
             </div>
           </div>
@@ -166,10 +196,14 @@ const Register = () => {
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
+                name="new-password"
+                autoComplete="new-password"
+                minLength={PASSWORD_MIN_LENGTH}
+                maxLength={PASSWORD_MAX_LENGTH}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={t('auth.min8Chars', 'Min 8 characters')}
-                className="w-full p-3 pl-10 pr-10 rounded-xl bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-gold-500 outline-none transition-all text-[14px]"
+                placeholder={t('auth.min12Chars', 'Min 12 characters')}
+                className="auth-input w-full p-3 pl-10 pr-10 rounded-xl bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-gold-500 outline-none transition-all text-[14px]"
               />
               <button
                 type="button"
@@ -189,24 +223,24 @@ const Register = () => {
                     {t('auth.passwordStrength', 'Password Strength')}:
                   </span>
                   <span className={`text-[11px] font-bold ${
-                    strengthScore === 4 ? 'text-emerald-400' :
-                    strengthScore >= 3 ? 'text-gold-400' :
+                    isPasswordValid ? 'text-emerald-400' :
+                    strengthScore >= 4 ? 'text-gold-400' :
                     strengthScore >= 2 ? 'text-amber-400' : 'text-rose-400'
                   }`}>
-                    {strengthScore === 4 ? t('auth.strengthStrong', 'Strong') :
-                     strengthScore >= 3 ? t('auth.strengthGood', 'Good') :
+                    {isPasswordValid ? t('auth.strengthStrong', 'Strong') :
+                     strengthScore >= 4 ? t('auth.strengthGood', 'Good') :
                      strengthScore >= 2 ? t('auth.strengthFair', 'Fair') : t('auth.strengthWeak', 'Weak')}
                   </span>
                 </div>
-                <div className="grid grid-cols-4 gap-1.5 mb-2.5 h-1.5">
-                  {[1, 2, 3, 4].map((step) => (
+                <div className="grid grid-cols-5 gap-1.5 mb-2.5 h-1.5">
+                  {[1, 2, 3, 4, 5].map((step) => (
                     <div
                       key={step}
                       className={`h-full rounded-full transition-all duration-300 ${
                         step <= strengthScore
-                          ? strengthScore === 4
+                          ? isPasswordValid
                             ? 'bg-emerald-400'
-                            : strengthScore >= 3
+                            : strengthScore >= 4
                             ? 'bg-gold-400'
                             : strengthScore >= 2
                             ? 'bg-amber-400'
@@ -221,7 +255,7 @@ const Register = () => {
                 <div className="grid grid-cols-2 gap-1.5 text-[11px]">
                   <div className={`flex items-center gap-1.5 transition-colors ${hasLength ? 'text-emerald-400 font-semibold' : 'text-ivory-400/70'}`}>
                     <span>{hasLength ? '✓' : '•'}</span>
-                    <span>{t('auth.ruleLength', '8+ characters')}</span>
+                    <span>{t('auth.ruleLength', '12–128 characters')}</span>
                   </div>
                   <div className={`flex items-center gap-1.5 transition-colors ${hasUpper ? 'text-emerald-400 font-semibold' : 'text-ivory-400/70'}`}>
                     <span>{hasUpper ? '✓' : '•'}</span>
@@ -235,6 +269,17 @@ const Register = () => {
                     <span>{hasDigit ? '✓' : '•'}</span>
                     <span>{t('auth.ruleDigit', 'Number (0-9)')}</span>
                   </div>
+                  <div className={`flex items-center gap-1.5 transition-colors ${hasThreeClasses ? 'text-emerald-400 font-semibold' : 'text-ivory-400/70'}`}>
+                    <span>{hasThreeClasses ? '✓' : '•'}</span>
+                    <span>{t('auth.ruleClasses', 'Use 3 of 4 character types')}</span>
+                  </div>
+                  {(isPredictable || hasRepeatedSequence) && (
+                    <div className="col-span-2 text-rose-400">
+                      {isPredictable
+                        ? t('auth.rulePredictable', 'Avoid common or predictable words')
+                        : t('auth.ruleRepeated', 'Avoid repeating one character five times')}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -251,10 +296,14 @@ const Register = () => {
               <input
                 type={showConfirmPassword ? 'text' : 'password'}
                 required
+                name="confirm-password"
+                autoComplete="new-password"
+                minLength={PASSWORD_MIN_LENGTH}
+                maxLength={PASSWORD_MAX_LENGTH}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder={t('auth.confirmPasswordPlaceholder', 'Confirm password')}
-                className="w-full p-3 pl-10 pr-10 rounded-xl bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-gold-500 outline-none transition-all text-[14px]"
+                className="auth-input w-full p-3 pl-10 pr-10 rounded-xl bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-gold-500 outline-none transition-all text-[14px]"
               />
               <button
                 type="button"

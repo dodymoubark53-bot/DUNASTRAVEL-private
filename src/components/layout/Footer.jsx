@@ -13,7 +13,21 @@ const Footer = () => {
   const { isOpen, setIsOpen } = useJaiderChat();
 
   useEffect(() => {
-    const handleScroll = () => setShowBackToTop(window.scrollY > 480);
+    let ticking = false;
+    let lastState = false;
+
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const isOver = window.scrollY > 480;
+        if (isOver !== lastState) {
+          lastState = isOver;
+          setShowBackToTop(isOver);
+        }
+        ticking = false;
+      });
+    };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -33,14 +47,6 @@ const Footer = () => {
       className="relative w-full text-white flex flex-col"
       style={{ background: 'linear-gradient(180deg, rgb(10,25,105) 0%, rgb(6,29,93) 50%, rgb(10,21,53) 100%)' }}
     >
-
-      {/* Brand & Socials + TiT0 */}
-      <style>{`
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-@keyframes blink{50%{opacity:0}}
-@keyframes dotSlideIn{from{opacity:0;transform:translateX(30px) scale(0.15)}to{opacity:1;transform:translateX(0) scale(1)}}
-@keyframes arrowBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-`}</style>
       <div className="relative z-10 w-full px-6 sm:px-12 lg:px-20 pt-8 sm:pt-10 lg:pt-12 flex flex-col sm:flex-row justify-between items-start gap-6">
         <div className="max-w-lg">
           <Link to="/" className="flex items-center mb-3">
@@ -81,13 +87,28 @@ const Footer = () => {
               </div>
             )}
           </div>
-          <div
-            onClick={() => setIsOpen(prev => !prev)}
-            className={`flex flex-col items-center sm:items-start text-center ${isRtl ? 'sm:text-right' : 'sm:text-left'} gap-1 pt-2 sm:pt-8 cursor-pointer group`}
-          >
-            <p className="text-white text-base sm:text-lg font-bold max-w-[280px] leading-tight group-hover:text-gold-400 transition-colors">
+          <div className={`flex flex-col items-center sm:items-start text-center ${isRtl ? 'sm:text-right' : 'sm:text-left'} gap-1 pt-2 sm:pt-8`}>
+            <p
+              onClick={() => setIsOpen(prev => !prev)}
+              className="text-white text-base sm:text-lg font-bold max-w-[280px] leading-tight hover:text-gold-400 transition-colors cursor-pointer group"
+            >
               {t('footer.titoTagline', 'Descubre la magia de Egipto y sus monumentos históricos de la mano de los Expertos')}
             </p>
+            
+            <div className="mt-6 sm:mt-8 flex items-center justify-center sm:justify-start">
+              <img
+                src="/imgs/iata-logo.svg"
+                alt="IATA Accredited Agent"
+                width="112"
+                height="112"
+                loading="lazy"
+                decoding="async"
+                className="h-20 sm:h-28 w-auto object-contain filter brightness-0 invert opacity-95 hover:opacity-100 transition-all hover:scale-105"
+                onError={(e) => {
+                  e.currentTarget.src = "https://cdn.svgrepo.com/show/306218/iata.svg";
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>

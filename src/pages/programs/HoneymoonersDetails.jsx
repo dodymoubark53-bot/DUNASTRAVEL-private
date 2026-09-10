@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { FaCheck, FaHeart, FaChevronRight } from 'react-icons/fa';
 import AdvancedBooking from '../../components/booking/AdvancedBooking';
 import RouteMap from '../../components/tour/RouteMap';
+import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 import { fadeInUp } from '../../animations/variants';
 
 const HONEYMOON_ITINERARY = [
@@ -110,10 +111,14 @@ export default function HoneymoonersDetails() {
         />
       </Helmet>
 
-      {/* Header Banner */}
-      <section className="pt-32 pb-10 bg-gradient-to-r from-rose-900 via-obsidian-900 to-obsidian-900 text-center px-6">
-        <div className="container mx-auto">
-          <div className="flex items-center justify-center gap-2 text-caption text-gold-500 mb-4 uppercase tracking-wider">
+      {/* Luxury Hero Section */}
+      <LuxuryHeroSection
+        badge={t('honeymooners.badge', '💍 رحلات شهر العسل الملكية')}
+        title={egyptTitle}
+        subtitle="10 Days / 09 Nights • Cairo • Nile Cruise • Hurghada"
+        bgImage="https://hl-tourism.com/media/typecms/Honeymoon_Planning_Guide_2025_Complete_Resource.webp"
+        breadcrumbs={
+          <div className="flex flex-wrap items-center justify-center gap-2 text-caption text-gold-400 mb-2 uppercase tracking-wider text-xs md:text-sm font-semibold">
             <Link to="/" className="hover:text-ivory-50 transition-colors">
               {t('nav.home', 'Home')}
             </Link>
@@ -128,47 +133,10 @@ export default function HoneymoonersDetails() {
             </span>
             <span className="text-ivory-300">{egyptTitle}</span>
           </div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-display-xl text-ivory-50 mb-4"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {egyptTitle}
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-body-lg text-gold-400 font-medium"
-          >
-            10 Days / 09 Nights
-          </motion.p>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="text-body-md text-ivory-300 mt-2"
-          >
-            Cairo • Nile Cruise • Hurghada
-          </motion.p>
-        </div>
-      </section>
-
-      {/* Hero Image Section */}
-      <section className="relative w-full h-[50vh] lg:h-[70vh] overflow-hidden">
-        <motion.img
-          initial={{ opacity: 0.8 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          src="https://hl-tourism.com/media/typecms/Honeymoon_Planning_Guide_2025_Complete_Resource.webp"
-          alt={egyptTitle}
-          className="w-full h-full object-cover"
-          loading="eager"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/60 via-transparent to-transparent" />
-      </section>
+        }
+        primaryCta={null}
+        secondaryCta={null}
+      />
 
       {/* Content Grid */}
       <section className="container mx-auto px-6 py-16">

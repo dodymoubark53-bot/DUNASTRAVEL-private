@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -31,13 +31,21 @@ import {
   FaTimes,
 } from 'react-icons/fa';
 import { useCurrency } from '../../context/CurrencyContext';
+import { useHotel } from '../../hooks/useHotels';
 import Button from '../../components/ui/Button';
+import SkeletonLoader from '../../components/ui/SkeletonLoader';
+import ErrorState from '../../components/ui/ErrorState';
 
 const HotelDetails = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = (i18n.language || '').startsWith('ar');
+  const isRtl = i18n.dir?.() === 'rtl' || isAr;
   const { formatPrice } = useCurrency();
+  const { slug } = useParams();
   const location = useLocation();
   const basePath = location.pathname.startsWith('/programs') ? '/programs' : '/services';
+  const currentSlug = slug || 'sol-pyramid-hotel';
+  const { hotel: apiHotel, loading, error } = useHotel(currentSlug);
 
   const [activeImage, setActiveImage] = useState(null);
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
@@ -60,111 +68,162 @@ const HotelDetails = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+  }, [currentSlug]);
+
+  if (loading) {
+    return (
+      <div className="w-full bg-[#FAF9F5] dark:bg-obsidian-900 min-h-screen pt-32 pb-24 px-6 container mx-auto">
+        <SkeletonLoader count={1} type="card" />
+      </div>
+    );
+  }
+
+  if (error || (!apiHotel && currentSlug !== 'sol-pyramid-hotel')) {
+    return (
+      <div className="w-full bg-[#FAF9F5] dark:bg-obsidian-900 min-h-screen pt-32 pb-24 px-6 container mx-auto flex items-center justify-center">
+        <ErrorState
+          title={t('hotel.notFoundTitle', 'Hotel Not Found')}
+          message={error?.message || t('hotel.notFoundDesc', 'The requested hotel could not be found.')}
+          actionLabel={t('hotel.browseAll', 'Browse Luxury Hotels')}
+          actionLink={basePath}
+        />
+      </div>
+    );
+  }
 
   const hotelInfo = {
-    name: 'Sol Pyramid Hotel',
-    stars: 3,
+    name: apiHotel?.name || 'Sol Pyramid Hotel',
+    stars: apiHotel?.stars || 5,
     yearBuilt: '2025',
-    totalRooms: t('hotel.overview.roomsCount', '20 rooms (40 more coming soon)'),
-    checkIn: '3:00 PM',
-    checkOut: '12:00 PM',
-    smoking: t('hotel.overview.smokingPolicyVal', 'Non-smoking throughout the entire property'),
-    pets: t('hotel.overview.petsPolicyVal', 'Not allowed'),
+    totalRooms: apiHotel?.rooms?.length ? `${apiHotel.rooms.length} ${t('hotel.roomTypesAvailable', 'room types')}` : t('hotel.overview.roomsCount', '20 rooms'),
+    checkIn: apiHotel?.policies?.checkIn || '3:00 PM',
+    checkOut: apiHotel?.policies?.checkOut || '12:00 PM',
+    smoking: apiHotel?.policies?.smoking || t('hotel.overview.smokingPolicyVal', 'Non-smoking throughout property'),
+    pets: apiHotel?.policies?.pets || t('hotel.overview.petsPolicyVal', 'Not allowed'),
     location:
-      '05 Rawdet al Ahram, Behind Le Meridien Pyramids St., Old Hadayek al Ahram – Haram – Giza – Egypt (close to the Pyramids of Giza)',
-    telephones: ['+2 02 33775511', '+2 02 33775522'],
-    cell: '(+2) 01149401111',
-    email: 'info@solpyramid-egypt.com',
-    facebook: 'https://www.facebook.com/share/1aiB2ma5oi/',
-    instagram: 'https://www.instagram.com/solpyramidhotel',
-    website: 'https://www.solpyramid-egypt.com/',
+      apiHotel?.address ||
+      (apiHotel?.city ? `${apiHotel.city}, ${apiHotel.destinationSlug || ''}` : '05 Rawdet al Ahram, Haram, Giza, Egypt'),
+    telephones: apiHotel?.phone ? [apiHotel.phone] : ['+2 02 33775511'],
+    cell: apiHotel?.phone || '(+2) 01149401111',
+    email: apiHotel?.email || 'info@dunastravel.com',
+    facebook: 'https://www.facebook.com/dunastravel',
+    instagram: 'https://www.instagram.com/dunastravel',
+    website: apiHotel?.website || 'https://dunastravel.com/',
   };
 
-  const roomTypes = [
+  const defaultRoomTypes = [
     {
-      id: 'double-room',
-      name: t('hotel.room.doubleTitle', 'Double Room'),
-      price: 85,
-      capacity: '1–2 Guests',
-      bed: t('hotel.room.doubleBed', '1 King Bed'),
-      view: t('hotel.room.doubleView', 'Pyramids View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Single-900x500.jpg',
+      id: 'single-room',
+      name: isAr ? 'غرفة مفردة' : t('hotel.room.singleTitle', 'Single Room'),
+      price: 75,
+      capacity: isAr ? 'شخص واحد' : '1 Guest',
+      bed: isAr ? 'سرير مفرد' : t('hotel.room.singleBed', '1 Single Bed'),
+      view: isAr ? 'إطلالة على الحديقة / المدينة' : t('hotel.room.singleView', 'City / Garden View'),
+      image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=1200',
     },
     {
       id: 'twin-room',
-      name: t('hotel.room.twinTitle', 'Twin Room'),
+      name: isAr ? 'غرفة توأم' : t('hotel.room.twinTitle', 'Twin Room'),
       price: 85,
-      capacity: '2 Guests',
-      bed: t('hotel.room.twinBed', 'Double/Twin'),
-      view: t('hotel.room.twinView', 'Standard View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2026/02/Double-900x500.jpg',
+      capacity: isAr ? 'شخصين' : '2 Guests',
+      bed: isAr ? 'مزدوجة / توأم' : t('hotel.room.twinBed', 'Double / Twin Beds'),
+      view: isAr ? 'إطلالة قياسية' : t('hotel.room.twinView', 'Standard View'),
+      image: 'https://images.unsplash.com/photo-1595576508898-0ad5c879a061?q=80&w=1200',
+    },
+    {
+      id: 'double-room',
+      name: isAr ? 'غرفة مزدوجة' : t('hotel.room.doubleTitle', 'Double Room'),
+      price: 95,
+      capacity: isAr ? 'شخصين' : '1–2 Guests',
+      bed: isAr ? '1 سرير كينج مزدوج' : t('hotel.room.doubleBed', '1 King Bed'),
+      view: isAr ? 'إطلالة على الأهرامات' : t('hotel.room.doubleView', 'Pyramids View'),
+      image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1200',
     },
     {
       id: 'triple-room',
-      name: t('hotel.room.tripleTitle', 'Triple Room'),
-      price: 110,
-      capacity: '3 Guests',
-      bed: t('hotel.room.tripleBed', 'Double/Twin'),
-      view: t('hotel.room.tripleView', 'Standard View'),
-      image: 'https://www.solpyramid-egypt.com/wp-content/uploads/2026/02/Triple-900x500.jpg',
+      name: isAr ? 'غرفة ثلاثية' : t('hotel.room.tripleTitle', 'Triple Room'),
+      price: 125,
+      capacity: isAr ? '3 ضيوف' : '3 Guests',
+      bed: isAr ? 'مزدوجة / توأم' : t('hotel.room.tripleBed', 'Double/Twin'),
+      view: isAr ? 'إطلالة قياسية' : t('hotel.room.tripleView', 'Standard View'),
+      image: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=1200',
+    },
+    {
+      id: 'executive-suite',
+      name: isAr ? 'جناح تنفيذي' : t('hotel.room.suiteTitle', 'Executive Suite'),
+      price: 190,
+      capacity: isAr ? '2–3 ضيوف' : '2–3 Guests',
+      bed: isAr ? '1 سرير كينج + صالون استراحة' : t('hotel.room.suiteBed', '1 King Bed + Lounge'),
+      view: isAr ? 'إطلالة بانورامية على الأهرامات' : t('hotel.room.suiteView', 'Panoramic Pyramids View'),
+      image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1200',
+    },
+    {
+      id: 'royal-pyramid-view-suite',
+      name: isAr ? 'الجناح الملكي بإطلالة الأهرامات' : t('hotel.room.royalTitle', 'Royal Pyramid View Suite'),
+      price: 280,
+      capacity: isAr ? '2–4 ضيوف' : '2–4 Guests',
+      bed: isAr ? 'ماستر كينج + صالة ملكية' : t('hotel.room.royalBed', 'Master King Bed + Royal Lounge'),
+      view: isAr ? 'إطلالة مباشرة صف أول على الأهرامات' : t('hotel.room.royalView', 'Front-Row Direct Pyramids View'),
+      image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=1200',
     },
   ];
 
+  const roomTypes = (apiHotel?.rooms && apiHotel.rooms.length > 0)
+    ? apiHotel.rooms.map((r) => {
+        const fallback = defaultRoomTypes.find((d) => d.id === r.slug);
+        const resolvedPrice = (r.ratePerNight !== undefined && r.ratePerNight !== null && Number(r.ratePerNight) > 0)
+          ? Number(r.ratePerNight)
+          : (fallback?.price || 75);
+        return {
+          id: r.slug,
+          name: r.name || fallback?.name || r.slug,
+          price: resolvedPrice,
+          capacity: r.maxOccupancy ? (isAr ? (r.maxOccupancy === 1 ? 'شخص واحد' : r.maxOccupancy === 2 ? 'شخصين' : `${r.maxOccupancy} ضيوف`) : `${r.maxOccupancy} Guests`) : (fallback?.capacity || '2 Guests'),
+          bed: r.bedType || r.description || fallback?.bed || '1 King Bed',
+          view: r.viewType || fallback?.view || 'Panoramic View',
+          image: r.image || r.imageUrl || fallback?.image || apiHotel?.heroImageUrl || 'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1200',
+        };
+      })
+    : defaultRoomTypes;
+
   const inRoomAmenities = [
-    { label: t('hotel.fac.wifi', 'Free Wi-Fi'), icon: <FaWifi className="text-gold-500" /> },
-    { label: t('hotel.fac.ac', 'Air conditioning (cold & heat)'), icon: <FaSnowflake className="text-gold-500" /> },
-    { label: t('hotel.fac.bathroom', 'Private bathroom with amenities'), icon: <FaBath className="text-gold-500" /> },
-    { label: t('hotel.fac.minibar', 'Mini bar — refrigerated, stocked (against charge)'), icon: <FaWineGlass className="text-gold-500" /> },
-    { label: t('hotel.fac.coffee', 'In-room coffee & tea — daily refreshment basis'), icon: <FaCoffee className="text-gold-500" /> },
-    { label: t('hotel.fac.linen', '100% Egyptian cotton linen & bed covers'), icon: <FaBed className="text-gold-500" /> },
-    { label: t('hotel.fac.tv', 'TV — Multi-language channels: Italian, Spanish, English, Portuguese, Sport, Kids, Arabic'), icon: <FaTv className="text-gold-500" /> },
-    { label: t('hotel.fac.safe', 'Free safe box'), icon: <FaLock className="text-gold-500" /> },
-    { label: t('hotel.fac.iron', 'Iron & ironing board (upon request)'), icon: <FaShieldAlt className="text-gold-500" /> },
-    { label: t('hotel.fac.phone', 'In-room phone'), icon: <FaPhoneAlt className="text-gold-500" /> },
+    { label: isAr ? 'إنترنت لاسلكي مجاني' : t('hotel.fac.wifi', 'Free Wi-Fi'), icon: <FaWifi className="text-gold-500" /> },
+    { label: isAr ? 'تكييف هواء (بارد وساخن)' : t('hotel.fac.ac', 'Air conditioning (cold & heat)'), icon: <FaSnowflake className="text-gold-500" /> },
+    { label: isAr ? 'حمام خاص مع المستلزمات' : t('hotel.fac.bathroom', 'Private bathroom with amenities'), icon: <FaBath className="text-gold-500" /> },
+    { label: isAr ? 'ثلاجة صغيرة للغرفة (برسوم إضافية)' : t('hotel.fac.minibar', 'Mini bar — refrigerated, stocked (against charge)'), icon: <FaWineGlass className="text-gold-500" /> },
+    { label: isAr ? 'ماكينة قهوة وشاي مع تجديد يومي' : t('hotel.fac.coffee', 'In-room coffee & tea — daily refreshment basis'), icon: <FaCoffee className="text-gold-500" /> },
+    { label: isAr ? 'مفروشات من القطن المصري 100٪' : t('hotel.fac.linen', '100% Egyptian cotton linen & bed covers'), icon: <FaBed className="text-gold-500" /> },
+    { label: isAr ? 'شاشة تلفزيون بقنوات متعددة اللغات' : t('hotel.fac.tv', 'TV — Multi-language channels: Italian, Spanish, English, Portuguese, Sport, Kids, Arabic'), icon: <FaTv className="text-gold-500" /> },
+    { label: isAr ? 'خزنة مجانية داخل الغرفة' : t('hotel.fac.safe', 'Free safe box'), icon: <FaLock className="text-gold-500" /> },
+    { label: isAr ? 'مكواة وطاولة كي (عند الطلب)' : t('hotel.fac.iron', 'Iron & ironing board (upon request)'), icon: <FaShieldAlt className="text-gold-500" /> },
+    { label: isAr ? 'هاتف داخلي' : t('hotel.fac.phone', 'In-room phone'), icon: <FaPhoneAlt className="text-gold-500" /> },
   ];
 
   const hotelWideFacilities = [
-    { label: t('hotel.fac.giftshop', 'Gift shop'), icon: <FaShoppingBag className="text-gold-500" /> },
-    { label: t('hotel.fac.restaurant', 'Rooftop restaurant (coming soon)'), icon: <FaUtensils className="text-gold-500" /> },
-    { label: t('hotel.fac.bar', 'Bar with wide range of snack options (coming soon)'), icon: <FaWineGlass className="text-gold-500" /> },
-    { label: t('hotel.fac.payment', 'SSL-secured online payment'), icon: <FaCreditCard className="text-gold-500" /> },
+    { label: isAr ? 'متجر هدايا وتذكارات' : t('hotel.fac.giftshop', 'Gift shop'), icon: <FaShoppingBag className="text-gold-500" /> },
+    { label: isAr ? 'مطعم على السطح بإطلالة الأهرامات' : t('hotel.fac.restaurant', 'Rooftop restaurant (coming soon)'), icon: <FaUtensils className="text-gold-500" /> },
+    { label: isAr ? 'مقهى واستراحة للمشروبات والوجبات الخفيفة' : t('hotel.fac.bar', 'Bar with wide range of snack options (coming soon)'), icon: <FaWineGlass className="text-gold-500" /> },
+    { label: isAr ? 'دفع إلكتروني آمن عبر بطاقات الائتمان' : t('hotel.fac.payment', 'SSL-secured online payment'), icon: <FaCreditCard className="text-gold-500" /> },
   ];
 
-  const galleryImages = [
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM5.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM4.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.45.12-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.45.58-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.00-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM6.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.00-PM-2.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM3.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.21-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.07-P2M.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.05-PM-copy.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.16-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.22-PM-1.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.25-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.26-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.19-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.35-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.32-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.30-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.33-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.34-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-13-at-12.46.36-PM.jpeg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Hotel.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/Tea-Tabel.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/TV-Unit.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/View.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0013.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0010.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0009.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0006.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0002.jpg',
-    'https://www.solpyramid-egypt.com/wp-content/uploads/2022/08/IMG-20251007-WA0004.jpg',
+  const hotelHeroImage = apiHotel?.heroImageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200';
+
+  const rawGallery = (apiHotel?.images && apiHotel.images.length > 0)
+    ? apiHotel.images.map((img) => (typeof img === 'string' ? img : img?.url)).filter(Boolean)
+    : [];
+
+  const defaultSolGallery = [
+    'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200',
+    'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1200',
+    'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1200',
+    'https://images.unsplash.com/photo-1595576508898-0ad5c879a061?q=80&w=1200',
+    'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=1200',
+    'https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=1200',
   ];
+
+  const galleryImages = rawGallery.length > 0
+    ? (apiHotel?.heroImageUrl && !rawGallery.includes(apiHotel.heroImageUrl) ? [apiHotel.heroImageUrl, ...rawGallery] : rawGallery)
+    : (apiHotel?.heroImageUrl ? [apiHotel.heroImageUrl, ...defaultSolGallery] : defaultSolGallery);
 
   const handleReviewSubmit = (e) => {
     e.preventDefault();
@@ -198,8 +257,8 @@ const HotelDetails = () => {
       <section className="relative min-h-[100svh] md:h-[75vh] md:min-h-[500px] flex items-end justify-center overflow-hidden pb-12 pt-32 md:pb-20 md:pt-0">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/23/0d/4e/68/henann-park-resort.jpg?w=600&h=600&s=1"
-            alt="Sol Pyramid Hotel Facade"
+            src={hotelHeroImage}
+            alt={hotelInfo.name}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-slate-900/60 bg-gradient-to-t from-[#FAF9F5] via-slate-900/40 to-transparent dark:from-obsidian-900" />
@@ -209,23 +268,25 @@ const HotelDetails = () => {
             <div className="flex flex-wrap items-center justify-start gap-x-3 gap-y-2 mb-3">
               <div className="flex items-center gap-2">
                 <span className="flex items-center gap-0.5 text-gold-500 text-base md:text-lg">
-                  <FaStar /><FaStar /><FaStar />
+                  {Array.from({ length: Math.min(Math.max(Number(apiHotel?.stars) || 5, 1), 5) }).map((_, i) => (
+                    <FaStar key={i} />
+                  ))}
                 </span>
                 <span className="text-white text-[11px] md:text-xs font-semibold uppercase tracking-widest">
-                  {t('hotel.overview.starsLabel', '3-Star Hotel')}
+                  {apiHotel?.stars ? `${apiHotel.stars}-Star Hotel` : t('hotel.overview.starsLabel', 'Luxury Hotel')}
                 </span>
               </div>
               <span className="hidden sm:block w-1.5 h-1.5 rounded-full bg-gold-500" />
               <div className="flex items-center gap-1 text-white text-[11px] md:text-xs font-semibold uppercase tracking-widest">
                 <FaMapMarkerAlt className="text-sm shrink-0 text-gold-400" />
-                <span>{t('hotel.overview.gizaEgypt', 'Giza, Egypt')}</span>
+                <span>{apiHotel?.city ? `${apiHotel.city}, ${apiHotel.destinationSlug}` : t('hotel.overview.gizaEgypt', 'Giza, Egypt')}</span>
               </div>
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-display-xl text-white font-display font-semibold drop-shadow-lg mb-3 leading-tight">
               {hotelInfo.name}
             </h1>
             <p className="text-slate-200 text-lg md:text-xl font-medium italic mb-6">
-              "{t('hotel.tagline', 'Steps from the Pyramids of Giza — Where History Meets Comfort')}"
+              "{apiHotel?.description ? (apiHotel.description.slice(0, 140) + '...') : t('hotel.tagline', 'Where History Meets Supreme Luxury')}"
             </p>
             <div className="flex flex-wrap gap-2.5">
               <span className="bg-slate-900/70 border border-slate-700 px-3.5 py-1.5 rounded-full text-xs font-semibold text-white">
@@ -251,14 +312,14 @@ const HotelDetails = () => {
               {t('tourCard.startingFrom', 'Rooms From')}
             </div>
             <div className="text-3xl font-semibold text-gold-400 mb-3">
-              {formatPrice(85)}
+              {formatPrice(apiHotel?.pricePerNight && apiHotel.pricePerNight > 0 ? apiHotel.pricePerNight : 75)}
               <span className="text-sm font-normal text-slate-300"> / {t('hotel.night', 'night')}</span>
             </div>
-            <Link to="/tailor-a-tour">
+            <a href="#rooms">
               <Button variant="glass" className="w-full px-6 py-2.5 text-xs uppercase font-bold">
-                {t('home.tailorTour', 'Customize Your Stay')}
+                {t('hotel.room.viewRooms', 'View Available Rooms')}
               </Button>
-            </Link>
+            </a>
           </div>
         </div>
       </section>
@@ -271,9 +332,9 @@ const HotelDetails = () => {
             {t('hotel.overview.title', 'Hotel Overview')}
           </h2>
           <p className="text-lg text-slate-700 dark:text-slate-200 leading-relaxed mb-10">
-            "{t(
+            "{apiHotel?.description || t(
               'hotel.overview.desc',
-              "Solpyramid Hotel is a modern 3-star establishment built in 2025, designed for travellers who want to explore Egypt's greatest sights. Combining elegant room design with a family atmosphere, it offers complete modern facilities with personal and qualified service — all located steps away from the Pyramids of Giza."
+              "Luxury 5-star establishment designed for travellers who want to explore the greatest sights with supreme comfort, personal service, and world-class hospitality."
             )}"
           </p>
 
@@ -376,7 +437,7 @@ const HotelDetails = () => {
       </section>
 
       {/* Available Room Types */}
-      <section className="container mx-auto px-6 py-12 max-w-6xl text-left rtl:text-right">
+      <section id="rooms" className="container mx-auto px-6 py-12 max-w-6xl text-left rtl:text-right">
         <div className="text-center mb-12">
           <span className="text-gold-600 uppercase tracking-widest text-xs font-semibold block mb-2">
             {t('hotel.room.selection', 'ACCOMMODATIONS')}
@@ -424,7 +485,7 @@ const HotelDetails = () => {
                     <span className="text-xs text-slate-400 font-normal"> / {t('hotel.night', 'night')}</span>
                   </span>
                 </div>
-                <Link to={`${basePath}/hotels/sol-pyramid-hotel/${room.id}`}>
+                <Link to={`${basePath}/hotels/${currentSlug}/${room.id}`}>
                   <Button variant="outline-gold" className="px-4 py-2 text-xs uppercase font-bold">
                     {t('tourCard.viewDetails', 'View Details')}
                   </Button>
@@ -549,7 +610,7 @@ const HotelDetails = () => {
 
           <div className="lg:w-1/2 min-h-[350px] rounded-2xl overflow-hidden shadow-inner border border-slate-200 relative">
             <iframe
-              src="https://maps.google.com/maps?q=29.98536,31.13627&t=&z=15&ie=UTF8&iwloc=&output=embed"
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(hotelInfo.location || `${hotelInfo.name}, ${apiHotel?.city || 'Egypt'}`)}&t=&z=14&ie=UTF8&iwloc=&output=embed`}
               width="100%"
               height="100%"
               frameBorder="0"
@@ -563,59 +624,61 @@ const HotelDetails = () => {
       </section>
 
       {/* Video Walkthrough */}
-      <section className="bg-slate-900 py-20 text-white border-y border-slate-800 text-center">
-        <div className="container mx-auto px-6 max-w-4xl">
-          <span className="text-gold-500 uppercase tracking-widest text-xs font-semibold block mb-2">
-            {t('hotel.video.subtitle', 'CINEMATIC TOUR')}
-          </span>
-          <h2 className="text-3xl md:text-5xl font-display font-semibold text-gold-400 mb-4">
-            {t('hotel.video.title', 'Video Walkthrough')}
-          </h2>
-          <p className="text-sm text-slate-300 max-w-xl mx-auto mb-10">
-            "{t(
-              'hotel.video.desc',
-              'Watch our exclusive video tour to experience the family atmosphere, elegant accommodations, and views of Sol Pyramid Hotel.'
-            )}"
-          </p>
+      {(apiHotel?.amenities?.youtubeId || currentSlug === 'sol-pyramid-hotel') && (
+        <section className="bg-slate-900 py-20 text-white border-y border-slate-800 text-center">
+          <div className="container mx-auto px-6 max-w-4xl">
+            <span className="text-gold-500 uppercase tracking-widest text-xs font-semibold block mb-2">
+              {t('hotel.video.subtitle', 'CINEMATIC TOUR')}
+            </span>
+            <h2 className="text-3xl md:text-5xl font-display font-semibold text-gold-400 mb-4">
+              {t('hotel.video.title', 'Video Walkthrough')}
+            </h2>
+            <p className="text-sm text-slate-300 max-w-xl mx-auto mb-10">
+              "{t(
+                'hotel.video.desc',
+                'Watch our exclusive video tour to experience the atmosphere, elegant accommodations, and views.'
+              )}"
+            </p>
 
-          <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl border border-slate-800 bg-black">
-            {isPlayingVideo ? (
-              <iframe
-                className="w-full h-full absolute inset-0"
-                src="https://www.youtube.com/embed/RFeQ5fjkYt8?autoplay=1"
-                title="Sol Pyramid Hotel Cinematic Video Tour"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
-            ) : (
-              <div
-                className="w-full h-full absolute inset-0 cursor-pointer group focus:outline-none focus:ring-2 focus:ring-gold-500"
-                onClick={() => setIsPlayingVideo(true)}
-                tabIndex={0}
-                role="button"
-                aria-label="Play Sol Pyramid Hotel Cinematic Video Tour"
-              >
-                <img
-                  src="https://img.youtube.com/vi/RFeQ5fjkYt8/hqdefault.jpg"
-                  alt="Sol Pyramid Hotel Cinematic Video Tour Placeholder"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                  width="800"
-                  height="450"
+            <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl border border-slate-800 bg-black">
+              {isPlayingVideo ? (
+                <iframe
+                  className="w-full h-full absolute inset-0"
+                  src={`https://www.youtube.com/embed/${apiHotel?.amenities?.youtubeId || 'RFeQ5fjkYt8'}?autoplay=1`}
+                  title={`${hotelInfo.name} Cinematic Video Tour`}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
                 />
-                <div className="absolute inset-0 bg-slate-950/30 group-hover:bg-slate-950/20 transition-colors flex items-center justify-center">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gold-500/90 text-slate-950 flex items-center justify-center shadow-2xl transition-transform duration-300 group-hover:scale-110 group-hover:bg-gold-400">
-                    <svg className="w-8 h-8 ml-1.5 fill-current" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
+              ) : (
+                <div
+                  className="w-full h-full absolute inset-0 cursor-pointer group focus:outline-none focus:ring-2 focus:ring-gold-500"
+                  onClick={() => setIsPlayingVideo(true)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Play ${hotelInfo.name} Cinematic Video Tour`}
+                >
+                  <img
+                    src={`https://img.youtube.com/vi/${apiHotel?.amenities?.youtubeId || 'RFeQ5fjkYt8'}/hqdefault.jpg`}
+                    alt={`${hotelInfo.name} Cinematic Video Tour Placeholder`}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                    width="800"
+                    height="450"
+                  />
+                  <div className="absolute inset-0 bg-slate-950/30 group-hover:bg-slate-950/20 transition-colors flex items-center justify-center">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gold-500/90 text-slate-950 flex items-center justify-center shadow-2xl transition-transform duration-300 group-hover:scale-110 group-hover:bg-gold-400">
+                      <svg className="w-8 h-8 ml-1.5 fill-current" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Gallery Section */}
       <section className="container mx-auto px-6 py-20 max-w-6xl text-left rtl:text-right">

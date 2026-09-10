@@ -123,7 +123,7 @@ const Blogs = () => {
                   )}
 
                   <img
-                    src={blog.img}
+                    src={blog.img || blog.coverImage || "/imgs/hero.png"}
                     alt={t(`blogs.${blog.title}`, blog.title)}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     loading="lazy"
@@ -135,7 +135,7 @@ const Blogs = () => {
                   <div className="flex items-center gap-3 text-caption text-gray-400 mb-3">
                     <span className="flex items-center gap-1">
                       <FaCalendarAlt size={10} />
-                      {t(`blogs.${blog.date}`, blog.date)}
+                      {blog.date || (blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString() : 'Recent')}
                     </span>
                     <span className="flex items-center gap-1">
                       <FaClock size={10} />
@@ -155,7 +155,7 @@ const Blogs = () => {
 
                   <div className="mt-auto pt-4 border-t border-gray-100">
                     <Link to={`/blogs/${blog.slug}`} className="inline-flex items-center gap-2 text-body-sm text-gold-500 hover:text-gold-700 font-semibold transition-all group/link">
-                      <span>{t('blogs.readMore', 'Read More')}</span>
+                      <span>{t('blogs.readMore', 'Read More →')}</span>
                       <FaChevronRight size={10} className={`transition-transform duration-300 group-hover/link:translate-x-1 ${isRtl ? 'rotate-180 group-hover/link:-translate-x-1' : ''}`} />
                     </Link>
                   </div>

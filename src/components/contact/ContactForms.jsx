@@ -52,6 +52,12 @@ const ContactForms = () => {
   const [b2bSubmitError, setB2bSubmitError] = useState('');
   const [b2bErrors, setB2bErrors] = useState({});
 
+  // IATA / Partner Real-Time Verification States
+  const [iataVerificationState, setIataVerificationState] = useState('idle'); // 'idle' | 'verifying' | 'verified' | 'unverified'
+  const [verifiedCompany, setVerifiedCompany] = useState(null);
+  const [iataVerificationError, setIataVerificationError] = useState('');
+  const iataDebounceRef = useRef(null);
+
   // Drag and Drop Dragging States
   const [dragOverLicense, setDragOverLicense] = useState(false);
   const [dragOverTax, setDragOverTax] = useState(false);
@@ -152,9 +158,61 @@ const ContactForms = () => {
   // B2B Handlers
   const handleB2bChange = (e) => {
     const { name, value, type, checked } = e.target;
+    let nextValue = type === 'checkbox' ? checked : value;
+
+    if (name === 'iataNumber') {
+      // Strictly extract up to 8 digits
+      const digitsOnly = String(value).replace(/\D/g, '').slice(0, 8);
+      nextValue = digitsOnly;
+
+      if (iataDebounceRef.current) {
+        clearTimeout(iataDebounceRef.current);
+      }
+
+      if (digitsOnly.length === 8) {
+        setIataVerificationState('verifying');
+        setIataVerificationError('');
+
+        iataDebounceRef.current = setTimeout(async () => {
+          try {
+            const res = await api.get(`/agencies/verify-partner/${digitsOnly}`);
+            if (res.data?.valid && res.data?.company) {
+              setIataVerificationState('verified');
+              setVerifiedCompany(res.data.company);
+              setIataVerificationError('');
+
+              // Auto-fill company details if empty
+              setB2bForm((prev) => ({
+                ...prev,
+                agencyName: prev.agencyName || res.data.company.name || '',
+                website: prev.website || res.data.company.website || '',
+                address: prev.address || res.data.company.address || '',
+              }));
+            } else {
+              setIataVerificationState('unverified');
+              setVerifiedCompany(null);
+              setIataVerificationError(
+                res.data?.message || 'رقم الاعتماد غير مسجل في قاعدة بيانات الشركاء المتعاقدين'
+              );
+            }
+          } catch (err) {
+            setIataVerificationState('unverified');
+            setVerifiedCompany(null);
+            setIataVerificationError(
+              err?.response?.data?.message || err?.message || 'تعذر التحقق من رقم الاعتماد حالياً'
+            );
+          }
+        }, 300);
+      } else {
+        setIataVerificationState('idle');
+        setVerifiedCompany(null);
+        setIataVerificationError('');
+      }
+    }
+
     setB2bForm((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: nextValue,
     }));
     if (b2bErrors[name]) {
       setB2bErrors((prev) => ({ ...prev, [name]: false }));
@@ -288,8 +346,7 @@ const ContactForms = () => {
     <>
       <style dangerouslySetInnerHTML={{ __html: `
         .contact-forms-section {
-          background-color: #05081A;
-          color: #F5F2E8;
+          background-color: transparent;
           font-family: 'Inter', sans-serif;
           position: relative;
         }
@@ -301,140 +358,155 @@ const ContactForms = () => {
         }
 
         .contact-forms-container {
-          max-width: 960px;
+          max-width: 1040px;
           margin: 0 auto;
         }
 
-        /* Tabs Switcher styling */
+        /* Tabs Switcher styling - Header Royal Palette */
         .forms-tab-switcher {
           display: flex;
-          border-bottom: 2px solid rgba(212, 168, 67, 0.2);
-          margin-bottom: 2rem;
+          background: linear-gradient(135deg, rgba(9, 13, 31, 0.95) 0%, rgba(5, 8, 26, 0.98) 100%);
+          border: 2px solid rgba(212, 168, 67, 0.5);
+          border-radius: 9999px;
+          padding: 6px;
+          margin-bottom: 2.5rem;
+          box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(212, 168, 67, 0.15);
+          backdrop-filter: blur(20px);
         }
 
         .forms-tab-btn {
           flex: 1;
-          background: #0F1535;
-          color: #8A8FA8;
+          background: transparent;
+          color: #CBD5E1;
           border: none;
-          padding: 14px 20px;
+          padding: 16px 24px;
           font-family: 'Inter', sans-serif;
-          font-weight: 600;
-          font-size: 11px;
+          font-weight: 700;
+          font-size: 12px;
           letter-spacing: 3px;
           text-transform: uppercase;
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           text-align: center;
+          border-radius: 9999px;
         }
 
         .forms-tab-btn:hover {
           color: #F0C96A;
-          background: #141A3D;
         }
 
         .forms-tab-btn.active {
-          background: #D4A843;
-          color: #05081A;
+          background: linear-gradient(135deg, #D4A843 0%, #B88E28 100%);
+          color: #05081A !important;
+          box-shadow: 0 4px 25px rgba(212, 168, 67, 0.45);
         }
 
-        /* Form elements */
+        /* Form Card - Exact Header Royal Obsidian & Gold Aesthetic */
         .forms-card {
-          background-color: #0F1535;
-          border: 1px solid rgba(212, 168, 67, 0.15);
-          padding: 2.25rem;
+          background: linear-gradient(145deg, #090D1F 0%, #05081A 60%, #0F162E 100%);
+          border: 2px solid rgba(212, 168, 67, 0.45);
+          border-radius: 28px;
+          padding: 3rem 2.5rem;
           position: relative;
+          box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+          backdrop-filter: blur(24px);
         }
-
-
 
         .form-section-title {
-          font-size: 26px;
-          font-weight: 300;
-          color: #D4A843;
-          border-bottom: 1px solid rgba(212, 168, 67, 0.2);
-          padding-bottom: 10px;
-          margin-bottom: 24px;
+          font-size: 28px;
+          font-weight: 600;
+          color: #F0C96A;
+          font-family: 'Cormorant Garamond', serif;
+          border-bottom: 1px solid rgba(212, 168, 67, 0.25);
+          padding-bottom: 12px;
+          margin-bottom: 28px;
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 14px;
         }
 
         .form-section-num {
-          font-size: 14px;
-          font-weight: 600;
-          letter-spacing: 2px;
-          color: #D4A843;
-          opacity: 0.8;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 3px;
+          color: #F0C96A;
+          background: rgba(212, 168, 67, 0.2);
+          border: 1px solid rgba(212, 168, 67, 0.45);
+          padding: 4px 12px;
+          border-radius: 9999px;
         }
 
         .form-field-group {
-          margin-bottom: 20px;
+          margin-bottom: 24px;
         }
 
         .form-label {
           display: block;
           font-family: 'Inter', sans-serif;
-          font-size: 10px;
-          font-weight: 600;
-          letter-spacing: 3px;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 2.5px;
           text-transform: uppercase;
-          color: #8A8FA8;
-          margin-bottom: 8px;
+          color: #F0C96A;
+          margin-bottom: 10px;
         }
 
         .form-input, .form-select, .form-textarea {
           width: 100%;
-          background-color: #0F1535;
-          border: 1px solid rgba(212, 168, 67, 0.2);
-          padding: 14px 18px;
-          color: #F5F2E8;
+          background-color: rgba(5, 8, 26, 0.9);
+          border: 1px solid rgba(212, 168, 67, 0.35);
+          padding: 16px 20px;
+          color: #F8F6F0;
           font-family: 'Inter', sans-serif;
           font-size: 14px;
-          transition: all 0.3s ease;
-          border-radius: 0 !important; /* Sharp corners */
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          border-radius: 14px !important;
         }
 
         .form-input:focus, .form-select:focus, .form-textarea:focus {
-          border-color: #D4A843;
-          background-color: #141A3D;
+          border-color: #F0C96A;
+          background-color: rgba(15, 21, 53, 0.98);
           outline: none;
-          box-shadow: 0 0 12px rgba(212, 168, 67, 0.15);
+          box-shadow: 0 0 20px rgba(212, 168, 67, 0.35);
         }
 
         .form-input.error, .form-select.error, .form-textarea.error, .dropzone.error {
-          border-color: #C4501A !important;
+          border-color: #EF4444 !important;
         }
 
         /* Toggle Pills styling */
         .pills-grid {
           display: flex;
           flex-wrap: wrap;
-          gap: 10px;
+          gap: 12px;
         }
 
         .pill-btn {
-          background-color: #0F1535;
-          border: 1px solid rgba(212, 168, 67, 0.2);
-          color: #8A8FA8;
-          padding: 10px 18px;
+          background-color: rgba(5, 8, 26, 0.85);
+          border: 1px solid rgba(212, 168, 67, 0.3);
+          color: #E2E8F0;
+          padding: 12px 22px;
           font-size: 12px;
+          font-weight: 600;
           letter-spacing: 1px;
           text-transform: uppercase;
           cursor: pointer;
-          transition: all 0.3s ease;
-          border-radius: 0 !important;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          border-radius: 12px !important;
         }
 
         .pill-btn:hover {
           border-color: #D4A843;
-          color: #F5F2E8;
+          color: #F0C96A;
+          transform: translateY(-2px);
+          background-color: rgba(212, 168, 67, 0.15);
         }
 
         .pill-btn.active {
-          border-color: #D4A843;
-          color: #D4A843;
-          background-color: rgba(212, 168, 67, 0.08);
+          border-color: #F0C96A;
+          color: #F0C96A !important;
+          background: rgba(212, 168, 67, 0.22);
+          box-shadow: 0 4px 18px rgba(212, 168, 67, 0.3);
         }
 
         /* Counter controls styling */
@@ -442,25 +514,26 @@ const ContactForms = () => {
           display: flex;
           align-items: center;
           gap: 16px;
-          background-color: #0F1535;
-          border: 1px solid rgba(212, 168, 67, 0.2);
-          padding: 8px 16px;
+          background-color: rgba(5, 8, 26, 0.9);
+          border: 1px solid rgba(212, 168, 67, 0.35);
+          padding: 8px 18px;
           width: fit-content;
+          border-radius: 14px !important;
         }
 
         .counter-btn {
           background: transparent;
-          border: 1px solid rgba(212, 168, 67, 0.2);
-          color: #D4A843;
-          width: 32px;
-          height: 32px;
+          border: 1px solid rgba(212, 168, 67, 0.4);
+          color: #F0C96A;
+          width: 34px;
+          height: 34px;
           font-size: 18px;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
           transition: all 0.3s ease;
-          border-radius: 0 !important;
+          border-radius: 10px !important;
         }
 
         .counter-btn:hover {
@@ -471,52 +544,72 @@ const ContactForms = () => {
 
         .counter-value {
           font-size: 16px;
-          font-weight: 600;
+          font-weight: 700;
           min-width: 24px;
           text-align: center;
+          color: #F8F6F0;
         }
 
         /* Commission Preview box */
         .commission-preview-box {
-          background-color: rgba(26, 47, 122, 0.3);
-          border: 1px solid rgba(61, 92, 199, 0.4);
+          background: rgba(26, 47, 122, 0.05);
+          border: 1px solid rgba(61, 92, 199, 0.2);
           padding: 24px;
+          border-radius: 16px;
           margin-bottom: 24px;
+        }
+        .dark .commission-preview-box {
+          background: rgba(26, 47, 122, 0.3);
+          border-color: rgba(61, 92, 199, 0.4);
         }
 
         .commission-rate {
           font-family: 'Cormorant Garamond', serif;
           font-size: 32px;
-          color: #D4A843;
+          color: #B88E28;
           font-weight: 400;
           margin-top: 6px;
+        }
+        .dark .commission-rate {
+          color: #D4A843;
         }
 
         /* Drag and Drop Zone */
         .dropzone {
-          border: 2px dashed rgba(212, 168, 67, 0.2);
-          background-color: #0F1535;
-          padding: 24px;
+          border: 2px dashed #CBD5E1;
+          background-color: #F8FAFC;
+          padding: 28px;
           text-align: center;
           cursor: pointer;
           transition: all 0.3s ease;
+          border-radius: 16px !important;
+        }
+        .dark .dropzone {
+          border-color: rgba(212, 168, 67, 0.3);
+          background-color: rgba(5, 8, 26, 0.8);
         }
 
         .dropzone.dragover {
           border-color: #D4A843;
-          background-color: rgba(212, 168, 67, 0.04);
+          background-color: rgba(212, 168, 67, 0.08);
         }
 
         .dropzone-text {
           font-size: 13px;
+          color: #64748B;
+        }
+        .dark .dropzone-text {
           color: #8A8FA8;
         }
 
         .dropzone-filename {
           font-size: 13px;
-          color: #D4A843;
+          color: #B88E28;
           font-weight: 600;
           margin-top: 6px;
+        }
+        .dark .dropzone-filename {
+          color: #D4A843;
         }
 
         /* Urgency bar */
@@ -524,23 +617,43 @@ const ContactForms = () => {
           background-color: rgba(212, 168, 67, 0.08);
           border-left: 3px solid #D4A843;
           padding: 16px;
-          color: #F0C96A;
+          color: #B88E28;
           font-size: 13px;
+          border-radius: 0 12px 12px 0;
           margin-bottom: 24px;
           line-height: 1.5;
+        }
+        .dark .urgency-bar {
+          color: #F0C96A;
         }
 
         /* Summary panel styling */
         .price-summary-panel {
-          background-color: #141A3D;
-          border-left: 2px solid #D4A843;
+          background: #F8FAFC;
+          border-left: 4px solid #D4A843;
           padding: 24px;
+          border-radius: 0 16px 16px 0;
           margin-bottom: 24px;
+          border-top: 1px solid #E2E8F0;
+          border-right: 1px solid #E2E8F0;
+          border-bottom: 1px solid #E2E8F0;
+        }
+        .dark .price-summary-panel {
+          background: linear-gradient(135deg, rgba(20, 26, 61, 0.9) 0%, rgba(10, 14, 38, 0.95) 100%);
+          border-left: 3px solid #D4A843;
+          border-top: none;
+          border-right: none;
+          border-bottom: none;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
 
         .price-value {
-          font-size: 28px;
-          color: #D4A843;
+          font-size: 32px;
+          color: #B88E28;
+          font-weight: 600;
+        }
+        .dark .price-value {
+          color: #F0C96A;
         }
 
         /* Secure badges */
@@ -548,9 +661,9 @@ const ContactForms = () => {
           display: flex;
           flex-wrap: wrap;
           gap: 20px;
-          margin-top: 24px;
+          margin-top: 28px;
           justify-content: center;
-          opacity: 0.85;
+          opacity: 0.9;
         }
 
         .secure-badge {
@@ -558,9 +671,12 @@ const ContactForms = () => {
           align-items: center;
           gap: 8px;
           font-size: 11px;
-          letter-spacing: 1px;
-          color: #8A8FA8;
+          letter-spacing: 1.5px;
+          color: #64748B;
           text-transform: uppercase;
+        }
+        .dark .secure-badge {
+          color: #A0A5BC;
         }
 
         .secure-badge svg {
@@ -572,24 +688,25 @@ const ContactForms = () => {
         /* Submit Button */
         .submit-inquiry-btn {
           width: 100%;
-          background-color: #D4A843;
+          background: linear-gradient(135deg, #D4A843 0%, #B88E28 100%);
           color: #05081A;
-          padding: 18px 24px;
+          padding: 20px 32px;
           font-family: 'Inter', sans-serif;
-          font-weight: 700;
+          font-weight: 800;
           font-size: 13px;
           letter-spacing: 4px;
           text-transform: uppercase;
           border: none;
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-          border-radius: 0 !important;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          border-radius: 16px !important;
+          box-shadow: 0 8px 30px rgba(212, 168, 67, 0.3);
         }
 
         .submit-inquiry-btn:hover {
-          background-color: #F0C96A;
-          box-shadow: 0 0 24px rgba(212, 168, 67, 0.35);
-          transform: scale(1.01);
+          background: linear-gradient(135deg, #F0C96A 0%, #D4A843 100%);
+          box-shadow: 0 12px 36px rgba(212, 168, 67, 0.5);
+          transform: translateY(-2px);
         }
 
         /* Success Message screen */
@@ -609,29 +726,30 @@ const ContactForms = () => {
         @media (max-width: 640px) {
           .forms-tab-switcher {
             flex-direction: column;
-            gap: 8px;
-            border-bottom: none;
+            border-radius: 20px;
+            padding: 8px;
           }
           .forms-tab-btn {
-            border-bottom: 2px solid rgba(212, 168, 67, 0.2);
+            border-radius: 14px;
           }
           .forms-card {
-            padding: 2rem 1.5rem;
+            padding: 2rem 1.25rem;
+            border-radius: 20px;
           }
         }
       ` }} />
 
-      <section id="contact-forms" className="contact-forms-section py-20 px-6 -mt-16 relative z-20">
+      <section id="contact-forms" className="contact-forms-section py-20 px-4 sm:px-6 relative z-20">
         <div className="contact-forms-container">
           
           <div className="text-center mb-12">
-            <span className="text-caption text-gold-500 uppercase tracking-[4px] font-semibold block mb-3">
-              {t('contactForms.subtitle', 'TAILOR-MADE LUXURY EXPERIENCES')}
+            <span className="text-caption text-gold-600 dark:text-gold-400 uppercase tracking-[4px] font-semibold block mb-3">
+              ✨ {t('contactForms.subtitle', 'TAILOR-MADE LUXURY EXPERIENCES')}
             </span>
-            <h2 className="text-display-lg text-gold-500 mb-4" style={{ fontWeight: 300, fontFamily: "'Cormorant Garamond', serif" }}>
+            <h2 className="text-3xl sm:text-5xl font-serif text-slate-900 dark:text-ivory-50 mb-4" style={{ fontWeight: 400 }}>
               {t('contactForms.title', 'Request Your Bespoke Itinerary')}
             </h2>
-            <div className="w-20 h-[1px] bg-gold-500/40 mx-auto"></div>
+            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto rounded-full"></div>
           </div>
 
           {/* Form Tabs Switcher */}
@@ -1087,21 +1205,119 @@ const ContactForms = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="form-field-group">
-                        <label className="form-label">{t('contactForms.iata', 'IATA / TRUE / CLIA Number * (8 Digits Only)')}</label>
-                        <input
-                          type="text"
-                          name="iataNumber"
-                          value={b2bForm.iataNumber}
-                          onChange={handleB2bChange}
-                          className={`form-input ${b2bErrors.iataNumber ? 'error' : ''}`}
-                          placeholder={t('contactForms.iataPlaceholder', 'e.g. 12345678')}
-                          maxLength={8}
-                          required
-                        />
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="form-label mb-0">
+                            {t('contactForms.iata', 'IATA / TRUE / CLIA Number * (8 Digits Only)')}
+                          </label>
+                          {iataVerificationState === 'verifying' && (
+                            <span className="text-[10px] text-gold-400 flex items-center gap-1.5 animate-pulse font-mono">
+                              <span className="w-1.5 h-1.5 rounded-full bg-gold-400 animate-ping inline-block" />
+                              {t('contactForms.iataVerifying', 'جاري التحقق الفوري...')}
+                            </span>
+                          )}
+                          {iataVerificationState === 'verified' && (
+                            <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                              ✓ {t('contactForms.iataVerifiedBadge', 'شريك معتمد')}
+                            </span>
+                          )}
+                          {iataVerificationState === 'unverified' && (
+                            <span className="text-[10px] text-amber-400 font-semibold flex items-center gap-1">
+                              ✕ {t('contactForms.iataUnverifiedBadge', 'كود غير مسجل')}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="relative">
+                          <input
+                            type="text"
+                            name="iataNumber"
+                            value={b2bForm.iataNumber}
+                            onChange={handleB2bChange}
+                            className={`form-input tracking-widest font-mono ${
+                              b2bErrors.iataNumber
+                                ? 'error'
+                                : iataVerificationState === 'verified'
+                                  ? '!border-emerald-500/70 !bg-emerald-950/10 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                                  : iataVerificationState === 'unverified'
+                                    ? '!border-amber-500/70 !bg-amber-950/10 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
+                                    : ''
+                            }`}
+                            placeholder="••••••••"
+                            maxLength={8}
+                            inputMode="numeric"
+                            required
+                          />
+                          {iataVerificationState === 'verifying' && (
+                            <div className="absolute end-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                              <div className="w-4 h-4 border-2 border-gold-400 border-t-transparent rounded-full animate-spin" />
+                            </div>
+                          )}
+                          {iataVerificationState === 'verified' && (
+                            <div className="absolute end-3 top-1/2 -translate-y-1/2 pointer-events-none text-emerald-400 font-bold text-sm">
+                              ✓
+                            </div>
+                          )}
+                          {iataVerificationState === 'unverified' && (
+                            <div className="absolute end-3 top-1/2 -translate-y-1/2 pointer-events-none text-amber-400 font-bold text-sm">
+                              ✕
+                            </div>
+                          )}
+                        </div>
+
                         {b2bErrors.iataNumber && (
-                          <span className="text-red-500 text-xs mt-1 block">{t('contactForms.iataError', 'Must be exactly 8 numeric digits')}</span>
+                          <span className="text-red-500 text-xs mt-1 block">
+                            {t('contactForms.iataError', 'Must be exactly 8 numeric digits')}
+                          </span>
+                        )}
+
+                        {/* Verified Partner Card */}
+                        {iataVerificationState === 'verified' && verifiedCompany && (
+                          <div className="mt-2.5 p-3.5 bg-gradient-to-r from-emerald-950/40 via-[#0F1535] to-gold-950/20 border border-emerald-500/40 rounded-sm shadow-md">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-start gap-2">
+                                <span className="text-emerald-400 font-bold text-sm leading-none mt-0.5">✓</span>
+                                <div>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="font-bold text-emerald-300 text-xs tracking-wide">
+                                      {verifiedCompany.name}
+                                    </span>
+                                    <span className="px-1.5 py-0.5 text-[9px] font-bold tracking-wider uppercase bg-gold-500/20 text-gold-300 border border-gold-500/40 rounded-xs">
+                                      {verifiedCompany.tier || 'PLATINUM'} TIER
+                                    </span>
+                                  </div>
+                                  <p className="text-[11px] text-ivory-300/80 mt-1">
+                                    {t('contactForms.iataVerifiedDesc', 'تم التحقق من بيانات الشريك المعتمد بنجاح')} • <span className="font-mono text-gold-400 font-semibold">{verifiedCompany.referenceCode}</span>
+                                  </p>
+                                </div>
+                              </div>
+                              {verifiedCompany.commissionRate > 0 && (
+                                <div className="text-end flex-shrink-0">
+                                  <span className="text-[9px] text-muted-foreground uppercase block">{t('contactForms.approvedCommission', 'العمولة المعتمدة')}</span>
+                                  <span className="text-xs font-bold text-gold-400">{verifiedCompany.commissionRate}%</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Unverified Warning Card */}
+                        {iataVerificationState === 'unverified' && (
+                          <div className="mt-2.5 p-3 bg-amber-950/30 border border-amber-500/40 rounded-sm text-xs text-amber-200">
+                            <div className="flex items-start gap-2">
+                              <span className="text-amber-400 font-bold text-sm leading-none">!</span>
+                              <div>
+                                <span className="font-semibold text-amber-300 block mb-0.5">
+                                  {t('contactForms.unverifiedTitle', 'رقم الاعتماد غير مسجل في شبكة الشركاء المعتمدين')}
+                                </span>
+                                <p className="text-ivory-300/80 text-[11px] leading-relaxed">
+                                  {iataVerificationError || t('contactForms.unverifiedDesc', 'هذا الرقم غير مسجل في عقود الشركاء الحالية لدينا. يمكنك إكمال النموذج وسيقوم فريق العلاقات التجارية بمراجعة بياناتكم والتواصل لإنشاء وتفعيل عقد الوكالة.')}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
                         )}
                       </div>
+
                       <div className="form-field-group">
                         <label className="form-label">{t('contactForms.officeAddress', 'Office Address *')}</label>
                         <input

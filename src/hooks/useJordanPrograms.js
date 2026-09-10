@@ -40,6 +40,25 @@ export function useJordanPrograms() {
           }))
         : [];
 
+      const resolveList = (val) => {
+        if (!val) return [];
+        if (Array.isArray(val)) {
+          return val.map(item => {
+            if (typeof item === 'object' && item !== null) {
+              return item[locale] || item.en || item.ar || item.es || Object.values(item)[0] || '';
+            }
+            return String(item || '');
+          }).filter(Boolean);
+        }
+        if (typeof val === 'object' && val !== null) {
+          return (val[locale] || val.en || val.ar || []).map(item => String(item || '')).filter(Boolean);
+        }
+        return [];
+      };
+
+      const included = resolveList(program.included || program.includes);
+      const excluded = resolveList(program.excluded || program.excludes);
+
       return {
         ...program,
         id: program.id,
@@ -48,6 +67,8 @@ export function useJordanPrograms() {
         images: Array.isArray(program.images) && program.images.length > 0 ? program.images : [program.heroImage],
         duration,
         highlights: Array.isArray(highlights) ? highlights : [],
+        included,
+        excluded,
         overview,
         code,
         minPax,
@@ -78,6 +99,25 @@ export function getJordanProgramBySlug(slug, locale = 'en') {
   const code = getLocalizedField(matched.code, targetLocale) || matched.id;
   const minPax = getLocalizedField(matched.minPax, targetLocale);
 
+  const resolveList = (val) => {
+    if (!val) return [];
+    if (Array.isArray(val)) {
+      return val.map(item => {
+        if (typeof item === 'object' && item !== null) {
+          return item[targetLocale] || item.en || item.ar || item.es || Object.values(item)[0] || '';
+        }
+        return String(item || '');
+      }).filter(Boolean);
+    }
+    if (typeof val === 'object' && val !== null) {
+      return (val[targetLocale] || val.en || val.ar || []).map(item => String(item || '')).filter(Boolean);
+    }
+    return [];
+  };
+
+  const included = resolveList(matched.included || matched.includes);
+  const excluded = resolveList(matched.excluded || matched.excludes);
+
   const days = Array.isArray(matched.days)
     ? matched.days.map((d) => ({
         day: d.day,
@@ -95,6 +135,8 @@ export function getJordanProgramBySlug(slug, locale = 'en') {
     images: Array.isArray(matched.images) && matched.images.length > 0 ? matched.images : [matched.heroImage],
     duration,
     highlights: Array.isArray(highlights) ? highlights : [],
+    included,
+    excluded,
     overview,
     code,
     minPax,

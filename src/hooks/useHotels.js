@@ -7,31 +7,16 @@ function supportedLocale(language) {
   return ['en', 'ar', 'es', 'pt', 'it'].includes(locale) ? locale : 'en';
 }
 
-const defaultSolPyramidHotel = {
-  id: 'prog-hot-1',
-  slug: 'sol-pyramid-hotel',
-  name: 'Sol Pyramid Hotel',
-  title: 'Sol Pyramid Hotel',
-  stars: 3,
-  rating: 5.0,
-  pricePerNight: 85,
-  city: 'Giza',
-  destinationSlug: 'egypt',
-  description: 'Solpyramid Hotel is a modern 3-star establishment built in 2025, designed for travellers who want to explore Egypt\'s greatest sights.',
-  heroImageUrl: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/23/0d/4e/68/henann-park-resort.jpg?w=600&h=600&s=1',
-  amenities: ['Free Wi-Fi', 'Air conditioning', 'Private bathroom', 'Mini bar', 'In-room coffee & tea', 'Free safe box'],
-};
-
 export function useHotel(slug) {
   const { i18n } = useTranslation();
-  const [hotel, setHotel] = useState(defaultSolPyramidHotel);
+  const [hotel, setHotel] = useState(null);
   const [loading, setLoading] = useState(Boolean(slug));
   const [error, setError] = useState(null);
 
   useEffect(() => {
     let active = true;
     if (!slug) {
-      setHotel(defaultSolPyramidHotel);
+      setHotel(null);
       setLoading(false);
       return () => {
         active = false;
@@ -42,11 +27,14 @@ export function useHotel(slug) {
       setError(null);
       try {
         const item = await api.get(`/hotels/${encodeURIComponent(slug)}?locale=${supportedLocale(i18n.language)}`);
-        if (active) setHotel(item || defaultSolPyramidHotel);
+        if (active) {
+          setHotel(item || null);
+          setError(null);
+        }
       } catch (requestError) {
         if (active) {
-          setHotel(defaultSolPyramidHotel);
-          setError(null);
+          setHotel(null);
+          setError(requestError);
         }
       } finally {
         if (active) setLoading(false);
@@ -59,8 +47,54 @@ export function useHotel(slug) {
   }, [slug, i18n.language]);
 
   return {
-    hotel: hotel || defaultSolPyramidHotel,
-    loading: false,
-    error: null,
+    hotel,
+    loading,
+    error,
+  };
+}
+
+export function useHotels({ destinationSlug, limit = 24 } = {}) {
+  const { i18n } = useTranslation();
+  const [hotels, setHotels] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    const fetchHotels = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const queryParams = new URLSearchParams({
+          locale: supportedLocale(i18n.language),
+          limit: String(limit),
+        });
+        if (destinationSlug) {
+          queryParams.set('destinationSlug', destinationSlug);
+        }
+        const data = await api.get(`/hotels?${queryParams.toString()}`);
+        if (active) {
+          setHotels(Array.isArray(data) ? data : []);
+          setError(null);
+        }
+      } catch (err) {
+        if (active) {
+          setHotels([]);
+          setError(err);
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    void fetchHotels();
+    return () => {
+      active = false;
+    };
+  }, [destinationSlug, limit, i18n.language]);
+
+  return {
+    hotels,
+    loading,
+    error,
   };
 }

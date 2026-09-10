@@ -11,6 +11,7 @@ import AdvancedBooking from '../../components/booking/AdvancedBooking';
 import RouteMap from '../../components/tour/RouteMap';
 import ReviewsMap from '../../components/tour/ReviewsMap';
 import multiCountryTours from '../../data/multiCountryTours';
+import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -31,7 +32,7 @@ export default function MultiCountryTourDetails() {
   const overview = tour?.overview ? t(`data.${tour.overview}`, tour.overview) : '';
   const duration = tour?.duration ? t(`data.${tour.duration}`, tour.duration) : '';
 
-  const shuffledTours = useMemo(() => [...multiCountryTours].sort(() => Math.random() - 0.5), []);
+  const shuffledTours = useMemo(() => [...multiCountryTours].reverse(), []);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const carouselRef = useRef(null);
 
@@ -43,12 +44,20 @@ export default function MultiCountryTourDetails() {
     const el = carouselRef.current;
     if (!el) return;
     const interval = setInterval(() => {
-      const step = (el.querySelector('.related-carousel-item')?.offsetWidth || 300) + 24;
-      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) {
-        el.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        el.scrollBy({ left: step, behavior: 'smooth' });
-      }
+      requestAnimationFrame(() => {
+        const item = el.querySelector('.related-carousel-item');
+        const step = (item ? item.offsetWidth : 300) + 24;
+        const currentScroll = el.scrollLeft;
+        const visibleWidth = el.clientWidth;
+        const totalWidth = el.scrollWidth;
+        const isEnd = currentScroll + visibleWidth >= totalWidth - 10;
+
+        if (isEnd) {
+          el.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          el.scrollBy({ left: step, behavior: 'smooth' });
+        }
+      });
     }, 3500);
     return () => clearInterval(interval);
   }, []);
@@ -62,10 +71,15 @@ export default function MultiCountryTourDetails() {
         <meta name="description" content={overview.substring(0, 150) + '...'} />
       </Helmet>
 
-      {/* Header Banner */}
-      <section className="pt-32 pb-10 bg-obsidian-900 text-center px-6">
-        <div className="container mx-auto">
-          <div className="flex items-center justify-center gap-2 text-caption text-gold-500 mb-4 uppercase tracking-wider text-xs">
+      {/* Luxury Hero Section */}
+      <LuxuryHeroSection
+        badge={t('programs.multiCountryBadge', '🌍 جولات متعددة الوجهات والدول')}
+        title={title}
+        subtitle={subtitle || duration}
+        bgImage={tour.images && tour.images[0] ? tour.images[0] : 'https://theglobetrottingdetective.com/wp-content/uploads/2022/03/best-places-in-the-middle-east-traveling-the-middle-east-cappadocia-turkey.jpg'}
+        onImageClick={() => setIsLightboxOpen(true)}
+        breadcrumbs={
+          <div className="flex flex-wrap items-center justify-center gap-2 text-caption text-gold-400 mb-2 uppercase tracking-wider text-xs font-semibold">
             <Link to="/" className="hover:text-ivory-50 transition-colors">
               {t('nav.home', 'Home')}
             </Link>
@@ -80,45 +94,10 @@ export default function MultiCountryTourDetails() {
             </span>
             <span className="text-ivory-300">{title}</span>
           </div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-display-xl text-ivory-50 mb-4"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {title}
-          </motion.h1>
-
-          {subtitle && (
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-body-lg text-gold-400 font-medium tracking-wide"
-            >
-              {subtitle}
-            </motion.p>
-          )}
-        </div>
-      </section>
-
-      {/* Hero Lightbox Gallery */}
-      <section
-        className="relative w-full h-[50vh] lg:h-[70vh] overflow-hidden group cursor-pointer"
-        onClick={() => setIsLightboxOpen(true)}
-      >
-        <motion.img
-          src={tour.images && tour.images[0] ? tour.images[0] : 'https://theglobetrottingdetective.com/wp-content/uploads/2022/03/best-places-in-the-middle-east-traveling-the-middle-east-cappadocia-turkey.jpg'}
-          alt={title}
-          className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
-          loading="eager"
-        />
-        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-        <div className="absolute bottom-6 right-6 bg-obsidian-900/80 backdrop-blur-md px-4 py-2 rounded-full text-ivory-50 text-caption border border-gold-500/20 text-xs">
-          {t('tour.clickGallery', 'Click to open gallery')}
-        </div>
-      </section>
+        }
+        primaryCta={null}
+        secondaryCta={null}
+      />
 
       {/* Quick Info Bar */}
       <div className="container mx-auto px-6 -mt-12 relative z-20">
@@ -232,6 +211,63 @@ export default function MultiCountryTourDetails() {
               </motion.div>
             )}
 
+            {/* Inclusions & Exclusions */}
+            {((tour.included && tour.included.length > 0) || (tour.excluded && tour.excluded.length > 0) || (tour.includes && tour.includes.length > 0) || (tour.excludes && tour.excludes.length > 0)) && (
+              <motion.div
+                variants={fadeInUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="mt-16"
+              >
+                <div className="mb-8">
+                  <span className="text-caption text-gold-500 uppercase tracking-[4px] font-semibold block mb-2 text-xs">
+                    {t('tourDetail.details', 'TOUR SPECIFICATIONS')}
+                  </span>
+                  <h2 className="text-display-lg text-2xl md:text-3xl text-obsidian-900 font-display font-semibold" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    {t('tourDetail.incExc', "What's Included & Excluded")}
+                  </h2>
+                  <div className="w-20 h-1 bg-gold-500 mt-3 rounded-full" />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {(tour.included || tour.includes) && (
+                    <div className="bg-emerald-50/80 p-6 md:p-8 rounded-2xl border border-emerald-200/80 shadow-sm">
+                      <h3 className="text-display-md text-xl font-bold text-emerald-950 mb-6 flex items-center gap-2.5 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
+                        <FaCheckCircle className="text-emerald-600 flex-shrink-0" />
+                        {t('tourDetail.included', 'What is Included')}
+                      </h3>
+                      <ul className="flex flex-col gap-3.5">
+                        {(tour.included || tour.includes).map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-3 text-body-md text-emerald-900">
+                            <FaCheck className="text-emerald-600 mt-1 flex-shrink-0 text-sm" />
+                            <span className="leading-relaxed">{t(`data.${item}`, item)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {(tour.excluded || tour.excludes) && (
+                    <div className="bg-rose-50/80 p-6 md:p-8 rounded-2xl border border-rose-200/80 shadow-sm">
+                      <h3 className="text-display-md text-xl font-bold text-rose-950 mb-6 flex items-center gap-2.5 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
+                        <FaTimes className="text-rose-600 flex-shrink-0" />
+                        {t('tourDetail.excluded', 'What is Excluded')}
+                      </h3>
+                      <ul className="flex flex-col gap-3.5">
+                        {(tour.excluded || tour.excludes).map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-3 text-body-md text-rose-900">
+                            <FaTimes className="text-rose-500 mt-1 flex-shrink-0 text-sm" />
+                            <span className="leading-relaxed">{t(`data.${item}`, item)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
             {/* Route Map */}
             {tour.itinerary && <RouteMap itinerary={tour.itinerary} />}
           </div>
@@ -270,8 +306,10 @@ export default function MultiCountryTourDetails() {
         .related-carousel {
           display: flex;
           overflow-x: auto;
+          overflow-y: hidden;
           gap: 24px;
-          padding-bottom: 16px;
+          padding-top: 12px;
+          padding-bottom: 24px;
           scroll-snap-type: x mandatory;
           -webkit-overflow-scrolling: touch;
         }
@@ -279,6 +317,8 @@ export default function MultiCountryTourDetails() {
           flex: 0 0 auto;
           width: 300px;
           scroll-snap-align: start;
+          display: flex;
+          flex-direction: column;
         }
         @media (min-width: 768px) {
           .related-carousel-item { width: 330px; }

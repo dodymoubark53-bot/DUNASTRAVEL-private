@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaGlobe, FaChevronDown, FaUserCircle, FaSignOutAlt, FaBookmark, FaMoon, FaSun, FaPlane, FaEnvelope, FaPhone, FaWhatsapp } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
@@ -9,11 +9,15 @@ import LoginModal from '../auth/LoginModal';
 import Logo from '../ui/Logo';
 import CurrencySelector from '../ui/CurrencySelector';
 import CustomerNotificationBell from '../ui/CustomerNotificationBell';
+import { useActiveLocales } from '../../hooks/useActiveLocales';
+import { syncDocumentDirection } from '../../i18n';
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollYRef = useRef(0);
+  const tickingRef = useRef(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -25,11 +29,20 @@ const Navbar = () => {
   const { t, i18n } = useTranslation();
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { activeLanguages } = useActiveLocales();
   const isRtl = i18n.dir() === 'rtl';
+
+  const handleLogout = async () => {
+    setProfileDropdownOpen(false);
+    setMobileMenuOpen(false);
+    await logout();
+    navigate('/', { replace: true });
+  };
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
     localStorage.setItem('i18nextLng', lng);
+    syncDocumentDirection(lng);
     setLangDropdownOpen(false);
   };
 
@@ -39,20 +52,27 @@ const Navbar = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setScrolled(currentScrollY > 50);
-      if (mobileMenuRef.current) {
-        setHeaderVisible(true);
-      } else if (currentScrollY > 100 && currentScrollY > lastScrollY) {
-        setHeaderVisible(false);
-      } else {
-        setHeaderVisible(true);
-      }
-      setLastScrollY(currentScrollY);
+      if (tickingRef.current) return;
+      tickingRef.current = true;
+      requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+        const isScrolled = currentScrollY > 50;
+        setScrolled((prev) => (prev !== isScrolled ? isScrolled : prev));
+
+        if (mobileMenuRef.current) {
+          setHeaderVisible((prev) => (!prev ? true : prev));
+        } else if (currentScrollY > 100 && currentScrollY > lastScrollYRef.current) {
+          setHeaderVisible((prev) => (prev ? false : prev));
+        } else {
+          setHeaderVisible((prev) => (!prev ? true : prev));
+        }
+        lastScrollYRef.current = currentScrollY;
+        tickingRef.current = false;
+      });
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
   useEffect(() => {
     if (mobileMenuOpen) {
@@ -102,12 +122,12 @@ const Navbar = () => {
       dropdown: [
         { name: t('nav.egypt'), path: '/destinations/egypt' },
         { name: t('nav.turkey'), path: '/destinations/turkey' },
+        { name: t('nav.dubai'), path: '/destinations/dubai' },
         { name: t('nav.jordan'), path: '/destinations/jordan' },
         { name: t('nav.morocco'), path: '/destinations/morocco' },
-        { name: t('nav.greece'), path: '/destinations/greece' },
-        { name: t('nav.dubai'), path: '/destinations/dubai' },
         { name: t('nav.tunisia'), path: '/destinations/tunisia' },
-        { name: t('nav.holyland'), path: '/destinations/holyland' },
+        { name: t('nav.greece'), path: '/destinations/greece' },
+        { name: t('nav.holyland', { defaultValue: 'Holy Land' }), path: '/destinations/holyland' },
       ]
     },
     { name: t('nav.about'), path: '/about' },
@@ -187,13 +207,13 @@ const Navbar = () => {
                     <span className="font-bold text-[10px] text-[#F5A623]">{user.avatar || user.name?.charAt(0)?.toUpperCase() || 'U'}</span>
                   </button>
                 ) : (
-                  <button
-                    onClick={() => setIsLoginModalOpen(true)}
+                  <Link
+                    to="/login"
                     aria-label="Sign in"
                     className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/20 hover:border-[#F5A623]/40 transition-all duration-300 hover:scale-110"
                   >
                     <FaUserCircle size={11} className="text-[#F5A623]" />
-                  </button>
+                  </Link>
                 )}
               </div>
 
@@ -230,13 +250,7 @@ const Navbar = () => {
                       style={{ backgroundColor: 'white' }}
                       className={`absolute top-full ${isRtl ? 'left-0' : 'right-0'} mt-1 w-36 backdrop-blur-xl border border-gray-200 rounded-xl overflow-hidden shadow-2xl z-[10000]`}
                     >
-                      {[
-                        { code: 'en', label: 'English', flag: '🇬🇧' },
-                        { code: 'ar', label: 'العربية', flag: '🇪🇬' },
-                        { code: 'es', label: 'Español', flag: '🇪🇸' },
-                        { code: 'pt', label: 'Português', flag: '🇧🇷' },
-                        { code: 'it', label: 'Italiano', flag: '🇮🇹' },
-                      ].map(lang => (
+                      {activeLanguages.map(lang => (
                         <button
                           key={lang.code}
                           onClick={() => changeLanguage(lang.code)}
@@ -268,7 +282,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Nav (Hover) */}
-          <nav className="hidden lg:flex items-center gap-8 flex-shrink-0">
+          <nav className="hidden lg:flex items-center gap-8 flex-shrink-0 min-h-[40px]">
             {navLinks.map((link) => (
               <div
                 key={link.name}
@@ -382,7 +396,7 @@ const Navbar = () => {
           <div className="lg:hidden flex items-center gap-1.5 z-50">
             <Link
               to="/tailor-a-tour"
-              className="px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-wider transition-all duration-300 shadow-lg whitespace-nowrap"
+              className="h-7 min-w-[70px] inline-flex items-center justify-center px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-wider transition-all duration-300 shadow-lg whitespace-nowrap text-center"
               style={{
                 background: 'linear-gradient(135deg, #FF6B35, rgb(6, 29, 93))',
                 color: '#fff'
@@ -391,11 +405,42 @@ const Navbar = () => {
               ✈ Tailor
             </Link>
             <button
-              className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all shadow-sm z-50 border-obsidian-300 dark:border-obsidian-600 text-obsidian-700 dark:text-ivory-50 bg-white dark:bg-obsidian-800 hover:text-[#C9A227] hover:border-[#C9A227] hover:bg-amber-50 dark:hover:bg-obsidian-700`}
+              className={`relative group w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 shadow-sm z-50 select-none cursor-pointer outline-none overflow-hidden shrink-0 ${
+                mobileMenuOpen
+                  ? "bg-linear-to-br from-amber-500/25 via-amber-500/15 to-amber-500/30 border-amber-500 shadow-[0_0_25px_rgba(245,158,11,0.65)] text-amber-500 dark:text-amber-400"
+                  : "bg-white/90 dark:bg-obsidian-800/90 border-amber-500/50 text-amber-500 dark:text-amber-400 hover:border-amber-500 hover:text-amber-500 hover:shadow-[0_0_22px_rgba(245,158,11,0.5)] hover:scale-105 active:scale-95"
+              }`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             >
-              {mobileMenuOpen ? <FaTimes size={15} /> : <FaBars size={15} />}
+              {/* Ambient glow background */}
+              <span className="absolute inset-0 rounded-full bg-linear-to-tr from-amber-500/20 to-amber-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm pointer-events-none" />
+              {/* Ripple ping effect on press */}
+              <span className="absolute inset-0 rounded-full bg-amber-500/40 opacity-0 group-active:opacity-100 group-active:animate-ping transition-all duration-150 pointer-events-none" />
+
+              {/* 3 Horizontal Lines inside Circle */}
+              <svg
+                className="w-5 h-5 relative z-10 transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(245,158,11,0.9)]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line
+                  x1="4" y1="6" x2="20" y2="6"
+                  className={`transition-all duration-300 origin-center ${mobileMenuOpen ? "translate-y-1.5 rotate-45 stroke-amber-500" : ""}`}
+                />
+                <line
+                  x1="4" y1="12" x2="20" y2="12"
+                  className={`transition-all duration-300 ${mobileMenuOpen ? "opacity-0 scale-x-0" : ""}`}
+                />
+                <line
+                  x1="4" y1="18" x2="20" y2="18"
+                  className={`transition-all duration-300 origin-center ${mobileMenuOpen ? "-translate-y-1.5 -rotate-45 stroke-amber-500" : ""}`}
+                />
+              </svg>
             </button>
           </div>
 
@@ -522,16 +567,40 @@ const Navbar = () => {
                   ✈ {t('nav.tailorMade', 'Tailor Your Tour')}
                 </Link>
 
-                {/* Mobile Theme Toggle */}
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-obsidian-100 dark:border-obsidian-700">
-                  <span className="text-obsidian-400 dark:text-ivory-500 text-xs font-semibold tracking-wider uppercase">{t('nav.theme', 'Theme')}</span>
-                  <button
-                    onClick={toggleTheme}
-                    className="w-10 h-10 rounded-full border border-obsidian-200 dark:border-obsidian-600 flex items-center justify-center bg-white dark:bg-obsidian-800 hover:bg-obsidian-50 dark:hover:bg-obsidian-700 transition-all"
-                    aria-label="Toggle theme"
-                  >
-                    {theme === 'dark' ? <FaSun className="text-amber-500" size={16} /> : <FaMoon className="text-indigo-600" size={16} />}
-                  </button>
+                {/* Mobile Language & Theme Controls */}
+                <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-obsidian-100 dark:border-obsidian-700">
+                  <div className="flex items-center justify-between">
+                    <span className="text-obsidian-400 dark:text-ivory-500 text-xs font-semibold tracking-wider uppercase">{t('nav.theme', 'Theme')}</span>
+                    <button
+                      onClick={toggleTheme}
+                      className="w-10 h-10 rounded-full border border-obsidian-200 dark:border-obsidian-600 flex items-center justify-center bg-white dark:bg-obsidian-800 hover:bg-obsidian-50 dark:hover:bg-obsidian-700 transition-all"
+                      aria-label="Toggle theme"
+                    >
+                      {theme === 'dark' ? <FaSun className="text-amber-500" size={16} /> : <FaMoon className="text-indigo-600" size={16} />}
+                    </button>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <span className="text-obsidian-400 dark:text-ivory-500 text-xs font-semibold tracking-wider uppercase">{t('nav.language', 'Language')}</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {activeLanguages.map((lang) => (
+                        <button
+                          key={lang.code}
+                          onClick={() => {
+                            changeLanguage(lang.code);
+                            setMobileMenuOpen(false);
+                          }}
+                          className={`px-3 py-1.5 text-xs font-bold rounded-xl border transition-all flex items-center gap-1.5 ${
+                            i18n.language === lang.code
+                              ? 'bg-amber-500 text-white border-amber-500 shadow-md'
+                              : 'bg-white dark:bg-obsidian-800 text-obsidian-700 dark:text-ivory-200 border-obsidian-200 dark:border-obsidian-600 hover:border-amber-500'
+                          }`}
+                        >
+                          <span>{lang.flag}</span>
+                          <span>{lang.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                   {user ? (
@@ -543,7 +612,7 @@ const Navbar = () => {
                       <FaBookmark className="text-[#F5A623]" /> {t('nav.myBookings', 'My Bookings')}
                     </Link>
                     <button
-                      onClick={() => { logout(); setMobileMenuOpen(false); }}
+                      onClick={handleLogout}
                       className="w-full py-3.5 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl text-lg font-semibold flex items-center justify-center gap-2 border border-red-200 dark:border-red-800 transition-colors active:bg-red-100 dark:active:bg-red-900/50"
                     >
                       <FaSignOutAlt /> {t('nav.logout', 'Logout')}
@@ -551,15 +620,13 @@ const Navbar = () => {
                   </div>
                 ) : (
                   <div className="flex flex-col gap-3 mt-4">
-                    <button
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        setIsLoginModalOpen(true);
-                      }}
-                      className="w-full py-3.5 px-4 bg-gradient-to-r from-gold-500/20 to-gold-600/20 text-gold-500 rounded-xl text-lg font-semibold flex items-center justify-center gap-2 border border-gold-500/30 hover:bg-gold-500/30 transition-all"
+                    <Link
+                      to="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full py-3.5 px-4 bg-gradient-to-r from-gold-500/20 to-gold-600/20 text-gold-500 rounded-xl text-lg font-semibold flex items-center justify-center gap-2 border border-gold-500/30 hover:bg-gold-500/30 transition-all text-center"
                     >
                       <FaUserCircle size={18} /> {t('auth.signIn', 'Sign In / Register')}
-                    </button>
+                    </Link>
                   </div>
                 )}
               </div>
@@ -590,7 +657,7 @@ const Navbar = () => {
               <Link to="/bookings" onClick={() => setProfileDropdownOpen(false)} className="w-full text-left px-4 py-3 text-obsidian-700 dark:text-ivory-300 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-obsidian-700 transition-colors text-body-md border-b border-obsidian-100 dark:border-obsidian-700 flex items-center gap-2">
                 <FaBookmark className="text-amber-500" size={15} /> {t('nav.myBookings', 'My Bookings')}
               </Link>
-              <button onClick={() => { logout(); setProfileDropdownOpen(false); }} className="w-full text-left px-4 py-3 text-red-500 hover:text-white hover:bg-red-500 transition-colors text-body-md flex items-center gap-2">
+              <button onClick={handleLogout} className="w-full text-left px-4 py-3 text-red-500 hover:text-white hover:bg-red-500 transition-colors text-body-md flex items-center gap-2">
                 <FaSignOutAlt size={15} /> {t('nav.logout', 'Logout')}
               </button>
             </motion.div>

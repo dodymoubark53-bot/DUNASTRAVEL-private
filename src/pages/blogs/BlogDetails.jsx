@@ -140,7 +140,7 @@ const BlogDetails = () => {
           >
             <span className="flex items-center gap-1.5 bg-white/5 backdrop-blur-sm px-3 py-1 rounded-full border border-white/5">
               <FaCalendarAlt size={10} className="text-gold-500" />
-              {t(`blogs.${blog.date}`, blog.date)}
+              {blog.date || (blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString() : 'Recent')}
             </span>
             <span className="flex items-center gap-1.5 bg-white/5 backdrop-blur-sm px-3 py-1 rounded-full border border-white/5">
               <FaClock size={10} className="text-gold-500" />
@@ -163,7 +163,7 @@ const BlogDetails = () => {
       {/* 2. Hero Image — Tours Style */}
       <section className="relative w-full h-[50vh] lg:h-[70vh] overflow-hidden">
         <img
-          src={blog.img}
+          src={blog.img || blog.coverImage || "/imgs/hero.png"}
           alt={t(`blogs.${blog.title}`, blog.title)}
           className="w-full h-full object-cover"
           loading="eager"
@@ -179,26 +179,33 @@ const BlogDetails = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          {blog.content.map((paragraph, idx) => {
-            const translated = t(`blogs.${paragraph}`, paragraph);
-            if (translated.startsWith('### ')) {
+          {typeof blog.content === 'string' ? (
+            <div
+              className="leading-relaxed text-body-lg text-obsidian-700 space-y-6"
+              dangerouslySetInnerHTML={{ __html: renderContent(blog.content) }}
+            />
+          ) : Array.isArray(blog.content) ? (
+            blog.content.map((paragraph, idx) => {
+              const translated = t(`blogs.${paragraph}`, paragraph);
+              if (translated.startsWith('### ')) {
+                return (
+                  <h3 key={idx} className="text-xl font-bold font-display text-obsidian-900 mt-10 mb-4">
+                    {translated.replace('### ', '')}
+                  </h3>
+                );
+              }
+              if (translated.startsWith('## ')) {
+                return (
+                  <h2 key={idx} className="text-2xl md:text-3xl font-bold font-display text-obsidian-900 mt-12 mb-6 border-b border-gold-500/20 pb-3">
+                    {translated.replace('## ', '')}
+                  </h2>
+                );
+              }
               return (
-                <h3 key={idx} className="text-xl font-bold font-display text-obsidian-900 mt-10 mb-4">
-                  {translated.replace('### ', '')}
-                </h3>
+                <p key={idx} className="mb-6 leading-relaxed text-body-lg text-obsidian-700" dangerouslySetInnerHTML={{ __html: renderContent(translated) }} />
               );
-            }
-            if (translated.startsWith('## ')) {
-              return (
-                <h2 key={idx} className="text-2xl md:text-3xl font-bold font-display text-obsidian-900 mt-12 mb-6 border-b border-gold-500/20 pb-3">
-                  {translated.replace('## ', '')}
-                </h2>
-              );
-            }
-            return (
-              <p key={idx} className="mb-6 leading-relaxed text-body-lg text-obsidian-700" dangerouslySetInnerHTML={{ __html: renderContent(translated) }} />
-            );
-          })}
+            })
+          ) : null}
         </motion.div>
 
         {/* Related Trip CTA */}
@@ -272,7 +279,7 @@ const BlogDetails = () => {
                       {t(`blogs.cat.${relBlog.category}`, relBlog.category)}
                     </div>
                     <img
-                      src={relBlog.img}
+                      src={relBlog.img || relBlog.coverImage || "/imgs/hero.png"}
                       alt={t(`blogs.${relBlog.title}`, relBlog.title)}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       loading="lazy"

@@ -82,7 +82,7 @@ const ResetPassword = () => {
 
         {error && (
           <div className="mb-6 p-4 rounded-xl bg-red-500/15 border border-red-500/40 text-red-400 text-body-sm text-center">
-            {error}
+            {typeof error === 'object' && error !== null ? (error.message || String(error)) : error}
           </div>
         )}
         {success && (
