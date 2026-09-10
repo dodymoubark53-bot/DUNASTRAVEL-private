@@ -308,7 +308,7 @@ const tourImageUrl = (tour) => {
   return '/imgs/egyothero.webp';
 };
 
-const buildInfiniteMarqueeList = (items, prefix = 'tour', maxVisible = 6) => {
+const buildInfiniteMarqueeList = (items, prefix = 'tour', maxVisible = 8) => {
   if (!Array.isArray(items) || items.length === 0) return [];
   let base = items.slice(0, maxVisible);
   while (base.length < 4 && items.length > 0) {
@@ -317,6 +317,8 @@ const buildInfiniteMarqueeList = (items, prefix = 'tour', maxVisible = 6) => {
   return [
     ...base.map((tItem, i) => ({ ...tItem, isDuplicate: false, uKey: `${prefix}-set1-${tItem.id || tItem.slug || i}-${i}` })),
     ...base.map((tItem, i) => ({ ...tItem, isDuplicate: true, uKey: `${prefix}-set2-${tItem.id || tItem.slug || i}-${i}` })),
+    ...base.map((tItem, i) => ({ ...tItem, isDuplicate: true, uKey: `${prefix}-set3-${tItem.id || tItem.slug || i}-${i}` })),
+    ...base.map((tItem, i) => ({ ...tItem, isDuplicate: true, uKey: `${prefix}-set4-${tItem.id || tItem.slug || i}-${i}` })),
   ];
 };
 
@@ -332,6 +334,51 @@ const HomeExperienceSection = () => {
   const [zoomScale, setZoomScale] = useState(1);
   const [isAllToursPopupOpen, setIsAllToursPopupOpen] = useState(false);
   const [activeVideo, setActiveVideo] = useState(null);
+  const pkgMarqueeRef = useRef(null);
+  const destMarqueeRef = useRef(null);
+  const pkgHoveredRef = useRef(false);
+  const destHoveredRef = useRef(false);
+
+  // Step-by-step auto-scroll for Destination Tours marquee (every 2.5s)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (destMarqueeRef.current && !destHoveredRef.current) {
+        handleMarqueeScroll(destMarqueeRef, 'right');
+      }
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Step-by-step auto-scroll for Package Trips marquee (every 2.5s)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (pkgMarqueeRef.current && !pkgHoveredRef.current) {
+        handleMarqueeScroll(pkgMarqueeRef, 'right');
+      }
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleMarqueeScroll = (ref, direction) => {
+    if (!ref.current) return;
+    const el = ref.current;
+    const isPkg = ref === pkgMarqueeRef;
+    const stepWidth = isPkg ? 260 : 310;
+    const scrollDelta = direction === 'right' ? stepWidth : -stepWidth;
+
+    const quarter = el.scrollWidth / 4;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+
+    if (quarter > 0 && maxScroll > 0) {
+      if (direction === 'right' && el.scrollLeft >= maxScroll - stepWidth * 2) {
+        el.scrollLeft -= quarter * 2;
+      } else if (direction === 'left' && el.scrollLeft <= stepWidth * 1.5) {
+        el.scrollLeft += quarter * 2;
+      }
+    }
+
+    el.scrollBy({ left: scrollDelta, behavior: 'smooth' });
+  };
   const { galleryImages = [], videos = [] } = useMedia({ category: 'general' });
   const {
     tours: allLiveToursRaw,
@@ -484,22 +531,7 @@ const HomeExperienceSection = () => {
     }));
   }, [allLiveTours]);
 
-  const packagesToursMap = useMemo(() => {
-    const matches = (tour, values) => {
-      if (!tour) return false;
-      const searchable = `${tour.slug || ''} ${tour.category || ''} ${tour.title || ''}`.toLowerCase();
-      return values.some((value) => searchable.includes(value));
-    };
-    const withLinkBase = (items) => (items || []).map((tour) => ({ ...tour, linkBase: '/tours' }));
-    const safeTours = Array.isArray(allLiveTours) ? allLiveTours : [];
-    return {
-      'classic-program': withLinkBase(safeTours.filter((tour) => matches(tour, ['classic', 'classico', 'clásico', 'cairo']))),
-      honeymooners: withLinkBase(safeTours.filter((tour) => matches(tour, ['honeymoon', 'luna de miel', 'شهر العسل']))),
-      religious: withLinkBase(safeTours.filter((tour) => matches(tour, ['religious', 'holy family', 'العائلة المقدسة']))),
-      'multi-country': withLinkBase(safeTours.filter((tour) => matches(tour, ['multi-country', 'combined', 'and-']))),
-      extension: withLinkBase(safeTours.filter((tour) => matches(tour, ['extension', 'escape']))),
-    };
-  }, [allLiveTours]);
+
 
   const defaultPackageTours = useMemo(() => [
     // 1. Multi-Country Combined - Top Picks matching reference order
@@ -724,6 +756,30 @@ const HomeExperienceSection = () => {
       link: "/programs/extension/siwa-oasis-alexandria"
     }
   ], [isAr]);
+
+  const packagesToursMap = useMemo(() => {
+    const matches = (tour, values) => {
+      if (!tour) return false;
+      const searchable = `${tour.slug || ''} ${tour.category || ''} ${tour.title || ''}`.toLowerCase();
+      return values.some((value) => searchable.includes(value));
+    };
+    const withLinkBase = (items) => (items || []).map((tour) => ({ ...tour, linkBase: tour.link ? '' : '/tours' }));
+    const safeTours = Array.isArray(allLiveTours) ? allLiveTours : [];
+
+    const classicLive = safeTours.filter((tour) => matches(tour, ['classic', 'classico', 'clásico', 'cairo']));
+    const honeymoonLive = safeTours.filter((tour) => matches(tour, ['honeymoon', 'luna de miel', 'شهر العسل']));
+    const religiousLive = safeTours.filter((tour) => matches(tour, ['religious', 'holy family', 'العائلة المقدسة']));
+    const multiLive = safeTours.filter((tour) => matches(tour, ['multi-country', 'combined', 'and-']));
+    const extLive = safeTours.filter((tour) => matches(tour, ['extension', 'escape']));
+
+    return {
+      'classic-program': withLinkBase(classicLive.length > 0 ? classicLive : defaultPackageTours.filter(t => t.slug === 'classic-program')),
+      honeymooners: withLinkBase(honeymoonLive.length > 0 ? honeymoonLive : defaultPackageTours.filter(t => t.slug === 'honeymooners')),
+      religious: withLinkBase(religiousLive.length > 0 ? religiousLive : defaultPackageTours.filter(t => t.slug === 'religious')),
+      'multi-country': withLinkBase(multiLive.length > 0 ? multiLive : defaultPackageTours.filter(t => t.destination === 'multi-country')),
+      extension: withLinkBase(extLive.length > 0 ? extLive : defaultPackageTours.filter(t => t.id?.startsWith('extension'))),
+    };
+  }, [allLiveTours, defaultPackageTours]);
 
   const packagesToursForMarquee = useMemo(() => {
     return (defaultPackageTours || []).slice(0, 8);
@@ -1344,8 +1400,7 @@ const HomeExperienceSection = () => {
       </section>
 
       {/* Stats Counter Section */}
-      <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0c1428] via-[#141e3c] to-[#0c1428]"></div>
+      <section className="relative py-16 md:py-20 overflow-hidden bg-white dark:bg-obsidian-950 border-y border-gray-100 dark:border-white/5">
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23d4a843\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")'}}></div>
         <div className="relative z-10 container mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-4">
@@ -1364,13 +1419,13 @@ const HomeExperienceSection = () => {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 className="flex flex-col items-center text-center group"
               >
-                <div className="w-16 h-16 rounded-full bg-gold-500/10 border border-gold-500/20 flex items-center justify-center mb-4 group-hover:bg-gold-500/20 group-hover:border-gold-500/40 transition-all duration-300">
-                  <s.icon className="text-gold-500 text-2xl" />
+                <div className="w-16 h-16 rounded-full bg-gold-500/10 border border-gold-500/30 flex items-center justify-center mb-4 group-hover:bg-gold-500 group-hover:scale-110 transition-all duration-300 shadow-sm">
+                  <s.icon className="text-gold-600 dark:text-gold-400 text-2xl group-hover:text-obsidian-950 transition-colors" />
                 </div>
-                <div className="text-4xl md:text-5xl font-bold text-white font-display">
+                <div className="text-4xl md:text-5xl font-bold text-obsidian-900 dark:text-white font-display">
                   <AnimatedCounter value={s.count} suffix={s.suffix} />
                 </div>
-                <div className="text-white text-sm mt-2 tracking-wide uppercase">
+                <div className="text-obsidian-700 dark:text-ivory-200 text-sm mt-2 tracking-wide uppercase font-semibold">
                   {t(s.labelKey)}
                 </div>
               </motion.div>
@@ -1472,34 +1527,48 @@ const HomeExperienceSection = () => {
       {/* Destination Tours Marquee Section */}
       <section className="py-12 bg-ivory-100 dark:bg-obsidian-950 overflow-hidden relative" style={{ contentVisibility: 'auto', containIntrinsicSize: '1px 500px' }}>
         <div className="container mx-auto px-6">
-          <div className="text-center mb-12 max-w-3xl mx-auto">
-            <span className="text-gold-600 dark:text-gold-400 uppercase tracking-widest text-caption block mb-3 font-semibold">
+          <div className="text-center mb-10 max-w-3xl mx-auto">
+            <span className="text-gold-600 dark:text-gold-400 uppercase tracking-widest text-caption block mb-2 font-semibold">
               {t("home.destToursBadge", "Meticulously crafted experiences across all our destinations")}
             </span>
             <h2 className="text-display-lg text-obsidian-900 dark:text-ivory-50 font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>
               {t("home.destToursTitle", "جولات الوجهات المميزة")}
             </h2>
-            <div className="w-24 h-1 bg-gold-500 mx-auto mt-6 rounded-full"></div>
+            <div className="w-24 h-1 bg-gold-500 rounded-full mt-3 mx-auto"></div>
           </div>
         </div>
 
-        <div dir="ltr" className="overflow-hidden w-full relative">
-          <div
-            className="flex w-max"
-            style={{
-              gap: "24px",
-              paddingLeft: "24px",
-              animation: "tourMarquee 45s linear infinite",
-            }}
-            onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
-            onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
+        {/* Marquee Strip with Side Arrow Controls */}
+        <div className="relative group/marquee w-full">
+          {/* Left Floating Side Arrow */}
+          <button
+            onClick={() => handleMarqueeScroll(destMarqueeRef, 'left')}
+            aria-label="Scroll left"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-black/60 dark:bg-obsidian-900/80 border border-gold-500/50 text-gold-400 hover:text-white hover:bg-gold-500 backdrop-blur-md flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
           >
+            <FaChevronLeft className="w-4 h-4" />
+          </button>
+
+          {/* Right Floating Side Arrow */}
+          <button
+            onClick={() => handleMarqueeScroll(destMarqueeRef, 'right')}
+            aria-label="Scroll right"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-black/60 dark:bg-obsidian-900/80 border border-gold-500/50 text-gold-400 hover:text-white hover:bg-gold-500 backdrop-blur-md flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
+          >
+            <FaChevronRight className="w-4 h-4" />
+          </button>
+
+          <div 
+            dir="ltr" 
+            ref={destMarqueeRef} 
+            className="overflow-x-auto no-scrollbar scroll-smooth w-full relative py-4"
+            onMouseEnter={() => destHoveredRef.current = true}
+            onMouseLeave={() => destHoveredRef.current = false}
+          >
+            <div className="flex w-max gap-5 px-5">
             {(() => {
-              const sliced = (destinationToursForMarquee || []).slice(0, 8);
-              return [
-                ...sliced.map(tData => ({ ...tData, isDuplicate: false })),
-                ...sliced.map(tData => ({ ...tData, isDuplicate: true }))
-              ].map((tData, idx) => {
+              const infiniteList = buildInfiniteMarqueeList(destinationToursForMarquee, 'dest');
+              return infiniteList.map((tData, idx) => {
                 const resolvedTitle = resolveTourTitle(tData, t, lang);
                 const resolvedDuration = resolveTourDuration(tData, t, lang);
                 const rawDest = tData.destination === 'holy-land' ? 'holyland' : (tData.destination || 'egypt');
@@ -1512,52 +1581,46 @@ const HomeExperienceSection = () => {
                     to={tData.link || `/tours/${tData.slug || tData.id}`}
                     tabIndex={tData.isDuplicate ? -1 : undefined}
                     aria-hidden={tData.isDuplicate ? "true" : undefined}
-                    className="min-w-[320px] md:min-w-[400px] shrink-0 group relative rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] transition-all duration-500 h-[450px] block focus:outline-none focus:ring-2 focus:ring-gold-500"
+                    className="min-w-[240px] sm:min-w-[270px] md:min-w-[290px] shrink-0 group relative rounded-2xl overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.06)] hover:shadow-[0_16px_36px_rgba(0,0,0,0.12)] transition-all duration-500 h-[310px] sm:h-[330px] block focus:outline-none focus:ring-2 focus:ring-gold-500"
                   >
                     <img
-                      src={getOptimizedImageUrl(imageUrl, 400, 450)}
+                      src={getOptimizedImageUrl(imageUrl, 300, 330)}
                       alt={resolvedTitle}
-                      width="400"
-                      height="450"
+                      width="300"
+                      height="330"
                       className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.06]"
                       loading="lazy"
                       decoding="async"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/90 via-obsidian-900/20 to-transparent"></div>
 
-                    <div className="absolute top-4 left-4 bg-gold-500/90 backdrop-blur-sm text-obsidian-900 text-caption font-bold px-3.5 py-1.5 rounded-full shadow-md uppercase">
+                    <div className="absolute top-3 left-3 bg-gold-500/90 backdrop-blur-sm text-obsidian-900 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md uppercase">
                       {resolvedDest}
                     </div>
 
-                    <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full">
-                      <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                        <h3 className="text-display-md text-white font-bold mb-2 leading-tight">
+                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 flex flex-col justify-end h-full">
+                      <div className="transform translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
+                        <h3 className="text-base sm:text-lg text-white font-bold mb-1.5 leading-snug line-clamp-2">
                           {resolvedTitle}
                         </h3>
 
-                        <div className="flex items-center justify-between text-caption text-ivory-300 mb-4">
-                          <span>{resolvedDuration}</span>
+                        <div className="flex items-center justify-between text-xs text-ivory-300 mb-2 pt-2 border-t border-white/15">
+                          <span className="text-[11px]">{resolvedDuration}</span>
                           {Number.isFinite(Number(tData.price)) && Number(tData.price) > 0 && (
-                            <span className="text-gold-500 font-semibold">
+                            <span className="text-gold-400 font-bold text-xs">
                               {formatPrice(tData.price)}
                             </span>
                           )}
                         </div>
 
                         {Number.isFinite(Number(tData.rating)) && Number.isFinite(Number(tData.reviewCount)) ? (
-                          <div className="flex items-center gap-1 text-gold-500 mb-4">
-                            <FaStar size={14} />
-                            <span className="text-ivory-50 ml-1 text-sm font-semibold">
+                          <div className="flex items-center gap-1 text-gold-400">
+                            <FaStar size={11} />
+                            <span className="text-ivory-50 text-xs font-semibold">
                               {Number(tData.rating).toFixed(1)} <span className="text-ivory-300 font-normal">({tData.reviewCount})</span>
                             </span>
                           </div>
                         ) : null}
-
-                        <div className="block opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                          <Button variant="outline-gold" tabIndex={-1} className="w-full py-2">
-                            {t("home.viewTour", "View Tour")}
-                          </Button>
-                        </div>
                       </div>
                     </div>
                   </Link>
@@ -1566,6 +1629,7 @@ const HomeExperienceSection = () => {
             })()}
           </div>
         </div>
+      </div>
 
         <div className="flex justify-center mt-12">
           <Link to="/tours">
@@ -1580,186 +1644,200 @@ const HomeExperienceSection = () => {
       </section>
 
       {/* Packages Section — 5 Egypt Packages Ultra Luxury Bento Grid */}
-      <section className="py-20 relative overflow-hidden" style={{ background: "linear-gradient(135deg, #050a18 0%, #0a132e 50%, #070d20 100%)" }}>
-        {/* Decorative ambient glowing circles */}
-        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      <section className="py-16 md:py-24 relative overflow-hidden bg-ivory-50 dark:bg-obsidian-950">
+        <div className="container mx-auto px-4 sm:px-6 relative z-10">
+          {/* Container Card with Top Header Background & Royal Gold Accents */}
+          <div 
+            className="relative rounded-3xl sm:rounded-[2.5rem] p-6 sm:p-10 md:p-16 overflow-hidden border border-gold-500/30 shadow-[0_20px_60px_rgba(4,20,70,0.35)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.6)]"
+            style={{ background: 'linear-gradient(135deg, rgb(4, 20, 70) 0%, rgb(6, 29, 93) 40%, rgb(10, 40, 120) 100%)' }}
+          >
+            {/* Subtle shine overlay matching top header */}
+            <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent 0%, #fff 50%, transparent 100%)' }} />
+            {/* Gold accent borders top & bottom matching top header style */}
+            <div className="absolute top-0 left-0 right-0 h-[1px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(201,162,39,0.5), transparent)' }} />
+            <div className="absolute bottom-0 left-0 right-0 h-[1px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(201,162,39,0.5), transparent)' }} />
 
-        <div className="container mx-auto px-6 relative z-10">
-          {/* Header */}
-          <div className="text-center mb-16 max-w-3xl mx-auto">
-            <motion.span 
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold-500/20 border border-gold-400/50 text-gold-300 text-sm font-bold uppercase tracking-wider mb-4 shadow-lg backdrop-blur-md"
-            >
-              <span className="text-amber-400">✨</span> {t("home.ourPackages", "Discover Egypt Packages")}
-            </motion.span>
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="text-3xl md:text-5xl lg:text-6xl text-white font-serif tracking-tight mb-4 font-bold"
-              style={{ fontFamily: "'Playfair Display', serif" }}
-            >
-              {t("home.packagesTitle", "Curated Programs & Experiences")}
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="text-base sm:text-lg text-slate-100 font-medium leading-relaxed max-w-2xl mx-auto drop-shadow-sm"
-            >
-              {t("home.packagesSubtitle", "Selection of premium itineraries designed to experience the magic of Egypt & the Middle East")}
-            </motion.p>
-            <div className="w-28 h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent mx-auto mt-6 rounded-full shadow-[0_0_12px_rgba(245,166,35,0.6)]"></div>
-          </div>
+            {/* Decorative ambient glowing circles */}
+            <div className="absolute top-1/4 -left-32 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-blue-400/15 rounded-full blur-3xl pointer-events-none"></div>
 
-          {/* 5-Card Bento Layout Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
-            {livePackageCards.map((pkg, idx) => {
-              const isHero = pkg.featured || idx === 0;
-
-              return (
-                <motion.div
-                  key={pkg.recordId || pkg.id}
-                  initial={{ opacity: 0, y: 30 }}
+            <div className="relative z-10">
+              {/* Header */}
+              <div className="text-center mb-12 sm:mb-16 max-w-3xl mx-auto">
+                <motion.span 
+                  initial={{ opacity: 0, y: 15 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: idx * 0.1 }}
-                  className={`group relative rounded-3xl overflow-hidden cursor-pointer flex flex-col justify-between border transition-all duration-500 backdrop-blur-xl ${
-                    isHero 
-                      ? "lg:col-span-2 min-h-[380px] sm:min-h-[420px] bg-gradient-to-br from-[#121c3b]/90 via-[#0d152d]/90 to-[#070c1b]/90 border-gold-500/40 hover:border-gold-400 shadow-[0_12px_40px_rgba(245,166,35,0.2)] hover:shadow-[0_16px_50px_rgba(245,166,35,0.35)]" 
-                      : "min-h-[360px] bg-gradient-to-br from-[#121c3b]/80 via-[#0a1127]/80 to-[#060a17]/80 border-white/10 hover:border-gold-500/50 hover:shadow-[0_12px_36px_rgba(245,166,35,0.25)] hover:-translate-y-2"
-                  }`}
-                  onClick={() => handlePackageClick(pkg.id)}
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold-500/20 border border-gold-400/50 text-gold-300 text-sm font-bold uppercase tracking-wider mb-4 shadow-lg backdrop-blur-md"
                 >
-                  {/* Background Image with High Clarity & Gradient Overlay */}
-                  <div className="absolute inset-0 z-0 overflow-hidden">
-                    <img
-                      src={pkg.image}
-                      alt={pkg.name}
-                      className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-700 ease-out opacity-85 group-hover:opacity-100"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#060a17]/95 via-[#060a17]/40 to-transparent"></div>
-                  </div>
+                  <span className="text-amber-400">✨</span> {t("home.ourPackages", "Discover Egypt Packages")}
+                </motion.span>
+                <motion.h2 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.1 }}
+                  className="text-3xl md:text-5xl lg:text-6xl text-white font-serif tracking-tight mb-4 font-bold"
+                  style={{ fontFamily: "'Playfair Display', serif" }}
+                >
+                  {t("home.packagesTitle", "Curated Programs & Experiences")}
+                </motion.h2>
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.2 }}
+                  className="text-base sm:text-lg text-slate-100 font-medium leading-relaxed max-w-2xl mx-auto drop-shadow-sm"
+                >
+                  {t("home.packagesSubtitle", "Selection of premium itineraries designed to experience the magic of Egypt & the Middle East")}
+                </motion.p>
+                <div className="w-28 h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent mx-auto mt-6 rounded-full shadow-[0_0_12px_rgba(245,166,35,0.6)]"></div>
+              </div>
 
-                  {/* Top Floating Badges */}
-                  <div className="relative z-10 p-6 sm:p-8 flex items-center justify-between gap-4">
-                    {pkg.badge && (
-                      <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gold-500 text-obsidian-950 font-bold text-caption uppercase tracking-wider shadow-lg backdrop-blur-md">
-                        <span>★</span> {pkg.badge}
-                      </span>
-                    )}
-                    {pkg.duration && (
-                      <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/60 text-white font-medium text-caption border border-white/30 backdrop-blur-md shadow-md">
-                        <FaClock className="text-gold-400 text-xs" /> {pkg.duration}
-                      </span>
-                    )}
-                  </div>
+              {/* 5-Card Bento Layout Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+                {livePackageCards.map((pkg, idx) => {
+                  const isHero = pkg.featured || idx === 0;
 
-                  {/* Content Container */}
-                  <div className="relative z-10 p-6 sm:p-8 mt-auto flex flex-col justify-end">
-                    {/* Tags Pills */}
-                    {(pkg.tag1 || pkg.tag2 || pkg.tag3) && (
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {[pkg.tag1, pkg.tag2, pkg.tag3].filter(Boolean).map((tText, tIdx) => (
-                          <span 
-                            key={tIdx} 
-                            className="text-[11px] font-semibold text-white bg-black/50 backdrop-blur-md border border-white/30 px-2.5 py-1 rounded-full shadow-sm"
-                          >
-                            {tText}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    <h3 
-                      className={`${isHero ? "text-2xl sm:text-4xl" : "text-xl sm:text-2xl"} text-white font-serif font-bold mb-2 group-hover:text-gold-300 transition-colors duration-300`}
-                      style={{ fontFamily: "'Playfair Display', serif" }}
+                  return (
+                    <motion.div
+                      key={pkg.recordId || pkg.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: idx * 0.1 }}
+                      className={`group relative rounded-3xl overflow-hidden cursor-pointer flex flex-col justify-between border transition-all duration-500 backdrop-blur-xl ${
+                        isHero 
+                          ? "lg:col-span-2 min-h-[380px] sm:min-h-[420px] bg-gradient-to-br from-[#121c3b]/90 via-[#0d152d]/90 to-[#070c1b]/90 border-gold-500/40 hover:border-gold-400 shadow-[0_12px_40px_rgba(245,166,35,0.2)] hover:shadow-[0_16px_50px_rgba(245,166,35,0.35)]" 
+                          : "min-h-[360px] bg-gradient-to-br from-[#121c3b]/80 via-[#0a1127]/80 to-[#060a17]/80 border-white/10 hover:border-gold-500/50 hover:shadow-[0_12px_36px_rgba(245,166,35,0.25)] hover:-translate-y-2"
+                      }`}
+                      onClick={() => handlePackageClick(pkg.id)}
                     >
-                      {pkg.name}
-                    </h3>
+                      {/* Background Image with High Clarity & Gradient Overlay */}
+                      <div className="absolute inset-0 z-0 overflow-hidden">
+                        <img
+                          src={pkg.image}
+                          alt={pkg.name}
+                          className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-700 ease-out opacity-85 group-hover:opacity-100"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#060a17]/95 via-[#060a17]/40 to-transparent"></div>
+                      </div>
 
-                    <p className="text-body-sm text-white/90 line-clamp-2 mb-6 max-w-xl">
-                      {pkg.desc}
-                    </p>
+                      {/* Top Floating Badges */}
+                      <div className="relative z-10 p-6 sm:p-8 flex items-center justify-between gap-4">
+                        {pkg.badge && (
+                          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gold-500 text-obsidian-950 font-bold text-caption uppercase tracking-wider shadow-lg backdrop-blur-md">
+                            <span>★</span> {pkg.badge}
+                          </span>
+                        )}
+                        {pkg.duration && (
+                          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/60 text-white font-medium text-caption border border-white/30 backdrop-blur-md shadow-md">
+                            <FaClock className="text-gold-400 text-xs" /> {pkg.duration}
+                          </span>
+                        )}
+                      </div>
 
-                    {/* Footer Actions */}
-                    <div className="flex items-center justify-end pt-4 border-t border-white/20 group-hover:border-gold-500/40 transition-colors">
-                      <Link 
-                        to={pkg.link} 
-                        onClick={(e) => e.stopPropagation()}
-                        className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-600 text-obsidian-900 font-bold px-6 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 text-xs border border-gold-400"
+                      {/* Content Container */}
+                      <div className="relative z-10 p-6 sm:p-8 mt-auto flex flex-col justify-end">
+                        {/* Tags Pills */}
+                        {(pkg.tag1 || pkg.tag2 || pkg.tag3) && (
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {[pkg.tag1, pkg.tag2, pkg.tag3].filter(Boolean).map((tText, tIdx) => (
+                              <span 
+                                key={tIdx} 
+                                className="text-[11px] font-semibold text-white bg-black/50 backdrop-blur-md border border-white/30 px-2.5 py-1 rounded-full shadow-sm"
+                              >
+                                {tText}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        <h3 
+                          className={`${isHero ? "text-2xl sm:text-4xl" : "text-xl sm:text-2xl"} text-white font-serif font-bold mb-2 group-hover:text-gold-300 transition-colors duration-300`}
+                          style={{ fontFamily: "'Playfair Display', serif" }}
+                        >
+                          {pkg.name}
+                        </h3>
+
+                        <p className="text-body-sm text-white/90 line-clamp-2 mb-6 max-w-xl">
+                          {pkg.desc}
+                        </p>
+
+                        {/* Footer Actions */}
+                        <div className="flex items-center justify-end pt-4 border-t border-white/20 group-hover:border-gold-500/40 transition-colors">
+                          <Link 
+                            to={pkg.link} 
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-600 text-obsidian-900 font-bold px-6 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 text-xs border border-gold-400"
+                          >
+                            {t("home.explorePackage", "Explore Program")}
+                            <span className="rtl-flip">→</span>
+                          </Link>
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {/* Interactive Nested Tours Accordion */}
+              <AnimatePresence>
+                {activePackage && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                    className="overflow-hidden mt-12 bg-white/5 backdrop-blur-2xl rounded-3xl p-8 border border-gold-500/20 shadow-2xl"
+                  >
+                    <div className="flex items-center justify-between mb-8 pb-4 border-b border-gold-500/20">
+                      <h3 className="text-2xl md:text-3xl text-white font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>
+                        {livePackageCards.find(p => p.id === activePackage)?.name} — {t("nav.tours", "Tours")}
+                      </h3>
+                      <button 
+                        onClick={() => setActivePackage(null)}
+                        className="w-9 h-9 rounded-full bg-white/10 hover:bg-gold-500 hover:text-obsidian-900 text-white flex items-center justify-center transition-all"
                       >
-                        {t("home.explorePackage", "Explore Program")}
-                        <span className="rtl-flip">→</span>
+                        <FaTimes />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {activePackageTours.slice(0, 6).map((tour) => (
+                        <TourCard
+                          key={tour.id}
+                          tour={tour}
+                          linkBase={tour.linkBase || "/tours"}
+                        />
+                      ))}
+                    </div>
+
+                    <div className="flex justify-center mt-10">
+                      <Link to={livePackageCards.find(p => p.id === activePackage)?.link || "/tours"}>
+                        <Button variant="gold-glow" className="px-8 py-3 font-bold">
+                          {t("home.explorePackage", "Explore Full Program")} →
+                        </Button>
                       </Link>
                     </div>
-                  </div>
-                </motion.div>
-              );
-            })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
-
-          {/* Interactive Nested Tours Accordion */}
-          <AnimatePresence>
-            {activePackage && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-                className="overflow-hidden mt-12 bg-white/5 backdrop-blur-2xl rounded-3xl p-8 border border-gold-500/20 shadow-2xl"
-              >
-                <div className="flex items-center justify-between mb-8 pb-4 border-b border-gold-500/20">
-                  <h3 className="text-2xl md:text-3xl text-white font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>
-                    {livePackageCards.find(p => p.id === activePackage)?.name} — {t("nav.tours", "Tours")}
-                  </h3>
-                  <button 
-                    onClick={() => setActivePackage(null)}
-                    className="w-9 h-9 rounded-full bg-white/10 hover:bg-gold-500 hover:text-obsidian-900 text-white flex items-center justify-center transition-all"
-                  >
-                    <FaTimes />
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {activePackageTours.slice(0, 6).map((tour) => (
-                    <TourCard
-                      key={tour.id}
-                      tour={tour}
-                      linkBase={tour.linkBase || "/tours"}
-                    />
-                  ))}
-                </div>
-
-                <div className="flex justify-center mt-10">
-                  <Link to={livePackageCards.find(p => p.id === activePackage)?.link || "/tours"}>
-                    <Button variant="gold-glow" className="px-8 py-3 font-bold">
-                      {t("home.explorePackage", "Explore Full Program")} →
-                    </Button>
-                  </Link>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
       </section>
 
       {/* Packages Tours Marquee */}
       <section className="py-16 md:py-20 relative overflow-hidden bg-ivory-100 dark:bg-obsidian-950 content-auto">
-        <div className="container mx-auto px-6 mb-12">
+        <div className="container mx-auto px-6 mb-10">
           <div className="text-center max-w-4xl mx-auto">
             <motion.span 
               initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-600 dark:text-gold-400 text-caption font-bold uppercase tracking-widest mb-4 shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-600 dark:text-gold-400 text-caption font-bold uppercase tracking-widest mb-3 shadow-sm"
             >
               <span>✨</span> {t("home.packageTripsSub", "تجارب مصممة بعناية فائقة لتلبي أعلى تطلعات عشاق الفخامة والتميز")}
             </motion.span>
@@ -1768,27 +1846,43 @@ const HomeExperienceSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-3xl md:text-5xl lg:text-6xl text-obsidian-900 dark:text-white font-serif tracking-tight mb-4"
+              className="text-3xl md:text-5xl lg:text-6xl text-obsidian-900 dark:text-white font-serif tracking-tight mb-2"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               {t("home.packageTripsTitle", "رحلات الباقات الخاصة بنا")}
             </motion.h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto mt-4 rounded-full"></div>
+            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent rounded-full mx-auto"></div>
           </div>
         </div>
 
-        {/* Marquee Strip: Moving smoothly without stopping unless hovered */}
-        <div dir="ltr" className="overflow-hidden w-full relative py-4">
-          <div
-            className="flex w-max"
-            style={{
-              gap: "24px",
-              paddingLeft: "24px",
-              animation: "tourMarquee 120s linear infinite",
-            }}
-            onMouseEnter={e => e.currentTarget.style.animationPlayState = 'paused'}
-            onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
+        {/* Marquee Strip with Side Arrow Controls */}
+        <div className="relative group/marquee w-full">
+          {/* Left Floating Side Arrow */}
+          <button
+            onClick={() => handleMarqueeScroll(pkgMarqueeRef, 'left')}
+            aria-label="Scroll left"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-black/60 dark:bg-obsidian-900/80 border border-gold-500/50 text-gold-400 hover:text-white hover:bg-gold-500 backdrop-blur-md flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
           >
+            <FaChevronLeft className="w-4 h-4" />
+          </button>
+
+          {/* Right Floating Side Arrow */}
+          <button
+            onClick={() => handleMarqueeScroll(pkgMarqueeRef, 'right')}
+            aria-label="Scroll right"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-black/60 dark:bg-obsidian-900/80 border border-gold-500/50 text-gold-400 hover:text-white hover:bg-gold-500 backdrop-blur-md flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
+          >
+            <FaChevronRight className="w-4 h-4" />
+          </button>
+
+          <div 
+            dir="ltr" 
+            ref={pkgMarqueeRef} 
+            className="overflow-x-auto no-scrollbar scroll-smooth w-full relative py-4"
+            onMouseEnter={() => pkgHoveredRef.current = true}
+            onMouseLeave={() => pkgHoveredRef.current = false}
+          >
+            <div className="flex w-max gap-5 px-5">
             {(() => {
               const infiniteList = buildInfiniteMarqueeList(packagesToursForMarquee, 'pkg');
               return infiniteList.map((tData, idx) => {
@@ -1799,13 +1893,13 @@ const HomeExperienceSection = () => {
                     to={tData.link || "/tours"}
                     tabIndex={tData.isDuplicate ? -1 : undefined}
                     aria-hidden={tData.isDuplicate ? "true" : undefined}
-                    className="min-w-[300px] sm:min-w-[340px] md:min-w-[380px] shrink-0 group relative rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_40px_rgba(245,166,35,0.3)] transition-all duration-500 h-[450px] block border border-obsidian-700/50 hover:border-gold-500 bg-obsidian-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
+                    className="min-w-[200px] sm:min-w-[220px] md:min-w-[240px] shrink-0 group relative rounded-xl overflow-hidden shadow-[0_6px_18px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_28px_rgba(245,166,35,0.25)] transition-all duration-500 h-[250px] sm:h-[265px] block border border-obsidian-700/50 hover:border-gold-500 bg-obsidian-900 focus:outline-none focus:ring-2 focus:ring-gold-500"
                   >
                     <img
-                      src={getOptimizedImageUrl(tourImg, 400, 450)}
+                      src={getOptimizedImageUrl(tourImg, 250, 270)}
                       alt={tData.title}
-                      width="400"
-                      height="450"
+                      width="250"
+                      height="270"
                       className="w-full h-full object-cover cinematic-transition group-hover:scale-[1.08] opacity-90 group-hover:opacity-100"
                       loading="lazy"
                       decoding="async"
@@ -1813,31 +1907,28 @@ const HomeExperienceSection = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-900/50 to-transparent"></div>
 
                     {tData.badge && (
-                      <div className="absolute top-4 left-4 z-20 bg-gold-500 text-obsidian-950 text-caption font-bold px-3.5 py-1.5 rounded-full shadow-md uppercase backdrop-blur-md">
+                      <div className="absolute top-2.5 left-2.5 z-20 bg-gold-500 text-obsidian-950 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-md uppercase backdrop-blur-md">
                         ★ {tData.badge}
                       </div>
                     )}
 
-                    <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full z-10">
-                      <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                        <h3 className="text-xl md:text-2xl text-white font-serif font-bold mb-2 leading-tight drop-shadow-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-3.5 flex flex-col justify-end h-full z-10">
+                      <div className="transform translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
+                        <h3 className="text-sm sm:text-base text-white font-serif font-bold mb-1 leading-tight drop-shadow-md line-clamp-2" style={{ fontFamily: "'Playfair Display', serif" }}>
                           {tData.title}
                         </h3>
 
                         {tData.overview && (
-                          <p className="text-body-sm text-ivory-200 line-clamp-2 mb-3 font-medium drop-shadow">
+                          <p className="text-[11px] text-ivory-200 line-clamp-1 mb-1.5 font-medium drop-shadow">
                             {tData.overview}
                           </p>
                         )}
 
-                        <div className="flex items-center text-caption text-gold-400 font-semibold mb-4 pt-2 border-t border-white/15">
+                        <div className="flex items-center justify-between text-[10px] text-gold-400 font-semibold pt-1 border-t border-white/15">
                           <span>{tData.duration}</span>
-                        </div>
-
-                        <div className="block">
-                          <Button variant="gold-glow" tabIndex={-1} className="w-full py-2.5 text-xs font-bold shadow-lg">
-                            {t("home.viewTour", isAr ? "عرض التفاصيل وحجز الرحلة" : "View Tour & Book")} →
-                          </Button>
+                          <span className="text-[11px] font-bold text-white group-hover:text-gold-400 transition-colors">
+                            {t("home.viewTourShort", isAr ? "التفاصيل ←" : "Details →")}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -1847,6 +1938,7 @@ const HomeExperienceSection = () => {
             })()}
           </div>
         </div>
+      </div>
 
         <div className="flex justify-center mt-12">
           <Link to="/tours">
@@ -2438,9 +2530,9 @@ const HomeExperienceSection = () => {
       </section>}
 
       {/* Services Section */}
-      <section className="py-24 lg:py-32 relative overflow-hidden content-auto" style={{ background: 'linear-gradient(160deg, rgb(4,20,70) 0%, rgb(6,29,93) 50%, rgb(8,16,50) 100%)' }}>
+      <section className="py-20 lg:py-28 relative overflow-hidden bg-white dark:bg-obsidian-950 border-t border-gray-100 dark:border-white/5 content-auto">
         {/* Decorative backdrop elements */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.05]" 
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.03]" 
           style={{ 
             background: 'radial-gradient(circle at 10% 20%, rgb(30,58,138) 0%, transparent 40%), radial-gradient(circle at 90% 80%, #F5A623 0%, transparent 40%)' 
           }} 
@@ -2456,13 +2548,13 @@ const HomeExperienceSection = () => {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-center mb-16 md:mb-24"
           >
-            <span className="inline-block text-gold-600 uppercase tracking-[0.25em] text-caption mb-4 font-bold text-xs px-4 py-1.5 rounded-full bg-gold-500/5 border border-gold-500/10">
+            <span className="inline-block text-gold-600 dark:text-gold-400 uppercase tracking-[0.25em] text-caption mb-4 font-bold text-xs px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/30 shadow-sm">
               {t('home.servicesSub', 'Our Services')}
             </span>
-            <h2 className="text-display-lg text-ivory-50 font-display mb-6 tracking-wide">
+            <h2 className="text-display-lg text-obsidian-900 dark:text-ivory-50 font-display mb-6 tracking-wide">
               {t('home.servicesTitle', 'Services')}
             </h2>
-            <p className="text-ivory-300 text-body-md max-w-xl mx-auto font-body">
+            <p className="text-obsidian-700 dark:text-ivory-300 text-body-md max-w-xl mx-auto font-body font-medium">
               {t('home.servicesDesc', 'Premium travel solutions tailored to your needs')}
             </p>
             <div className="w-20 h-[3px] bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto mt-8 rounded-full" />
