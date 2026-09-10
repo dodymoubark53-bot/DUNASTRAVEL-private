@@ -1,10 +1,39 @@
 import React, { Suspense, lazy } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
-import { AnimatePresence, motion, useScroll } from "framer-motion";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import Layout from "./components/layout/Layout";
 import Logo from "./components/ui/Logo";
 import { trackEvent } from "./utils/analytics";
+
+// ── Stale Chunk / Deployment Recovery Helpers ─────────────────────────────
+const isChunkLoadFailed = (error) => {
+  if (!error) return false;
+  const msg = (error.message || error.toString() || '').toLowerCase();
+  return (
+    error.name === 'ChunkLoadError' ||
+    msg.includes('failed to fetch dynamically imported module') ||
+    msg.includes('importing a module script failed') ||
+    msg.includes('error loading dynamically imported module')
+  );
+};
+
+const lazyWithRetry = (componentImport) =>
+  lazy(async () => {
+    try {
+      const component = await componentImport();
+      window.sessionStorage.removeItem('chunk_reload_attempted');
+      return component;
+    } catch (error) {
+      const pageAlreadyRefreshed = window.sessionStorage.getItem('chunk_reload_attempted');
+      if (isChunkLoadFailed(error) && !pageAlreadyRefreshed) {
+        window.sessionStorage.setItem('chunk_reload_attempted', 'true');
+        window.location.reload();
+        return new Promise(() => {}); // Hold rendering until browser reloads new version
+      }
+      throw error;
+    }
+  });
 
 // ── Global Error Boundary ────────────────────────────────────────────────────
 class ErrorBoundary extends React.Component {
@@ -13,6 +42,14 @@ class ErrorBoundary extends React.Component {
     this.state = { hasError: false, error: null };
   }
   static getDerivedStateFromError(error) {
+    if (isChunkLoadFailed(error)) {
+      const pageAlreadyRefreshed = window.sessionStorage.getItem('chunk_reload_attempted');
+      if (!pageAlreadyRefreshed) {
+        window.sessionStorage.setItem('chunk_reload_attempted', 'true');
+        window.location.reload();
+        return { hasError: false, error: null };
+      }
+    }
     return { hasError: true, error };
   }
   componentDidCatch(error, info) {
@@ -66,6 +103,7 @@ class ErrorBoundary extends React.Component {
           <button
             onClick={() => {
               this.setState({ hasError: false, error: null });
+              window.sessionStorage.removeItem('chunk_reload_attempted');
               window.location.reload();
             }}
             style={{
@@ -89,54 +127,49 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-// Lazy loaded pages for performance
-const Home = lazy(() => import("./pages/Home"));
-const About = lazy(() => import("./pages/About"));
-const Blogs = lazy(() => import("./pages/Blogs"));
-const Services = lazy(() => import("./pages/Services"));
-const Contact = lazy(() => import("./pages/Contact"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const Destinations = lazy(() => import("./pages/destinations/Destinations"));
-const LandingPageDetails = lazy(() => import("./pages/destinations/LandingPageDetails"));
-const Egipto = lazy(() => import("./pages/destinations/Egipto"));
-const Jordania = lazy(() => import("./pages/destinations/Jordania"));
-const JordanProgramDetails = lazy(() => import("./pages/programs/JordanProgramDetails"));
-const Dubai = lazy(() => import("./pages/destinations/Dubai"));
-const DubaiProgramDetails = lazy(() => import("./pages/programs/DubaiProgramDetails"));
-const Turquia = lazy(() => import("./pages/destinations/Turquia"));
-const TurkeyProgramDetails = lazy(() => import("./pages/programs/TurkeyProgramDetails"));
-const Tunisia = lazy(() => import("./pages/destinations/Tunisia"));
-const Morocco = lazy(() => import("./pages/destinations/Morocco"));
-const Greece = lazy(() => import("./pages/destinations/Greece"));
-const HolyLands = lazy(() => import("./pages/destinations/HolyLands"));
-const Honeymooners = lazy(() => import("./pages/programs/Honeymooners"));
-const HoneymoonersDetails = lazy(() => import("./pages/programs/HoneymoonersDetails"));
-const ReligiousTours = lazy(() => import("./pages/programs/ReligiousTours"));
-const MultiCountryTours = lazy(() => import("./pages/programs/MultiCountryTours"));
-const MultiCountryTourDetails = lazy(() => import("./pages/programs/MultiCountryTourDetails"));
-const ExtensionTours = lazy(() => import("./pages/programs/ExtensionTours"));
-const ExtensionDetails = lazy(() => import("./pages/programs/ExtensionDetails"));
-const ClassicProgramDetails = lazy(() => import("./pages/programs/ClassicProgramDetails"));
-const TourDetails = lazy(() => import("./pages/tours/TourDetails"));
-const BlogDetails = lazy(() => import("./pages/blogs/BlogDetails"));
-const ServiceDetails = lazy(() => import("./pages/services/ServiceDetails"));
-const Transportation = lazy(
+// Lazy loaded pages for performance with automatic deployment recovery
+const Home = lazyWithRetry(() => import("./pages/Home"));
+const About = lazyWithRetry(() => import("./pages/About"));
+const Blogs = lazyWithRetry(() => import("./pages/Blogs"));
+const Services = lazyWithRetry(() => import("./pages/Services"));
+const Contact = lazyWithRetry(() => import("./pages/Contact"));
+const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
+const Destinations = lazyWithRetry(() => import("./pages/destinations/Destinations"));
+const Egipto = lazyWithRetry(() => import("./pages/destinations/Egipto"));
+const LandingPageDetails = lazyWithRetry(() => import("./pages/destinations/LandingPageDetails"));
+const BackendToursPage = lazyWithRetry(() => import("./pages/tours/BackendToursPage"));
+const TourDetails = lazyWithRetry(() => import("./pages/tours/TourDetails"));
+const BlogDetails = lazyWithRetry(() => import("./pages/blogs/BlogDetails"));
+const ServiceDetails = lazyWithRetry(() => import("./pages/services/ServiceDetails"));
+const NotificationDetails = lazyWithRetry(() => import("./pages/NotificationDetails"));
+const ReligiousTours = lazyWithRetry(() => import("./pages/programs/ReligiousTours"));
+const Honeymooners = lazyWithRetry(() => import("./pages/programs/Honeymooners"));
+const HoneymoonersDetails = lazyWithRetry(() => import("./pages/programs/HoneymoonersDetails"));
+const ExtensionTours = lazyWithRetry(() => import("./pages/programs/ExtensionTours"));
+const ExtensionDetails = lazyWithRetry(() => import("./pages/programs/ExtensionDetails"));
+const MultiCountryTours = lazyWithRetry(() => import("./pages/programs/MultiCountryTours"));
+const MultiCountryTourDetails = lazyWithRetry(() => import("./pages/programs/MultiCountryTourDetails"));
+const ClassicProgramDetails = lazyWithRetry(() => import("./pages/programs/ClassicProgramDetails"));
+const JordanProgramDetails = lazyWithRetry(() => import("./pages/programs/JordanProgramDetails"));
+const DubaiProgramDetails = lazyWithRetry(() => import("./pages/programs/DubaiProgramDetails"));
+const TurkeyProgramDetails = lazyWithRetry(() => import("./pages/programs/TurkeyProgramDetails"));
+const Transportation = lazyWithRetry(
   () => import("./pages/transportation/Transportation"),
 );
-const TailorTour = lazy(() => import("./pages/TailorTour"));
-const FAQ = lazy(() => import("./pages/FAQ"));
-const Invoice = lazy(() => import("./pages/Invoice"));
-const BookingSuccess = lazy(() => import("./pages/BookingSuccess"));
-const BookingCancel = lazy(() => import("./pages/BookingCancel"));
-const HotelDetails = lazy(() => import("./pages/hotels/HotelDetails"));
-const RoomDetails = lazy(() => import("./pages/hotels/RoomDetails"));
-const MediaGallery = lazy(() => import("./pages/MediaGallery"));
-const Login = lazy(() => import("./pages/auth/Login"));
-const Register = lazy(() => import("./pages/auth/Register"));
-const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword"));
-const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
-const VerifyEmail = lazy(() => import("./pages/auth/VerifyEmail"));
-const UserDashboard = lazy(() => import("./pages/user/UserDashboard"));
+const TailorTour = lazyWithRetry(() => import("./pages/TailorTour"));
+const FAQ = lazyWithRetry(() => import("./pages/FAQ"));
+const Invoice = lazyWithRetry(() => import("./pages/Invoice"));
+const BookingSuccess = lazyWithRetry(() => import("./pages/BookingSuccess"));
+const BookingCancel = lazyWithRetry(() => import("./pages/BookingCancel"));
+const HotelDetails = lazyWithRetry(() => import("./pages/hotels/HotelDetails"));
+const RoomDetails = lazyWithRetry(() => import("./pages/hotels/RoomDetails"));
+const MediaGallery = lazyWithRetry(() => import("./pages/MediaGallery"));
+const Login = lazyWithRetry(() => import("./pages/auth/Login"));
+const Register = lazyWithRetry(() => import("./pages/auth/Register"));
+const ForgotPassword = lazyWithRetry(() => import("./pages/auth/ForgotPassword"));
+const ResetPassword = lazyWithRetry(() => import("./pages/auth/ResetPassword"));
+const VerifyEmail = lazyWithRetry(() => import("./pages/auth/VerifyEmail"));
+const UserDashboard = lazyWithRetry(() => import("./pages/user/UserDashboard"));
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 
@@ -191,28 +224,84 @@ const FallbackLoader = () => (
   </div>
 );
 
+const ScrollProgressBar = React.memo(function ScrollProgressBar() {
+  const barRef = React.useRef(null);
+
+  React.useEffect(() => {
+    let ticking = false;
+    let docHeight = 0;
+
+    const measureHeight = () => {
+      docHeight = (document.documentElement.scrollHeight || document.body.scrollHeight) - window.innerHeight;
+    };
+
+    measureHeight();
+
+    let resizeObserver = null;
+    if (typeof ResizeObserver !== 'undefined' && document.body) {
+      resizeObserver = new ResizeObserver(() => {
+        measureHeight();
+      });
+      resizeObserver.observe(document.body);
+    }
+
+    const updateProgress = () => {
+      if (!barRef.current) return;
+      const scrollY = window.scrollY || window.pageYOffset;
+      const progress = docHeight > 0 ? Math.min(Math.max(scrollY / docHeight, 0), 1) : 0;
+      barRef.current.style.transform = `scaleX(${progress})`;
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(updateProgress);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', measureHeight, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', measureHeight);
+      if (resizeObserver) resizeObserver.disconnect();
+    };
+  }, []);
+
+  return (
+    <div
+      ref={barRef}
+      style={{ transform: "scaleX(0)", transformOrigin: "0%", willChange: "transform" }}
+      className="fixed top-0 left-0 right-0 h-[3px] z-[9999] bg-gradient-to-r from-gold-500 via-gold-300 to-gold-500 pointer-events-none transition-transform duration-75 ease-out"
+    />
+  );
+});
+
+import { syncDocumentDirection } from "./i18n";
+
 function App() {
   const location = useLocation();
-  const { scrollYProgress } = useScroll();
   const { i18n } = useTranslation();
 
   React.useEffect(() => {
-    const dir = i18n.language === "ar" ? "rtl" : "ltr";
-    document.documentElement.dir = dir;
-    document.documentElement.lang = i18n.language;
+    syncDocumentDirection(i18n.language);
   }, [i18n.language]);
 
   React.useEffect(() => {
     window.scrollTo(0, 0);
     trackEvent('page_view', { pathname: location.pathname });
+
+    const interval = setInterval(() => {
+      trackEvent('heartbeat', { pathname: window.location.pathname });
+    }, 25000);
+
+    return () => clearInterval(interval);
   }, [location.pathname]);
 
   return (
     <ErrorBoundary>
-      <motion.div
-        style={{ scaleX: scrollYProgress, transformOrigin: "0%" }}
-        className="fixed top-0 left-0 right-0 h-[3px] z-[9999] bg-gradient-to-r from-gold-500 via-gold-300 to-gold-500 pointer-events-none"
-      />
+      <ScrollProgressBar />
 
       <Suspense fallback={<FallbackLoader />}>
         <AnimatePresence mode="wait">
@@ -273,7 +362,7 @@ function App() {
                     path="religious"
                     element={
                       <PageTransition>
-                        <ReligiousTours />
+                        <BackendToursPage titleKey="programs.religiousTitle" titleDefault="Religious Tours" filters={{ category: 'Religious' }} />
                       </PageTransition>
                     }
                   />
@@ -281,15 +370,7 @@ function App() {
                     path="religious/:slug"
                     element={
                       <PageTransition>
-                        <ServiceDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="hotels"
-                    element={
-                      <PageTransition>
-                        <Services />
+                        <TourDetails />
                       </PageTransition>
                     }
                   />
@@ -331,106 +412,33 @@ function App() {
                     index
                     element={
                       <PageTransition>
-                        <Services />
+                        <BackendToursPage titleKey="nav.tours" titleDefault="All Tours" />
                       </PageTransition>
                     }
                   />
-                  <Route
-                    path="hotels"
-                    element={
-                      <PageTransition>
-                        <Services />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="hotels/:slug"
-                    element={
-                      <PageTransition>
-                        <HotelDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="hotels/:hotelSlug/:roomSlug"
-                    element={
-                      <PageTransition>
-                        <RoomDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="religious"
-                    element={
-                      <PageTransition>
-                        <ReligiousTours />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="religious/:slug"
-                    element={
-                      <PageTransition>
-                        <ServiceDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="jordan/:programId"
-                    element={
-                      <PageTransition>
-                        <JordanProgramDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="dubai/:programId"
-                    element={
-                      <PageTransition>
-                        <DubaiProgramDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="turkey/:programId"
-                    element={
-                      <PageTransition>
-                        <TurkeyProgramDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="turquia/:programId"
-                    element={
-                      <PageTransition>
-                        <TurkeyProgramDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="tunisia/:programId"
-                    element={
-                      <PageTransition>
-                        <TourDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path=":slug"
-                    element={
-                      <PageTransition>
-                        <LandingPageDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path=":category/:programSlug"
-                    element={
-                      <PageTransition>
-                        <LandingPageDetails />
-                      </PageTransition>
-                    }
-                  />
+                  <Route path="honeymooners" element={<PageTransition><Honeymooners /></PageTransition>} />
+                  <Route path="honeymooners/:id" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="religious" element={<PageTransition><BackendToursPage titleKey="programs.religiousTitle" titleDefault="Religious Tours" filters={{ category: 'Religious' }} /></PageTransition>} />
+                  <Route path="religious/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="multi-country" element={<PageTransition><MultiCountryTours /></PageTransition>} />
+                  <Route path="multi-country/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="extension" element={<PageTransition><ExtensionTours /></PageTransition>} />
+                  <Route path="extension/:id" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="extensions" element={<PageTransition><ExtensionTours /></PageTransition>} />
+                  <Route path="extensions/:id" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="classic" element={<PageTransition><BackendToursPage titleKey="programs.classicTitle" titleDefault="Classic Egypt Tours" filters={{ category: 'Classic' }} /></PageTransition>} />
+                  <Route path="classic/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="turkey" element={<PageTransition><BackendToursPage titleKey="nav.turkey" titleDefault="Turkey Tours" filters={{ destination: 'Turkey' }} /></PageTransition>} />
+                  <Route path="turkey/:programId" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="turquia/:programId" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="jordan" element={<PageTransition><BackendToursPage titleKey="nav.jordan" titleDefault="Jordan Tours" filters={{ destination: 'Jordan' }} /></PageTransition>} />
+                  <Route path="jordan/:programId" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="dubai" element={<PageTransition><BackendToursPage titleKey="nav.dubai" titleDefault="Dubai Tours" filters={{ destination: 'United Arab Emirates' }} /></PageTransition>} />
+                  <Route path="dubai/:programId" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path="hotels" element={<Navigate to="/services" replace />} />
+                  <Route path="transportation" element={<Navigate to="/transportation" replace />} />
+                  <Route path=":slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route path=":category/:programSlug" element={<PageTransition><TourDetails /></PageTransition>} />
                 </Route>
                 <Route path="destinations">
                   <Route
@@ -458,146 +466,10 @@ function App() {
                     }
                   />
                   <Route
-                    path="jordan"
+                    path="egipto"
                     element={
                       <PageTransition>
-                        <Jordania />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="jordan/:programId"
-                    element={
-                      <PageTransition>
-                        <JordanProgramDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="dubai"
-                    element={
-                      <PageTransition>
-                        <Dubai />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="dubai/:programId"
-                    element={
-                      <PageTransition>
-                        <DubaiProgramDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="turkey"
-                    element={
-                      <PageTransition>
-                        <Turquia />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="turquia"
-                    element={
-                      <PageTransition>
-                        <Turquia />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="turkey/:programId"
-                    element={
-                      <PageTransition>
-                        <TurkeyProgramDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="turquia/:programId"
-                    element={
-                      <PageTransition>
-                        <TurkeyProgramDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="tunisia"
-                    element={
-                      <PageTransition>
-                        <Tunisia />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="tunisia/:slug"
-                    element={
-                      <PageTransition>
-                        <TourDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="tunisie"
-                    element={
-                      <PageTransition>
-                        <Tunisia />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="tunisie/:slug"
-                    element={
-                      <PageTransition>
-                        <TourDetails />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="morocco"
-                    element={
-                      <PageTransition>
-                        <Morocco />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="marruecos"
-                    element={
-                      <PageTransition>
-                        <Morocco />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="greece"
-                    element={
-                      <PageTransition>
-                        <Greece />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="grecia"
-                    element={
-                      <PageTransition>
-                        <Greece />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="holy-lands"
-                    element={
-                      <PageTransition>
-                        <HolyLands />
-                      </PageTransition>
-                    }
-                  />
-                  <Route
-                    path="tierra-santa"
-                    element={
-                      <PageTransition>
-                        <HolyLands />
+                        <Egipto />
                       </PageTransition>
                     }
                   />
@@ -609,25 +481,21 @@ function App() {
                       </PageTransition>
                     }
                   />
-                </Route>
-                <Route path="programs">
-                  <Route path="honeymooners" element={<PageTransition><Honeymooners /></PageTransition>} />
-                  <Route path="honeymooners/:id" element={<PageTransition><HoneymoonersDetails /></PageTransition>} />
-                  <Route path="religious" element={<PageTransition><ReligiousTours /></PageTransition>} />
-                  <Route path="multi-country" element={<PageTransition><MultiCountryTours /></PageTransition>} />
-                  <Route path="multi-country/:slug" element={<PageTransition><MultiCountryTourDetails /></PageTransition>} />
-                  <Route path="extension" element={<PageTransition><ExtensionTours /></PageTransition>} />
-                  <Route path="extension/:id" element={<PageTransition><ExtensionDetails /></PageTransition>} />
-                  <Route path="classic/*" element={<PageTransition><ClassicProgramDetails /></PageTransition>} />
-                  <Route path="classic" element={<PageTransition><ClassicProgramDetails /></PageTransition>} />
-                  <Route path=":slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                  <Route
+                    path=":destinationSlug/:slug"
+                    element={
+                      <PageTransition>
+                        <TourDetails />
+                      </PageTransition>
+                    }
+                  />
                 </Route>
                 <Route path="tours">
                   <Route
                     index
                     element={
                       <PageTransition>
-                        <Services />
+                        <BackendToursPage titleKey="nav.tours" titleDefault="All Tours" />
                       </PageTransition>
                     }
                   />
@@ -792,11 +660,48 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route path="account" element={<Navigate to="/dashboard" replace />} />
+                <Route path="account/bookings" element={<Navigate to="/bookings" replace />} />
+                <Route path="account/profile" element={<Navigate to="/profile" replace />} />
+                <Route path="account/notifications" element={<Navigate to="/notifications" replace />} />
+                <Route path="account/*" element={<Navigate to="/dashboard" replace />} />
                 <Route
-                  path="trips/:slug"
+                  path="notifications"
+                  element={
+                    <ProtectedRoute>
+                      <PageTransition>
+                        <NotificationDetails />
+                      </PageTransition>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="notifications/:id"
+                  element={
+                    <ProtectedRoute>
+                      <PageTransition>
+                        <NotificationDetails />
+                      </PageTransition>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="honeymooners" element={<PageTransition><Honeymooners /></PageTransition>} />
+                <Route path="honeymooners/:id" element={<PageTransition><TourDetails /></PageTransition>} />
+                <Route path="religious" element={<PageTransition><ReligiousTours /></PageTransition>} />
+                <Route path="religious/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                <Route path="multi-country" element={<PageTransition><MultiCountryTours /></PageTransition>} />
+                <Route path="multi-country/:slug" element={<PageTransition><TourDetails /></PageTransition>} />
+                <Route path="extension" element={<PageTransition><ExtensionTours /></PageTransition>} />
+                <Route path="extension/:id" element={<PageTransition><ExtensionDetails /></PageTransition>} />
+                <Route path="extensions" element={<PageTransition><ExtensionTours /></PageTransition>} />
+                <Route path="extensions/:id" element={<PageTransition><ExtensionDetails /></PageTransition>} />
+                <Route path="classic" element={<PageTransition><ClassicProgramDetails /></PageTransition>} />
+                <Route path="classic/:slug" element={<PageTransition><ClassicProgramDetails /></PageTransition>} />
+                <Route
+                  path="trips/:id"
                   element={
                     <PageTransition>
-                      <ServiceDetails />
+                      <ExtensionDetails />
                     </PageTransition>
                   }
                 />

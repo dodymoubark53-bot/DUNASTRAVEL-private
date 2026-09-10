@@ -13,6 +13,11 @@ const BookingSuccess = () => {
   // Only the server-issued payment record UUID is a valid status resource.
   // Provider session IDs and booking references are different identifiers.
   const paymentId = searchParams.get('payment_id');
+  const callbackInvoiceId = searchParams.get('invoice_id');
+  const callbackSuccess = searchParams.get('success');
+  const callbackStatus = searchParams.get('invoice_status');
+  const callbackMessage = searchParams.get('message');
+  const callbackSignature = searchParams.get('signature');
   const bookingId = searchParams.get('booking_id') || searchParams.get('bookingId') || searchParams.get('referenceCode');
 
   const [paymentStatus, setPaymentStatus] = useState('loading'); // loading, SUCCEEDED, PENDING, FAILED
@@ -20,25 +25,56 @@ const BookingSuccess = () => {
   const [showInvoice, setShowInvoice] = useState(false);
   const [bookingData, setBookingData] = useState(null);
 
+  const isUUID = (val) =>
+    typeof val === 'string' &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+
   useEffect(() => {
     let isMounted = true;
     let pollCount = 0;
     const maxPolls = 20;
     let timerId;
+    let activePaymentId = isUUID(paymentId) ? paymentId : null;
+
+    // Fail-fast if provider callback explicitly indicates decline/cancellation
+    if (callbackSuccess !== null && ['0', 'false', false, 0].includes(callbackSuccess)) {
+      setPaymentStatus('FAILED');
+      return undefined;
+    }
 
     const verifyStatus = async () => {
-      if (!paymentId) {
+      const hasSignedCallback = Boolean(
+        callbackInvoiceId &&
+          callbackSuccess !== null &&
+          callbackStatus &&
+          callbackMessage !== null &&
+          callbackSignature,
+      );
+      if (!activePaymentId && !hasSignedCallback) {
         if (isMounted) setPaymentStatus('FAILED');
         return;
       }
 
       try {
-        const res = await api.get(`/payments/${encodeURIComponent(paymentId)}/status`);
+        const res = activePaymentId
+          ? await api.get(`/payments/${encodeURIComponent(activePaymentId)}/status`)
+          : await api.post('/payments/callback/getpayin', {
+              success: callbackSuccess,
+              invoice_id: callbackInvoiceId,
+              invoice_status: callbackStatus,
+              message: callbackMessage,
+              signature: callbackSignature,
+            });
+
+        if (res?.paymentId && isUUID(res.paymentId)) {
+          activePaymentId = res.paymentId;
+        }
+
         const status = (res?.status || res?.paymentStatus || 'PENDING').toUpperCase();
         const invNum = res?.invoiceNumber || res?.invoice?.invoiceNumber;
 
         if (isMounted) {
-          setInvoiceNumber(invNum || null);
+          if (invNum) setInvoiceNumber(invNum);
           if (res?.booking) setBookingData(res.booking);
 
           if (status === 'CAPTURED' || status === 'SUCCEEDED' || status === 'PAID' || status === 'CONFIRMED') {
@@ -49,7 +85,9 @@ const BookingSuccess = () => {
             setPaymentStatus('PENDING');
             if (pollCount < maxPolls) {
               pollCount++;
-              timerId = setTimeout(verifyStatus, 500);
+              timerId = setTimeout(verifyStatus, 1500);
+            } else {
+              setPaymentStatus('FAILED');
             }
           } else {
             setPaymentStatus('FAILED');
@@ -67,7 +105,14 @@ const BookingSuccess = () => {
       isMounted = false;
       if (timerId) clearTimeout(timerId);
     };
-  }, [paymentId, bookingId]);
+  }, [
+    paymentId,
+    callbackInvoiceId,
+    callbackSuccess,
+    callbackStatus,
+    callbackMessage,
+    callbackSignature,
+  ]);
 
   return (
     <div className="min-h-screen bg-obsidian-900 flex items-center justify-center p-4 pt-28 font-body" dir={isRtl ? 'rtl' : 'ltr'}>

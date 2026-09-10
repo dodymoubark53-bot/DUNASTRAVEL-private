@@ -2,73 +2,59 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { FaChevronLeft, FaChevronRight, FaClock, FaStar } from 'react-icons/fa';
-import tours from '../../data/tours';
-import { services } from '../../data/services';
+import { FaChevronLeft, FaChevronRight, FaStar } from 'react-icons/fa';
+import { useTours } from '../../hooks/useTours';
+import { useCurrency } from '../../context/CurrencyContext';
 import {
   resolveTourTitle,
   resolveTourOverview,
   resolveTourDuration,
   resolveLocalizedText
 } from '../../utils/titleHelper';
+import { getTourDestinationSlug } from '../../utils/destinationHelper';
+
+function resolveTourImage(tour) {
+  if (!tour) return null;
+  if (typeof tour.heroImage === 'string' && tour.heroImage.trim()) {
+    return tour.heroImage.trim();
+  }
+  if (Array.isArray(tour.images) && tour.images.length > 0) {
+    const first = tour.images[0];
+    if (typeof first === 'string' && first.trim()) return first.trim();
+    if (first?.imageUrl) return first.imageUrl;
+    if (first?.url) return first.url;
+  }
+  if (typeof tour.image === 'string' && tour.image.trim()) {
+    return tour.image.trim();
+  }
+  return null;
+}
 
 export default function SuggestedTours({ currentDestination = 'egypt', currentSlug = '' }) {
   const { t, i18n } = useTranslation();
+  const { formatPrice } = useCurrency();
   const lang = i18n.language || 'en';
   const scrollRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
+  const { tours } = useTours({ limit: 16 });
 
   const destLower = (currentDestination || 'egypt').toLowerCase();
 
-  // Combine tours and services data
   const allItems = [];
 
   if (Array.isArray(tours)) {
     tours.forEach((tour) => {
       if (!tour || !tour.slug) return;
+      const image = resolveTourImage(tour);
       allItems.push({
         ...tour,
         id: tour.id || tour.slug,
         slug: tour.slug,
-        destination: tour.destination || 'egypt',
-        price: tour.price ?? 0,
+        destination: getTourDestinationSlug(tour),
+        price: tour.price ?? Number(tour.basePriceUsd) ?? 0,
         rating: tour.rating || 4.9,
-        image: tour.images && tour.images[0] ? tour.images[0] : '/imgs/egyothero.png',
-        link: tour.category === 'extension' || ['hurghada-4d3n', 'sharm-4d3n', 'siwa-oasis-alexandria'].includes(tour.slug)
-          ? `/programs/extension/${tour.slug}`
-          : tour.link || `/tours/${tour.slug}`
-      });
-    });
-  }
-
-  if (Array.isArray(services)) {
-    services.forEach((service) => {
-      if (!service || !service.slug) return;
-      if (allItems.some((item) => item.slug === service.slug)) return;
-
-      let link = `/services/${service.category || 'classic'}/${service.slug}`;
-      if (service.category === 'extension' || ['hurghada-4d3n', 'sharm-4d3n', 'siwa-oasis-alexandria'].includes(service.slug)) {
-        link = `/programs/extension/${service.slug}`;
-      } else if (service.category === 'honeymooners') {
-        link = `/programs/honeymooners`;
-      } else if (service.category === 'religious') {
-        link = `/programs/religious`;
-      } else if (service.slug === 'classic-program') {
-        link = `/programs/classic/classic-program`;
-      }
-
-      allItems.push({
-        ...service,
-        id: service.id || service.slug,
-        slug: service.slug,
-        title: service.title || service.slug,
-        overview: service.shortDesc || (service.overview && service.overview[0]) || '',
-        destination: service.location || 'egypt',
-        duration: service.itinerary ? `${service.itinerary.length} Days` : '4 Days',
-        price: service.price ?? 0,
-        rating: service.rating || 4.9,
-        image: service.images && service.images[0] ? service.images[0] : '/imgs/egyothero.png',
-        link
+        image,
+        link: `/tours/${tour.slug}`
       });
     });
   }
@@ -100,8 +86,6 @@ export default function SuggestedTours({ currentDestination = 'egypt', currentSl
     .map((slug) => matchingItems.find((i) => i.slug === slug))
     .slice(0, 8);
 
-  if (suggestedTours.length === 0) return null;
-
   const isRtl = lang === 'ar';
 
   const scroll = (direction) => {
@@ -129,6 +113,8 @@ export default function SuggestedTours({ currentDestination = 'egypt', currentSl
 
     return () => clearInterval(interval);
   }, [isHovered, isRtl]);
+
+  if (suggestedTours.length === 0) return null;
 
   return (
     <section className="w-full bg-obsidian-50 dark:bg-[#0c0d19] py-16 relative overflow-hidden border-t border-gold-500/10">
@@ -193,7 +179,7 @@ export default function SuggestedTours({ currentDestination = 'egypt', currentSl
               >
                 <Link to={item.link} className="flex flex-col h-full">
                   {/* Image */}
-                  <div className="relative h-[220px] overflow-hidden">
+                  <div className="relative h-[220px] overflow-hidden bg-obsidian-800">
                     {resolvedDuration && (
                       <div className="absolute top-4 left-4 z-10 bg-obsidian-900/80 backdrop-blur-md text-gold-500 text-caption px-3 py-1 rounded-full border border-gold-500/30 shadow-glass">
                         {resolvedDuration}
@@ -205,12 +191,21 @@ export default function SuggestedTours({ currentDestination = 'egypt', currentSl
                       <span>{item.rating}</span>
                     </div>
 
-                    <img
-                      src={item.image}
-                      alt={resolvedTitle}
-                      className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700"
-                      loading="lazy"
-                    />
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={resolvedTitle}
+                        className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.06] transition-transform duration-700"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-obsidian-800 px-6 text-center text-sm text-ivory-300">
+                        {t('tour.imageUnavailable', 'No image has been added for this tour.')}
+                      </div>
+                    )}
                   </div>
 
                   {/* Content */}
@@ -241,7 +236,7 @@ export default function SuggestedTours({ currentDestination = 'egypt', currentSl
                           {t('extensions.startingFrom', 'Starting From')}
                         </span>
                         <span className="text-display-md text-gold-700 dark:text-gold-400 font-bold">
-                          ${item.price}
+                          {formatPrice(item.price)}
                         </span>
                       </div>
 

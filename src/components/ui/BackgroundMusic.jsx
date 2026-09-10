@@ -1,25 +1,26 @@
-import { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useRef, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { useJaiderChat } from '../../context/JaiderChatContext';
 
-const BackgroundMusic = () => {
-  const location = useLocation();
-  const { t, i18n } = useTranslation();
-  const { isOpen: isJaiderOpen } = useJaiderChat();
-  const isHomepage = location.pathname === '/' || location.pathname === '/home';
-  const prevPathnameRef = useRef(location.pathname);
-  const isRtl = i18n.dir() === 'rtl';
+const DEFAULT_YOUTUBE_ID = 'QqjdVDbxz6s';
+const backgroundMusicUrl = import.meta.env.VITE_BACKGROUND_MUSIC_URL;
+const isLocalAudio = typeof backgroundMusicUrl === 'string' && (backgroundMusicUrl.startsWith('/') || backgroundMusicUrl.startsWith('http'));
 
+const BackgroundMusic = () => {
+  const { t } = useTranslation();
+  const location = useLocation();
+  const { isOpen: isJaiderOpen } = useJaiderChat();
+  const isHomePage = location.pathname === '/';
+
+  const audioRef = useRef(null);
+  const playerRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(() => sessionStorage.getItem('musicPlaying') === 'true');
-  const [ripples, setRipples] = useState([]);
-  
-  const iframeRef = useRef(null);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
   const isPlayingRef = useRef(isPlaying);
   const hasInteractedRef = useRef(hasInteracted);
 
-  // Keep refs in sync for event listeners
   useEffect(() => {
     isPlayingRef.current = isPlaying;
   }, [isPlaying]);
@@ -28,113 +29,161 @@ const BackgroundMusic = () => {
     hasInteractedRef.current = hasInteracted;
   }, [hasInteracted]);
 
-  const sendCommand = (func) => {
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(
-        JSON.stringify({
-          event: 'command',
-          func: func,
-          args: ''
-        }),
-        '*'
-      );
+  const loadAndInitYT = (callback) => {
+    if (isLocalAudio) {
+      if (callback) callback();
+      return;
+    }
+
+    const createPlayer = () => {
+      if (playerRef.current) {
+        if (callback) callback();
+        return;
+      }
+      try {
+        playerRef.current = new window.YT.Player('webflow-bg-music-player', {
+          height: '1',
+          width: '1',
+          videoId: DEFAULT_YOUTUBE_ID,
+          playerVars: {
+            autoplay: 1,
+            controls: 0,
+            loop: 1,
+            playlist: DEFAULT_YOUTUBE_ID,
+            showinfo: 0,
+            rel: 0,
+            enablejsapi: 1,
+          },
+          events: {
+            onReady: (event) => {
+              if (callback) callback(event);
+            },
+            onStateChange: (event) => {
+              if (event.data === window.YT.PlayerState.PLAYING) {
+                setIsPlaying(true);
+                sessionStorage.setItem('musicPlaying', 'true');
+              } else if (event.data === window.YT.PlayerState.PAUSED) {
+                setIsPlaying(false);
+              }
+            },
+          },
+        });
+      } catch (e) {
+        console.warn('Failed to init YT player:', e);
+      }
+    };
+
+    if (window.YT && window.YT.Player) {
+      createPlayer();
+    } else {
+      if (!document.getElementById('yt-iframe-api-script')) {
+        const tag = document.createElement('script');
+        tag.id = 'yt-iframe-api-script';
+        tag.src = 'https://www.youtube.com/iframe_api';
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        if (firstScriptTag && firstScriptTag.parentNode) {
+          firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        } else {
+          document.head.appendChild(tag);
+        }
+      }
+
+      const previousCallback = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        if (typeof previousCallback === 'function') previousCallback();
+        createPlayer();
+      };
     }
   };
 
   const playMusic = () => {
-    if (!hasInteractedRef.current) {
-      setHasInteracted(true);
+    sessionStorage.removeItem('userExplicitlyPaused');
+    if (isLocalAudio && audioRef.current) {
+      try {
+        audioRef.current.volume = 0.5;
+        audioRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+      } catch {
+        setIsPlaying(false);
+      }
+    } else if (playerRef.current && typeof playerRef.current.playVideo === 'function') {
+      try {
+        playerRef.current.unMute();
+        playerRef.current.playVideo();
+        setIsPlaying(true);
+      } catch (e) {
+        console.warn('YT play error:', e);
+      }
     } else {
-      sendCommand('playVideo');
+      // Lazy load YouTube player on user action
+      loadAndInitYT((event) => {
+        try {
+          if (event && event.target) {
+            event.target.unMute();
+            event.target.playVideo();
+          } else if (playerRef.current) {
+            playerRef.current.unMute();
+            playerRef.current.playVideo();
+          }
+          setIsPlaying(true);
+        } catch {
+          // browser blocked
+        }
+      });
     }
-    setIsPlaying(true);
     sessionStorage.setItem('musicPlaying', 'true');
   };
 
   const pauseMusic = () => {
-    if (hasInteractedRef.current) {
-      sendCommand('pauseVideo');
+    if (isLocalAudio && audioRef.current) {
+      try {
+        audioRef.current.pause();
+      } catch {
+        // ignore
+      }
+    } else if (playerRef.current && typeof playerRef.current.pauseVideo === 'function') {
+      try {
+        playerRef.current.pauseVideo();
+      } catch (e) {
+        console.warn('YT pause error:', e);
+      }
     }
     setIsPlaying(false);
     sessionStorage.setItem('musicPlaying', 'false');
+    sessionStorage.setItem('userExplicitlyPaused', 'true');
   };
 
   const togglePlay = (e) => {
-    e.stopPropagation();
+    if (e) e.stopPropagation();
     if (!hasInteractedRef.current) {
       setHasInteracted(true);
-      setIsPlaying(true);
-      sessionStorage.setItem('musicPlaying', 'true');
+    }
+    if (isPlayingRef.current) {
+      pauseMusic();
+      sessionStorage.removeItem('userManualPlayNonHome');
     } else {
-      if (isPlayingRef.current) {
-        pauseMusic();
-      } else {
-        playMusic();
+      if (!isHomePage) {
+        sessionStorage.setItem('userManualPlayNonHome', 'true');
       }
+      playMusic();
     }
   };
 
-  const addRipple = (x, y) => {
-    const id = Date.now() + Math.random();
-    setRipples((prev) => [...prev, { id, x, y }]);
-    setTimeout(() => {
-      setRipples((prev) => prev.filter((r) => r.id !== id));
-    }, 800);
-  };
-
-  // Track page navigation to adjust autoplay behavior
+  // Only resume playback across routes if the user previously actively started it
   useEffect(() => {
-    const prevPathname = prevPathnameRef.current;
-    prevPathnameRef.current = location.pathname;
+    const musicWasPlaying = sessionStorage.getItem('musicPlaying') === 'true';
+    const explicitlyPaused = sessionStorage.getItem('userExplicitlyPaused') === 'true';
 
-    const wasHomepage = prevPathname === '/' || prevPathname === '/home';
-
-    if (isHomepage) {
-      // Landed on the homepage - reset/enable autoplay
-      // Since it's the homepage, we play the music automatically if user already interacted.
-      const isInitialLoad = prevPathname === location.pathname;
-      if (isInitialLoad) {
-        const timer = setTimeout(() => {
-          if (hasInteractedRef.current) {
-            playMusic();
-          }
-        }, 1000);
-        return () => clearTimeout(timer);
-      } else {
-        if (hasInteractedRef.current) {
-          playMusic();
-        }
-      }
-    } else {
-      // Landed on a non-home page
-      // If we transitioned from Homepage to Non-Home page, we pause the music.
-      if (wasHomepage) {
-        pauseMusic();
-      }
-      // If we transitioned from Non-Home to Non-Home, the state persists.
-    }
-  }, [location.pathname, isHomepage]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Monitor document clicks for page interaction and ripple animation
-  useEffect(() => {
-    const handleDocClick = (e) => {
-      const toggleBtn = document.getElementById('webflow-music-toggle-btn');
-      if (toggleBtn && (toggleBtn === e.target || toggleBtn.contains(e.target))) {
-        return;
-      }
-
-      if (isHomepage && !hasInteractedRef.current) {
+    if (isHomePage) {
+      if (musicWasPlaying && !explicitlyPaused) {
         playMusic();
       }
-
-      addRipple(e.clientX, e.clientY);
-    };
-
-    document.addEventListener('click', handleDocClick);
-    return () => {
-      document.removeEventListener('click', handleDocClick);
-    };
-  }, [isHomepage]); // eslint-disable-line react-hooks/exhaustive-deps
+    } else {
+      const manualNonHomePlay = sessionStorage.getItem('userManualPlayNonHome') === 'true';
+      if (!manualNonHomePlay && isPlayingRef.current) {
+        pauseMusic();
+      }
+    }
+  }, [isHomePage]);
 
   if (isJaiderOpen) return null;
 
@@ -145,91 +194,86 @@ const BackgroundMusic = () => {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes webflow-music-pulse {
-          0% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); border-color: rgba(201, 162, 39, 0.4); }
-          100% { box-shadow: 0 4px 20px rgba(201, 162, 39, 0.25); border-color: rgba(201, 162, 39, 0.8); }
+        @keyframes music-spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
-        @keyframes webflow-ripple-animation {
-          0% { width: 0px; height: 0px; opacity: 1; }
-          100% { width: 160px; height: 160px; opacity: 0; }
+
+        @keyframes music-glow-pulse {
+          0% {
+            box-shadow: 0 0 15px rgba(245, 166, 35, 0.6), 0 0 30px rgba(245, 166, 35, 0.3);
+            border-color: rgba(245, 166, 35, 0.8);
+          }
+          50% {
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.95), 0 0 45px rgba(245, 166, 35, 0.6);
+            border-color: rgba(255, 215, 0, 1);
+          }
+          100% {
+            box-shadow: 0 0 15px rgba(245, 166, 35, 0.6), 0 0 30px rgba(245, 166, 35, 0.3);
+            border-color: rgba(245, 166, 35, 0.8);
+          }
         }
-        @keyframes eq-bar {
-          0%, 100% { height: 4px; }
-          50% { height: 14px; }
+
+        .music-svg-spin {
+          animation: music-spin 3s linear infinite;
         }
-        .music-btn-pulse {
-          animation: webflow-music-pulse 2s infinite alternate ease-in-out;
+
+        .music-glowing-glow {
+          animation: music-glow-pulse 1.8s infinite alternate ease-in-out;
         }
-        .eq-bar-1 { animation: eq-bar 0.8s ease-in-out infinite 0.1s; }
-        .eq-bar-2 { animation: eq-bar 0.6s ease-in-out infinite 0.3s; }
-        .eq-bar-3 { animation: eq-bar 0.9s ease-in-out infinite 0.2s; }
       ` }} />
 
-      {/* Hidden YouTube Iframe */}
-      {hasInteracted && (
-        <iframe
-          ref={iframeRef}
-          id="webflow-bg-music-iframe"
-          width="1"
-          height="1"
-          src={`https://www.youtube.com/embed/QqjdVDbxz6s?enablejsapi=1&version=3&loop=1&playlist=QqjdVDbxz6s&controls=0&showinfo=0&rel=0&autoplay=${isPlaying ? '1' : '0'}`}
-          frameBorder="0"
-          allow="autoplay"
+      {/* HTML5 Audio if configured explicitly via env */}
+      {isLocalAudio && (
+        <audio
+          ref={audioRef}
+          src={backgroundMusicUrl}
+          loop
+          preload="auto"
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+        />
+      )}
+
+      {/* YouTube Iframe Player Container for Official YT API */}
+      {!isLocalAudio && (
+        <div
           style={{
             position: 'fixed',
             bottom: '-100px',
             left: '-100px',
             visibility: 'hidden',
             opacity: 0,
-            pointerEvents: 'none'
+            pointerEvents: 'none',
+            width: 1,
+            height: 1
           }}
-        />
+        >
+          <div id="webflow-bg-music-player" />
+        </div>
       )}
 
-      {/* Music Toggle Button */}
+      {/* Music Floating Button - Bottom Left */}
       <button
+        type="button"
         id="webflow-music-toggle-btn"
         onClick={togglePlay}
         title={tooltipText}
         aria-label={tooltipText}
-        className={`fixed left-5 sm:left-6 bottom-[80px] sm:bottom-[88px] z-[9997] w-11 h-11 rounded-full bg-slate-950/90 backdrop-blur-md border border-gold-500/50 shadow-[0_4px_20px_rgba(0,0,0,0.45)] flex items-center justify-center text-gold-300 hover:text-gold-200 hover:border-gold-400 hover:scale-108 active:scale-95 transition-all duration-300 ${
-          isPlaying ? '' : 'music-btn-pulse'
+        className={`fixed left-5 bottom-[80px] sm:left-6 sm:bottom-[88px] z-[9997] flex h-12 w-12 items-center justify-center rounded-full border bg-slate-950/90 backdrop-blur-md transition-all duration-300 hover:scale-110 active:scale-95 ${
+          isPlaying
+            ? 'border-gold-400 text-gold-300 music-glowing-glow shadow-lg shadow-gold-500/20'
+            : 'border-gold-500/30 text-gold-500/40 bg-slate-950/80 opacity-75 hover:opacity-100 hover:border-gold-500/60 hover:text-gold-400 shadow-md'
         }`}
       >
-        {isPlaying ? (
-          <div className="flex items-end justify-center gap-[2.5px] h-4 w-4">
-            <span className="w-[2.5px] bg-gold-400 rounded-full eq-bar-1" />
-            <span className="w-[2.5px] bg-gold-400 rounded-full eq-bar-2" />
-            <span className="w-[2.5px] bg-gold-400 rounded-full eq-bar-3" />
-          </div>
-        ) : (
-          <svg viewBox="0 0 24 24" className="w-4.5 h-4.5 fill-current">
-            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h6V3h-8z" />
-          </svg>
-        )}
+        <svg
+          viewBox="0 0 24 24"
+          className={`h-6 w-6 fill-current transition-transform ${isPlaying ? 'music-svg-spin text-gold-300' : 'text-gold-500/50'}`}
+          aria-hidden="true"
+        >
+          <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h6V3h-8z" />
+        </svg>
       </button>
-
-      {/* Ripple Effects Container */}
-      {ripples.map((r) => (
-        <div
-          key={r.id}
-          className="webflow-music-ripple"
-          style={{
-            position: 'fixed',
-            left: r.x,
-            top: r.y,
-            width: '8px',
-            height: '8px',
-            background: 'rgba(201, 162, 39, 0.15)',
-            border: '1.5px solid rgba(201, 162, 39, 0.6)',
-            borderRadius: '50%',
-            pointerEvents: 'none',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 9999,
-            animation: 'webflow-ripple-animation 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards'
-          }}
-        />
-      ))}
     </>
   );
 };

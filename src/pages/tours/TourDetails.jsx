@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,34 +6,34 @@ import {
   FaChevronRight, FaClock, FaTag,
   FaCheck, FaTimes, FaMapMarkerAlt, FaBed, FaCheckCircle, FaUsers
 } from 'react-icons/fa';
-import TourCard from '../../components/tour/TourCard';
 import { fadeInUp } from '../../animations/variants';
 import BookingForm from '../../components/booking/BookingForm';
 import AdvancedBooking from '../../components/booking/AdvancedBooking';
 import { useCurrency } from '../../context/CurrencyContext';
 
 import { useTour } from '../../hooks/useTour';
-import { useTours } from '../../hooks/useTours';
 import { trackEvent } from '../../utils/analytics';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import ErrorState from '../../components/ui/ErrorState';
 import { resolveTourTitle, resolveTourDuration, resolveTourOverview, resolveLocalizedText } from '../../utils/titleHelper';
+import { getTourDestinationSlug, getDestinationName, getDestinationUrl } from '../../utils/destinationHelper';
 
 import SEOHead from '../../components/seo/SEOHead';
-import ReviewsMap from '../../components/tour/ReviewsMap';
 import SuggestedTours from '../../components/tour/SuggestedTours';
+import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
+
+const ReviewsMap = lazy(() => import('../../components/tour/ReviewsMap'));
+const RouteMap = lazy(() => import('../../components/tour/RouteMap'));
 
 const TourDetails = () => {
   const { t, i18n } = useTranslation();
   const lang = i18n.language || 'en';
   const { formatPrice } = useCurrency();
   const params = useParams();
-  const rawSlug = params.slug || params['*'] || params.programId || 'complete-egypt-8d';
-  const cleanSlug = String(rawSlug).replace(/^classic\/?/, '').trim();
-  const slug = (!cleanSlug || cleanSlug === 'classic' || cleanSlug === 'classic-program') ? 'complete-egypt-8d' : cleanSlug;
+  const rawSlug = params.slug || params['*'] || params.programId || params.id;
+  const slug = rawSlug ? String(rawSlug).trim() : 'complete-egypt-8d';
 
   const { tour, loading, error } = useTour(slug);
-  const { tours: relatedToursList } = useTours({ limit: 6 });
 
   useEffect(() => {
     if (tour?.slug) {
@@ -41,26 +41,7 @@ const TourDetails = () => {
     }
   }, [tour?.slug]);
 
-  const shuffledTours = relatedToursList.filter(t => t.slug !== slug);
-
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const carouselRef = useRef(null);
-
-  useEffect(() => {
-    const el = carouselRef.current;
-    if (!el) return;
-    const id = setInterval(() => {
-      const itemW = el.querySelector('.related-carousel-item')?.offsetWidth || 300;
-      const gap = 24;
-      const step = itemW + gap;
-      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) {
-        el.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        el.scrollBy({ left: step, behavior: 'smooth' });
-      }
-    }, 3500);
-    return () => clearInterval(id);
-  }, []);
 
   if (loading) {
     return (
@@ -71,11 +52,15 @@ const TourDetails = () => {
   }
 
   if (error || !tour) {
+    const errorMessage = typeof error === 'object' && error !== null
+      ? (error.message || String(error))
+      : (error || t('tour.notFoundDesc', 'We could not find the requested luxury tour.'));
+
     return (
       <div className="w-full bg-obsidian-50 dark:bg-[#0f0f1a] min-h-screen pt-32 px-6 container mx-auto">
         <ErrorState
           title={t('common.errorOccurred', 'Tour not found')}
-          message={error || t('tour.notFoundDesc', 'We could not find the requested luxury tour.')}
+          message={errorMessage}
           actionLabel={t('tour.browseAll', 'Browse Tours')}
           actionLink="/tours"
         />
@@ -109,12 +94,16 @@ const TourDetails = () => {
     },
   };
 
+  const destinationSlug = getTourDestinationSlug(tour);
+  const destinationName = getDestinationName(destinationSlug, t, lang);
+  const destinationUrl = getDestinationUrl(destinationSlug);
+
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://dunastravel.com/' },
-      { '@type': 'ListItem', position: 2, name: resolveLocalizedText(tour.destination || 'egypt', t, lang), item: `https://dunastravel.com/destinations/${tour.destination || 'egypt'}` },
+      { '@type': 'ListItem', position: 2, name: destinationName, item: `https://dunastravel.com${destinationUrl}` },
       { '@type': 'ListItem', position: 3, name: title, item: `https://dunastravel.com/tours/${tour.slug}` },
     ],
   };
@@ -129,59 +118,30 @@ const TourDetails = () => {
         schema={[tourSchema, breadcrumbSchema]}
       />
 
-      {/* 1. Breadcrumb & Title */}
-      <section className="pt-32 pb-10 bg-obsidian-900 text-center px-6">
-        <div className="container mx-auto">
-          <div className="flex items-center justify-center gap-2 text-caption text-gold-500 mb-4 uppercase tracking-wider">
+      {/* Luxury Destination-Style Hero Section */}
+      <LuxuryHeroSection
+        badge={resolveLocalizedText(tour.type || tour.category, t, lang) || t('tour.luxuryExperience', 'رحلة سياحية فاخرة')}
+        title={title}
+        subtitle={duration}
+        bgImage={heroImg}
+        zoomDuration={6}
+        zoomScale={1.25}
+        ease="easeInOut"
+        onImageClick={() => setIsLightboxOpen(true)}
+        breadcrumbs={
+          <div className="flex flex-wrap items-center justify-center gap-2 text-caption text-gold-400 mb-2 tracking-wider text-xs md:text-sm font-semibold">
             <Link to="/" className="hover:text-ivory-50 transition-colors">{t('nav.home', 'Home')}</Link>
             <span className="rtl-flip"><FaChevronRight className="text-[10px]" /></span>
-            <Link to={`/destinations/${tour.destination || 'egypt'}`} className="hover:text-ivory-50 transition-colors">
-              {resolveLocalizedText(tour.destination || 'egypt', t, lang)}
+            <Link to={destinationUrl} className="hover:text-ivory-50 transition-colors">
+              {destinationName}
             </Link>
             <span className="rtl-flip"><FaChevronRight className="text-[10px]" /></span>
             <span className="text-ivory-300">{title}</span>
           </div>
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-display-xl text-ivory-50 mb-4"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {title}
-          </motion.h1>
-          {tour.subtitle && (
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-body-lg text-gold-400 font-medium tracking-wide mb-6"
-            >
-              {resolveLocalizedText(tour.subtitle, t, lang)}
-            </motion.p>
-          )}
-        </div>
-      </section>
-
-      {/* 2. Photo Gallery */}
-      <section className="relative w-full h-[50vh] lg:h-[70vh] overflow-hidden group cursor-pointer" onClick={() => setIsLightboxOpen(true)}>
-        {heroImg ? (
-          <motion.img
-            src={heroImg}
-            alt={title}
-            className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
-            loading="eager"
-            fetchPriority="high"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-obsidian-800 px-6 text-center text-ivory-300">
-            {t('tour.imageUnavailable', 'No image has been added for this tour.')}
-          </div>
-        )}
-        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
-        <div className="absolute bottom-6 right-6 rtl:right-auto rtl:left-6 bg-obsidian-900/80 backdrop-blur-md px-4 py-2 rounded-full text-ivory-50 text-caption border border-gold-500/20">
-          {t('tour.clickGallery', 'Click to open gallery')}
-        </div>
-      </section>
+        }
+        primaryCta={null}
+        secondaryCta={null}
+      />
 
       {/* 3. Quick Info Bar */}
       <div className="container mx-auto px-6 -mt-12 relative z-20">
@@ -307,47 +267,8 @@ const TourDetails = () => {
               </div>
             </motion.div>
 
-            {/* Pricing Tiers */}
-            {tour.pricingTiers && (
-              <motion.div
-                variants={fadeInUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                className="mt-16"
-              >
-                <h2 className="text-display-lg text-obsidian-900 dark:text-ivory-50 mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
-                  {t('tour.pricingTiers', 'Group Pricing Tiers')}
-                </h2>
-                <div className="bg-white dark:bg-[#1a1a30] rounded-2xl shadow-card overflow-hidden border border-gold-500/10 dark:border-gray-700">
-                  <div className="bg-obsidian-900 px-6 py-4 text-ivory-50 font-display font-semibold text-lg tracking-wider">
-                    {t('tour.pricingTiers', 'Group Pricing Tiers')}
-                  </div>
-                  <div className="grid grid-cols-2 bg-obsidian-50 dark:bg-[#151528] text-obsidian-700 dark:text-ivory-300 text-sm font-semibold uppercase tracking-wider">
-                    <div className="p-4 border-r rtl:border-r-0 rtl:border-l border-gold-500/10 dark:border-gray-700">{t('tour.groupSize', 'Group Size')}</div>
-                    <div className="p-4 text-center">{t('tour.pricePerPerson', 'Price Per Person')}</div>
-                  </div>
-                  {tour.pricingTiers.map((tier, idx) => (
-                    <div key={idx} className={`grid grid-cols-2 border-b border-gold-500/10 dark:border-gray-700 last:border-0 ${idx % 2 === 0 ? 'bg-white dark:bg-[#1a1a30]' : 'bg-obsidian-50/30 dark:bg-[#151528]'}`}>
-                      <div className="p-4 border-r rtl:border-r-0 rtl:border-l border-gold-500/10 dark:border-gray-700 font-medium text-obsidian-900 dark:text-ivory-100 flex items-center">
-                        {tier.minPax === tier.maxPax ? `${tier.minPax} Pax` : `${tier.minPax} - ${tier.maxPax} Pax`}
-                      </div>
-                      <div className="p-4 text-center font-bold text-gold-700 dark:text-gold-400">
-                        {formatPrice(tier.pricePerPax)}
-                      </div>
-                    </div>
-                  ))}
-                  {tour.optionalExcursionsPricing && (
-                    <div className="p-6 bg-obsidian-50/50 dark:bg-[#151528] border-t border-gold-500/10 dark:border-gray-700 text-body-sm text-obsidian-500 dark:text-ivory-400">
-                      * {t('tour.excursionsCurrency', 'Optional excursions are priced in')} {tour.optionalExcursionsPricing.currency}
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Accommodation Table */}
-            {tour.accommodation && (
+            {/* Inclusions & Exclusions Section */}
+            {((tour.included && tour.included.length > 0) || (tour.excluded && tour.excluded.length > 0)) && (
               <motion.div
                 variants={fadeInUp}
                 initial="hidden"
@@ -356,39 +277,82 @@ const TourDetails = () => {
                 className="mt-16"
               >
                 <div className="mb-8">
-                  <span className="text-caption text-gold-500 uppercase tracking-widest font-semibold block mb-2">
-                    {t('tour.accommodation', 'ALOJAMIENTO')}
+                  <span className="text-caption text-gold-500 uppercase tracking-[4px] font-semibold block mb-2 text-xs">
+                    {t('tourDetail.details', 'TOUR SPECIFICATIONS')}
                   </span>
-                  <h2 className="text-display-md text-3xl text-obsidian-900 dark:text-ivory-50" style={{ fontFamily: "'Playfair Display', serif" }}>
-                    {t('dest.greece.accTitle', 'Resumen de Alojamientos')}
+                  <h2 className="text-display-lg text-2xl md:text-3xl text-obsidian-900 dark:text-ivory-50 font-display font-semibold" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    {t('tourDetail.incExc', "What's Included & Excluded")}
                   </h2>
+                  <div className="w-20 h-1 bg-gold-500 mt-3 rounded-full" />
                 </div>
-                <div className="bg-white dark:bg-[#1a1a30] rounded-2xl shadow-card overflow-hidden border border-gold-500/10 dark:border-gray-700">
-                  <div className="grid grid-cols-3 bg-obsidian-900 text-ivory-50 text-xs md:text-sm font-semibold uppercase tracking-wider">
-                    <div className="p-4 border-r rtl:border-r-0 rtl:border-l border-ivory-50/10">{t('tour.destination', 'Destino')}</div>
-                    <div className="p-4 border-r rtl:border-r-0 rtl:border-l border-ivory-50/10 text-center">{t('tour.nights', 'Noches')}</div>
-                    <div className="p-4 text-center">{t('tour.regime', 'Régimen')}</div>
-                  </div>
-                  {tour.accommodation.map((row, idx) => (
-                    <div
-                      key={idx}
-                      className={`grid grid-cols-3 border-b border-gold-500/10 dark:border-gray-700 last:border-0 ${idx % 2 === 0 ? 'bg-white dark:bg-[#1a1a30]' : 'bg-obsidian-50/50 dark:bg-[#151528]'}`}
-                    >
-                      <div className="p-4 border-r rtl:border-r-0 rtl:border-l border-gold-500/10 dark:border-gray-700 font-semibold text-obsidian-900 dark:text-ivory-100 flex items-center gap-2 text-sm md:text-base">
-                        <FaMapMarkerAlt className="text-gold-500 flex-shrink-0" />
-                        {resolveLocalizedText(row.destination, t, lang)}
-                      </div>
-                      <div className="p-4 border-r rtl:border-r-0 rtl:border-l border-gold-500/10 dark:border-gray-700 text-center font-bold text-gold-700 dark:text-gold-400 text-base md:text-lg">
-                        {row.nights}
-                      </div>
-                      <div className="p-4 text-center text-obsidian-700 dark:text-ivory-200 flex items-center justify-center gap-2 text-sm md:text-base">
-                        <FaBed className="text-gold-500 flex-shrink-0" />
-                        {resolveLocalizedText(row.regime, t, lang)}
-                      </div>
+
+                <div className={`grid grid-cols-1 ${tour.excursions && tour.excursions.length > 0 ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-6`}>
+                  {/* What is Included */}
+                  {tour.included && tour.included.length > 0 && (
+                    <div className="bg-emerald-50/80 dark:bg-emerald-950/25 p-6 md:p-8 rounded-2xl border border-emerald-200/80 dark:border-emerald-800/40 shadow-sm">
+                      <h3 className="text-display-md text-xl font-bold text-emerald-950 dark:text-emerald-300 mb-6 flex items-center gap-2.5 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
+                        <FaCheckCircle className="text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                        {tour.inclusionsTitle ? resolveLocalizedText(tour.inclusionsTitle, t, lang) : t('tourDetail.included', 'What is Included')}
+                      </h3>
+                      <ul className="flex flex-col gap-3.5">
+                        {tour.included.map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-3 text-body-md text-emerald-900 dark:text-emerald-100">
+                            <FaCheck className="text-emerald-600 dark:text-emerald-400 mt-1 flex-shrink-0 text-sm" />
+                            <span className="leading-relaxed">{resolveLocalizedText(item, t, lang)}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                  ))}
+                  )}
+
+                  {/* What is Excluded */}
+                  {tour.excluded && tour.excluded.length > 0 && (
+                    <div className="bg-rose-50/80 dark:bg-rose-950/25 p-6 md:p-8 rounded-2xl border border-rose-200/80 dark:border-rose-800/40 shadow-sm">
+                      <h3 className="text-display-md text-xl font-bold text-rose-950 dark:text-rose-300 mb-6 flex items-center gap-2.5 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
+                        <FaTimes className="text-rose-600 dark:text-rose-400 flex-shrink-0" />
+                        {tour.exclusionsTitle ? resolveLocalizedText(tour.exclusionsTitle, t, lang) : t('tourDetail.excluded', 'What is Excluded')}
+                      </h3>
+                      <ul className="flex flex-col gap-3.5">
+                        {tour.excluded.map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-3 text-body-md text-rose-900 dark:text-rose-100">
+                            <FaTimes className="text-rose-500 dark:text-rose-400 mt-1 flex-shrink-0 text-sm" />
+                            <span className="leading-relaxed">{resolveLocalizedText(item, t, lang)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Optional Excursions */}
+                  {tour.excursions && tour.excursions.length > 0 && (
+                    <div className="bg-gold-50/80 dark:bg-gold-950/25 p-6 md:p-8 rounded-2xl border border-gold-200/80 dark:border-gold-800/40 shadow-sm">
+                      <h3 className="text-display-md text-xl font-bold text-gold-950 dark:text-gold-300 mb-6 flex items-center gap-2.5 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
+                        <FaCheckCircle className="text-gold-600 dark:text-gold-400 flex-shrink-0" />
+                        {t('tour.optionalExcursions', 'Optional Excursions')}
+                      </h3>
+                      <ul className="flex flex-col gap-3.5">
+                        {tour.excursions.map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-3 text-body-md text-gold-950 dark:text-gold-100">
+                            <FaCheck className="text-gold-500 mt-1 flex-shrink-0 text-sm" />
+                            <span className="leading-relaxed">{resolveLocalizedText(item, t, lang)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               </motion.div>
+            )}
+
+
+
+            {/* Interactive Route Map */}
+            {tour.itinerary && tour.itinerary.length > 0 && (
+              <div className="mt-16">
+                <Suspense fallback={<div className="h-64 flex items-center justify-center text-gold-500 font-semibold bg-obsidian-900/50 rounded-2xl animate-pulse">Loading map route...</div>}>
+                  <RouteMap itinerary={tour.itinerary} tourTitle={title} />
+                </Suspense>
+              </div>
             )}
 
           </div>
@@ -396,169 +360,78 @@ const TourDetails = () => {
           {/* Sidebar - Booking Form */}
           <div className="lg:col-span-1">
             <div className="sticky top-28">
-              <BookingForm tourId={tour.id} tourSlug={tour.slug} tourTitle={title} />
+              <BookingForm tourId={tour.id} tourSlug={tour.slug} tourTitle={title} initialPrice={tour.basePriceUsd || tour.price} />
             </div>
           </div>
 
         </div>
 
-        <div className="relative mt-24 mb-8">
-          <div className="absolute inset-0 bg-gradient-to-r from-obsidian-50 via-gold-50/30 to-obsidian-50 dark:from-[#0f0f1a] dark:via-[#1a1a30] dark:to-[#0f0f1a] rounded-3xl"></div>
-          <div className="relative z-10 px-4 md:px-12 py-16">
+        {/* Hotels Section */}
+        {tour.hotels && (
+          <div className="relative mt-20 mb-8">
+            <div className="absolute inset-0 bg-gradient-to-r from-obsidian-50 via-gold-50/20 to-obsidian-50 dark:from-[#0f0f1a] dark:via-[#1a1a30] dark:to-[#0f0f1a] rounded-3xl"></div>
+            <div className="relative z-10 px-4 md:px-12 py-16">
 
-            {/* Included / Excluded */}
-            <motion.div
-              variants={fadeInUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="mt-8 max-w-4xl mx-auto"
-            >
-              <div className={`grid grid-cols-1 ${tour.excursions && tour.excursions.length > 0 ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-8`}>
-                <div>
-                  <h3 className="text-display-md text-2xl mb-6 text-obsidian-900 dark:text-ivory-50" style={{ fontFamily: "'Playfair Display', serif" }}>
-                    {tour.included && tour.included.length > 0 ? (tour.inclusionsTitle ? resolveLocalizedText(tour.inclusionsTitle, t, lang) : t('tourDetail.included', 'What is Included')) : ''}
-                  </h3>
-                  <ul className="flex flex-col gap-3">
-                    {tour.included && tour.included.map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-3 text-body-md text-obsidian-700 dark:text-ivory-200">
-                        <FaCheck className="text-sage-500 dark:text-sage-400 mt-1 flex-shrink-0" />
-                        <span>{resolveLocalizedText(item, t, lang)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-display-md text-2xl mb-6 text-obsidian-900 dark:text-ivory-50" style={{ fontFamily: "'Playfair Display', serif" }}>
-                    {tour.excluded && tour.excluded.length > 0 ? (tour.exclusionsTitle ? resolveLocalizedText(tour.exclusionsTitle, t, lang) : t('tourDetail.excluded', 'What is Excluded')) : ''}
-                  </h3>
-                  <ul className="flex flex-col gap-3">
-                    {tour.excluded && tour.excluded.map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-3 text-body-md text-obsidian-700 dark:text-ivory-200">
-                        <FaTimes className="text-red-500 dark:text-red-400 mt-1 flex-shrink-0" />
-                        <span>{resolveLocalizedText(item, t, lang)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                {tour.excursions && tour.excursions.length > 0 && (
-                  <div>
-                    <h3 className="text-display-md text-2xl mb-6 text-obsidian-900 dark:text-ivory-50" style={{ fontFamily: "'Playfair Display', serif" }}>
-                      {t('tour.optionalExcursions', 'Optional Excursions')}
-                    </h3>
-                    <ul className="flex flex-col gap-3">
-                      {tour.excursions.map((item, idx) => (
-                        <li key={idx} className="flex items-start gap-3 text-body-md text-obsidian-700 dark:text-ivory-200">
-                          <FaCheck className="text-gold-500 mt-1 flex-shrink-0" />
-                          <span>{resolveLocalizedText(item, t, lang)}</span>
-                        </li>
-                      ))}
-                    </ul>
+              {/* Hotels */}
+              {tour.hotels && (
+                <motion.div
+                  variants={fadeInUp}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  className="mt-16"
+                >
+                  <div className="mb-8">
+                    <span className="text-caption text-gold-500 uppercase tracking-widest font-semibold block mb-2">
+                      {t('tour.hotelCategory', 'CATEGORÍA')} — {resolveLocalizedText(tour.hotelCategory, t, lang)}
+                    </span>
+                    <h2 className="text-display-md text-3xl text-obsidian-900 dark:text-ivory-50" style={{ fontFamily: "'Playfair Display', serif" }}>
+                      {t('dest.greece.hotelsTitle', 'Hoteles de Primera Clase')}
+                    </h2>
+                    <p className="text-body-md text-obsidian-500 dark:text-ivory-300 mt-2">
+                      {t('dest.greece.hotelsDesc', 'En función de la disponibilidad, alojamiento en uno de los siguientes hoteles de primera clase en cada destino.')}
+                    </p>
                   </div>
-                )}
-              </div>
-            </motion.div>
-
-            {/* Hotels */}
-            {tour.hotels && (
-              <motion.div
-                variants={fadeInUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                className="mt-16"
-              >
-                <div className="mb-8">
-                  <span className="text-caption text-gold-500 uppercase tracking-widest font-semibold block mb-2">
-                    {t('tour.hotelCategory', 'CATEGORÍA')} — {resolveLocalizedText(tour.hotelCategory, t, lang)}
-                  </span>
-                  <h2 className="text-display-md text-3xl text-obsidian-900 dark:text-ivory-50" style={{ fontFamily: "'Playfair Display', serif" }}>
-                    {t('dest.greece.hotelsTitle', 'Hoteles de Primera Clase')}
-                  </h2>
-                  <p className="text-body-md text-obsidian-500 dark:text-ivory-300 mt-2">
-                    {t('dest.greece.hotelsDesc', 'En función de la disponibilidad, alojamiento en uno de los siguientes hoteles de primera clase en cada destino.')}
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {Object.entries(tour.hotels).map(([city, hotelList]) => (
-                    <div
-                      key={city}
-                      className="bg-white dark:bg-[#1a1a30] rounded-2xl shadow-card border border-gold-500/10 dark:border-gray-700 overflow-hidden"
-                    >
-                      <div className="bg-obsidian-900 px-4 py-3">
-                        <h3 className="text-gold-500 font-semibold text-xs md:text-sm uppercase tracking-widest flex items-center gap-2">
-                          <FaMapMarkerAlt className="flex-shrink-0 text-xs" />
-                          {resolveLocalizedText(city, t, lang)}
-                        </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {Object.entries(tour.hotels).map(([city, hotelList]) => (
+                      <div
+                        key={city}
+                        className="bg-white dark:bg-[#1a1a30] rounded-2xl shadow-card border border-gold-500/10 dark:border-gray-700 overflow-hidden"
+                      >
+                        <div className="bg-obsidian-900 px-4 py-3">
+                          <h3 className="text-gold-500 font-semibold text-xs md:text-sm uppercase tracking-widest flex items-center gap-2">
+                            <FaMapMarkerAlt className="flex-shrink-0 text-xs" />
+                            {resolveLocalizedText(city, t, lang)}
+                          </h3>
+                        </div>
+                        <ul className="p-4 flex flex-col gap-1.5">
+                          {Array.isArray(hotelList) && hotelList.map((hotel, idx) => (
+                            <li
+                              key={idx}
+                              className="flex items-center gap-2 text-body-sm text-obsidian-700 dark:text-ivory-200 py-1 border-b border-gold-500/5 dark:border-gray-800 last:border-0"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-gold-500 flex-shrink-0" />
+                              {resolveLocalizedText(hotel, t, lang)}
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                      <ul className="p-4 flex flex-col gap-1.5">
-                        {Array.isArray(hotelList) && hotelList.map((hotel, idx) => (
-                          <li
-                            key={idx}
-                            className="flex items-center gap-2 text-body-sm text-obsidian-700 dark:text-ivory-200 py-1 border-b border-gold-500/5 dark:border-gray-800 last:border-0"
-                          >
-                            <span className="w-1.5 h-1.5 rounded-full bg-gold-500 flex-shrink-0" />
-                            {resolveLocalizedText(hotel, t, lang)}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
+                    ))}
+                  </div>
+                </motion.div>
+              )}
 
-          </div>
-
-          {/* Sticky Sidebar Booking Form Column */}
-          <div className="lg:col-span-1 sticky top-24 self-start z-40">
-            <div>
-              <AdvancedBooking tourTitle={title} />
             </div>
           </div>
-        </div>
+        )}
       </section>
 
-      {tour?.slug && <ReviewsMap tourId={tour.slug} />}
+      {tour?.slug && (
+        <Suspense fallback={<div className="py-12 text-center text-gold-500 font-semibold">Loading guest feedback...</div>}>
+          <ReviewsMap tourId={tour.slug} />
+        </Suspense>
+      )}
 
-      {/* Related Tours */}
-      <section className="container mx-auto px-6 py-24">
-        <div className="text-center mb-16">
-          <h2 className="text-display-lg text-obsidian-900 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
-            {t('tourDetail.relatedTitle', 'You May Also Like')}
-          </h2>
-          <div className="w-24 h-1 bg-gold-500 mx-auto mb-4"></div>
-        </div>
-        <div className="related-carousel" ref={carouselRef}>
-          {shuffledTours.map((tour) => (
-            <div key={tour.id} className="related-carousel-item">
-              <TourCard tour={tour} />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <style>{`
-        .related-carousel {
-          display: flex;
-          overflow-x: auto;
-          gap: 24px;
-          padding-bottom: 16px;
-          scroll-snap-type: x mandatory;
-          -webkit-overflow-scrolling: touch;
-        }
-        .related-carousel-item {
-          flex: 0 0 auto;
-          width: 280px;
-          scroll-snap-align: start;
-        }
-        @media (min-width: 768px) {
-          .related-carousel-item { width: 320px; }
-        }
-        @media (min-width: 1024px) {
-          .related-carousel-item { width: 350px; }
-        }
-      `}</style>
       {/* Lightbox Modal */}
       <AnimatePresence>
         {isLightboxOpen && (
@@ -569,7 +442,13 @@ const TourDetails = () => {
             className="fixed inset-0 z-[100] bg-obsidian-900/95 flex items-center justify-center backdrop-blur-sm"
             onClick={() => setIsLightboxOpen(false)}
           >
-            <button className="absolute top-6 right-6 text-ivory-50 hover:text-gold-500 z-[101]"><FaTimes size={32} /></button>
+            <button
+              type="button"
+              aria-label="Close image preview"
+              className="absolute top-6 right-6 text-ivory-50 hover:text-gold-500 z-[101]"
+            >
+              <FaTimes size={32} />
+            </button>
             <img src={heroImg} alt={title} className="max-w-[90vw] max-h-[90vh] object-contain" onClick={e => e.stopPropagation()} />
           </motion.div>
         )}

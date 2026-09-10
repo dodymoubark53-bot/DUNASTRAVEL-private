@@ -79,10 +79,10 @@ export const services = [
     rating: 5.0,
     reviewCount: 128,
     images: [
-      'https://sft-nationaltours.com/wp-content/uploads/2024/11/holy-family-egypt_tg_1397-870x555.jpg',
-      'https://images.unsplash.com/photo-1548013146-72479768bada?w=1200&q=80',
-      'https://images.unsplash.com/photo-1509822929464-92b5d5e8827b?w=1200&q=80',
-      'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&q=80'
+      '/images/holy-land.webp',
+      'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1200,c_fill/v1783024062/071f261a-2ab6-48b5-a370-c47ad7889be3_immde1.jpg',
+      'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1200,c_fill/v1783024072/400a841d-18b7-4915-8483-f9a3346651cf_ocdouu.jpg',
+      'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1200,c_fill/v1783024090/9788c6d2-7046-4ce0-aa64-a0adcbe1a54d_omcrnc.jpg'
     ],
     shortDesc: 'tour_jordan_shortDesc',
     overview: [

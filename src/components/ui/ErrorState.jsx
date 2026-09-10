@@ -1,24 +1,36 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { FaExclamationTriangle } from 'react-icons/fa';
 
 export const ErrorState = ({
   title = 'Something went wrong',
   message = 'An unexpected error occurred while loading this content.',
   onRetry,
+  actionLabel = 'Try again',
+  actionLink,
 }) => {
+  const safeTitle = typeof title === 'object' && title !== null
+    ? (title.message || String(title))
+    : (typeof title === 'string' ? title : String(title || 'Something went wrong'));
+
+  const safeMessage = typeof message === 'object' && message !== null
+    ? (message.message || String(message))
+    : (typeof message === 'string' ? message : String(message || 'An unexpected error occurred while loading this content.'));
+
   return (
-    <div className="p-8 rounded-2xl bg-red-950/20 border border-red-500/30 text-center max-w-md mx-auto my-6">
-      <FaExclamationTriangle className="text-red-400 text-3xl mx-auto mb-3 animate-bounce" />
-      <h3 className="text-lg font-bold text-red-200 mb-2 font-display">{title}</h3>
-      <p className="text-sm text-red-300/80 mb-4">{message}</p>
+    <div className="mx-auto my-6 max-w-md rounded-2xl border border-gold-500/30 bg-obsidian-900/80 p-8 text-center text-ivory-100 backdrop-blur-md">
+      <FaExclamationTriangle className="mx-auto mb-3 text-3xl text-gold-400" aria-hidden="true" />
+      <h3 className="mb-2 font-display text-lg font-bold text-ivory-100">{safeTitle}</h3>
+      <p className="mb-5 text-sm text-ivory-300">{safeMessage}</p>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="px-5 py-2.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-obsidian-900 font-semibold text-xs uppercase tracking-wider transition-colors shadow-md"
+          className="min-h-11 rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-obsidian-950 shadow-gold transition-all duration-300 hover:bg-gold-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian-900"
         >
-          Try Again
+          {actionLabel}
         </button>
       )}
+      {!onRetry && actionLink && <Link to={actionLink} className="inline-flex min-h-11 items-center rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-obsidian-950 shadow-gold transition-all duration-300 hover:bg-gold-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian-900">{actionLabel}</Link>}
     </div>
   );
 };

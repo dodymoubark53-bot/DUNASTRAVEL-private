@@ -18,12 +18,19 @@ import {
   FaStopCircle,
   FaBalanceScale,
   FaSlidersH,
+  FaWhatsapp,
+  FaArrowRight,
+  FaCalendarCheck,
+  FaCompass,
 } from 'react-icons/fa';
 import { useJaiderChat } from '../../context/JaiderChatContext';
+import { useAuth } from '../../context/AuthContext';
+import FormattedChatMessage from './FormattedChatMessage';
 
 const JaiderChatWindow = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const isRtl = i18n.dir() === 'rtl';
   const {
     isOpen,
@@ -38,6 +45,7 @@ const JaiderChatWindow = () => {
     suggestions,
     leadFormState,
     submitLead,
+    submitCustomTripInquiry,
   } = useJaiderChat();
 
   const [input, setInput] = useState('');
@@ -46,6 +54,18 @@ const JaiderChatWindow = () => {
   const [leadPhone, setLeadPhone] = useState('');
   const [isSubmittingLead, setIsSubmittingLead] = useState(false);
   const [expandedProposalDay, setExpandedProposalDay] = useState(null);
+
+  // Custom Trip Booking in Chat State
+  const [customTripFormOpenId, setCustomTripFormOpenId] = useState(null);
+  const [customTripName, setCustomTripName] = useState(user?.name || '');
+  const [customTripEmail, setCustomTripEmail] = useState(user?.email || '');
+  const [customTripPhone, setCustomTripPhone] = useState(user?.phone || '');
+  const [customTripAdults, setCustomTripAdults] = useState(2);
+  const [customTripChildren, setCustomTripChildren] = useState(0);
+  const [customTripNotes, setCustomTripNotes] = useState('');
+  const [isSubmittingCustomTrip, setIsSubmittingCustomTrip] = useState(false);
+  const [customTripSubmittedRef, setCustomTripSubmittedRef] = useState(null);
+
   const [feedbackState, setFeedbackState] = useState({}); // { [msgId]: { rated: 1 | -1, category?: string } }
   const [activeFeedbackModal, setActiveFeedbackModal] = useState(null); // msgId for negative feedback
   const [feedbackComment, setFeedbackComment] = useState('');
@@ -86,8 +106,9 @@ const JaiderChatWindow = () => {
 
   const handleSend = () => {
     if (!input.trim() || isTyping) return;
-    sendMessage(input);
+    const textToSend = input;
     setInput('');
+    sendMessage(textToSend);
   };
 
   const handleInputKeyDown = (e) => {
@@ -100,6 +121,46 @@ const JaiderChatWindow = () => {
   const handleNavigateToTour = (publicUrl) => {
     if (publicUrl) {
       navigate(publicUrl);
+      setIsOpen(false);
+    }
+  };
+
+  const handleCustomInquiry = (tourTitle) => {
+    const query = tourTitle ? `?tour=${encodeURIComponent(tourTitle)}` : '';
+    navigate(`/tailor-a-tour${query}`);
+    setIsOpen(false);
+  };
+
+  const handleOpenCustomTripForm = (proposal, msgId) => {
+    setCustomTripFormOpenId(customTripFormOpenId === msgId ? null : msgId);
+    if (!customTripName && user?.name) setCustomTripName(user.name);
+    if (!customTripEmail && user?.email) setCustomTripEmail(user.email);
+    if (!customTripPhone && user?.phone) setCustomTripPhone(user.phone);
+    if (proposal?.title) setCustomTripNotes(proposal.title);
+  };
+
+  const handleSubmitCustomTripForm = async (e, proposal, msgId) => {
+    e.preventDefault();
+    const emailToUse = customTripEmail.trim() || user?.email;
+    if (!emailToUse || isSubmittingCustomTrip) return;
+    setIsSubmittingCustomTrip(true);
+
+    const res = await submitCustomTripInquiry({
+      fullName: customTripName.trim() || user?.name || 'Valued Traveler',
+      email: emailToUse,
+      phone: customTripPhone.trim() || user?.phone || 'N/A',
+      destinations: proposal?.destinations || ['Egypt'],
+      adults: customTripAdults || 2,
+      children: customTripChildren || 0,
+      budgetAmount: proposal?.estimatedPricePerPerson,
+      budgetCurrency: proposal?.currency || 'USD',
+      notes: `${proposal?.title || 'Custom Tour Proposal'} - ${customTripNotes || ''}`,
+    });
+
+    setIsSubmittingCustomTrip(false);
+    if (res?.success) {
+      setCustomTripSubmittedRef(res.referenceCode);
+      setCustomTripFormOpenId(null);
     }
   };
 
@@ -178,9 +239,9 @@ const JaiderChatWindow = () => {
                 <div>
                   <div className="flex items-center gap-1.5">
                     <h3 className="font-bold text-sm sm:text-base text-gold-300 tracking-wide flex items-center gap-1">
-                      GuideR
+                      <bdi>GuideR</bdi>
                       <span className="text-[10px] bg-gold-500/20 text-gold-300 font-semibold px-1.5 py-0.5 rounded border border-gold-500/30">
-                        AI Concierge
+                        <bdi>AI Concierge</bdi>
                       </span>
                     </h3>
                   </div>
@@ -212,7 +273,7 @@ const JaiderChatWindow = () => {
 
             {/* Message Area */}
             <div
-              className="flex-1 p-4 overflow-y-auto space-y-4 scroll-smooth focus:outline-none"
+              className="flex-1 p-4 overflow-y-auto space-y-4 scroll-smooth focus:outline-none relative"
               tabIndex={0}
               aria-live="polite"
             >
@@ -254,15 +315,63 @@ const JaiderChatWindow = () => {
                         )}
 
                         <div
-                          className={`p-3.5 rounded-2xl text-xs sm:text-[13px] leading-relaxed shadow-sm ${
+                          className={`p-3.5 rounded-2xl text-xs sm:text-[13px] leading-relaxed shadow-sm transition-all ${
                             isUser
-                              ? 'bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-950 font-medium rounded-tr-none'
+                              ? 'bg-amber-500 text-slate-950 font-bold rounded-tr-none shadow-md px-4 py-2.5'
                               : isStaff
-                              ? 'bg-slate-900/90 text-slate-100 border border-gold-500/40 rounded-tl-none'
-                              : 'bg-slate-900/80 text-slate-200 border border-slate-800 rounded-tl-none'
+                              ? 'bg-slate-900/90 text-slate-100 border border-amber-500/40 rounded-tl-none'
+                              : msg.isError
+                              ? 'bg-rose-950/40 text-rose-200 border border-rose-500/40 rounded-tl-none'
+                              : 'bg-slate-900/90 text-slate-200 border border-slate-800 rounded-tl-none'
                           }`}
                         >
-                          <p className="whitespace-pre-wrap">{msg.text}</p>
+                          {isUser ? (
+                            <p className="whitespace-pre-wrap font-bold text-slate-950">{msg.text}</p>
+                          ) : (
+                            <>
+                              {msg.text ? (
+                                <FormattedChatMessage text={msg.text} isStreaming={msg.isStreaming} />
+                              ) : msg.isStreaming ? (
+                                <div className="flex items-center gap-2 py-0.5">
+                                  <span className="flex gap-1 items-center">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+                                  </span>
+                                  <span className="text-[11px] font-bold text-amber-300">
+                                    {isRtl ? 'جاري تحضير الرد والتفاصيل الفاخرة...' : 'Curating personalized luxury details...'}
+                                  </span>
+                                </div>
+                              ) : null}
+                            </>
+                          )}
+
+                          {msg.isError && (
+                            <div className="mt-3 flex flex-wrap gap-2 pt-2.5 border-t border-rose-500/30">
+                              {msg.failedMessageText && (
+                                <button
+                                  onClick={() => sendMessage(msg.failedMessageText)}
+                                  className="px-3 py-1.5 bg-gold-500/20 hover:bg-gold-500 hover:text-obsidian-950 text-gold-300 font-bold text-xs rounded-xl border border-gold-500/40 transition-all flex items-center gap-1.5 cursor-pointer"
+                                >
+                                  <FaRedoAlt size={10} />
+                                  <span>{isRtl ? 'إعادة المحاولة' : 'Retry'}</span>
+                                </button>
+                              )}
+                              <a
+                                href={`https://wa.me/201149401111?text=${encodeURIComponent(
+                                  isRtl
+                                    ? 'مرحباً دوناس ترافيل، أود المساعدة من مستشار السفر بخصوص رحلتي.'
+                                    : 'Hello Dunas Travel, I would like assistance from a senior travel specialist.'
+                                )}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 font-bold text-xs rounded-xl border border-emerald-500/40 transition-all flex items-center gap-1.5"
+                              >
+                                <FaWhatsapp size={12} />
+                                <span>{isRtl ? 'تواصل عبر واتساب' : 'Chat on WhatsApp'}</span>
+                              </a>
+                            </div>
+                          )}
                         </div>
 
                         {/* Structured Tour Comparison Card */}
@@ -280,11 +389,11 @@ const JaiderChatWindow = () => {
                                 <div key={idx} className="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800 flex flex-col justify-between">
                                   <div>
                                     <h5 className="font-bold text-[11px] text-gold-300 truncate">{tItem.title}</h5>
-                                    <p className="text-[10px] text-slate-400 mt-0.5">{tItem.durationDays} Days • ${tItem.price} {tItem.currency}</p>
+                                    <p className="text-[10px] text-slate-400 mt-0.5"><bdi dir="ltr">{tItem.durationDays} Days • $0 {tItem.currency || 'USD'}</bdi></p>
                                   </div>
                                   <button
                                     onClick={() => handleNavigateToTour(tItem.publicUrl)}
-                                    className="mt-2 w-full py-1 bg-gold-500/20 hover:bg-gold-500 hover:text-slate-950 text-gold-300 text-[10px] font-bold rounded-lg transition-all"
+                                    className="mt-2 w-full py-1 bg-gold-500/20 hover:bg-gold-500 hover:text-slate-950 text-gold-300 text-[10px] font-bold rounded-lg transition-all cursor-pointer"
                                   >
                                     {t('jaider.viewTour', 'View Tour')}
                                   </button>
@@ -327,7 +436,7 @@ const JaiderChatWindow = () => {
                                 </h4>
                               </div>
                               <span className="text-xs font-bold text-gold-300 bg-gold-500/10 px-2.5 py-1 rounded-full border border-gold-500/30 shrink-0">
-                                ~${msg.proposal.estimatedPricePerPerson} {msg.proposal.currency}
+                                <bdi dir="ltr">~$0 {msg.proposal.currency || 'USD'}</bdi>
                               </span>
                             </div>
 
@@ -342,7 +451,7 @@ const JaiderChatWindow = () => {
                                   >
                                     <button
                                       onClick={() => setExpandedProposalDay(isExpanded ? null : day.dayNumber)}
-                                      className="w-full p-2 text-left flex items-center justify-between text-xs hover:bg-slate-800/60 transition-colors"
+                                      className="w-full p-2 text-left flex items-center justify-between text-xs hover:bg-slate-800/60 transition-colors cursor-pointer"
                                     >
                                       <div className="flex items-center gap-2">
                                         <span className="w-5 h-5 rounded-full bg-gold-500/20 text-gold-300 font-bold text-[10px] flex items-center justify-center shrink-0">
@@ -377,85 +486,252 @@ const JaiderChatWindow = () => {
                             <div className="pt-1 flex flex-wrap gap-1.5">
                               <button
                                 onClick={() => refineItinerary(isRtl ? 'أضف ليلة إضافية في الأقصر' : 'Add 1 extra night in Luxor')}
-                                className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-gold-300 text-[10px] font-semibold rounded-lg border border-slate-700 transition-all flex items-center gap-1"
+                                className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-gold-300 text-[10px] font-semibold rounded-lg border border-slate-700 transition-all flex items-center gap-1 cursor-pointer"
                               >
                                 <FaSlidersH size={8} />
                                 {t('jaider.addLuxorNight', '+1 Luxor Night')}
                               </button>
                               <button
                                 onClick={() => refineItinerary(isRtl ? 'احذف الغردقة وخليها آثار فقط' : 'Remove Hurghada, focus on history')}
-                                className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-semibold rounded-lg border border-slate-700 transition-all"
+                                className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-semibold rounded-lg border border-slate-700 transition-all cursor-pointer"
                               >
                                 {t('jaider.noBeach', 'No Beach')}
                               </button>
                               <button
                                 onClick={() => refineItinerary(isRtl ? 'خفض الميزانية واقترح خيارات بديلة' : 'Reduce budget and suggest best value')}
-                                className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-semibold rounded-lg border border-slate-700 transition-all"
+                                className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-semibold rounded-lg border border-slate-700 transition-all cursor-pointer"
                               >
                                 {t('jaider.lowerBudget', 'Lower Budget')}
                               </button>
                             </div>
 
                             {/* Proposal CTA Actions */}
-                            <div className="flex gap-2 pt-2 border-t border-gold-500/20">
-                              <button
-                                onClick={() => {
-                                  navigate('/tailor-a-tour');
-                                  setIsOpen(false);
-                                }}
-                                className="flex-1 py-2 bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian-950 font-bold text-xs rounded-xl hover:brightness-110 transition-all text-center shadow-md"
-                              >
-                                {t('jaider.customizeTrip', 'Customize This Trip →')}
-                              </button>
+                            <div className="flex flex-col gap-2 pt-2 border-t border-gold-500/20">
+                              <div className="flex flex-col sm:flex-row gap-2">
+                                <button
+                                  onClick={() => handleOpenCustomTripForm(msg.proposal, msg.id)}
+                                  className="flex-1 py-2.5 px-3 bg-gradient-to-r from-gold-500 via-gold-400 to-amber-500 hover:from-gold-400 hover:to-amber-400 text-obsidian-950 font-black text-xs sm:text-sm rounded-xl transition-all text-center shadow-lg shadow-gold-500/20 flex items-center justify-center gap-2 cursor-pointer active:scale-98 animate-pulse hover:animate-none"
+                                >
+                                  <FaCalendarCheck size={14} className="text-obsidian-950" />
+                                  <span>{isRtl ? 'اطلب الرحلة الآن' : t('jaider.requestTripNow', 'Request Trip Now')}</span>
+                                  <span className={isRtl ? 'rotate-180' : ''}>✨</span>
+                                </button>
+                                <button
+                                  onClick={() => handleCustomInquiry(msg.proposal.title)}
+                                  className="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs rounded-xl border border-slate-700 transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer"
+                                >
+                                  <span>{isRtl ? 'تخصيص متقدم' : t('jaider.advancedCustomize', 'Advanced Customizer')}</span>
+                                  <span className={isRtl ? 'rotate-180' : ''}>→</span>
+                                </button>
+                              </div>
+
+                              {/* Inline Quick Request Form */}
+                              {customTripFormOpenId === msg.id && (
+                                <motion.form
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: 'auto' }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  onSubmit={(e) => handleSubmitCustomTripForm(e, msg.proposal, msg.id)}
+                                  className="mt-2 p-3.5 bg-slate-950 rounded-xl border border-gold-500/40 flex flex-col gap-2.5 shadow-inner"
+                                >
+                                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                                    <span className="text-xs font-bold text-gold-300 flex items-center gap-1.5">
+                                      <FaCrown size={11} className="text-gold-400" />
+                                      {isRtl ? 'بيانات تأكيد طلب الرحلة المخصصة' : 'Confirm Your Tailor-Made Trip Request'}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      aria-label="Close trip request form"
+                                      onClick={() => setCustomTripFormOpenId(null)}
+                                      className="text-slate-400 hover:text-white text-xs cursor-pointer"
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                    <div>
+                                      <label className="text-[10px] text-slate-400 block mb-1">
+                                        {isRtl ? 'الاسم الكامل' : 'Full Name'}
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={customTripName}
+                                        onChange={(e) => setCustomTripName(e.target.value)}
+                                        placeholder={isRtl ? 'الاسم' : 'Your name'}
+                                        required
+                                        className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs focus:border-gold-400 focus:outline-none"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="text-[10px] text-slate-400 block mb-1">
+                                        {isRtl ? 'البريد الإلكتروني (مطلوب)' : 'Email Address (Required)'}
+                                      </label>
+                                      <input
+                                        type="email"
+                                        value={customTripEmail}
+                                        onChange={(e) => setCustomTripEmail(e.target.value)}
+                                        placeholder="email@example.com"
+                                        required
+                                        className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs focus:border-gold-400 focus:outline-none"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="text-[10px] text-slate-400 block mb-1">
+                                        {isRtl ? 'رقم الهاتف / واتساب' : 'Phone / WhatsApp'}
+                                      </label>
+                                      <input
+                                        type="tel"
+                                        value={customTripPhone}
+                                        onChange={(e) => setCustomTripPhone(e.target.value)}
+                                        placeholder="+123456789"
+                                        className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs focus:border-gold-400 focus:outline-none"
+                                      />
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <div className="flex-1">
+                                        <label className="text-[10px] text-slate-400 block mb-1">
+                                          {isRtl ? 'البالغين' : 'Adults'}
+                                        </label>
+                                        <input
+                                          type="number"
+                                          min="1"
+                                          max="50"
+                                          value={customTripAdults}
+                                          onChange={(e) => setCustomTripAdults(parseInt(e.target.value, 10) || 1)}
+                                          className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs focus:border-gold-400 focus:outline-none"
+                                        />
+                                      </div>
+                                      <div className="flex-1">
+                                        <label className="text-[10px] text-slate-400 block mb-1">
+                                          {isRtl ? 'الأطفال' : 'Children'}
+                                        </label>
+                                        <input
+                                          type="number"
+                                          min="0"
+                                          max="20"
+                                          value={customTripChildren}
+                                          onChange={(e) => setCustomTripChildren(parseInt(e.target.value, 10) || 0)}
+                                          className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs focus:border-gold-400 focus:outline-none"
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <button
+                                    type="submit"
+                                    disabled={isSubmittingCustomTrip}
+                                    className="mt-1 w-full py-2 bg-gradient-to-r from-gold-500 to-amber-500 text-obsidian-950 font-bold text-xs rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                                  >
+                                    {isSubmittingCustomTrip ? (
+                                      <div className="w-3.5 h-3.5 border-2 border-obsidian-950 border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                      <FaCheckCircle size={12} />
+                                    )}
+                                    <span>{isRtl ? 'تأكيد وإرسال طلب الرحلة' : 'Confirm & Submit Trip Request'}</span>
+                                  </button>
+                                </motion.form>
+                              )}
                             </div>
                           </div>
                         )}
 
-                        {/* Grounded Tour Recommendation Cards */}
-                        {msg.tours && msg.tours.length > 0 && (
+                        {/* Destination Summary Card (When inquiring about a country/destination) */}
+                        {msg.structuredContent?.destinationSummary && (
+                          <div className="mt-2 p-3 bg-gradient-to-r from-slate-900 via-obsidian-900 to-slate-900 border border-gold-500/40 rounded-2xl flex items-center justify-between shadow-md">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-full bg-gold-500/20 border border-gold-500/30 flex items-center justify-center text-gold-400 shrink-0">
+                                <FaMapMarkerAlt size={14} />
+                              </div>
+                              <div>
+                                <h5 className="font-bold text-xs text-white">
+                                  {msg.structuredContent.destinationSummary.destination}
+                                </h5>
+                                <span className="text-[11px] text-gold-300 font-semibold">
+                                  {msg.structuredContent.destinationSummary.totalToursCount} {isRtl ? 'رحلات سياحية فاخرة متوفرة' : t('jaider.availableTours', 'Luxury Tours Available')}
+                                </span>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => {
+                                navigate(`/destinations/${msg.structuredContent.destinationSummary.slug}`);
+                                setIsOpen(false);
+                              }}
+                              className="px-2.5 py-1.5 bg-gold-500/20 hover:bg-gold-500 hover:text-obsidian-950 text-gold-300 text-[11px] font-bold rounded-xl border border-gold-500/30 transition-all flex items-center gap-1 cursor-pointer"
+                            >
+                              <span>{isRtl ? 'دليل الوجهة' : t('jaider.viewGuide', 'Destination Guide')}</span>
+                              <FaArrowRight size={9} className={isRtl ? 'rotate-180' : ''} />
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Grounded Tour Recommendation Cards (Only shown when explicitly relevant) */}
+                        {msg.tours && msg.tours.filter((tItem) => tItem && typeof tItem === 'object' && tItem.title).length > 0 && (
                           <div className="flex flex-col gap-2.5 pt-1">
                             <span className="text-[11px] font-bold uppercase tracking-wider text-gold-400 flex items-center gap-1.5">
                               <FaTag size={10} />
                               {t('jaider.verifiedTours', 'Verified Catalog Tours:')}
                             </span>
-                            {msg.tours.map((tItem) => (
+                            {msg.tours.filter((tItem) => tItem && typeof tItem === 'object' && tItem.title).map((tItem) => (
                               <div
-                                key={tItem.id}
-                                onClick={() => handleNavigateToTour(tItem.publicUrl)}
-                                className="flex flex-col bg-slate-900/95 hover:bg-slate-800/95 p-3 rounded-2xl border border-gold-500/30 hover:border-gold-400 transition-all shadow-md group cursor-pointer"
+                                key={tItem.id || tItem.slug}
+                                className="flex flex-col bg-slate-900/95 hover:bg-slate-800/95 p-3 rounded-2xl border border-gold-500/30 hover:border-gold-400/80 transition-all shadow-md group"
                               >
                                 <div className="flex gap-3">
-                                  <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-slate-800 relative">
+                                  <div
+                                    onClick={() => handleNavigateToTour(tItem.publicUrl)}
+                                    className="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-slate-800 relative cursor-pointer"
+                                  >
                                     <img
-                                      src={tItem.image || '/imgs/tito-mascot.webp'}
+                                      src={tItem.image || 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=800&q=80'}
                                       alt={tItem.title}
                                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                      onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=800&q=80';
+                                      }}
                                     />
                                   </div>
                                   <div className="flex flex-col justify-between min-w-0 flex-1 py-0.5">
                                     <div>
-                                      <h4 className="text-xs sm:text-[13px] font-bold text-white group-hover:text-gold-300 transition-colors truncate">
+                                      <h4
+                                        onClick={() => handleNavigateToTour(tItem.publicUrl)}
+                                        className="text-xs sm:text-[13px] font-bold text-white group-hover:text-gold-300 transition-colors truncate cursor-pointer"
+                                      >
                                         {tItem.title}
                                       </h4>
                                       <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5 truncate">
                                         <FaMapMarkerAlt size={9} className="text-gold-400 shrink-0" />
-                                        {tItem.destination}
+                                        {tItem.destination || 'Egypt'}
                                       </p>
                                     </div>
-                                    <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-800">
+                                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-800 gap-1.5">
                                       <span className="text-xs font-bold text-gold-400">
-                                        ${tItem.price} {tItem.currency}
+                                        <bdi dir="ltr">$0 {tItem.currency || 'USD'}</bdi>
                                       </span>
-                                      <span className="text-[10px] bg-gold-500/20 text-gold-300 font-bold px-2 py-0.5 rounded-md group-hover:bg-gold-500 group-hover:text-slate-950 transition-all">
-                                        {t('jaider.viewTour', 'View Tour →')}
-                                      </span>
+                                      <div className="flex items-center gap-1.5">
+                                        <button
+                                          onClick={() => handleCustomInquiry(tItem.title)}
+                                          className="text-[10px] bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian-950 font-extrabold px-2.5 py-1 rounded-lg hover:brightness-110 shadow-xs transition-all flex items-center gap-1 cursor-pointer"
+                                        >
+                                          <FaCalendarCheck size={9} />
+                                          <span>{isRtl ? 'طلب حجز / استفسار' : 'Inquire / Book'}</span>
+                                        </button>
+                                        <button
+                                          onClick={() => handleNavigateToTour(tItem.publicUrl)}
+                                          className="text-[10px] bg-slate-800 text-slate-200 hover:bg-slate-700 hover:text-white font-bold px-2.5 py-1 rounded-lg border border-slate-700 transition-all flex items-center gap-1 cursor-pointer"
+                                        >
+                                          <span>{isRtl ? 'التفاصيل' : 'Details'}</span>
+                                          <FaArrowRight size={8} className={isRtl ? 'rotate-180' : ''} />
+                                        </button>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
 
-                                {t.matchReasons && t.matchReasons.length > 0 && (
+                                {tItem.matchReasons && tItem.matchReasons.length > 0 && (
                                   <div className="mt-2 pt-2 border-t border-slate-800/80 flex flex-col gap-1">
-                                    {t.matchReasons.map((reason, rIdx) => (
+                                    {tItem.matchReasons.map((reason, rIdx) => (
                                       <div key={rIdx} className="text-[10px] text-slate-300 flex items-center gap-1.5">
                                         <FaCheckCircle size={9} className="text-emerald-400 shrink-0" />
                                         <span>{reason}</span>
@@ -475,7 +751,7 @@ const JaiderChatWindow = () => {
                               <button
                                 key={rIdx}
                                 onClick={() => sendMessage(reply)}
-                                className="text-xs px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-gold-300 transition-all hover:scale-102 shadow-xs"
+                                className="text-xs px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-gold-300 transition-all hover:scale-102 shadow-xs cursor-pointer"
                               >
                                 {reply}
                               </button>
@@ -497,14 +773,14 @@ const JaiderChatWindow = () => {
                               <button
                                 onClick={() => handleRate(msg.id, 1)}
                                 title="Helpful"
-                                className={`p-1 rounded hover:bg-slate-800 transition-colors ${feedback?.rated === 1 ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+                                className={`p-1 rounded hover:bg-slate-800 transition-colors cursor-pointer ${feedback?.rated === 1 ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
                               >
                                 <FaThumbsUp size={10} />
                               </button>
                               <button
                                 onClick={() => handleRate(msg.id, -1)}
                                 title="Not helpful"
-                                className={`p-1 rounded hover:bg-slate-800 transition-colors ${feedback?.rated === -1 ? 'text-rose-400' : 'text-slate-500 hover:text-slate-300'}`}
+                                className={`p-1 rounded hover:bg-slate-800 transition-colors cursor-pointer ${feedback?.rated === -1 ? 'text-rose-400' : 'text-slate-500 hover:text-slate-300'}`}
                               >
                                 <FaThumbsDown size={10} />
                               </button>
@@ -517,22 +793,25 @@ const JaiderChatWindow = () => {
                 })}
               </AnimatePresence>
 
-              {isTyping && (
+              {isTyping && !messages.some((m) => m.sender === 'jaider' && m.isStreaming) && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="flex gap-2.5 max-w-[80%] self-start"
                 >
-                  <img
-                    src="/imgs/tito-mascot.webp"
-                    alt="GuideR"
-                    className="w-7 h-7 object-contain bg-white/10 rounded-full p-0.5 border border-gold-400/30 shrink-0 self-end mb-1"
-                  />
-                  <div className="p-3 bg-slate-900/90 border border-slate-800 rounded-2xl rounded-tl-none flex items-center gap-2 text-xs text-gold-300">
-                    <span className="w-1.5 h-1.5 bg-gold-400 rounded-full animate-pulse"></span>
-                    <span className="w-1.5 h-1.5 bg-gold-400 rounded-full animate-pulse delay-100"></span>
-                    <span className="w-1.5 h-1.5 bg-gold-400 rounded-full animate-pulse delay-200"></span>
-                    <span className="text-[11px] text-slate-400 ml-1">
+                  <div className="w-7 h-7 rounded-full bg-slate-900 border border-amber-500/30 p-0.5 shrink-0 self-end mb-1 flex items-center justify-center">
+                    <img
+                      src="/imgs/tito-mascot.webp"
+                      alt="GuideR"
+                      className="w-full h-full object-contain"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                  </div>
+                  <div className="p-3 bg-slate-900/90 border border-slate-800 rounded-2xl rounded-tl-none flex items-center gap-2 text-xs text-amber-300">
+                    <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse"></span>
+                    <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse delay-100"></span>
+                    <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse delay-200"></span>
+                    <span className="text-[11px] text-slate-300 ml-1 font-medium">
                       {t('jaider.searching', 'GuideR is searching catalog...')}
                     </span>
                   </div>
@@ -547,7 +826,7 @@ const JaiderChatWindow = () => {
               <div className="px-4 py-1.5 bg-slate-900/90 border-t border-slate-800 flex justify-center">
                 <button
                   onClick={stopGenerating}
-                  className="flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 px-3 py-1 rounded-full border border-rose-500/30 transition-all font-semibold"
+                  className="flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 px-3 py-1 rounded-full border border-rose-500/30 transition-all font-semibold cursor-pointer"
                 >
                   <FaStopCircle size={12} />
                   {t('jaider.stop', 'Stop generating')}
@@ -560,7 +839,7 @@ const JaiderChatWindow = () => {
               <div className="p-3 bg-slate-900 border-t border-gold-500/30 flex flex-col gap-2">
                 <div className="flex items-center justify-between text-xs font-bold text-gold-300">
                   <span>{isRtl ? 'ما المشكلة في هذه الإجابة؟' : 'What was wrong with this answer?'}</span>
-                  <button onClick={() => setActiveFeedbackModal(null)} className="text-slate-400 hover:text-white">
+                  <button type="button" aria-label="Close feedback modal" onClick={() => setActiveFeedbackModal(null)} className="text-slate-400 hover:text-white cursor-pointer">
                     <FaTimes size={11} />
                   </button>
                 </div>
@@ -583,18 +862,19 @@ const JaiderChatWindow = () => {
                 />
                 <button
                   onClick={handleConfirmNegativeFeedback}
-                  className="w-full py-1.5 bg-gold-500 text-slate-950 font-bold text-xs rounded-lg hover:brightness-110"
+                  className="w-full py-1.5 bg-gold-500 text-slate-950 font-bold text-xs rounded-lg hover:brightness-110 cursor-pointer"
                 >
                   {isRtl ? 'إرسال الملاحظات' : 'Submit Feedback'}
                 </button>
               </div>
             )}
 
-            {/* Lead Form Overlay */}
+            {/* Lead Capture Form */}
             {leadFormState.required && (
               <form onSubmit={handleLeadSubmit} className="p-3.5 bg-slate-900/95 border-t border-gold-500/30 flex flex-col gap-2">
-                <span className="text-xs font-bold text-gold-300">
-                  {isRtl ? '✨ احصل على عرض أسعار رسمي وتصميم مخصص:' : '✨ Receive official quote & VIP consultation:'}
+                <span className="text-xs font-bold text-gold-300 flex items-center gap-1.5">
+                  <FaCrown size={12} className="text-gold-400" />
+                  {isRtl ? '✨ احصل على عرض أسعار رسمي واستشارة VIP:' : '✨ Receive official quote & VIP consultation:'}
                 </span>
                 <input
                   type="text"
@@ -622,7 +902,7 @@ const JaiderChatWindow = () => {
                 <button
                   type="submit"
                   disabled={isSubmittingLead}
-                  className="w-full py-2 bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian-950 font-bold text-xs rounded-xl hover:brightness-110 transition-all shadow-md mt-1"
+                  className="w-full py-2 bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian-950 font-bold text-xs rounded-xl hover:brightness-110 transition-all shadow-md mt-1 cursor-pointer"
                 >
                   {isSubmittingLead ? (isRtl ? 'جاري الإرسال...' : 'Submitting...') : (isRtl ? 'إرسال لمستشار المبيعات' : 'Connect with Travel Designer')}
                 </button>
@@ -630,7 +910,7 @@ const JaiderChatWindow = () => {
             )}
 
             {/* Input Footer */}
-            <div className="p-3 bg-obsidian-950 border-t border-gold-500/20 flex flex-col gap-2">
+            <div className="p-3 bg-slate-950 border-t border-amber-500/20 flex flex-col gap-2">
               <div className="flex items-center gap-2">
                 <input
                   ref={inputRef}
@@ -638,33 +918,34 @@ const JaiderChatWindow = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleInputKeyDown}
-                  placeholder={t('jaider.placeholder', 'Ask GuideR about tours, cruises, or custom trips...')}
-                  className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-gold-400/50 shadow-inner"
+                  placeholder={isRtl ? 'اكتب استفسارك أو اطلب تصميم رحلة مخصصة...' : t('jaider.placeholder', 'Ask GuideR about tours, cruises, or custom trips...')}
+                  className="flex-1 bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs sm:text-[13px] text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-amber-500/80 focus:ring-1 focus:ring-amber-500/40 shadow-inner"
                 />
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() || isTyping}
-                  className={`p-2.5 rounded-xl flex items-center justify-center transition-all ${
+                  className={`p-3 rounded-xl flex items-center justify-center transition-all ${
                     input.trim() && !isTyping
-                      ? 'bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian-950 shadow-md hover:brightness-110'
-                      : 'bg-slate-800 text-slate-600 cursor-not-allowed'
+                      ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md font-bold cursor-pointer'
+                      : 'bg-slate-800 text-slate-500 cursor-not-allowed'
                   }`}
                   aria-label={t('jaider.send', 'Send')}
                 >
-                  <FaPaperPlane size={13} className={isRtl ? 'rotate-180' : ''} />
+                  <FaPaperPlane size={14} className={isRtl ? 'rotate-180' : ''} />
                 </button>
               </div>
 
               {/* Suggestions row */}
               {messages.length <= 2 && suggestions && suggestions.length > 0 && (
-                <div className="flex flex-wrap gap-1 pt-1 max-h-20 overflow-y-auto">
-                  {suggestions.slice(0, 3).map((s, idx) => (
+                <div className="flex flex-wrap gap-1.5 pt-1 max-h-24 overflow-y-auto">
+                  {suggestions.slice(0, 4).map((s, idx) => (
                     <button
                       key={idx}
                       onClick={() => sendMessage(s)}
-                      className="text-[10px] px-2.5 py-1 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-gold-300 rounded-lg transition-colors truncate max-w-full"
+                      className="text-[11px] px-3 py-1 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-gold-500/40 text-slate-300 hover:text-gold-300 rounded-lg transition-colors truncate max-w-full cursor-pointer flex items-center gap-1"
                     >
-                      {s}
+                      <FaCompass size={9} className="text-gold-400 shrink-0" />
+                      <span>{s}</span>
                     </button>
                   ))}
                 </div>

@@ -73,7 +73,7 @@ export default function ReligiousTours() {
           text: t('programs.religiousSecondaryCta', 'طلب برنامج ديني خاص'),
           link: '/tailor-tour'
         }}
-        bgImage="https://thf.bing.com/th/id/R.e047649d8bd183efbdd320d17de8a8b1?rik=d18ZW0xT%2fK31lQ&pid=ImgRaw&r=0"
+        bgImage="https://images.akhbarelyom.com/UP/20240601193248245.jpg"
       />
 
       {/* Breadcrumb Bar */}

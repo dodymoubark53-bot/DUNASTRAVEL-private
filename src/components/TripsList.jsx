@@ -59,7 +59,7 @@ const TripsList = () => {
         <h2 className="text-3xl font-bold mb-4">Travel Packages</h2>
         <div className="inline-flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl">
           <span className="text-2xl">⚠️</span>
-          <p className="text-lg">{error}</p>
+          <p className="text-lg">{typeof error === 'object' && error !== null ? (error.message || String(error)) : error}</p>
         </div>
       </section>
     );

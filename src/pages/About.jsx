@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { FaCalendarAlt, FaSuitcase, FaUsers, FaMapMarkedAlt, FaGlobe } from 'react-icons/fa';
 import { useCmsBlock } from '../hooks/useCmsBlock';
+import AnimatedCounter from '../components/common/AnimatedCounter';
 
 const styles = `
   :root {
@@ -748,31 +749,6 @@ const About = () => {
     }, { threshold: 0.15 });
     revealEls.forEach(r => io.observe(r));
 
-    const counterEls = el.querySelectorAll('.hero-stats .num, .stats-strip .n');
-    const counterIo = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          const target = e.target;
-          const count = parseInt(target.dataset.count, 10);
-          const suffix = target.dataset.suffix || '';
-          let start = 0;
-          const dur = Math.min(2000, count * 6);
-          const step = Math.max(1, Math.floor(count / 60));
-          const interval = setInterval(() => {
-            start += step;
-            if (start >= count) {
-              target.textContent = count.toLocaleString() + suffix;
-              clearInterval(interval);
-            } else {
-              target.textContent = start.toLocaleString();
-            }
-          }, dur / 60);
-          counterIo.unobserve(target);
-        }
-      });
-    }, { threshold: 0.3 });
-    counterEls.forEach(c => counterIo.observe(c));
-
     const chartIo = new IntersectionObserver((entries) => {
       entries.forEach(e => {
         if (e.isIntersecting) {
@@ -809,7 +785,6 @@ const About = () => {
 
     return () => {
       io.disconnect();
-      counterIo.disconnect();
       chartIo.disconnect();
     };
   }, []);
@@ -876,15 +851,17 @@ const About = () => {
 
         <div className="hero-stats">
           {[
-            { count: 17, icon: FaCalendarAlt, labelKey: 'about.heroStatsYears' },
-            { count: 95654, icon: FaSuitcase, labelKey: 'about.heroStatsTravelers' },
-            { count: 438, icon: FaUsers, labelKey: 'about.heroStatsEmployees' },
-            { count: 182, icon: FaMapMarkedAlt, labelKey: 'about.heroStatsGuides' },
-            { count: 5, icon: FaGlobe, labelKey: 'about.heroStatsOffices' },
+            { count: 17, suffix: '+', icon: FaCalendarAlt, labelKey: 'about.heroStatsYears' },
+            { count: 95654, suffix: '+', icon: FaSuitcase, labelKey: 'about.heroStatsTravelers' },
+            { count: 438, suffix: '+', icon: FaUsers, labelKey: 'about.heroStatsEmployees' },
+            { count: 182, suffix: '+', icon: FaMapMarkedAlt, labelKey: 'about.heroStatsGuides' },
+            { count: 5, suffix: '', icon: FaGlobe, labelKey: 'about.heroStatsOffices' },
           ].map((s, i) => (
             <div key={i}>
               <s.icon className="stat-icon" />
-              <div className="num" data-count={s.count}>0</div>
+              <div className="num">
+                <AnimatedCounter value={s.count} suffix={s.suffix} />
+              </div>
               <div className="lbl">{t(s.labelKey)}</div>
             </div>
           ))}
@@ -928,14 +905,16 @@ const About = () => {
         <div className="stats-strip reveal">
           {[
             { count: 17, suffix: '+', icon: FaCalendarAlt, labelKey: 'about.statYears' },
-            { count: 95654, suffix: '', icon: FaSuitcase, labelKey: 'about.statTravelers' },
-            { count: 438, suffix: '', icon: FaUsers, labelKey: 'about.statEmployees' },
-            { count: 182, suffix: '', icon: FaMapMarkedAlt, labelKey: 'about.statGuides' },
+            { count: 95654, suffix: '+', icon: FaSuitcase, labelKey: 'about.statTravelers' },
+            { count: 438, suffix: '+', icon: FaUsers, labelKey: 'about.statEmployees' },
+            { count: 182, suffix: '+', icon: FaMapMarkedAlt, labelKey: 'about.statGuides' },
             { count: 5, suffix: '', icon: FaGlobe, labelKey: 'about.statOffices' },
           ].map((s, i) => (
             <div className="stat-cell" key={i}>
               <s.icon className="stat-icon" />
-              <div className="n" data-count={s.count} data-suffix={s.suffix}>0</div>
+              <div className="n">
+                <AnimatedCounter value={s.count} suffix={s.suffix} />
+              </div>
               <div className="l">{t(s.labelKey)}</div>
             </div>
           ))}

@@ -1,15 +1,27 @@
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import Navbar from './Navbar';
 import Footer from './Footer';
-import FloatingContact from './FloatingContact';
-import BackgroundMusic from '../ui/BackgroundMusic';
 import { JaiderChatProvider } from '../../context/JaiderChatContext';
-import JaiderChatWindow from '../ui/JaiderChatWindow';
-import FloatingGuideR from '../ui/FloatingGuideR';
+
+const FloatingContact = lazy(() => import('./FloatingContact'));
+const BackgroundMusic = lazy(() => import('../ui/BackgroundMusic'));
+const FloatingGuideR = lazy(() => import('../ui/FloatingGuideR'));
+const JaiderChatWindow = lazy(() => import('../ui/JaiderChatWindow'));
 
 const Layout = () => {
-  const { t } = useTranslation();
+  const [loadWidgets, setLoadWidgets] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      const handle = window.requestIdleCallback(() => setLoadWidgets(true), { timeout: 1500 });
+      return () => window.cancelIdleCallback(handle);
+    } else {
+      const timer = setTimeout(() => setLoadWidgets(true), 800);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   return (
     <JaiderChatProvider>
       <div className="flex flex-col min-h-screen">
@@ -19,10 +31,14 @@ const Layout = () => {
         </main>
 
         <Footer />
-        <FloatingContact />
-        <BackgroundMusic />
-        <FloatingGuideR />
-        <JaiderChatWindow />
+        {loadWidgets && (
+          <Suspense fallback={null}>
+            <FloatingContact />
+            <BackgroundMusic />
+            <FloatingGuideR />
+            <JaiderChatWindow />
+          </Suspense>
+        )}
       </div>
     </JaiderChatProvider>
   );

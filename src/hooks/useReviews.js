@@ -23,7 +23,6 @@ export function useReviews(tourId = null) {
         setError(null);
 
         const path = `/tours/${encodeURIComponent(tourId)}/reviews`;
-
         const res = await api.get(path);
 
         let items = [];
@@ -51,13 +50,15 @@ export function useReviews(tourId = null) {
     };
   }, [tourId]);
 
-  const submitReview = async (tourSlug, { rating, comment }) => {
+  const submitReview = async (tourSlug, { rating, comment, reviewerName, bookingId } = {}) => {
     const slugToUse = tourSlug || tourId;
     if (!slugToUse) throw new Error('Tour slug is required to submit a review');
-    const res = await api.post(`/tours/${encodeURIComponent(slugToUse)}/reviews`, { rating, comment });
+    const payload = { rating, comment };
+    if (reviewerName) payload.reviewerName = reviewerName;
+    if (bookingId) payload.bookingId = bookingId;
+    const res = await api.post(`/tours/${encodeURIComponent(slugToUse)}/reviews`, payload);
     return res;
   };
 
   return { reviews, loading, error, submitReview };
 }
-

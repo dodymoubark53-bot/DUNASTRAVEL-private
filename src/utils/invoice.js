@@ -31,6 +31,10 @@ export function normalizeInvoiceResponse(invoice = {}) {
     address: invoice.address ?? billing.address,
     city: invoice.city ?? billing.city,
     country: invoice.country ?? billing.country,
+    status: String(invoice.status || invoice.bookingStatus || 'PENDING').toUpperCase(),
+    invoiceStatus: String(invoice.status || 'SENT').toUpperCase(),
+    subtotal: invoice.subtotal ?? snapshot.baseSubtotal ?? snapshot.subtotal ?? null,
+    tax: invoice.tax ?? snapshot.tax ?? null,
     passengers,
   };
 }

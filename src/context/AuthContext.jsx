@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { createContext, useState, useContext, useEffect, useCallback, useMemo } from 'react';
 import api, { clearCsrfToken, readCollection } from '../utils/api';
 
 const missingAuthProvider = async () => {
@@ -25,7 +25,7 @@ const defaultAuthContext = {
   getUserBookings: missingAuthProvider,
 };
 
-const AuthContext = createContext(defaultAuthContext);
+export const AuthContext = createContext(defaultAuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }) => {
    * POST /api/auth/login
    * Body: { email, password }
    */
-  const login = async (emailOrObj, passwordParam) => {
+  const login = useCallback(async (emailOrObj, passwordParam) => {
     const payload =
       typeof emailOrObj === 'object' && emailOrObj !== null
         ? emailOrObj
@@ -80,13 +80,13 @@ export const AuthProvider = ({ children }) => {
     const data = await api.post('/auth/login', payload);
     setUser(data);
     return data;
-  };
+  }, []);
 
   /**
    * POST /api/auth/register
-   * Body: { email, password, name, phone, address, preferredLanguage }
+   * Body: { email, password, name, phone }
    */
-  const register = async (nameOrObj, email, phone, password, address, preferredLanguage) => {
+  const register = useCallback(async (nameOrObj, email, phone, password) => {
     let payload;
     if (typeof nameOrObj === 'object' && nameOrObj !== null) {
       payload = nameOrObj;
@@ -96,25 +96,24 @@ export const AuthProvider = ({ children }) => {
         email,
         phone,
         password,
-        address,
-        preferredLanguage,
       };
     }
 
     const data = await api.post('/auth/register', payload);
     // Registration does not establish an authenticated cookie session.
     return data;
-  };
+  }, []);
 
   /**
    * PATCH /api/auth/profile
-   * Body: { name, phone, address, preferredLanguage }
+   * Body: { name, phone, nationality, preferredCurrency, preferredLanguage }
    */
-  const updateProfile = async (profileData) => {
+  const updateProfile = useCallback(async (profileData) => {
     const payload = Object.fromEntries(
       Object.entries({
         name: profileData?.name,
         phone: profileData?.phone,
+        nationality: profileData?.nationality,
         preferredCurrency: profileData?.preferredCurrency,
         preferredLanguage: profileData?.preferredLanguage,
       }).filter(([, value]) => value !== undefined),
@@ -123,13 +122,13 @@ export const AuthProvider = ({ children }) => {
     const updatedUser = data;
     setUser((prev) => ({ ...prev, ...updatedUser }));
     return updatedUser;
-  };
+  }, []);
 
   /**
    * POST /api/auth/change-password
    * Body: { currentPassword, oldPassword, newPassword }
    */
-  const changePassword = async (oldPasswordOrObj, newPasswordParam) => {
+  const changePassword = useCallback(async (oldPasswordOrObj, newPasswordParam) => {
     let payload;
     if (typeof oldPasswordOrObj === 'object' && oldPasswordOrObj !== null) {
       payload = {
@@ -145,13 +144,13 @@ export const AuthProvider = ({ children }) => {
 
     const data = await api.post('/auth/change-password', payload);
     return data;
-  };
+  }, []);
 
   /**
    * POST /api/auth/forgot-password
    * Body: { email }
    */
-  const forgotPassword = async (emailOrObj) => {
+  const forgotPassword = useCallback(async (emailOrObj) => {
     const payload =
       typeof emailOrObj === 'object' && emailOrObj !== null
         ? emailOrObj
@@ -159,13 +158,13 @@ export const AuthProvider = ({ children }) => {
 
     const data = await api.post('/auth/forgot-password', payload);
     return data;
-  };
+  }, []);
 
   /**
    * POST /api/auth/reset-password
    * Body: { token, newPassword }
    */
-  const resetPassword = async (tokenOrObj, newPasswordParam) => {
+  const resetPassword = useCallback(async (tokenOrObj, newPasswordParam) => {
     const payload =
       typeof tokenOrObj === 'object' && tokenOrObj !== null
         ? tokenOrObj
@@ -173,27 +172,31 @@ export const AuthProvider = ({ children }) => {
 
     const data = await api.post('/auth/reset-password', payload);
     return data;
-  };
+  }, []);
 
   /**
    * POST /api/auth/verify-email
-   * Body: { token }
+   * Body: { code, email } or { token }
    */
-  const verifyEmail = async (tokenOrObj) => {
-    const payload =
-      typeof tokenOrObj === 'object' && tokenOrObj !== null
-        ? tokenOrObj
-        : { token: tokenOrObj };
+  const verifyEmail = useCallback(async (tokenOrCodeOrObj, emailParam) => {
+    let payload;
+    if (typeof tokenOrCodeOrObj === 'object' && tokenOrCodeOrObj !== null) {
+      payload = tokenOrCodeOrObj;
+    } else if (/^\d{6}$/.test(String(tokenOrCodeOrObj).trim())) {
+      payload = { code: String(tokenOrCodeOrObj).trim(), email: emailParam };
+    } else {
+      payload = { token: tokenOrCodeOrObj, email: emailParam };
+    }
 
     const data = await api.post('/auth/verify-email', payload);
     return data;
-  };
+  }, []);
 
   /**
    * POST /api/auth/resend-verification
    * Body: { email }
    */
-  const resendVerification = async (emailOrObj) => {
+  const resendVerification = useCallback(async (emailOrObj) => {
     const payload =
       typeof emailOrObj === 'object' && emailOrObj !== null
         ? emailOrObj
@@ -201,69 +204,89 @@ export const AuthProvider = ({ children }) => {
 
     const data = await api.post('/auth/resend-verification', payload);
     return data;
-  };
+  }, []);
 
   /**
    * POST /api/auth/refresh
    */
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     const data = await api.post('/auth/refresh', {});
     clearCsrfToken();
     return data;
-  };
+  }, []);
 
   /**
    * GET /api/auth/csrf
    */
-  const getCsrf = async () => {
+  const getCsrf = useCallback(async () => {
     const data = await api.get('/auth/csrf');
     return data;
-  };
+  }, []);
 
   /**
    * POST /api/auth/logout
    */
-  const logout = async () => {
+  const logout = useCallback(async () => {
     await api.post('/auth/logout', {});
     clearCsrfToken();
     setUser(null);
-  };
+  }, []);
 
   /**
    * POST /api/auth/logout-all
    */
-  const logoutAll = async () => {
+  const logoutAll = useCallback(async () => {
     await api.post('/auth/logout-all', {});
     clearCsrfToken();
     setUser(null);
-  };
+  }, []);
 
-  const getUserBookings = async () => {
+  const getUserBookings = useCallback(async () => {
     return readCollection(await api.get('/bookings/me'), 'user bookings');
-  };
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      user,
+      isLoading,
+      login,
+      register,
+      logout,
+      logoutAll,
+      refresh,
+      getMe,
+      checkAuth: getMe,
+      getCsrf,
+      updateProfile,
+      changePassword,
+      forgotPassword,
+      resetPassword,
+      verifyEmail,
+      resendVerification,
+      getUserBookings,
+    }),
+    [
+      user,
+      isLoading,
+      login,
+      register,
+      logout,
+      logoutAll,
+      refresh,
+      getMe,
+      getCsrf,
+      updateProfile,
+      changePassword,
+      forgotPassword,
+      resetPassword,
+      verifyEmail,
+      resendVerification,
+      getUserBookings,
+    ]
+  );
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isLoading,
-        login,
-        register,
-        logout,
-        logoutAll,
-        refresh,
-        getMe,
-        checkAuth: getMe,
-        getCsrf,
-        updateProfile,
-        changePassword,
-        forgotPassword,
-        resetPassword,
-        verifyEmail,
-        resendVerification,
-        getUserBookings,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

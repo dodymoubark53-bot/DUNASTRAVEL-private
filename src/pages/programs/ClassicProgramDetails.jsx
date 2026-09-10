@@ -20,7 +20,7 @@ const fadeInUp = {
 };
 
 const CLASSIC_IMAGES = [
-  'https://res.cloudinary.com/degbrq3ck/image/upload/v1783029636/Classic_Program_gfal0s.jpg',
+  'https://res.cloudinary.com/degbrq3ck/image/upload/w_1024,h_576,c_fill,q_60,f_webp/v1783029636/Classic_Program_gfal0s.jpg',
   'https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=1200&q=80',
   'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1200&q=80',
   'https://images.unsplash.com/photo-1572252821143-035a024856f2?auto=format&fit=crop&w=1200&q=80'
@@ -221,7 +221,7 @@ export default function ClassicProgramDetails() {
 
   const { title, duration, type: tourType, groupSize, overview, highlights, included, excluded, itinerary } = currentLangData;
 
-  const shuffledTours = useMemo(() => [...tours].sort(() => Math.random() - 0.5), []);
+  const shuffledTours = useMemo(() => [...tours].reverse(), []);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const carouselRef = useRef(null);
 
@@ -233,12 +233,20 @@ export default function ClassicProgramDetails() {
     const el = carouselRef.current;
     if (!el) return;
     const interval = setInterval(() => {
-      const step = (el.querySelector('.related-carousel-item')?.offsetWidth || 300) + 24;
-      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) {
-        el.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        el.scrollBy({ left: step, behavior: 'smooth' });
-      }
+      requestAnimationFrame(() => {
+        const item = el.querySelector('.related-carousel-item');
+        const step = (item ? item.offsetWidth : 300) + 24;
+        const currentScroll = el.scrollLeft;
+        const visibleWidth = el.clientWidth;
+        const totalWidth = el.scrollWidth;
+        const isEnd = currentScroll + visibleWidth >= totalWidth - 10;
+
+        if (isEnd) {
+          el.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          el.scrollBy({ left: step, behavior: 'smooth' });
+        }
+      });
     }, 3500);
     return () => clearInterval(interval);
   }, []);
@@ -450,8 +458,10 @@ export default function ClassicProgramDetails() {
         .related-carousel {
           display: flex;
           overflow-x: auto;
+          overflow-y: hidden;
           gap: 24px;
-          padding-bottom: 16px;
+          padding-top: 12px;
+          padding-bottom: 24px;
           scroll-snap-type: x mandatory;
           -webkit-overflow-scrolling: touch;
         }
@@ -459,6 +469,8 @@ export default function ClassicProgramDetails() {
           flex: 0 0 auto;
           width: 300px;
           scroll-snap-align: start;
+          display: flex;
+          flex-direction: column;
         }
         @media (min-width: 768px) {
           .related-carousel-item { width: 330px; }

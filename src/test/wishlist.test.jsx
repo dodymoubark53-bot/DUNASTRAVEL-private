@@ -134,4 +134,39 @@ describe('Prompt 03: User Wishlist & Favorites System', () => {
       expect(screen.getAllByText('Greece Expedition').length).toBeGreaterThan(0);
     });
   });
+
+  it('stores and toggles favorites in localStorage when user is NOT logged in (guest mode)', async () => {
+    vi.spyOn(AuthContextModule, 'useAuth').mockReturnValue({
+      user: null,
+    });
+    vi.spyOn(api, 'post');
+    vi.spyOn(api, 'delete');
+
+    const testTour = { id: 'guest-tour-1', slug: 'cairo-day-tour', title: 'Cairo Day Tour', price: 150 };
+
+    const { result } = renderHook(() => useWishlist());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.isFavorite('guest-tour-1')).toBe(false);
+
+    // Toggle to add in guest mode
+    await act(async () => {
+      await result.current.toggleFavorite(testTour);
+    });
+
+    expect(api.post).not.toHaveBeenCalled();
+    expect(result.current.isFavorite('guest-tour-1')).toBe(true);
+    expect(localStorage.getItem('dunas_local_favorites')).toContain('guest-tour-1');
+
+    // Toggle to remove in guest mode
+    await act(async () => {
+      await result.current.toggleFavorite(testTour);
+    });
+
+    expect(api.delete).not.toHaveBeenCalled();
+    expect(result.current.isFavorite('guest-tour-1')).toBe(false);
+  });
 });

@@ -4,11 +4,15 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 const supportedLngs = ['en', 'ar', 'es', 'pt', 'it'];
 
-const localeModules = import.meta.glob('./locales/*.json', { eager: false });
-
-i18n.use(LanguageDetector).use(initReactI18next);
-
-let initPromise = null;
+const loadLocaleResource = async (lng) => {
+  switch (lng) {
+    case 'ar': return (await import('./locales/ar.json')).default;
+    case 'es': return (await import('./locales/es.json')).default;
+    case 'it': return (await import('./locales/it.json')).default;
+    case 'pt': return (await import('./locales/pt.json')).default;
+    case 'en': default: return (await import('./locales/en.json')).default;
+  }
+};
 
 const getDefaultLng = () => {
   try {
@@ -24,51 +28,82 @@ const getDefaultLng = () => {
   return supportedLngs.includes(navLng) ? navLng : 'en';
 };
 
+export const syncDocumentDirection = (lng) => {
+  if (typeof document === 'undefined') return;
+  const isAr = lng && (lng === 'ar' || lng.startsWith('ar'));
+  const dir = isAr ? 'rtl' : 'ltr';
+  document.documentElement.dir = dir;
+  document.documentElement.lang = lng || 'en';
+  if (document.body) {
+    document.body.dir = dir;
+    if (isAr) {
+      document.body.classList.add('rtl');
+    } else {
+      document.body.classList.remove('rtl');
+    }
+  }
+};
+
+i18n.use(LanguageDetector).use(initReactI18next);
+
+let initPromise = null;
+
 export const initI18n = async () => {
   if (initPromise) return initPromise;
   initPromise = (async () => {
     try {
       const lng = getDefaultLng();
-      const loader = localeModules[`./locales/${lng}.json`] || localeModules['./locales/en.json'];
-      const mod = loader ? await loader() : { default: {} };
+      const initialData = await loadLocaleResource(lng);
+      
+      const resources = {
+        [lng]: { translation: initialData }
+      };
+
       await i18n.init({
-        resources: {
-          [lng]: { translation: mod.default || {} },
-        },
+        resources,
         fallbackLng: 'en',
         lng,
         interpolation: { escapeValue: false },
         keySeparator: false,
       });
+
+      syncDocumentDirection(lng);
+
+      // Defer fallback 'en' loading to idle time so initial paint is not blocked
+      if (lng !== 'en') {
+        const loadFallback = async () => {
+          try {
+            if (!i18n.hasResourceBundle('en', 'translation')) {
+              const enData = await loadLocaleResource('en');
+              i18n.addResourceBundle('en', 'translation', enData, true, false);
+            }
+          } catch (e) {
+            console.warn('Deferred English fallback load warning:', e);
+          }
+        };
+
+        if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+          window.requestIdleCallback(loadFallback, { timeout: 2500 });
+        } else {
+          setTimeout(loadFallback, 1500);
+        }
+      }
+
+      i18n.on('languageChanged', async (newLng) => {
+        syncDocumentDirection(newLng);
+        const lang = newLng.split('-')[0];
+        if (supportedLngs.includes(lang) && !i18n.hasResourceBundle(lang, 'translation')) {
+          const data = await loadLocaleResource(lang);
+          i18n.addResourceBundle(lang, 'translation', data, true, true);
+        }
+      });
     } catch (err) {
       console.warn('initI18n fallback triggered:', err);
-      try {
-        await i18n.init({
-          fallbackLng: 'en',
-          lng: 'en',
-          interpolation: { escapeValue: false },
-          keySeparator: false,
-        });
-      } catch {
-        // ignore
-      }
     }
   })();
   return initPromise;
 };
 
-const origChangeLanguage = i18n.changeLanguage.bind(i18n);
-i18n.changeLanguage = async (lng, callback) => {
-  try {
-    if (!i18n.hasResourceBundle(lng, 'translation')) {
-      const mod = await localeModules[`./locales/${lng}.json`]();
-      i18n.addResourceBundle(lng, 'translation', mod.default);
-    }
-    return origChangeLanguage(lng, callback);
-  } catch (err) {
-    console.error('Failed to load locale:', lng, err);
-    return origChangeLanguage('en', callback);
-  }
-};
-
 export default i18n;
+
+

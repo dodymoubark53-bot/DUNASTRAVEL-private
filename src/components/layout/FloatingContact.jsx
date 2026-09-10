@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { FaWhatsapp, FaInstagram, FaPhone, FaEnvelope, FaTimes, FaHeadset } from 'react-icons/fa';
+import { FaWhatsapp, FaFacebookF, FaInstagram, FaPhone, FaEnvelope, FaTimes, FaHeadset } from 'react-icons/fa';
 import { useJaiderChat } from '../../context/JaiderChatContext';
 
 const FloatingContact = () => {
@@ -11,6 +11,7 @@ const FloatingContact = () => {
 
   const options = [
     { icon: FaWhatsapp, href: 'https://wa.me/201149401111', label: t('contact.whatsapp', 'WhatsApp'), bg: 'bg-[#25D366] text-white hover:bg-[#1ebd5a]' },
+    { icon: FaFacebookF, href: 'https://www.facebook.com/DunasTravelOficial?rdid=QDCCsuShSrLFmX8x&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1EsALYq8cg%2F#', label: t('contact.facebook', 'Facebook'), bg: 'bg-[#1877F2] text-white hover:bg-[#0f64d1]' },
     { icon: FaInstagram, href: 'https://www.instagram.com/dunas_travel?igsh=bWkyb2FhY2hoNnNo', label: t('contact.instagram', 'Instagram'), bg: 'bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white hover:opacity-90' },
     { icon: FaPhone, href: 'tel:+20233746643', label: t('contact.call', 'Call us'), bg: 'bg-[#1E3A8A] text-white hover:bg-[#172554]' },
     { icon: FaEnvelope, href: 'mailto:info@dunas-travel.com', label: t('contact.email', 'Email'), bg: 'bg-[#EA4335] text-white hover:bg-[#d3382c]' },
@@ -19,8 +20,8 @@ const FloatingContact = () => {
   const itemVariants = {
     closed: { opacity: 0, x: 0, y: 0, scale: 0 },
     open: (index) => {
-      const radius = 62;
-      const angleDeg = 90 + index * 30; // 90° (top) to 180° (left)
+      const radius = 72;
+      const angleDeg = 90 + index * 24; // 90° (top) to 186° (left)
       const angleRad = (angleDeg * Math.PI) / 180;
       const x = Math.cos(angleRad) * radius;
       const y = -Math.sin(angleRad) * radius;

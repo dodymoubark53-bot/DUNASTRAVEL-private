@@ -66,6 +66,7 @@ const FloatingGuideR = () => {
             alt="GuideR Luxury Travel Concierge"
             className="w-full h-full object-contain filter drop-shadow-[0_8px_18px_rgba(245,166,35,0.45)] group-hover:drop-shadow-[0_12px_24px_rgba(245,166,35,0.65)] transition-all duration-300"
             loading="eager"
+            fetchPriority="high"
             decoding="async"
             width="80"
             height="80"

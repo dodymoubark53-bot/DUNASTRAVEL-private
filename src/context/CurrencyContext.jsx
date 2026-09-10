@@ -3,6 +3,8 @@ import api from '../utils/api';
 const defaultCurrencyContext = {
   currency: 'USD',
   setCurrency: () => {},
+  isFallbackRate: false,
+  eurRate: 0.92,
   formatPrice: (amount) => {
     const numericAmount = Number(amount);
     if (isNaN(numericAmount)) return '';
@@ -21,6 +23,7 @@ export const CurrencyProvider = ({ children }) => {
     return storedCurrency === 'USD' || storedCurrency === 'EUR' ? storedCurrency : 'USD';
   });
   const [eurRate, setEurRate] = useState(0.92);
+  const [isFallbackRate, setIsFallbackRate] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -30,9 +33,12 @@ export const CurrencyProvider = ({ children }) => {
         const eur = data?.rates?.EUR || data?.EUR;
         if (eur && isMounted) {
           setEurRate(eur);
+          setIsFallbackRate(false);
         }
       } catch (err) {
-        console.error('Failed to fetch currency rates', err);
+        if (isMounted) {
+          setIsFallbackRate(true);
+        }
       }
     };
     fetchRate();
@@ -70,7 +76,10 @@ export const CurrencyProvider = ({ children }) => {
     }
   }, [currency, eurRate]);
 
-  const value = useMemo(() => ({ currency, setCurrency, formatPrice }), [currency, setCurrency, formatPrice]);
+  const value = useMemo(
+    () => ({ currency, setCurrency, formatPrice, eurRate, isFallbackRate }),
+    [currency, setCurrency, formatPrice, eurRate, isFallbackRate]
+  );
 
   return (
     <CurrencyContext.Provider value={value}>

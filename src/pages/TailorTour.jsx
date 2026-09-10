@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { supportedLocale } from '../utils/locale';
@@ -7,26 +7,67 @@ import { FaPlane, FaWhatsapp, FaPhone, FaFacebookF, FaInstagram } from 'react-ic
 import Button from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
 import { useDestinations } from '../hooks/useDestinations';
+import { useToast } from '../context/ToastContext';
 
 const TailorTour = () => {
   const { t, i18n } = useTranslation();
+  const toast = useToast();
   const { user } = useAuth();
   const { destinations: publishedDestinations } = useDestinations();
   const isRtl = i18n.dir() === 'rtl';
 
   const [step, setStep] = useState(1);
+  const DRAFT_STORAGE_KEY = 'dunas_tailor_tour_draft_v1';
+
+  // Read initial draft from localStorage safely
+  const getStoredDraft = () => {
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem(DRAFT_STORAGE_KEY) : null;
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const initialDraft = getStoredDraft();
+
   const [animationState, setAnimationState] = useState('parked-1'); // parked-1, parked-2, flying-forward, flying-backward
-  const [selectedDestinations, setSelectedDestinations] = useState([]);
+  const [selectedDestinations, setSelectedDestinations] = useState(
+    () => (Array.isArray(initialDraft?.selectedDestinations) ? initialDraft.selectedDestinations : [])
+  );
   const [destError, setDestError] = useState(false);
 
   // Traveler contact & info state
-  const [fullName, setFullName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [nationality, setNationality] = useState(user?.country || user?.nationality || '');
-  const [phone, setPhone] = useState(user?.phone || '');
-  const [travelDate, setTravelDate] = useState('');
+  const [fullName, setFullName] = useState(() => initialDraft?.fullName || user?.name || '');
+  const [email, setEmail] = useState(() => initialDraft?.email || user?.email || '');
+  const [nationality, setNationality] = useState(
+    () => initialDraft?.nationality || user?.country || user?.nationality || ''
+  );
+  const [phone, setPhone] = useState(() => initialDraft?.phone || user?.phone || '');
+  const [travelDate, setTravelDate] = useState(() => initialDraft?.travelDate || '');
   const [dateError, setDateError] = useState(false);
-  const [budget, setBudget] = useState('');
+  const [budget, setBudget] = useState(() => initialDraft?.budget || '');
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  const clearFieldError = (field) => {
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
+  // Partner / Secret Referral Code State
+  const [partnerCode, setPartnerCode] = useState(() => initialDraft?.partnerCode || '');
+  const [partnerVerificationState, setPartnerVerificationState] = useState('idle'); // 'idle' | 'verifying' | 'verified' | 'unverified'
+  const [verifiedPartnerCompany, setVerifiedPartnerCompany] = useState(null);
+  const [partnerVerificationError, setPartnerVerificationError] = useState('');
+  const partnerDebounceRef = useRef(null);
+  const [isDraftRestored, setIsDraftRestored] = useState(
+    () => Boolean(initialDraft && (initialDraft.fullName || initialDraft.email || initialDraft.phone || initialDraft.selectedDestinations?.length > 0 || initialDraft.partnerCode))
+  );
 
   useEffect(() => {
     if (!user) return undefined;
@@ -51,8 +92,10 @@ const TailorTour = () => {
   const todayStr = getTodayString();
 
   // Dynamic names & counts managed together to avoid setState in useEffect
-  const [passengerNames, setPassengerNames] = useState(['']); // initially 1 adult
-  const [specialRequests, setSpecialRequests] = useState('');
+  const [passengerNames, setPassengerNames] = useState(
+    () => (Array.isArray(initialDraft?.passengerNames) && initialDraft.passengerNames.length > 0 ? initialDraft.passengerNames : [''])
+  );
+  const [specialRequests, setSpecialRequests] = useState(() => initialDraft?.specialRequests || '');
 
   const resizeNames = (names, totalCount) => {
     const next = [...names];
@@ -66,9 +109,9 @@ const TailorTour = () => {
     return next;
   };
 
-  const [adults, _setAdults] = useState(1);
-  const [children, _setChildren] = useState(0);
-  const [infants, _setInfants] = useState(0);
+  const [adults, _setAdults] = useState(() => initialDraft?.adults || 1);
+  const [children, _setChildren] = useState(() => initialDraft?.children || 0);
+  const [infants, _setInfants] = useState(() => initialDraft?.infants || 0);
 
   const setAdults = (val) => {
     _setAdults(val);
@@ -89,6 +132,109 @@ const TailorTour = () => {
       next[index] = value;
       return next;
     });
+  };
+
+  // Auto-verify restored partner code on initial mount
+  useEffect(() => {
+    if (initialDraft?.partnerCode && initialDraft.partnerCode.length === 8) {
+      setPartnerVerificationState('verifying');
+      import('../utils/api').then(({ default: api }) => {
+        api.get(`/agencies/verify-partner/${initialDraft.partnerCode}`)
+          .then((res) => {
+            if (res.data?.valid && res.data?.company) {
+              setPartnerVerificationState('verified');
+              setVerifiedPartnerCompany(res.data.company);
+            } else {
+              setPartnerVerificationState('unverified');
+              setPartnerVerificationError(res.data?.message || '');
+            }
+          })
+          .catch((err) => {
+            setPartnerVerificationState('unverified');
+            setPartnerVerificationError(err?.response?.data?.message || '');
+          });
+      });
+    }
+  }, []);
+
+  // Auto-save draft to localStorage whenever fields change
+  useEffect(() => {
+    const hasContent =
+      selectedDestinations.length > 0 ||
+      Boolean(fullName.trim()) ||
+      Boolean(email.trim()) ||
+      Boolean(phone.trim()) ||
+      Boolean(nationality.trim()) ||
+      Boolean(travelDate) ||
+      Boolean(budget) ||
+      Boolean(specialRequests.trim()) ||
+      Boolean(partnerCode);
+
+    if (hasContent) {
+      const draft = {
+        selectedDestinations,
+        fullName,
+        email,
+        nationality,
+        phone,
+        travelDate,
+        budget,
+        adults,
+        children,
+        infants,
+        passengerNames,
+        specialRequests,
+        partnerCode,
+        updatedAt: new Date().toISOString(),
+      };
+      try {
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+      } catch {
+        // Ignore quota limits
+      }
+    }
+  }, [
+    selectedDestinations,
+    fullName,
+    email,
+    nationality,
+    phone,
+    travelDate,
+    budget,
+    adults,
+    children,
+    infants,
+    passengerNames,
+    specialRequests,
+    partnerCode,
+  ]);
+
+  // Clear draft action
+  const handleClearDraft = () => {
+    try {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+    setIsDraftRestored(false);
+    setSelectedDestinations([]);
+    setFullName(user?.name || '');
+    setEmail(user?.email || '');
+    setNationality(user?.country || user?.nationality || '');
+    setPhone(user?.phone || '');
+    setTravelDate('');
+    setDateError(false);
+    setBudget('');
+    setPartnerCode('');
+    setPartnerVerificationState('idle');
+    setVerifiedPartnerCompany(null);
+    setPartnerVerificationError('');
+    _setAdults(1);
+    _setChildren(0);
+    _setInfants(0);
+    setPassengerNames(['']);
+    setSpecialRequests('');
+    setStep(1);
   };
 
   // Scroll to top utility for Safari/iOS and generic cross-browser support
@@ -136,6 +282,7 @@ const TailorTour = () => {
   const handleDateChange = (e) => {
     const val = e.target.value;
     setTravelDate(val);
+    clearFieldError('travelDate');
     if (val && val < todayStr) {
       setDateError(true);
     } else {
@@ -143,23 +290,171 @@ const TailorTour = () => {
     }
   };
 
+  const parseBudgetAmount = (val) => {
+    if (!val) return undefined;
+    const clean = String(val).trim();
+    if (clean === '1000-2000') return 1500;
+    if (clean === '2000-3000') return 2500;
+    if (clean === '3000+') return 3000;
+    if (clean.includes('-')) {
+      const parts = clean
+        .split('-')
+        .map((p) => parseFloat(p.replace(/[^0-9.]/g, '')))
+        .filter((n) => Number.isFinite(n));
+      if (parts.length >= 2) return Math.round((parts[0] + parts[1]) / 2);
+      if (parts.length === 1) return parts[0];
+    }
+    const num = parseFloat(clean.replace(/[^0-9.]/g, ''));
+    return Number.isFinite(num) && num > 0 && num <= 10_000_000 ? num : undefined;
+  };
+
+  const validateStep2 = () => {
+    const errs = {};
+
+    // 1. Full Name
+    if (!fullName || !fullName.trim()) {
+      errs.fullName = t('tailor.errorFullNameRequired', 'الاسم الكامل مطلوب (كما هو موضح في جواز السفر)');
+    } else if (fullName.trim().length < 2) {
+      errs.fullName = t('tailor.errorFullNameShort', 'يجب أن يتكون الاسم من حرفين على الأقل');
+    }
+
+    // 2. Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !email.trim()) {
+      errs.email = t('tailor.errorEmailRequired', 'البريد الإلكتروني مطلوب لتأكيد الحجز والتواصل');
+    } else if (!emailRegex.test(email.trim())) {
+      errs.email = t('tailor.errorEmailInvalid', 'يرجى إدخال بريد إلكتروني صحيح (مثال: name@example.com)');
+    }
+
+    // 3. Nationality
+    if (!nationality || !nationality.trim()) {
+      errs.nationality = t('tailor.errorNationalityRequired', 'يرجى اختيار الجنسية');
+    }
+
+    // 4. Phone
+    const phoneClean = phone ? phone.trim() : '';
+    const phoneRegex = /^[0-9+\-\s()]{7,25}$/;
+    if (!phoneClean) {
+      errs.phone = t('tailor.errorPhoneRequired', 'رقم الهاتف مطلوب لتنسيق الرحلة (واتساب أو اتصال)');
+    } else if (!phoneRegex.test(phoneClean)) {
+      errs.phone = t('tailor.errorPhoneInvalid', 'رقم الهاتف غير صالح (يجب أن يحتوي على أرقام ورمز الدولة)');
+    }
+
+    // 5. Travel Date
+    if (!travelDate) {
+      errs.travelDate = t('tailor.errorDateRequired', 'يرجى تحديد تاريخ السفر المتوقع');
+    } else if (travelDate < todayStr) {
+      errs.travelDate = t('tailor.errorPastDate', 'تاريخ السفر يجب أن يكون في المستقبل');
+    }
+
+    // 6. Budget
+    if (!budget) {
+      errs.budget = t('tailor.errorBudgetRequired', 'يرجى اختيار الميزانية التقريبية للشخص الواحد');
+    }
+
+    // 7. Adults
+    if (!adults || adults < 1) {
+      errs.adults = t('tailor.errorAdultsMin', 'يجب أن يكون هناك بالغ واحد على الأقل (+12 سنة)');
+    }
+
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const handlePartnerCodeChange = (e) => {
+    const rawVal = e.target.value;
+    const digitsOnly = String(rawVal).replace(/\D/g, '').slice(0, 8);
+    setPartnerCode(digitsOnly);
+
+    if (partnerDebounceRef.current) {
+      clearTimeout(partnerDebounceRef.current);
+    }
+
+    if (digitsOnly.length === 8) {
+      setPartnerVerificationState('verifying');
+      setPartnerVerificationError('');
+
+      partnerDebounceRef.current = setTimeout(async () => {
+        try {
+          const { default: api } = await import('../utils/api');
+          const res = await api.get(`/agencies/verify-partner/${digitsOnly}`);
+          if (res.data?.valid && res.data?.company) {
+            setPartnerVerificationState('verified');
+            setVerifiedPartnerCompany(res.data.company);
+            setPartnerVerificationError('');
+          } else {
+            setPartnerVerificationState('unverified');
+            setVerifiedPartnerCompany(null);
+            setPartnerVerificationError(
+              res.data?.message || t('tailor.partnerCodeNotFound', 'رمز الشريك غير مسجل في شبكة الشركاء المعتمدين')
+            );
+          }
+        } catch (err) {
+          setPartnerVerificationState('unverified');
+          setVerifiedPartnerCompany(null);
+          setPartnerVerificationError(
+            err?.response?.data?.message || err?.message || t('tailor.partnerCodeCheckFailed', 'تعذر التحقق من رمز الشريك')
+          );
+        }
+      }, 300);
+    } else {
+      setPartnerVerificationState('idle');
+      setVerifiedPartnerCompany(null);
+      setPartnerVerificationError('');
+    }
+  };
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Prevent form submission if dates are in the past
-    if (travelDate && travelDate < todayStr) {
-      setDateError(true);
+
+    // Comprehensive Step 2 validation
+    if (!validateStep2()) {
+      toast?.error?.(
+        isRtl
+          ? 'يرجى مراجعة الحقول المطلوبة باللون الأحمر واستكمال البيانات المطلوبة.'
+          : 'Please review the highlighted required fields and complete your details.',
+        {
+          title: isRtl ? 'حقول إلزامية ناقصة' : 'Incomplete Form',
+          duration: 6000,
+        }
+      );
+
+      // Smooth scroll to the first erroneous input
+      setTimeout(() => {
+        const firstErrorInput = document.querySelector('.border-red-500, input:invalid, select:invalid');
+        if (firstErrorInput) {
+          firstErrorInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstErrorInput.focus();
+        }
+      }, 100);
       return;
     }
 
     try {
       setIsSubmitting(true);
-      
+
+      // Assemble structured customer notes with nationality and passenger names
+      const notesParts = [];
+      if (nationality && nationality.trim()) {
+        notesParts.push(`الجنسية: ${nationality.trim()}`);
+      }
+      const validPassengerNames = passengerNames.map((n) => n?.trim()).filter(Boolean);
+      if (validPassengerNames.length > 0) {
+        notesParts.push(`أسماء المسافرين: ${validPassengerNames.join(', ')}`);
+      }
+      if (specialRequests && specialRequests.trim()) {
+        notesParts.push(`طلبات خاصة: ${specialRequests.trim()}`);
+      }
+      const combinedNotes = notesParts.join(' | ') || undefined;
+
+      const parsedBudget = parseBudgetAmount(budget);
+
       const payload = {
-        fullName,
-        email,
-        phone,
+        fullName: fullName.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
         preferredLanguage: (() => {
           const language = String(i18n.language || 'en').toLowerCase().split('-')[0];
           return ['en', 'es', 'fr', 'de', 'it', 'ar', 'pt'].includes(language)
@@ -168,21 +463,29 @@ const TailorTour = () => {
         })(),
         destinations: selectedDestinations.length > 0 ? selectedDestinations : ['Custom Experience'],
         startDate: travelDate || undefined,
-        adults: adults || 1,
-        children: (children || 0) + (infants || 0),
-        notes: specialRequests || undefined,
+        adults: Number(adults) || 1,
+        children: Number(children || 0) + Number(infants || 0),
+        notes: combinedNotes,
+        ...(parsedBudget ? { budgetAmount: parsedBudget, budgetCurrency: 'USD' } : {}),
+        ...(partnerCode && partnerCode.length === 8 ? { partnerCode } : {}),
       };
-
-      if (budget) {
-        payload.budgetAmount = parseFloat(budget.replace(/[^0-9.]/g, ''));
-        payload.budgetCurrency = 'USD';
-      }
 
       const { default: api } = await import('../utils/api');
       await api.post('/inquiries', payload);
 
-      alert(t('tailor.successAlert', 'Your request has been submitted successfully! We will contact you soon.'));
-      // Reset form
+      const successMessage = t('tailor.successAlert', 'تم إرسال طلب رحلتك المخصصة بنجاح! سيتواصل معك أحد خبراء السفر الفاخر قريباً.');
+      toast?.success?.(successMessage, {
+        title: t('tailor.successTitle', 'تم تأكيد استلام الطلب'),
+        duration: 7000,
+      });
+
+      // Reset form & clear draft
+      try {
+        localStorage.removeItem(DRAFT_STORAGE_KEY);
+      } catch {
+        // ignore
+      }
+      setIsDraftRestored(false);
       setSelectedDestinations([]);
       setFullName('');
       setEmail('');
@@ -190,20 +493,46 @@ const TailorTour = () => {
       setPhone('');
       setTravelDate('');
       setDateError(false);
+      setFieldErrors({});
       setBudget('');
-      setAdults(1);
-      setChildren(0);
-      setInfants(0);
+      setPartnerCode('');
+      setPartnerVerificationState('idle');
+      setVerifiedPartnerCompany(null);
+      setPartnerVerificationError('');
+      _setAdults(1);
+      _setChildren(0);
+      _setInfants(0);
+      setPassengerNames(['']);
+      setSpecialRequests('');
       setStep(1);
       scrollToTop();
     } catch (err) {
       console.error('Inquiry submission failed:', err);
-      alert(t('tailor.errorAlert', 'Failed to submit inquiry. Please try again.'));
+      const serverResponse = err?.response?.data;
+      let errorDetail = '';
+
+      if (serverResponse?.message) {
+        if (Array.isArray(serverResponse.message)) {
+          errorDetail = serverResponse.message.join(', ');
+        } else if (typeof serverResponse.message === 'string') {
+          errorDetail = serverResponse.message;
+        }
+      } else if (err?.message) {
+        errorDetail = err.message;
+      }
+
+      const baseErrorMessage = isRtl
+        ? 'تعذر إرسال طلب الرحلة المخصصة، يرجى التحقق من الحقول الإلزامية.'
+        : 'Failed to submit bespoke inquiry. Please verify the required fields.';
+
+      toast?.error?.(errorDetail ? `${baseErrorMessage}\n(${errorDetail})` : baseErrorMessage, {
+        title: isRtl ? 'خطأ في إرسال الطلب' : 'Submission Error',
+        duration: 8000,
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
-
 
   // Select plane-icon class dynamically depending on step & language direction
   const getPlaneClass = () => {
@@ -223,13 +552,102 @@ const TailorTour = () => {
 
   const isFlying = animationState === 'flying-forward' || animationState === 'flying-backward';
 
-  const destinations = publishedDestinations
-    .filter((destination) => destination.heroImageUrl)
-    .map((destination) => ({
-      id: destination.slug,
-      name: destination.title,
-      img: destination.heroImageUrl,
-    }));
+const DEFAULT_DESTINATIONS = [
+  {
+    id: 'egypt',
+    nameAr: 'مصر (القاهرة، الأهرامات والنيل)',
+    nameEn: 'Egypt (Cairo, Pyramids & Nile)',
+    nameEs: 'Egipto (El Cairo y Nilo)',
+    namePt: 'Egito (Cairo e Nilo)',
+    nameIt: 'Egitto (Cairo e Nilo)',
+    img: 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026771/8_mpyvu4.jpg',
+    flag: '🇪🇬',
+  },
+  {
+    id: 'turkey',
+    nameAr: 'تركيا (إسطنبول وكابادوكيا)',
+    nameEn: 'Turkey (Istanbul & Cappadocia)',
+    nameEs: 'Turquía (Estambul y Capadocia)',
+    namePt: 'Turquia (Istambul e Capadócia)',
+    nameIt: 'Turchia (Istanbul e Cappadocia)',
+    img: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=800&q=80',
+    flag: '🇹🇷',
+  },
+  {
+    id: 'jordan',
+    nameAr: 'الأردن (البتراء والبحر الميت)',
+    nameEn: 'Jordan (Petra & Dead Sea)',
+    nameEs: 'Jordania (Petra y Mar Muerto)',
+    namePt: 'Jordânia (Petra e Mar Morto)',
+    nameIt: 'Giordania (Petra e Mar Morto)',
+    img: 'https://images.unsplash.com/photo-1579606032822-e42718e24483?auto=format&fit=crop&w=800&q=80',
+    flag: '🇯🇴',
+  },
+  {
+    id: 'dubai',
+    nameAr: 'دبي والإمارات الفاخرة',
+    nameEn: 'Dubai & UAE Luxury',
+    nameEs: 'Dubái y Emiratos de Lujo',
+    namePt: 'Dubai e Emirados Árabes',
+    nameIt: 'Dubai ed Emirati Arabi',
+    img: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80',
+    flag: '🇦🇪',
+  },
+  {
+    id: 'morocco',
+    nameAr: 'المغرب (مراكش والمدن العتيقة)',
+    nameEn: 'Morocco (Marrakech & Imperial Cities)',
+    nameEs: 'Marruecos (Marrakech)',
+    namePt: 'Marrocos (Marrakech)',
+    nameIt: 'Marocco (Marrakech)',
+    img: 'https://images.unsplash.com/photo-1539020140153-e479b8c22e70?auto=format&fit=crop&w=800&q=80',
+    flag: '🇲🇦',
+  },
+  {
+    id: 'greece',
+    nameAr: 'اليونان (أثينا وسانتوريني)',
+    nameEn: 'Greece (Athens & Santorini)',
+    nameEs: 'Grecia (Atenas y Santorini)',
+    namePt: 'Grécia (Atenas e Santorini)',
+    nameIt: 'Grecia (Atene e Santorini)',
+    img: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=800&q=80',
+    flag: '🇬🇷',
+  },
+  {
+    id: 'tunisia',
+    nameAr: 'تونس (الصحراء والواحات)',
+    nameEn: 'Tunisia (Heritage & Oasis)',
+    nameEs: 'Túnez (Patrimonio y Desierto)',
+    namePt: 'Tunísia (História e Deserto)',
+    nameIt: 'Tunisia (Oasi e Sahara)',
+    img: 'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=800&q=80',
+    flag: '🇹🇳',
+  },
+  {
+    id: 'multi-country',
+    nameAr: 'برامج سياحية مشتركة (متعددة الوجهات)',
+    nameEn: 'Multi-Country Combined Grand Tours',
+    nameEs: 'Grandes Tours Multipaís Combinados',
+    namePt: 'Grandes Roteiros Multi-Países',
+    nameIt: 'Grandi Tour Combinati Multi-Paese',
+    img: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80',
+    flag: '🌍',
+  },
+];
+
+  const langKey = (i18n.language || 'en').toLowerCase().split('-')[0];
+  const destinations = (publishedDestinations && publishedDestinations.length > 0)
+    ? publishedDestinations.map((destination) => ({
+        id: destination.slug || destination.id,
+        name: destination.title || destination.name,
+        img: destination.heroImageUrl || destination.image || 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_800,c_fill/v1783026771/8_mpyvu4.jpg',
+      }))
+    : DEFAULT_DESTINATIONS.map((d) => ({
+        id: d.id,
+        name: d[`name${langKey === 'ar' ? 'Ar' : langKey === 'es' ? 'Es' : langKey === 'pt' ? 'Pt' : langKey === 'it' ? 'It' : 'En'}`] || d.nameEn,
+        img: d.img,
+        flag: d.flag,
+      }));
 
   const totalPassengers = adults + children + infants;
 
@@ -602,9 +1020,7 @@ const TailorTour = () => {
 
         .social-footer-3d ul li:hover a {
           transform: translate(12px, -12px);
-          box-shadow: -20px 20px 20px rgba(0, 0, 0, 0.15);
-        }
-      ` }} />
+          bo      ` }} />
 
       {/* Banner Section */}
       <section className="relative h-[40vh] pt-24 flex items-center justify-center overflow-hidden">
@@ -680,6 +1096,28 @@ const TailorTour = () => {
 
           {/* Form Element */}
           <form onSubmit={handleSubmit} className="mt-8">
+            {isDraftRestored && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 bg-gradient-to-r from-gold-500/15 via-gold-500/5 to-gold-500/15 border border-gold-500/30 rounded-2xl flex items-center justify-between gap-3 text-xs shadow-xs"
+              >
+                <div className="flex items-center gap-2.5 text-obsidian-800">
+                  <span className="text-gold-600 text-base">💾</span>
+                  <span className="font-medium">
+                    {t('tailor.draftRestored', 'تم استعادة بيانات طلبك السابقة تلقائياً من جهازك.')}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleClearDraft}
+                  className="px-2.5 py-1 text-xs font-bold text-obsidian-600 hover:text-red-600 bg-white/80 border border-obsidian-900/10 rounded-lg hover:border-red-400/40 transition-all cursor-pointer"
+                >
+                  {t('tailor.clearDraft', 'مسح والبدء من جديد')}
+                </button>
+              </motion.div>
+            )}
+
             <AnimatePresence mode="wait">
               {step === 1 && (
                 <motion.div
@@ -693,43 +1131,56 @@ const TailorTour = () => {
                     {t('tailor.step1Title', 'Where would you like to travel? (You can choose more than one)')}
                   </h3>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 mb-8">
                     {destinations.map((dest) => {
                       const isSelected = selectedDestinations.includes(dest.id);
                       return (
-                        <div
+                        <button
+                          type="button"
                           key={dest.id}
                           onClick={() => handleDestinationToggle(dest.id)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault();
-                              handleDestinationToggle(dest.id);
-                            }
-                          }}
-                          role="button"
-                          tabIndex={0}
                           aria-pressed={isSelected}
-                          aria-label={`${t("home.select", "Select")} ${dest.name}`}
-                          className="relative h-[200px] rounded-xl overflow-hidden cursor-pointer group border-3 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gold-500"
-                          style={{
-                            borderColor: isSelected ? 'var(--color-gold, #f5a623)' : 'rgba(26,26,46,0.1)',
-                            boxShadow: isSelected ? '0 0 24px rgba(245,166,35,0.25)' : 'none',
-                          }}
+                          aria-label={`${isSelected ? t('tailor.unselect', 'Unselect') : t('home.select', 'Select')} ${dest.name}`}
+                          className={`relative h-[220px] rounded-2xl overflow-hidden cursor-pointer group border-2 bg-slate-900 p-0 text-left transition-all duration-300 transform hover:-translate-y-1 ${
+                            isSelected
+                              ? 'border-amber-500 shadow-xl ring-2 ring-amber-500/50 scale-[1.02]'
+                              : 'border-obsidian-900/10 hover:border-amber-500/70 hover:shadow-lg'
+                          }`}
                         >
                           <img
                             src={dest.img}
                             alt={dest.name}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            draggable="false"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.88] group-hover:brightness-100"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900/80 via-obsidian-900/20 to-transparent flex items-end justify-center p-4">
-                            <span className="text-ivory-50 font-bold text-lg drop-shadow-md text-center">
+                          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent flex flex-col justify-end p-4">
+                            {dest.flag && (
+                              <span className="text-xl mb-1 drop-shadow">{dest.flag}</span>
+                            )}
+                            <span className="text-white font-extrabold text-base leading-snug drop-shadow-md">
                               {dest.name}
                             </span>
                           </div>
-                        </div>
+                          {isSelected && (
+                            <span
+                              className="pointer-events-none absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-amber-500 text-slate-950 font-black shadow-lg text-sm"
+                              aria-hidden="true"
+                            >
+                              ✓
+                            </span>
+                          )}
+                        </button>
                       );
                     })}
                   </div>
+
+                  <p className="min-h-6 text-center text-body-sm font-medium text-obsidian-700" aria-live="polite">
+                    {selectedDestinations.length > 0
+                      ? t('tailor.destinationsSelected', '{{count}} destination(s) selected', {
+                        count: selectedDestinations.length,
+                      })
+                      : t('tailor.selectDestinationHint', 'Select one or more destinations, then continue.')}
+                  </p>
 
                   {destError && (
                     <p className="text-[#e74c3c] text-center mb-6 font-medium text-body-md">
@@ -770,12 +1221,24 @@ const TailorTour = () => {
                       <input
                         id="tailor-fullname"
                         type="text"
-                        required
                         value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
+                        onChange={(e) => {
+                          setFullName(e.target.value);
+                          clearFieldError('fullName');
+                        }}
                         placeholder={t('tailor.fullNamePlaceholder', 'Name as shown in passport')}
-                        className="w-full p-4 bg-white border border-obsidian-900/10 rounded-xl focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)] outline-none transition-all text-obsidian-900"
+                        aria-invalid={Boolean(fieldErrors.fullName)}
+                        className={`w-full p-4 bg-white border rounded-xl outline-none transition-all text-obsidian-900 ${
+                          fieldErrors.fullName
+                            ? 'border-red-500 ring-2 ring-red-500/20 bg-red-50/10'
+                            : 'border-obsidian-900/10 focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)]'
+                        }`}
                       />
+                      {fieldErrors.fullName && (
+                        <p className="mt-1.5 text-xs text-red-600 font-bold flex items-center gap-1">
+                          <span>⚠️</span> {fieldErrors.fullName}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label htmlFor="tailor-email" className="block mb-2 font-semibold text-body-sm text-obsidian-700">
@@ -784,12 +1247,24 @@ const TailorTour = () => {
                       <input
                         id="tailor-email"
                         type="email"
-                        required
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          clearFieldError('email');
+                        }}
                         placeholder={t('tailor.emailPlaceholder', 'name@example.com')}
-                        className="w-full p-4 bg-white border border-obsidian-900/10 rounded-xl focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)] outline-none transition-all text-obsidian-900"
+                        aria-invalid={Boolean(fieldErrors.email)}
+                        className={`w-full p-4 bg-white border rounded-xl outline-none transition-all text-obsidian-900 ${
+                          fieldErrors.email
+                            ? 'border-red-500 ring-2 ring-red-500/20 bg-red-50/10'
+                            : 'border-obsidian-900/10 focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)]'
+                        }`}
                       />
+                      {fieldErrors.email && (
+                        <p className="mt-1.5 text-xs text-red-600 font-bold flex items-center gap-1">
+                          <span>⚠️</span> {fieldErrors.email}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -800,18 +1275,45 @@ const TailorTour = () => {
                       </label>
                       <select
                         id="tailor-nationality"
-                        required
                         value={nationality}
-                        onChange={(e) => setNationality(e.target.value)}
-                        className="w-full p-4 bg-white border border-obsidian-900/10 rounded-xl focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)] outline-none transition-all text-obsidian-900 cursor-pointer"
+                        onChange={(e) => {
+                          setNationality(e.target.value);
+                          clearFieldError('nationality');
+                        }}
+                        aria-invalid={Boolean(fieldErrors.nationality)}
+                        className={`w-full p-4 bg-white border rounded-xl outline-none transition-all text-obsidian-900 cursor-pointer ${
+                          fieldErrors.nationality
+                            ? 'border-red-500 ring-2 ring-red-500/20 bg-red-50/10'
+                            : 'border-obsidian-900/10 focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)]'
+                        }`}
                       >
                         <option value="">{t('tailor.selectNationality', 'Select nationality...')}</option>
-                        <option value="Egyptian">{t('tailor.nationalityEgypt', 'Egyptian')}</option>
-                        <option value="Saudi">{t('tailor.nationalitySaudi', 'Saudi')}</option>
-                        <option value="Emirati">{t('tailor.nationalityEmirati', 'Emirati')}</option>
-                        <option value="Kuwaiti">{t('tailor.nationalityKuwaiti', 'Kuwaiti')}</option>
-                        <option value="American">{t('tailor.nationalityAmerican', 'American')}</option>
+                        <option value="مصرية">{t('tailor.nationalityEgypt', 'مصرية (Egyptian)')}</option>
+                        <option value="سعودية">{t('tailor.nationalitySaudi', 'سعودية (Saudi)')}</option>
+                        <option value="إماراتية">{t('tailor.nationalityEmirati', 'إماراتية (Emirati)')}</option>
+                        <option value="كويتية">{t('tailor.nationalityKuwaiti', 'كويتية (Kuwaiti)')}</option>
+                        <option value="قطرية">{t('tailor.nationalityQatari', 'قطرية (Qatari)')}</option>
+                        <option value="بحرينية">{t('tailor.nationalityBahraini', 'بحرينية (Bahraini)')}</option>
+                        <option value="عمانية">{t('tailor.nationalityOmani', 'عمانية (Omani)')}</option>
+                        <option value="أردنية">{t('tailor.nationalityJordanian', 'أردنية (Jordanian)')}</option>
+                        <option value="لبنانية">{t('tailor.nationalityLebanese', 'لبنانية (Lebanese)')}</option>
+                        <option value="أمريكية">{t('tailor.nationalityAmerican', 'أمريكية (American)')}</option>
+                        <option value="بريطانية">{t('tailor.nationalityBritish', 'بريطانية (British)')}</option>
+                        <option value="برازيلية">{t('tailor.nationalityBrazilian', 'برازيلية (Brazilian)')}</option>
+                        <option value="إسبانية">{t('tailor.nationalitySpanish', 'إسبانية (Spanish)')}</option>
+                        <option value="إيطالية">{t('tailor.nationalityItalian', 'إيطالية (Italian)')}</option>
+                        <option value="برتغالية">{t('tailor.nationalityPortuguese', 'برتغالية (Portuguese)')}</option>
+                        <option value="فرنسية">{t('tailor.nationalityFrench', 'فرنسية (French)')}</option>
+                        <option value="ألمانية">{t('tailor.nationalityGerman', 'ألمانية (German)')}</option>
+                        <option value="كندية">{t('tailor.nationalityCanadian', 'كندية (Canadian)')}</option>
+                        <option value="أسترالية">{t('tailor.nationalityAustralian', 'أسترالية (Australian)')}</option>
+                        <option value="أخرى">{t('tailor.nationalityOther', 'أخرى (Other)')}</option>
                       </select>
+                      {fieldErrors.nationality && (
+                        <p className="mt-1.5 text-xs text-red-600 font-bold flex items-center gap-1">
+                          <span>⚠️</span> {fieldErrors.nationality}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label htmlFor="tailor-phone" className="block mb-2 font-semibold text-body-sm text-obsidian-700">
@@ -819,13 +1321,25 @@ const TailorTour = () => {
                       </label>
                       <input
                         id="tailor-phone"
-                        type="text"
-                        required
+                        type="tel"
                         value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
+                        onChange={(e) => {
+                          setPhone(e.target.value);
+                          clearFieldError('phone');
+                        }}
                         placeholder={t('tailor.phonePlaceholder', 'Example: 00201xxxxxxxxx')}
-                        className="w-full p-4 bg-white border border-obsidian-900/10 rounded-xl focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)] outline-none transition-all text-obsidian-900"
+                        aria-invalid={Boolean(fieldErrors.phone)}
+                        className={`w-full p-4 bg-white border rounded-xl outline-none transition-all text-obsidian-900 ${
+                          fieldErrors.phone
+                            ? 'border-red-500 ring-2 ring-red-500/20 bg-red-50/10'
+                            : 'border-obsidian-900/10 focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)]'
+                        }`}
                       />
+                      {fieldErrors.phone && (
+                        <p className="mt-1.5 text-xs text-red-600 font-bold flex items-center gap-1">
+                          <span>⚠️</span> {fieldErrors.phone}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -837,15 +1351,19 @@ const TailorTour = () => {
                       <input
                         id="tailor-date"
                         type="date"
-                        required
                         value={travelDate}
                         min={todayStr}
                         onChange={handleDateChange}
-                        className="w-full p-4 bg-white border border-obsidian-900/10 rounded-xl focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)] outline-none transition-all text-obsidian-900 cursor-pointer"
+                        aria-invalid={Boolean(fieldErrors.travelDate || dateError)}
+                        className={`w-full p-4 bg-white border rounded-xl outline-none transition-all text-obsidian-900 cursor-pointer ${
+                          fieldErrors.travelDate || dateError
+                            ? 'border-red-500 ring-2 ring-red-500/20 bg-red-50/10'
+                            : 'border-obsidian-900/10 focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)]'
+                        }`}
                       />
-                      {dateError && (
-                        <p className="text-[#e74c3c] mt-2 font-medium text-body-sm">
-                          {t('tailor.errorPastDate', '⚠️ Please select a future travel date.')}
+                      {(fieldErrors.travelDate || dateError) && (
+                        <p className="mt-1.5 text-xs text-red-600 font-bold flex items-center gap-1">
+                          <span>⚠️</span> {fieldErrors.travelDate || t('tailor.errorPastDate', 'تاريخ السفر يجب أن يكون في المستقبل')}
                         </p>
                       )}
                     </div>
@@ -855,16 +1373,28 @@ const TailorTour = () => {
                       </label>
                       <select
                         id="tailor-budget"
-                        required
                         value={budget}
-                        onChange={(e) => setBudget(e.target.value)}
-                        className="w-full p-4 bg-white border border-obsidian-900/10 rounded-xl focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)] outline-none transition-all text-obsidian-900 cursor-pointer"
+                        onChange={(e) => {
+                          setBudget(e.target.value);
+                          clearFieldError('budget');
+                        }}
+                        aria-invalid={Boolean(fieldErrors.budget)}
+                        className={`w-full p-4 bg-white border rounded-xl outline-none transition-all text-obsidian-900 cursor-pointer ${
+                          fieldErrors.budget
+                            ? 'border-red-500 ring-2 ring-red-500/20 bg-red-50/10'
+                            : 'border-obsidian-900/10 focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)]'
+                        }`}
                       >
                         <option value="">{t('tailor.selectBudget', 'Select expected budget...')}</option>
                         <option value="1000-2000">{t('tailor.budgetOption1', '$1000 to $2000')}</option>
                         <option value="2000-3000">{t('tailor.budgetOption2', '$2000 to $3000')}</option>
                         <option value="3000+">{t('tailor.budgetOption3', '$3000 or more')}</option>
                       </select>
+                      {fieldErrors.budget && (
+                        <p className="mt-1.5 text-xs text-red-600 font-bold flex items-center gap-1">
+                          <span>⚠️</span> {fieldErrors.budget}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -984,6 +1514,107 @@ const TailorTour = () => {
                     </div>
                   )}
 
+                  {/* Partner / Secret Contract Code Section */}
+                  <div className="mb-6 p-5 bg-gradient-to-r from-obsidian-900/5 via-gold-500/5 to-obsidian-900/5 border border-gold-500/20 rounded-2xl">
+                    <div className="flex items-center justify-between mb-2">
+                      <label htmlFor="tailor-partner-code" className="font-semibold text-body-sm text-obsidian-800 flex items-center gap-2">
+                        <span className="text-gold-500 text-base">🏷️</span>
+                        {t('tailor.partnerCodeLabel', 'Contracted Partner / Secret Referral Code (8 Digits - Optional)')}
+                      </label>
+                      {partnerVerificationState === 'verifying' && (
+                        <span className="text-xs text-gold-600 dark:text-gold-400 flex items-center gap-1.5 animate-pulse font-mono font-medium">
+                          <span className="w-2 h-2 rounded-full bg-gold-500 animate-ping inline-block" />
+                          {t('tailor.verifyingPartner', 'Verifying partner code...')}
+                        </span>
+                      )}
+                      {partnerVerificationState === 'verified' && (
+                        <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                          ✓ {t('tailor.verifiedPartnerBadge', 'Contracted Partner')}
+                        </span>
+                      )}
+                      {partnerVerificationState === 'unverified' && (
+                        <span className="text-xs text-amber-600 font-bold flex items-center gap-1">
+                          ✕ {t('tailor.unverifiedPartnerBadge', 'كود غير مسجل')}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="relative">
+                      <input
+                        id="tailor-partner-code"
+                        type="text"
+                        value={partnerCode}
+                        onChange={handlePartnerCodeChange}
+                        maxLength={8}
+                        inputMode="numeric"
+                        placeholder="••••••••"
+                        className={`w-full p-4 bg-white border rounded-xl tracking-widest font-mono text-base outline-none transition-all ${
+                          partnerVerificationState === 'verified'
+                            ? '!border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.18)] bg-emerald-50/20'
+                            : partnerVerificationState === 'unverified'
+                              ? '!border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.15)] bg-amber-50/20'
+                              : 'border-obsidian-900/10 focus:border-gold-500 focus:shadow-[0_0_12px_rgba(245,166,35,0.15)]'
+                        }`}
+                      />
+                      {partnerVerificationState === 'verifying' && (
+                        <div className="absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                          <div className="w-5 h-5 border-2 border-gold-500 border-t-transparent rounded-full animate-spin" />
+                        </div>
+                      )}
+                      {partnerVerificationState === 'verified' && (
+                        <div className="absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none text-emerald-600 font-bold text-lg">
+                          ✓
+                        </div>
+                      )}
+                      {partnerVerificationState === 'unverified' && (
+                        <div className="absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none text-amber-600 font-bold text-base">
+                          ✕
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Verified Partner Card */}
+                    {partnerVerificationState === 'verified' && verifiedPartnerCompany && (
+                      <div className="mt-3 p-3.5 bg-gradient-to-r from-emerald-500/10 via-white to-gold-500/10 border border-emerald-500/30 rounded-xl shadow-xs">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-2.5">
+                            <span className="text-emerald-600 font-bold text-base leading-none mt-0.5">✓</span>
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-obsidian-900 text-sm">
+                                  {verifiedPartnerCompany.name}
+                                </span>
+                                <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase bg-gold-500/20 text-gold-700 border border-gold-500/40 rounded">
+                                  {verifiedPartnerCompany.tier || 'PLATINUM'} TIER
+                                </span>
+                              </div>
+                              <p className="text-xs text-obsidian-600 mt-1">
+                                {t('tailor.verifiedPartnerDesc', 'Request will be linked to contracted agency VIP desk')} • <span className="font-mono text-gold-600 font-bold">{verifiedPartnerCompany.referenceCode}</span>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Unverified Partner Note */}
+                    {partnerVerificationState === 'unverified' && (
+                      <div className="mt-3 p-3 bg-amber-50 border border-amber-400/40 rounded-xl text-xs text-amber-900">
+                        <div className="flex items-start gap-2">
+                          <span className="text-amber-600 font-bold text-base leading-none">ℹ️</span>
+                          <div>
+                            <span className="font-semibold block mb-0.5">
+                              {t('tailor.unverifiedPartnerTitle', 'Unregistered Partner Code')}
+                            </span>
+                            <p className="text-obsidian-600 text-[11.5px] leading-relaxed">
+                              {partnerVerificationError || t('tailor.unverifiedPartnerDesc', 'This code was not found in active partner contracts. You can still submit your inquiry normally, and our travel designers will assist you.')}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   {/* Special Requests */}
                   <div className="mb-8">
                     <label htmlFor="tailor-requests" className="block mb-2 font-semibold text-body-sm text-obsidian-700">
@@ -1020,50 +1651,46 @@ const TailorTour = () => {
           </form>
 
           {/* Social Footer */}
-          <div className="social-footer-3d">
-            <p className="text-body-md text-obsidian-500 font-semibold mb-4">
+          <div className="mt-12 p-6 rounded-2xl bg-white border border-obsidian-900/10 shadow-sm text-center">
+            <p className="text-sm font-bold text-obsidian-800 mb-4">
               {t('tailor.socialFooterDesc', 'Need immediate assistance? Contact us via one of the following channels:')}
             </p>
-            <ul>
-              <li className="ts-whatsapp">
-                <a
-                  href="https://wa.me/201004146843"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="WhatsApp"
-                  aria-label="Contact us on WhatsApp"
-                >
-                  <FaWhatsapp />
-                </a>
-              </li>
-              <li className="ts-phone">
-                <a href="tel:+20233746643" title={t('contact.phoneLabel', 'Phone')} aria-label="Call us">
-                  <FaPhone />
-                </a>
-              </li>
-              <li className="ts-facebook">
-                <a
-                  href="https://www.facebook.com/share/1BnRWtoUdo/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Facebook"
-                  aria-label="Visit our Facebook page"
-                >
-                  <FaFacebookF />
-                </a>
-              </li>
-              <li className="ts-instagram">
-                <a
-                  href="https://www.instagram.com/dunas_travel?igsh=bWkyb2FhY2hoNnNo"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Instagram"
-                  aria-label="Visit our Instagram page"
-                >
-                  <FaInstagram />
-                </a>
-              </li>
-            </ul>
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <a
+                href="https://wa.me/201004146843"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 border border-emerald-500/30 text-xs font-bold transition-all shadow-xs hover:scale-105"
+              >
+                <FaWhatsapp size={16} />
+                <span>WhatsApp</span>
+              </a>
+              <a
+                href="tel:+20233746643"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 border border-amber-500/30 text-xs font-bold transition-all shadow-xs hover:scale-105"
+              >
+                <FaPhone size={14} />
+                <span>+20 2 33746643</span>
+              </a>
+              <a
+                href="https://www.facebook.com/share/1BnRWtoUdo/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 border border-blue-500/30 text-xs font-bold transition-all shadow-xs hover:scale-105"
+              >
+                <FaFacebookF size={14} />
+                <span>Facebook</span>
+              </a>
+              <a
+                href="https://www.instagram.com/dunas_travel?igsh=bWkyb2FhY2hoNnNo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-pink-500/10 hover:bg-pink-500/20 text-pink-600 border border-pink-500/30 text-xs font-bold transition-all shadow-xs hover:scale-105"
+              >
+                <FaInstagram size={14} />
+                <span>Instagram</span>
+              </a>
+            </div>
           </div>
         </div>
       </section>

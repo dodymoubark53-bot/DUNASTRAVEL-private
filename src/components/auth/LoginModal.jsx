@@ -1,12 +1,19 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTimes, FaEye, FaEyeSlash, FaUserCircle } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../ui/Button';
+import {
+  getPasswordValidationErrors,
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+} from '../../utils/passwordPolicy';
 
 const LoginModal = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [view, setView] = useState('login'); // 'login' | 'register'
   
   // Form State
@@ -69,8 +76,8 @@ const LoginModal = ({ isOpen, onClose }) => {
     setError('');
     setSuccess('');
     try {
-      await resendVerification(email);
-      setSuccess(t('auth.verificationResent', 'Verification email sent! Please check your inbox.'));
+      const response = await resendVerification(email);
+      setSuccess(response?.message || t('auth.verificationResent', 'Verification email sent! Please check your inbox.'));
       setShowResendBtn(false);
     } catch (err) {
       setError(err.message || t('auth.resendFailed', 'Failed to resend verification email'));
@@ -79,13 +86,18 @@ const LoginModal = ({ isOpen, onClose }) => {
     }
   };
 
-  // Password Complexity Metrics
-  const hasLength = password.length >= 8;
+  // Keep browser feedback aligned with the backend password policy.
+  const passwordErrors = getPasswordValidationErrors(password);
+  const hasLength = password.length >= PASSWORD_MIN_LENGTH && password.length <= PASSWORD_MAX_LENGTH;
   const hasUpper = /[A-Z]/.test(password);
   const hasLower = /[a-z]/.test(password);
   const hasDigit = /\d/.test(password);
-  const strengthScore = [hasLength, hasUpper, hasLower, hasDigit].filter(Boolean).length;
-  const isPasswordValid = hasLength && hasUpper && hasLower && hasDigit;
+  const hasSymbol = /[^A-Za-z0-9]/.test(password);
+  const hasThreeClasses = [hasUpper, hasLower, hasDigit, hasSymbol].filter(Boolean).length >= 3;
+  const isPredictable = passwordErrors.includes('predictable');
+  const hasRepeatedSequence = passwordErrors.includes('repeatedSequence');
+  const strengthScore = [hasLength, hasUpper, hasLower, hasDigit, hasSymbol].filter(Boolean).length;
+  const isPasswordValid = passwordErrors.length === 0;
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
@@ -97,7 +109,7 @@ const LoginModal = ({ isOpen, onClose }) => {
       return setError(t('auth.allFieldsRequired', 'All fields are required'));
     }
     if (!isPasswordValid) {
-      return setError(t('auth.passwordComplexityError', 'Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, and a number'));
+      return setError(t('auth.passwordComplexityError', 'Use 12–128 characters, at least three character types, and avoid predictable words or long repeated sequences.'));
     }
     if (password !== confirmPassword) {
       return setError(t('auth.passwordsDoNotMatch', 'Passwords do not match'));
@@ -108,15 +120,23 @@ const LoginModal = ({ isOpen, onClose }) => {
     
     setIsLoading(true);
     try {
-      await register(name, email, phone, password);
-      setSuccess(t('auth.accountCreatedSuccess', 'Account created successfully! Please log in.'));
-      // Switch back to login view but keep email filled
-      setTimeout(() => switchView('login'), 2000);
+      const account = await register(name, email, phone, password);
+      if (account?.isVerified === false) {
+        setSuccess(t('auth.accountCreatedVerification', 'Account created. Please enter the verification code sent to your email.'));
+        setTimeout(() => {
+          onClose();
+          window.location.assign(`/verify-email?email=${encodeURIComponent(email)}`);
+        }, 1200);
+      } else {
+        setSuccess(t('auth.accountCreatedSuccess', 'Account created successfully! Please log in.'));
+        setTimeout(() => switchView('login'), 2200);
+      }
     } catch (err_) {
-      if (err_.message.toLowerCase().includes('already exists') || err_.message.toLowerCase().includes('duplicate')) {
+      const message = err_?.message || t('common.errorOccurred', 'An error occurred');
+      if (message.toLowerCase().includes('already exists') || message.toLowerCase().includes('duplicate')) {
         setError(t('auth.emailInUse', 'This email is already in use'));
       } else {
-        setError(err_.message);
+        setError(message);
       }
     } finally {
       setIsLoading(false);
@@ -144,6 +164,17 @@ const LoginModal = ({ isOpen, onClose }) => {
             overflowY: 'auto'
           }}
         >
+          <style>{`
+            .auth-input:-webkit-autofill,
+            .auth-input:-webkit-autofill:hover,
+            .auth-input:-webkit-autofill:focus {
+              -webkit-text-fill-color: #fefcf7 !important;
+              caret-color: #fefcf7;
+              -webkit-box-shadow: 0 0 0 1000px #17151f inset !important;
+              box-shadow: 0 0 0 1000px #17151f inset !important;
+              transition: background-color 9999s ease-out 0s;
+            }
+          `}</style>
           <motion.div 
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -186,16 +217,28 @@ const LoginModal = ({ isOpen, onClose }) => {
               {/* Status Messages */}
               {error && (
                 <div className="mb-5 p-3.5 rounded-xl bg-red-500/15 border border-red-500/50 text-red-400 text-caption text-center space-y-2">
-                  <p>{error}</p>
+                  <p>{typeof error === 'object' && error !== null ? (error.message || String(error)) : error}</p>
                   {showResendBtn && (
-                    <button
-                      type="button"
-                      onClick={handleResendVerification}
-                      disabled={isResending}
-                      className="inline-block mt-1 px-3 py-1 rounded-lg bg-gold-500/20 text-gold-400 hover:bg-gold-500/30 text-xs font-semibold transition-all border border-gold-500/30"
-                    >
-                      {isResending ? t('common.loading', 'Sending...') : t('auth.resendVerificationBtn', 'Resend Verification Email')}
-                    </button>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-2 pt-2 border-t border-red-500/20">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onClose();
+                          window.location.assign(`/verify-email?email=${encodeURIComponent(email)}`);
+                        }}
+                        className="inline-block px-3 py-1 rounded-lg bg-gradient-to-r from-gold-500 to-gold-700 text-obsidian-900 text-xs font-bold uppercase tracking-wider"
+                      >
+                        {t('auth.enterOtpBtn', 'Enter Verification Code')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleResendVerification}
+                        disabled={isResending}
+                        className="inline-block px-3 py-1 rounded-lg bg-gold-500/10 text-gold-400 hover:bg-gold-500/20 text-xs font-semibold transition-all border border-gold-500/30"
+                      >
+                        {isResending ? t('common.loading', 'Sending...') : t('auth.resendVerificationBtn', 'Resend Code')}
+                      </button>
+                    </div>
                   )}
                 </div>
               )}
@@ -213,9 +256,11 @@ const LoginModal = ({ isOpen, onClose }) => {
                     <input 
                       type="email" 
                       required
+                      name="email"
+                      autoComplete="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-obsidian-900/50 border border-ivory-50/10 rounded-lg p-3 text-ivory-50 placeholder-ivory-300/50 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-all"
+                      className="auth-input w-full bg-obsidian-900/50 border border-ivory-50/10 rounded-lg p-3 text-ivory-50 placeholder-ivory-300/50 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-all"
                       placeholder={t('auth.emailPlaceholder', 'Enter your email')}
                     />
                   </div>
@@ -226,9 +271,11 @@ const LoginModal = ({ isOpen, onClose }) => {
                       <input 
                         type={showPassword ? "text" : "password"} 
                         required
+                        name="password"
+                        autoComplete="current-password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-obsidian-900/50 border border-ivory-50/10 rounded-lg p-3 text-ivory-50 placeholder-ivory-300/50 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-all"
+                        className="auth-input w-full bg-obsidian-900/50 border border-ivory-50/10 rounded-lg p-3 text-ivory-50 placeholder-ivory-300/50 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-all"
                         placeholder={t('auth.passwordPlaceholder', 'Enter your password')}
                       />
                       <button 
@@ -241,12 +288,12 @@ const LoginModal = ({ isOpen, onClose }) => {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between mt-2">
-                    <label className="flex items-center gap-2 cursor-pointer group">
-                      <input type="checkbox" className="w-4 h-4 rounded border-ivory-50/20 bg-transparent text-gold-500 focus:ring-gold-500 focus:ring-offset-obsidian-900 accent-gold-500" />
-                      <span className="text-caption text-ivory-300 group-hover:text-ivory-50 transition-colors">{t('auth.rememberMe', 'Remember me')}</span>
-                    </label>
-                    <button type="button" className="text-caption text-gold-500 hover:text-gold-300 transition-colors">
+                  <div className="flex justify-end mt-2">
+                    <button
+                      type="button"
+                      onClick={() => { onClose(); navigate('/forgot-password'); }}
+                      className="text-caption text-gold-500 hover:text-gold-300 transition-colors"
+                    >
                       {t('auth.forgotPassword', 'Forgot Password?')}
                     </button>
                   </div>
@@ -276,9 +323,11 @@ const LoginModal = ({ isOpen, onClose }) => {
                     <input 
                       type="text" 
                       required
+                      name="name"
+                      autoComplete="name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full bg-obsidian-900/50 border border-ivory-50/10 rounded-lg p-3 text-ivory-50 placeholder-ivory-300/50 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-all"
+                      className="auth-input w-full bg-obsidian-900/50 border border-ivory-50/10 rounded-lg p-3 text-ivory-50 placeholder-ivory-300/50 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-all"
                       placeholder={t('auth.fullNamePlaceholder', 'Enter your full name')}
                     />
                   </div>
@@ -288,9 +337,11 @@ const LoginModal = ({ isOpen, onClose }) => {
                     <input 
                       type="email" 
                       required
+                      name="email"
+                      autoComplete="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-obsidian-900/50 border border-ivory-50/10 rounded-lg p-3 text-ivory-50 placeholder-ivory-300/50 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-all"
+                      className="auth-input w-full bg-obsidian-900/50 border border-ivory-50/10 rounded-lg p-3 text-ivory-50 placeholder-ivory-300/50 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-all"
                       placeholder={t('auth.emailPlaceholder', 'Enter your email')}
                     />
                   </div>
@@ -300,9 +351,11 @@ const LoginModal = ({ isOpen, onClose }) => {
                     <input 
                       type="tel" 
                       required
+                      name="phone"
+                      autoComplete="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full bg-obsidian-900/50 border border-ivory-50/10 rounded-lg p-3 text-ivory-50 placeholder-ivory-300/50 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-all"
+                      className="auth-input w-full bg-obsidian-900/50 border border-ivory-50/10 rounded-lg p-3 text-ivory-50 placeholder-ivory-300/50 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-all"
                       placeholder={t('auth.phonePlaceholder', 'Enter your phone number')}
                     />
                   </div>
@@ -313,10 +366,14 @@ const LoginModal = ({ isOpen, onClose }) => {
                       <input 
                         type={showPassword ? "text" : "password"} 
                         required
+                        name="new-password"
+                        autoComplete="new-password"
+                        minLength={PASSWORD_MIN_LENGTH}
+                        maxLength={PASSWORD_MAX_LENGTH}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-obsidian-900/50 border border-ivory-50/10 rounded-lg p-3 text-ivory-50 placeholder-ivory-300/50 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-all"
-                        placeholder={t('auth.min8Chars', 'Min 8 characters')}
+                        className="auth-input w-full bg-obsidian-900/50 border border-ivory-50/10 rounded-lg p-3 text-ivory-50 placeholder-ivory-300/50 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-all"
+                        placeholder={t('auth.min12Chars', 'Min 12 characters')}
                       />
                       <button 
                         type="button"
@@ -333,24 +390,24 @@ const LoginModal = ({ isOpen, onClose }) => {
                         <div className="flex items-center justify-between mb-1.5">
                           <span className="text-[10px] text-ivory-400 font-medium">{t('auth.passwordStrength', 'Password Strength')}:</span>
                           <span className={`text-[10px] font-bold ${
-                            strengthScore === 4 ? 'text-emerald-400' :
-                            strengthScore >= 3 ? 'text-gold-400' :
+                            isPasswordValid ? 'text-emerald-400' :
+                            strengthScore >= 4 ? 'text-gold-400' :
                             strengthScore >= 2 ? 'text-amber-400' : 'text-rose-400'
                           }`}>
-                            {strengthScore === 4 ? t('auth.strengthStrong', 'Strong') :
-                             strengthScore >= 3 ? t('auth.strengthGood', 'Good') :
+                            {isPasswordValid ? t('auth.strengthStrong', 'Strong') :
+                             strengthScore >= 4 ? t('auth.strengthGood', 'Good') :
                              strengthScore >= 2 ? t('auth.strengthFair', 'Fair') : t('auth.strengthWeak', 'Weak')}
                           </span>
                         </div>
-                        <div className="grid grid-cols-4 gap-1 mb-2 h-1">
-                          {[1, 2, 3, 4].map((step) => (
+                        <div className="grid grid-cols-5 gap-1 mb-2 h-1">
+                          {[1, 2, 3, 4, 5].map((step) => (
                             <div
                               key={step}
                               className={`h-full rounded-full transition-all duration-300 ${
                                 step <= strengthScore
-                                  ? strengthScore === 4
+                                  ? isPasswordValid
                                     ? 'bg-emerald-400'
-                                    : strengthScore >= 3
+                                    : strengthScore >= 4
                                     ? 'bg-gold-400'
                                     : strengthScore >= 2
                                     ? 'bg-amber-400'
@@ -363,7 +420,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                         <div className="grid grid-cols-2 gap-1 text-[10px]">
                           <div className={`flex items-center gap-1 ${hasLength ? 'text-emerald-400 font-semibold' : 'text-ivory-400/60'}`}>
                             <span>{hasLength ? '✓' : '•'}</span>
-                            <span>{t('auth.ruleLength', '8+ characters')}</span>
+                            <span>{t('auth.ruleLength', '12–128 characters')}</span>
                           </div>
                           <div className={`flex items-center gap-1 ${hasUpper ? 'text-emerald-400 font-semibold' : 'text-ivory-400/60'}`}>
                             <span>{hasUpper ? '✓' : '•'}</span>
@@ -377,6 +434,17 @@ const LoginModal = ({ isOpen, onClose }) => {
                             <span>{hasDigit ? '✓' : '•'}</span>
                             <span>{t('auth.ruleDigit', 'Number (0-9)')}</span>
                           </div>
+                          <div className={`flex items-center gap-1 ${hasThreeClasses ? 'text-emerald-400 font-semibold' : 'text-ivory-400/60'}`}>
+                            <span>{hasThreeClasses ? '✓' : '•'}</span>
+                            <span>{t('auth.ruleClasses', 'Use 3 of 4 character types')}</span>
+                          </div>
+                          {(isPredictable || hasRepeatedSequence) && (
+                            <div className="col-span-2 text-rose-400">
+                              {isPredictable
+                                ? t('auth.rulePredictable', 'Avoid common or predictable words')
+                                : t('auth.ruleRepeated', 'Avoid repeating one character five times')}
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
@@ -388,9 +456,13 @@ const LoginModal = ({ isOpen, onClose }) => {
                       <input 
                         type={showConfirmPassword ? "text" : "password"} 
                         required
+                        name="confirm-password"
+                        autoComplete="new-password"
+                        minLength={PASSWORD_MIN_LENGTH}
+                        maxLength={PASSWORD_MAX_LENGTH}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full bg-obsidian-900/50 border border-ivory-50/10 rounded-lg p-3 text-ivory-50 placeholder-ivory-300/50 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-all"
+                        className="auth-input w-full bg-obsidian-900/50 border border-ivory-50/10 rounded-lg p-3 text-ivory-50 placeholder-ivory-300/50 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-all"
                         placeholder={t('auth.confirmPasswordPlaceholder', 'Confirm your password')}
                       />
                       <button 

@@ -15,11 +15,14 @@ import {
   FaBus,
   FaCheckCircle,
   FaBuilding,
-  FaMapMarkerAlt
+  FaMapMarkerAlt,
+  FaUserCheck,
+  FaShieldAlt
 } from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
-
-const API_BASE_URL = 'http://localhost:5000/api';
+import api from '../../utils/api';
+import { redirectToPayLinkCheckout } from '../../utils/paylink';
+import { useAuth } from '../../context/AuthContext';
 
 const inputStyle =
   'w-full p-3 rounded-xl outline-none transition-all text-[14px] bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-[rgba(201,162,39,0.5)] focus:shadow-[0_0_20px_rgba(201,162,39,0.1)] [color-scheme:dark]';
@@ -47,6 +50,7 @@ const LANGUAGES = [
 
 export default function TurkeySidebarBooking({ tourTitle, transportChoice, requireTransportChoice }) {
   const { t } = useTranslation();
+  const { user, resendVerification } = useAuth();
   const [tab, setTab] = useState('booking'); // 'booking' | 'inquiry'
   const [submitStatus, setSubmitStatus] = useState('idle'); // 'idle' | 'submitting' | 'success'
   const [openDropdown, setOpenDropdown] = useState(null); // 'booking' | 'inquiry' | null
@@ -55,6 +59,24 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
   const [submittedData, setSubmittedData] = useState(null);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isResendingOtp, setIsResendingOtp] = useState(false);
+  const [otpResentSuccess, setOtpResentSuccess] = useState('');
+
+  const handleResendOtpFromBooking = async () => {
+    if (!user?.email) return;
+    setIsResendingOtp(true);
+    setOtpResentSuccess('');
+    try {
+      if (typeof resendVerification === 'function') {
+        const res = await resendVerification(user.email);
+        setOtpResentSuccess(res?.message || t('auth.verificationResent', 'Verification code sent to your email!'));
+      }
+    } catch (err) {
+      setErrorMessage(err?.message || t('auth.resendFailed', 'Failed to resend verification code'));
+    } finally {
+      setIsResendingOtp(false);
+    }
+  };
 
   const langRef = useRef(null);
   const actRef = useRef(null);
@@ -83,10 +105,10 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
     adults: 1,
     children: 0,
     infants: 0,
-    fullName: '',
-    email: '',
-    phone: '',
-    invoiceType: 'personal',
+    fullName: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    invoiceType: 'PERSONAL',
     companyName: '',
     taxId: '',
     address: '',
@@ -98,10 +120,40 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
 
   const [passengerNames, setPassengerNames] = useState({});
 
+  // Restore booking intent if user was redirected to login
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const rawIntent = sessionStorage.getItem('dunas_pending_booking_intent');
+      if (rawIntent) {
+        const intent = JSON.parse(rawIntent);
+        if (intent?.tourTitle === tourTitle || intent?.tourId === tourTitle) {
+          if (intent.b) {
+            setBookingForm((prev) => ({
+              ...prev,
+              ...intent.b,
+              fullName: user?.name || intent.b.fullName || prev.fullName,
+              email: user?.email || intent.b.email || prev.email,
+              phone: user?.phone || intent.b.phone || prev.phone,
+            }));
+          }
+          if (intent.passengerNames) {
+            setPassengerNames(intent.passengerNames);
+          }
+          if (user && user.isVerified !== false) {
+            sessionStorage.removeItem('dunas_pending_booking_intent');
+          }
+        }
+      }
+    } catch {
+      sessionStorage.removeItem('dunas_pending_booking_intent');
+    }
+  }, [tourTitle, user]);
+
   const [inquiryForm, setInquiryForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
     language: '',
     message: ''
   });
@@ -135,6 +187,43 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
+
+    // Require authentication before submitting booking
+    if (!user) {
+      if (typeof window !== 'undefined') {
+        const draftIntent = {
+          tourId: tourTitle,
+          tourTitle,
+          transportChoice,
+          b: bookingForm,
+          passengerNames,
+          timestamp: Date.now(),
+        };
+        sessionStorage.setItem('dunas_pending_booking_intent', JSON.stringify(draftIntent));
+        const redirectUrl = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+        window.location.assign(redirectUrl);
+      }
+      return;
+    }
+
+    // Require real email verification before booking
+    if (user && user.isVerified === false) {
+      if (typeof window !== 'undefined') {
+        const draftIntent = {
+          tourId: tourTitle,
+          tourTitle,
+          transportChoice,
+          b: bookingForm,
+          passengerNames,
+          timestamp: Date.now(),
+        };
+        sessionStorage.setItem('dunas_pending_booking_intent', JSON.stringify(draftIntent));
+        const verifyUrl = `/verify-email?email=${encodeURIComponent(user.email)}`;
+        window.location.assign(verifyUrl);
+      }
+      return;
+    }
+
     if (requireTransportChoice && !transportChoice) {
       setShowTransportError(true);
       const el = document.getElementById('transport-selector');
@@ -147,13 +236,14 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
     try {
       const payload = {
         type: 'booking',
+        tourId: tourTitle,
         tourTitle,
         transportChoice: transportChoice || '',
         arrivalDate: bookingForm.arrivalDate,
         departureDate: bookingForm.departureDate,
         arrivalTime: bookingForm.arrivalTime,
         departureTime: bookingForm.departureTime,
-        language: bookingForm.language,
+        language: ['en', 'ar', 'es', 'pt', 'it'].includes(bookingForm.language?.toLowerCase()) ? bookingForm.language.toLowerCase() : 'en',
         activityType: bookingForm.activityType,
         adults: bookingForm.adults,
         children: bookingForm.children,
@@ -163,42 +253,58 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
         email: bookingForm.email,
         phone: bookingForm.phone,
         invoiceType: bookingForm.invoiceType,
-        companyName: bookingForm.companyName,
-        taxId: bookingForm.taxId,
-        address: bookingForm.address,
-        city: bookingForm.city,
-        country: bookingForm.country,
-        notes: bookingForm.notes
+        companyName: bookingForm.companyName || undefined,
+        taxId: bookingForm.taxId || undefined,
+        address: bookingForm.address || undefined,
+        city: bookingForm.city || undefined,
+        country: bookingForm.country || undefined,
+        notes: bookingForm.notes || undefined,
       };
 
-      let res;
-      try {
-        res = await fetch(`${API_BASE_URL}/bookings`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-      } catch (fetchErr) {
-        // Fallback for offline or local demo
-        console.warn('Backend endpoint unavailable, using mock response:', fetchErr);
+      const data = await api.post('/bookings', payload);
+      const tokenToSave = data?.guestToken || data?.data?.guestToken;
+      if (tokenToSave && typeof window !== 'undefined') {
+        localStorage.setItem('dunas_guest_token', tokenToSave);
       }
 
-      if (res && res.ok) {
-        const data = await res.json();
-        setSubmittedData(data);
-      } else {
-        // Fallback demo data
-        const mockResult = {
-          ...payload,
-          id: `TRK-${Math.floor(100000 + Math.random() * 900000)}`,
-          invoiceNumber: `INV-TRK-${Math.floor(1000 + Math.random() * 9000)}`,
-          createdAt: new Date().toISOString()
-        };
-        setSubmittedData(mockResult);
+      const bookingResultData = { ...data, type: 'booking' };
+      if ((data?.id || data?.referenceCode) && data?.paymentRequired !== false) {
+        try {
+          const readiness = await api.get('/payments/readiness');
+          if (readiness?.enabled && readiness?.configured) {
+            const targetId = data?.id || data?.data?.id;
+            if (targetId) {
+              const payData = await api.post('/payments/initiate', {
+                bookingId: targetId,
+                guestToken: tokenToSave || undefined,
+              });
+              const sessionUrl = payData?.sessionUrl || payData?.url;
+              if (sessionUrl) {
+                redirectToPayLinkCheckout(sessionUrl);
+                return;
+              }
+            }
+          } else {
+            bookingResultData.paymentUnavailable = true;
+            bookingResultData.paymentProvider = readiness?.provider || 'GETPAYIN';
+          }
+        } catch (payErr) {
+          console.error('Payment initiation failed', payErr);
+          bookingResultData.paymentUnavailable = true;
+          bookingResultData.paymentProvider = 'GETPAYIN';
+        }
       }
+
+      setSubmittedData(bookingResultData);
       setSubmitStatus('success');
     } catch (err) {
-      setErrorMessage(err.message || 'Failed to submit booking');
+      if (err.status === 409) {
+        setErrorMessage(t('booking.errorConflict', 'A booking conflict exists for the selected dates. Please adjust your itinerary.'));
+      } else if (err.status === 422) {
+        setErrorMessage(t('booking.errorValidation', 'Please verify passenger and date information before proceeding.'));
+      } else {
+        setErrorMessage(err.message || t('common.errorOccurred', 'Error processing request'));
+      }
       setSubmitStatus('idle');
     }
   };
@@ -210,39 +316,23 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
 
     try {
       const payload = {
-        type: 'inquiry',
-        tourTitle,
         fullName: inquiryForm.name,
         email: inquiryForm.email,
         phone: inquiryForm.phone,
-        language: inquiryForm.language,
-        inquiryMessage: inquiryForm.message
+        preferredLanguage: ['en', 'ar', 'es', 'pt', 'it'].includes(inquiryForm.language?.toLowerCase())
+          ? inquiryForm.language.toLowerCase()
+          : 'en',
+        destinations: [tourTitle || 'Turkey Experience'],
+        adults: 1,
+        children: 0,
+        notes: inquiryForm.message
       };
 
-      let res;
-      try {
-        res = await fetch(`${API_BASE_URL}/bookings`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-      } catch (err) {
-        console.warn('Backend endpoint unavailable:', err);
-      }
-
-      if (res && res.ok) {
-        const data = await res.json();
-        setSubmittedData(data);
-      } else {
-        setSubmittedData({
-          ...payload,
-          id: `INQ-${Math.floor(100000 + Math.random() * 900000)}`,
-          createdAt: new Date().toISOString()
-        });
-      }
+      const data = await api.post('/inquiries', payload);
+      setSubmittedData({ ...data, type: 'inquiry' });
       setSubmitStatus('success');
     } catch (err) {
-      setErrorMessage(err.message || 'Failed to submit inquiry');
+      setErrorMessage(err.message || t('common.errorOccurred', 'Error processing request'));
       setSubmitStatus('idle');
     }
   };
@@ -258,10 +348,12 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
             <FaCheck className="text-obsidian-900 text-xl" />
           </div>
           <h3 className="text-display-md text-ivory-50 mb-2 font-serif">
-            {t('booking.inquirySent', 'Inquiry Sent')}
+            {submittedData.type === 'booking' ? t('booking.created', 'Booking Created') : t('booking.inquirySent', 'Inquiry Sent')}
           </h3>
           <p className="text-body-sm text-ivory-400">
-            {t('booking.successDesc', 'Our team will contact you within 24 hours.')}
+            {submittedData.paymentUnavailable
+              ? t('payment.getPayInPending', 'Your booking is saved. Secure online payment will be available after GetPayIn activation; our team will contact you with the next step.')
+              : t('booking.successDesc', 'Our team will contact you within 24 hours.')}
           </p>
 
           {submittedData.type === 'booking' && submittedData.invoiceNumber && (
@@ -653,15 +745,15 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
                       onChange={(e) => updateBookingField('invoiceType', e.target.value)}
                       className={`${inputStyle} appearance-none cursor-pointer`}
                     >
-                      <option value="personal" className="bg-[#1a1a2e] text-ivory-50">
+                      <option value="PERSONAL" className="bg-[#1a1a2e] text-ivory-50">
                         {t('booking.personal', 'Personal')}
                       </option>
-                      <option value="company" className="bg-[#1a1a2e] text-ivory-50">
+                      <option value="COMPANY" className="bg-[#1a1a2e] text-ivory-50">
                         {t('booking.company', 'Company')}
                       </option>
                     </select>
 
-                    {bookingForm.invoiceType === 'company' && (
+                    {bookingForm.invoiceType === 'COMPANY' && (
                       <>
                         <input
                           id="company-name-input"
@@ -740,6 +832,50 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
                 </div>
               )}
 
+              {/* Unverified Email Warning Banner */}
+              {user && user.isVerified === false && (
+                <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-2 text-center">
+                  <div className="flex items-center justify-center gap-1.5 font-semibold text-gold-400">
+                    <FaShieldAlt />
+                    <span>{t('booking.emailVerificationRequired', 'Email Verification Required')}</span>
+                  </div>
+                  <p className="text-[11.5px] text-ivory-300/90 leading-relaxed">
+                    {t('booking.verifyEmailPrompt', 'Please confirm the 6-digit verification code sent to')} <strong className="text-gold-400 font-mono">{user.email}</strong> {t('booking.beforeBookingFinal', 'before confirming your reservation.')}
+                  </p>
+                  <div className="flex items-center justify-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const draftIntent = {
+                          tourId: tourTitle,
+                          tourTitle,
+                          transportChoice,
+                          b: bookingForm,
+                          passengerNames,
+                          timestamp: Date.now(),
+                        };
+                        sessionStorage.setItem('dunas_pending_booking_intent', JSON.stringify(draftIntent));
+                        window.location.assign(`/verify-email?email=${encodeURIComponent(user.email)}`);
+                      }}
+                      className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-gold-500 to-gold-700 text-obsidian-900 font-bold text-[11px] uppercase tracking-wider cursor-pointer"
+                    >
+                      {t('auth.enterOtpBtn', 'Enter Verification Code')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleResendOtpFromBooking}
+                      disabled={isResendingOtp}
+                      className="px-3 py-1.5 rounded-lg bg-gold-500/10 border border-gold-500/30 text-gold-400 hover:bg-gold-500/20 text-[11px] font-medium transition-all cursor-pointer"
+                    >
+                      {isResendingOtp ? t('common.loading', 'Sending...') : t('auth.resendCodeBtn', 'Resend Code')}
+                    </button>
+                  </div>
+                  {otpResentSuccess && (
+                    <p className="text-[11px] text-emerald-400 font-medium">{otpResentSuccess}</p>
+                  )}
+                </div>
+              )}
+
               {/* Submit Button */}
               <button
                 type="submit"
@@ -751,6 +887,16 @@ export default function TurkeySidebarBooking({ tourTitle, transportChoice, requi
                     <span className="w-4 h-4 border-2 border-obsidian-900 border-t-transparent rounded-full animate-spin" />
                     {t('common.sending', 'Sending...')}
                   </span>
+                ) : !user ? (
+                  <>
+                    <FaUserCheck size={13} />
+                    {t('booking.signInToBook', 'Sign in & Book')}
+                  </>
+                ) : user.isVerified === false ? (
+                  <>
+                    <FaShieldAlt size={13} />
+                    {t('booking.verifyEmailToBook', 'Verify Email & Book')}
+                  </>
                 ) : (
                   <>
                     <FaBookmark size={12} />

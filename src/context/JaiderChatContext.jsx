@@ -26,46 +26,40 @@ const _FALLBACK_MESSAGES = {
 
 const SUGGESTIONS = {
   en: [
-    "Recommend top Nile Cruise packages",
-    "Compare Egypt Classic and Historic Egypt",
-    "Design a 10-day custom luxury Egypt tour",
-    "What payment methods & deposit rules apply?",
-    "What is your cancellation & refund policy?"
+    "Recommend top 5-star Nile Cruise packages",
+    "Curate a 7-day luxury Cairo & Luxor itinerary",
+    "Design a bespoke family tour in Egypt",
+    "Compare Nile Dahabiya vs Grand Nile Cruiser"
   ],
   es: [
-    "Recomienda paquetes de Crucero por el Nilo",
-    "Compara Egipto Clásico e Histórico",
-    "Diseña un tour personalizado de 10 días en Egipto",
-    "¿Qué métodos de pago y anticipos aplican?",
-    "¿Cuál es su política de cancelación y reembolso?"
+    "Recomienda los mejores cruceros 5 estrellas por el Nilo",
+    "Diseña un itinerario de lujo de 7 días en El Cairo y Luxor",
+    "Organiza un viaje familiar exclusivo en Egipto",
+    "Compara Dahabiya privada vs Crucero de lujo por el Nilo"
   ],
   pt: [
-    "Recomende os melhores cruzeiros no Nilo",
-    "Compare Egito Clássico e Egito Histórico",
-    "Planeje um roteiro de luxo de 10 dias no Egito",
-    "Quais métodos de pagamento e sinal são aceitos?",
-    "Qual é a política de cancelamento e reembolso?"
+    "Recomende os melhores cruzeiros 5 estrelas no Nilo",
+    "Planeje um roteiro de luxo de 7 dias no Cairo e Luxor",
+    "Crie uma viagem personalizada para a família no Egito",
+    "Compare Dahabiya privativa vs Cruzeiro de luxo no Nilo"
   ],
   it: [
-    "Consigliami le migliori crociere sul Nilo",
-    "Confronta Egitto Classico ed Egitto Storico",
-    "Pianifica un tour di lusso su misura di 10 giorni",
-    "Quali metodi di pagamento e acconti accettate?",
-    "Qual è la vostra politica di cancellazione?"
+    "Consigliami le migliori crociere 5 stelle sul Nilo",
+    "Pianifica un tour di lusso di 7 giorni tra Il Cairo e Luxor",
+    "Organizza un viaggio su misura per famiglie in Egitto",
+    "Confronta Dahabiya privata vs Crociera di lusso sul Nilo"
   ],
   ar: [
-    "اقترح علي أفضل رحلات النايل كروز الفاخرة",
-    "قارن بين رحلة مصر الكلاسيكية ومصر التاريخية",
-    "صمم لي برنامج سياحي خاص 10 أيام في مصر",
-    "ما هي طرق الدفع وشروط الإيداع المعتمدة؟",
-    "ما هي سياسة الإلغاء والاسترداد المعتمدة؟"
+    "اقترح علي أفضل رحلات النايل كروز الفاخرة 5 نجوم",
+    "صمم لي برنامج سياحي 7 أيام بين القاهرة والأقصر",
+    "صمم رحلة عائلية فاخرة مخصصة في مصر",
+    "ما الفرق بين الإبحار بالدهبية النيلية الفاخرة والكروز الكبير؟"
   ],
   'ar-eg': [
-    "عايز أحسن رحلة نايل كروز فاخرة في مصر",
-    "قارن بين الرحلة الكلاسيكية والتاريخية",
-    "صمملي برنامج 10 أيام مخصص لعيلتي",
-    "إيه طرق الدفع ونسبة المقدم المطلوبة؟",
-    "إيه سياسة الإلغاء واسترداد الفلوس؟"
+    "عايز أحسن رحلة نايل كروز فاخرة 5 نجوم في مصر",
+    "صمملي برنامج 7 أيام ممتع وفخم في القاهرة والأقصر",
+    "عايز رحلة عائلية مميزة ومريحة لكل العيلة",
+    "إيه الفرق بين الدهبية النيلية الخاصة والكروز العادي؟"
   ]
 };
 
@@ -96,7 +90,14 @@ export const JaiderChatProvider = ({ children }) => {
 
   const [leadFormState, setLeadFormState] = useState({ required: false, fields: [] });
   const [handoffState, setHandoffState] = useState({ requested: false, status: null });
+  const [personas, setPersonas] = useState([]);
+  const [isInChatBookingEnabled, setIsInChatBookingEnabled] = useState(true);
+  const [selectedPersona, setSelectedPersona] = useState(() => {
+    if (typeof window === 'undefined') return 'luxury_concierge';
+    return localStorage.getItem('jaider_selected_persona') || 'luxury_concierge';
+  });
   const abortControllerRef = useRef(null);
+  const isSendingRef = useRef(false);
 
   const detectLanguage = (text) => {
     if (!text) return 'en';
@@ -107,6 +108,80 @@ export const JaiderChatProvider = ({ children }) => {
     return 'en';
   };
 
+  // Fetch active AI Personas and Chat Config
+  const fetchChatConfigAndPersonas = useCallback(async (lang) => {
+    try {
+      const [personasRes, configRes] = await Promise.all([
+        api.get(`/ai/chat/personas?locale=${lang || 'en'}`).catch(() => null),
+        api.get(`/ai/chat/config?locale=${lang || 'en'}`).catch(() => null),
+      ]);
+
+      if (Array.isArray(personasRes)) {
+        setPersonas(personasRes);
+      } else if (configRes && Array.isArray(configRes.personas)) {
+        setPersonas(configRes.personas);
+      }
+
+      if (configRes && configRes.salesPersonality) {
+        setSelectedPersona(configRes.salesPersonality);
+      }
+
+      if (configRes && typeof configRes.isInChatBookingEnabled === 'boolean') {
+        setIsInChatBookingEnabled(configRes.isInChatBookingEnabled);
+      }
+    } catch (err) {
+      console.warn('Could not fetch AI personas or config:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
+    fetchChatConfigAndPersonas(activeLang);
+  }, [i18n.language, fetchChatConfigAndPersonas]);
+
+  const changePersona = (personaCode) => {
+    if (!personaCode || personaCode === selectedPersona) return;
+    setSelectedPersona(personaCode);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('jaider_selected_persona', personaCode);
+    }
+  };
+
+  const sanitizeTours = (toursList) => {
+    if (!Array.isArray(toursList)) return [];
+    return toursList
+      .filter((t) => t && typeof t === 'object' && t.title)
+      .map((t) => ({
+        ...t,
+        price: 0,
+        basePriceUsd: 0,
+      }));
+  };
+
+  const sanitizeProposal = (p) => {
+    if (!p) return null;
+    return {
+      ...p,
+      estimatedPricePerPerson: 0,
+    };
+  };
+
+  const sanitizeComparison = (c) => {
+    if (!c) return null;
+    return {
+      ...c,
+      tours: Array.isArray(c.tours) ? c.tours.map((t) => ({ ...t, price: 0 })) : [],
+      differences: Array.isArray(c.differences)
+        ? c.differences.map((d) => {
+            if (d.aspect && (d.aspect.includes('سعر') || d.aspect.toLowerCase().includes('price'))) {
+              return { ...d, tourAValue: '$0 USD', tourBValue: '$0 USD' };
+            }
+            return d;
+          })
+        : c.differences,
+    };
+  };
+
   // Restore previous chat history from backend on initial mount
   const restoreConversationHistory = useCallback(async (currentSessionId) => {
     if (!currentSessionId) return;
@@ -115,17 +190,24 @@ export const JaiderChatProvider = ({ children }) => {
       const data = res;
       if (data && data.messages && data.messages.length > 0) {
         setConversationId(data.conversationId);
-        const mapped = data.messages.map((m) => ({
-          id: m.id,
-          sender: m.role === 'user' ? 'user' : (m.role === 'staff' ? 'staff' : 'jaider'),
-          text: m.content,
-          structuredContent: m.structuredContent,
-          timestamp: new Date(m.createdAt),
-          tours: m.tours,
-          sources: m.sources,
-          proposal: m.structuredContent?.proposal || null,
-          comparison: m.structuredContent?.comparison || null,
-        }));
+        const mapped = data.messages.map((m) => {
+          const rawTours = Array.isArray(m.tours) ? m.tours : (Array.isArray(m.structuredContent?.tours) ? m.structuredContent.tours : []);
+          const cleanTours = sanitizeTours(rawTours);
+
+          return {
+            id: m.id,
+            sender: m.role === 'user' ? 'user' : (m.role === 'staff' ? 'staff' : 'jaider'),
+            text: m.content,
+            structuredContent: m.structuredContent,
+            timestamp: new Date(m.createdAt),
+            tours: cleanTours,
+            destinations: m.destinations || m.structuredContent?.destinations || [],
+            sources: m.sources,
+            proposal: sanitizeProposal(m.proposal || m.structuredContent?.proposal || null),
+            comparison: sanitizeComparison(m.comparison || m.structuredContent?.comparison || null),
+            booking: m.structuredContent?.type === 'booking_confirmation' ? m.structuredContent.booking : null,
+          };
+        });
         setMessages(mapped);
         if (data.status === 'HANDED_OFF' || data.status === 'HUMAN_ACTIVE') {
           setHandoffState({ requested: true, status: data.status });
@@ -188,93 +270,413 @@ export const JaiderChatProvider = ({ children }) => {
     setIsStreaming(false);
   };
 
-  // Send message
+  // Send message with real SSE streaming + progressive tokens + cancellation + fallback
   const sendMessage = async (text) => {
-    if (!text.trim()) return;
+    if (!text || !text.trim() || isSendingRef.current) return;
+    const cleanText = text.trim();
+    isSendingRef.current = true;
 
     const userMsg = {
       id: `msg-${Date.now()}-user`,
       sender: 'user',
-      text,
-      timestamp: new Date()
+      text: cleanText,
+      timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMsg]);
+    setMessages((prev) => [...prev, userMsg]);
     setIsTyping(true);
-    abortControllerRef.current = new AbortController();
+    setIsStreaming(true);
+
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    const botMsgId = `msg-${Date.now()}-jaider`;
+    const initialBotMsg = {
+      id: botMsgId,
+      sender: 'jaider',
+      text: '',
+      timestamp: new Date(),
+      tours: [],
+      destinations: [],
+      sources: [],
+      suggestedReplies: [],
+      isStreaming: true,
+    };
+
+    // Add empty placeholder for progressive streaming
+    setMessages((prev) => [...prev, initialBotMsg]);
+
+    const activeLang = i18n.language || 'en';
+    const baseUrl = api.defaults?.baseURL || (typeof window !== 'undefined' ? '/api' : 'https://dunastravel-backend-seven.vercel.app/api');
+    const streamUrl = `${String(baseUrl).replace(/\/+$/, '')}/ai/chat/stream`;
+
+    let streamSucceeded = false;
+    let accumulatedText = '';
 
     try {
-      const response = await api.post('/ai/chat/message', {
-        message: text,
-        sessionId,
-        locale: i18n.language,
-        pageContext: {
-          pathname: typeof window !== 'undefined' ? window.location.pathname : '/'
-        }
-      }, {
-        signal: abortControllerRef.current.signal
+      const response = await fetch(streamUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: cleanText,
+          sessionId,
+          locale: activeLang,
+          personaCode: selectedPersona,
+          pageContext: {
+            pathname: typeof window !== 'undefined' ? window.location.pathname : '/',
+          },
+        }),
+        signal: abortController.signal,
       });
 
-      const data = response;
-      if (data?.conversationId) setConversationId(data.conversationId);
-
-      const assistantText = data?.message?.content || data?.text;
-      if (!assistantText) throw new Error('GuideR returned an invalid response');
-      const tours = data?.recommendations?.tours || [];
-      const destinations = data?.recommendations?.destinations || [];
-      const proposal = data?.recommendations?.proposal || data?.message?.structuredContent?.proposal || null;
-      const comparison = data?.recommendations?.comparison || data?.message?.structuredContent?.comparison || null;
-      const sources = data?.sources || [];
-      const suggestedReplies = data?.suggestedReplies || [];
-
-      if (data?.leadCapture?.required) {
-        setLeadFormState({ required: true, fields: data.leadCapture.fields });
+      if (!response.ok) {
+        throw new Error(`Stream HTTP error ${response.status}`);
       }
 
-      if (data?.handoff?.requested) {
-        setHandoffState({ requested: true, status: data.handoff.status });
+      if (!response.body) {
+        throw new Error('ReadableStream not supported');
       }
 
-      setMessages(prev => [
-        ...prev,
-        {
-          id: data?.message?.id || `msg-${Date.now()}-jaider`,
-          sender: 'jaider',
-          text: assistantText,
-          timestamp: new Date(),
-          tours,
-          destinations,
-          proposal,
-          comparison,
-          sources,
-          suggestedReplies,
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let buffer = '';
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const blocks = buffer.split('\n\n');
+        buffer = blocks.pop() || '';
+
+        for (const block of blocks) {
+          if (!block.trim()) continue;
+          let eventType = 'message';
+          let dataStr = '';
+
+          const lines = block.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('event: ')) {
+              eventType = line.slice(7).trim();
+            } else if (line.startsWith('data: ')) {
+              dataStr = line.slice(6).trim();
+            }
+          }
+
+          if (!dataStr) continue;
+
+          try {
+            const parsedData = JSON.parse(dataStr);
+
+            if (eventType === 'token' && parsedData.delta) {
+              streamSucceeded = true;
+              accumulatedText += parsedData.delta;
+              setMessages((prev) =>
+                prev.map((m) => (m.id === botMsgId ? { ...m, text: accumulatedText, isStreaming: true } : m)),
+              );
+            } else if (eventType === 'structured') {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === botMsgId
+                    ? {
+                        ...m,
+                        proposal: sanitizeProposal(parsedData.proposal || m.proposal),
+                        comparison: sanitizeComparison(parsedData.comparison || m.comparison),
+                        tours: sanitizeTours(parsedData.tours || m.tours),
+                      }
+                    : m,
+                ),
+              );
+            } else if (eventType === 'complete') {
+              streamSucceeded = true;
+              if (parsedData.conversationId) {
+                setConversationId(parsedData.conversationId);
+              }
+              const finalText = parsedData.message?.content || parsedData.text || accumulatedText;
+              const rawTours =
+                parsedData.recommendations?.tours || parsedData.message?.structuredContent?.tours || [];
+              const cleanTours = sanitizeTours(rawTours);
+              const destinations =
+                parsedData.recommendations?.destinations ||
+                parsedData.message?.structuredContent?.destinations ||
+                [];
+              const proposal = sanitizeProposal(
+                parsedData.recommendations?.proposal ||
+                parsedData.message?.structuredContent?.proposal ||
+                null
+              );
+              const comparison = sanitizeComparison(
+                parsedData.recommendations?.comparison ||
+                parsedData.message?.structuredContent?.comparison ||
+                null
+              );
+              const sources = parsedData.sources || [];
+              const suggestedReplies = parsedData.suggestedReplies || [];
+
+              if (parsedData.leadCapture?.required) {
+                setLeadFormState({ required: true, fields: parsedData.leadCapture.fields });
+              }
+              if (parsedData.handoff?.requested) {
+                setHandoffState({ requested: true, status: parsedData.handoff.status });
+              }
+
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === botMsgId
+                    ? {
+                        ...m,
+                        id: parsedData.message?.id || botMsgId,
+                        text: finalText,
+                        tours: cleanTours,
+                        destinations,
+                        proposal,
+                        comparison,
+                        sources,
+                        suggestedReplies,
+                        isStreaming: false,
+                        isError: false,
+                      }
+                    : m,
+                ),
+              );
+            } else if (eventType === 'error') {
+              throw new Error(parsedData.message || 'Stream processing failed');
+            }
+          } catch (jsonErr) {
+            // ignore non-json SSE frames
+          }
         }
-      ]);
+      }
     } catch (err) {
-      if (err?.name === 'CanceledError' || err?.message === 'canceled') {
-        console.log("GuideR generation aborted by traveler");
+      if (err.name === 'AbortError' || err.name === 'CanceledError' || err.message === 'canceled') {
+        // User aborted: keep what was streamed
+        setMessages((prev) =>
+          prev.map((m) => (m.id === botMsgId ? { ...m, isStreaming: false } : m)),
+        );
         return;
       }
-      console.warn("GuideR backend call failed:", err);
 
-      const userLang = detectLanguage(text);
-      const replyText = userLang === 'ar'
-        ? 'خدمة GuideR غير متاحة حاليًا. لم يتم إنشاء رد بديل؛ يرجى المحاولة مرة أخرى أو التواصل مع فريق الرحلات.'
-        : 'GuideR is currently unavailable. No substitute answer was generated; please try again or contact our travel team.';
+      // If stream didn't produce tokens, fallback to standard POST /ai/chat/message
+      if (!streamSucceeded || !accumulatedText) {
+        console.warn('GuideR SSE streaming failed, falling back to message endpoint:', err);
+        try {
+          const response = await api.post('/ai/chat/message', {
+            message: cleanText,
+            sessionId,
+            locale: activeLang,
+            personaCode: selectedPersona,
+            pageContext: {
+              pathname: typeof window !== 'undefined' ? window.location.pathname : '/',
+            },
+          });
 
-      setMessages(prev => [
-        ...prev,
-        {
-          id: `msg-${Date.now()}-jaider`,
-          sender: 'jaider',
-          text: replyText,
-          timestamp: new Date(),
+          const data = response;
+          if (data?.conversationId) setConversationId(data.conversationId);
+          const assistantText = data?.message?.content || data?.text;
+          const rawTours = data?.recommendations?.tours || data?.message?.structuredContent?.tours || [];
+          const cleanTours = sanitizeTours(rawTours);
+
+          if (data?.leadCapture?.required) {
+            setLeadFormState({ required: true, fields: data.leadCapture.fields });
+          }
+          if (data?.handoff?.requested) {
+            setHandoffState({ requested: true, status: data.handoff.status });
+          }
+
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === botMsgId
+                ? {
+                    ...m,
+                    id: data?.message?.id || botMsgId,
+                    text: assistantText,
+                    tours: cleanTours,
+                    destinations: data?.recommendations?.destinations || [],
+                    proposal: sanitizeProposal(data?.recommendations?.proposal || null),
+                    comparison: sanitizeComparison(data?.recommendations?.comparison || null),
+                    sources: data?.sources || [],
+                    suggestedReplies: data?.suggestedReplies || [],
+                    isStreaming: false,
+                    isError: false,
+                  }
+                : m,
+            ),
+          );
+        } catch (fallbackErr) {
+          console.error('GuideR standard message call also failed:', fallbackErr);
+          const isAr = (activeLang || '').startsWith('ar');
+          const replyText = isAr
+            ? 'عذراً، خدمة مستشار السفر الذكي غير متاحة حالياً. يرجى المحاولة مرة أخرى أو التواصل مباشرة مع فريق خدمة العملاء.'
+            : 'GuideR travel concierge is temporarily unavailable. Please try again or reach out to our senior travel advisors directly.';
+
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === botMsgId
+                ? {
+                    ...m,
+                    text: replyText,
+                    isError: true,
+                    failedMessageText: cleanText,
+                    isStreaming: false,
+                  }
+                : m,
+            ),
+          );
         }
-      ]);
+      } else {
+        // Stream received partial tokens but connection closed prematurely
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === botMsgId
+              ? {
+                  ...m,
+                  isStreaming: false,
+                  isInterrupted: true,
+                }
+              : m,
+          ),
+        );
+      }
     } finally {
       setIsTyping(false);
       setIsStreaming(false);
       abortControllerRef.current = null;
+      isSendingRef.current = false;
+    }
+  };
+
+  const bookTourInChat = async (bookingPayload) => {
+    try {
+      setIsTyping(true);
+      const res = await api.post('/ai/chat/book', {
+        sessionId,
+        locale: i18n.language,
+        ...bookingPayload,
+      });
+
+      if (res && res.referenceCode) {
+        const isAr = (i18n.language || '').startsWith('ar');
+        const confirmationMsg = {
+          id: `booking-conf-${Date.now()}`,
+          sender: 'jaider',
+          text: isAr
+            ? `🎉 تم تأكيد طلب حجزك بنجاح برقم مرجعي: **${res.referenceCode}**`
+            : `🎉 Booking reservation confirmed with Reference: **${res.referenceCode}**`,
+          timestamp: new Date(),
+          booking: res,
+          structuredContent: {
+            type: 'booking_confirmation',
+            booking: res,
+          },
+        };
+
+        setMessages((prev) => [...prev, confirmationMsg]);
+        return { success: true, booking: res };
+      }
+      return { success: false, error: 'Unexpected response from booking engine' };
+    } catch (err) {
+      console.error('In-chat booking failed:', err);
+      const isAr = (i18n.language || '').startsWith('ar');
+      const errorText = isAr
+        ? 'عذراً، حدث خطأ أثناء إتمام الحجز. يرجى مراجعة البيانات والمحاولة مجدداً أو التواصل مع خدمة العملاء.'
+        : 'Sorry, an error occurred while processing your booking. Please try again or reach out to customer support.';
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `booking-err-${Date.now()}`,
+          sender: 'jaider',
+          text: errorText,
+          timestamp: new Date(),
+          isError: true,
+        },
+      ]);
+      return { success: false, error: err.message };
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  const submitCustomTripInquiry = async (customTripData) => {
+    try {
+      setIsTyping(true);
+      const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
+      const validLang = ['en', 'ar', 'es', 'pt', 'it'].includes(activeLang) ? activeLang : 'en';
+
+      const payload = {
+        fullName: customTripData.fullName || 'Guest Traveler',
+        email: customTripData.email,
+        phone: customTripData.phone || 'N/A',
+        preferredLanguage: validLang,
+        destinations: Array.isArray(customTripData.destinations) && customTripData.destinations.length > 0
+          ? customTripData.destinations
+          : [customTripData.destination || 'Custom Egypt & Regional Tour'],
+        startDate: customTripData.startDate || null,
+        endDate: customTripData.endDate || null,
+        adults: parseInt(customTripData.adults, 10) || 2,
+        children: parseInt(customTripData.children, 10) || 0,
+        budgetAmount: customTripData.budgetAmount ? parseFloat(customTripData.budgetAmount) : undefined,
+        budgetCurrency: customTripData.budgetCurrency || 'USD',
+        notes: customTripData.notes || customTripData.itineraryTitle || 'Custom Itinerary requested via GuideR AI Concierge',
+      };
+
+      const res = await api.post('/inquiries', payload);
+      const refCode = res?.referenceCode || `INQ-${Date.now().toString(36).toUpperCase()}`;
+
+      const isAr = activeLang === 'ar';
+      const isEs = activeLang === 'es';
+      const isPt = activeLang === 'pt';
+      const isIt = activeLang === 'it';
+
+      let successText = `🎉 **تم استلام طلب رحلتك المخصصة بنجاح!**\n\nرقم الطلب المرجعي: **#${refCode}**\n\nتم إرسال تفاصيل برنامج رحلتك المخصصة فوراً إلى لوحة تحكم فريق خبراء دوناس ترافيل وتم ربطها بحسابك. سيتواصل معك مستشار السفر الخاص بك لتأكيد كافة الترتيبات الفاخرة.`;
+      if (isEs) {
+        successText = `🎉 **¡Hemos recibido tu solicitud de viaje personalizado con éxito!**\n\nNúmero de referencia: **#${refCode}**\n\nLos detalles de tu itinerario se han enviado a nuestro equipo y se han guardado en tu cuenta. Un asesor se comunicará contigo en breve.`;
+      } else if (isPt) {
+        successText = `🎉 **Recebemos seu pedido de viagem personalizada com sucesso!**\n\nCódigo de referência: **#${refCode}**\n\nOs detalhes foram enviados para nossos especialistas e salvos na sua conta. Um consultor entrará em contato em breve.`;
+      } else if (isIt) {
+        successText = `🎉 **La tua richiesta di viaggio personalizzato è stata ricevuta con successo!**\n\nCodice di riferimento: **#${refCode}**\n\nI dettagli dell'itinerario sono stati inviati ai nostri specialisti e registrati nel tuo account. Ti contatteremo al più presto.`;
+      } else if (!isAr) {
+        successText = `🎉 **Your custom trip request has been successfully received!**\n\nReference Code: **#${refCode}**\n\nYour customized itinerary details have been sent to our Dunas Travel specialists and registered to your account. Our senior travel concierge will contact you shortly.`;
+      }
+
+      const confirmationMsg = {
+        id: `custom-inq-conf-${Date.now()}`,
+        sender: 'jaider',
+        text: successText,
+        timestamp: new Date(),
+        customInquiry: {
+          referenceCode: refCode,
+          ...res,
+        },
+        structuredContent: {
+          type: 'custom_inquiry_confirmation',
+          referenceCode: refCode,
+          inquiry: res,
+        },
+      };
+
+      setMessages((prev) => [...prev, confirmationMsg]);
+      return { success: true, referenceCode: refCode, data: res };
+    } catch (err) {
+      console.error('Failed to submit custom trip inquiry:', err);
+      const isAr = (i18n.language || '').startsWith('ar');
+      const errorText = isAr
+        ? 'عذراً، حدث خطأ أثناء إرسال طلب الرحلة المخصصة. يرجى مراجعة البيانات والمحاولة مجدداً.'
+        : 'Sorry, an error occurred while submitting your custom trip request. Please check details and try again.';
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `custom-inq-err-${Date.now()}`,
+          sender: 'jaider',
+          text: errorText,
+          timestamp: new Date(),
+          isError: true,
+        },
+      ]);
+      return { success: false, error: err.message };
+    } finally {
+      setIsTyping(false);
     }
   };
 
@@ -396,6 +798,12 @@ export const JaiderChatProvider = ({ children }) => {
         loadingKnowledge: false,
         suggestions: getSuggestions(),
         detectLanguage,
+        personas,
+        selectedPersona,
+        changePersona,
+        bookTourInChat,
+        submitCustomTripInquiry,
+        isInChatBookingEnabled,
       }}
     >
       {children}

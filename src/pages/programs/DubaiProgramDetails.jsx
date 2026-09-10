@@ -23,6 +23,7 @@ import ReviewsMap from '../../components/tour/ReviewsMap';
 import TourCard from '../../components/tour/TourCard';
 import AdvancedBooking from '../../components/booking/AdvancedBooking';
 import SuggestedTours from '../../components/tour/SuggestedTours';
+import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -49,12 +50,20 @@ export default function DubaiProgramDetails() {
     const el = carouselRef.current;
     if (!el) return;
     const interval = setInterval(() => {
-      const itemWidth = (el.querySelector('.related-carousel-item')?.offsetWidth || 300) + 24;
-      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) {
-        el.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        el.scrollBy({ left: itemWidth, behavior: 'smooth' });
-      }
+      requestAnimationFrame(() => {
+        const item = el.querySelector('.related-carousel-item');
+        const itemWidth = (item ? item.offsetWidth : 300) + 24;
+        const currentScroll = el.scrollLeft;
+        const visibleWidth = el.clientWidth;
+        const totalWidth = el.scrollWidth;
+        const isEnd = currentScroll + visibleWidth >= totalWidth - 10;
+
+        if (isEnd) {
+          el.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          el.scrollBy({ left: itemWidth, behavior: 'smooth' });
+        }
+      });
     }, 3500);
     return () => clearInterval(interval);
   }, []);
@@ -88,10 +97,15 @@ export default function DubaiProgramDetails() {
         <meta name="description" content={overview} />
       </Helmet>
 
-      {/* Top Breadcrumb & Header */}
-      <section className="pt-32 pb-10 bg-obsidian-900 text-center px-6">
-        <div className="container mx-auto">
-          <div className="flex items-center justify-center gap-2 text-caption text-gold-500 mb-4 uppercase tracking-wider text-xs md:text-sm font-semibold">
+      {/* Luxury Hero Section */}
+      <LuxuryHeroSection
+        badge={t('dest.dubai.title', 'Dubai') + ' • ' + (code || duration)}
+        title={title}
+        subtitle={duration}
+        bgImage={images[activeImageIndex || 0] || images[0]}
+        onImageClick={() => setActiveImageIndex(0)}
+        breadcrumbs={
+          <div className="flex flex-wrap items-center justify-center gap-2 text-caption text-gold-400 mb-2 uppercase tracking-wider text-xs md:text-sm font-semibold">
             <Link to="/" className="hover:text-ivory-50 transition-colors underline-offset-4 hover:underline">
               {t('nav.home', 'Home')}
             </Link>
@@ -106,55 +120,10 @@ export default function DubaiProgramDetails() {
             </span>
             <span className="text-ivory-300 truncate max-w-[220px] md:max-w-none">{title}</span>
           </div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-display-xl text-ivory-50 mb-4"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {title}
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-body-lg text-gold-400 font-medium tracking-wide"
-          >
-            {code}
-          </motion.p>
-        </div>
-      </section>
-
-      {/* Main Hero Image */}
-      <section
-        className="relative w-full h-[50vh] lg:h-[70vh] overflow-hidden group cursor-pointer focus:outline-none focus:ring-2 focus:ring-gold-500"
-        onClick={() => setActiveImageIndex(0)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            setActiveImageIndex(0);
-          }
-        }}
-        tabIndex={0}
-        role="button"
-        aria-label={t('tour.clickGallery', 'Click to open gallery')}
-      >
-        <motion.img
-          initial={{ opacity: 0.8 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          src={images[activeImageIndex || 0] || images[0]}
-          alt={title}
-          className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
-          loading="eager"
-        />
-        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-        <div className="absolute bottom-6 right-6 bg-obsidian-900/80 backdrop-blur-md px-4 py-2 rounded-full text-ivory-50 text-caption border border-gold-500/20 text-xs font-medium">
-          {t('tour.clickGallery', 'Click to open gallery')}
-        </div>
-      </section>
+        }
+        primaryCta={null}
+        secondaryCta={null}
+      />
 
       {/* Key Stats Bar */}
       <div className="container mx-auto px-6 -mt-12 relative z-20">
@@ -510,24 +479,48 @@ export default function DubaiProgramDetails() {
                 className="grid grid-cols-1 md:grid-cols-2 gap-8"
               >
                 {includes && (
-                  <div className="bg-ivory-50 rounded-xl p-8 border border-gold-500/10">
-                    <h3 className="text-display-md text-2xl text-obsidian-900 mb-6 font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>
+                  <div className="bg-emerald-50/70 dark:bg-emerald-950/20 rounded-2xl p-6 md:p-8 border border-emerald-200/70 dark:border-emerald-800/40 shadow-sm">
+                    <h3 className="text-display-md text-2xl text-emerald-950 dark:text-emerald-300 mb-6 font-serif flex items-center gap-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                      <FaCheck className="text-emerald-600 dark:text-emerald-400" />
                       {t('tourDetail.included', 'What is Included')}
                     </h3>
-                    <p className="text-body-md text-obsidian-700 whitespace-pre-line leading-relaxed">
-                      {includes}
-                    </p>
+                    {Array.isArray(includes) ? (
+                      <ul className="space-y-3">
+                        {includes.map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-2 text-body-md text-emerald-900 dark:text-emerald-100">
+                            <FaCheck className="text-emerald-600 dark:text-emerald-400 mt-1 shrink-0 text-sm" />
+                            <span>{typeof item === 'object' ? (item[locale] || item.en || item.ar) : item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-body-md text-emerald-900 dark:text-emerald-100 whitespace-pre-line leading-relaxed">
+                        {typeof includes === 'string' ? includes : ''}
+                      </p>
+                    )}
                   </div>
                 )}
 
                 {excludes && (
-                  <div className="bg-ivory-50 rounded-xl p-8 border border-gold-500/10">
-                    <h3 className="text-display-md text-2xl text-obsidian-900 mb-6 font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>
+                  <div className="bg-rose-50/70 dark:bg-rose-950/20 rounded-2xl p-6 md:p-8 border border-rose-200/70 dark:border-rose-800/40 shadow-sm">
+                    <h3 className="text-display-md text-2xl text-rose-950 dark:text-rose-300 mb-6 font-serif flex items-center gap-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                      <FaTimes className="text-rose-600 dark:text-rose-400" />
                       {t('tourDetail.excluded', 'What is Excluded')}
                     </h3>
-                    <p className="text-body-md text-obsidian-700 whitespace-pre-line leading-relaxed">
-                      {excludes}
-                    </p>
+                    {Array.isArray(excludes) ? (
+                      <ul className="space-y-3">
+                        {excludes.map((item, idx) => (
+                          <li key={idx} className="flex items-start gap-2 text-body-md text-rose-900 dark:text-rose-100">
+                            <FaTimes className="text-rose-500 dark:text-rose-400 mt-1 shrink-0 text-sm" />
+                            <span>{typeof item === 'object' ? (item[locale] || item.en || item.ar) : item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-body-md text-rose-900 dark:text-rose-100 whitespace-pre-line leading-relaxed">
+                        {typeof excludes === 'string' ? excludes : ''}
+                      </p>
+                    )}
                   </div>
                 )}
               </motion.div>
